@@ -12,11 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TvAoVivoRouteImport } from './routes/tv-ao-vivo'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as PlaylistRouteImport } from './routes/playlist'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as FiltrosRouteImport } from './routes/filtros'
 import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SerieIdRouteImport } from './routes/serie.$id'
+import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 
 const TvAoVivoRoute = TvAoVivoRouteImport.update({
   id: '/tv-ao-vivo',
@@ -33,9 +37,19 @@ const PlaylistRoute = PlaylistRouteImport.update({
   path: '/playlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FiltrosRoute = FiltrosRouteImport.update({
+  id: '/filtros',
+  path: '/filtros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FilmesRoute = FilmesRouteImport.update({
@@ -58,26 +72,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SerieIdRoute = SerieIdRouteImport.update({
+  id: '/serie/$id',
+  path: '/serie/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DetalhesIdRoute = DetalhesIdRouteImport.update({
+  id: '/detalhes/$id',
+  path: '/detalhes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +117,14 @@ export interface FileRoutesById {
   '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/login': typeof LoginRoute
   '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +133,42 @@ export interface FileRouteTypes {
     | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
+    | '/login'
     | '/playlist'
     | '/series'
     | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
+    | '/login'
     | '/playlist'
     | '/series'
     | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   id:
     | '__root__'
     | '/'
     | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
+    | '/login'
     | '/playlist'
     | '/series'
     | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +176,14 @@ export interface RootRouteChildren {
   CanaisRoute: typeof CanaisRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FilmesRoute: typeof FilmesRoute
+  FiltrosRoute: typeof FiltrosRoute
   HomeRoute: typeof HomeRoute
+  LoginRoute: typeof LoginRoute
   PlaylistRoute: typeof PlaylistRoute
   SeriesRoute: typeof SeriesRoute
   TvAoVivoRoute: typeof TvAoVivoRoute
+  DetalhesIdRoute: typeof DetalhesIdRoute
+  SerieIdRoute: typeof SerieIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -157,11 +209,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaylistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/home': {
       id: '/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filtros': {
+      id: '/filtros'
+      path: '/filtros'
+      fullPath: '/filtros'
+      preLoaderRoute: typeof FiltrosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/filmes': {
@@ -192,6 +258,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/serie/$id': {
+      id: '/serie/$id'
+      path: '/serie/$id'
+      fullPath: '/serie/$id'
+      preLoaderRoute: typeof SerieIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/detalhes/$id': {
+      id: '/detalhes/$id'
+      path: '/detalhes/$id'
+      fullPath: '/detalhes/$id'
+      preLoaderRoute: typeof DetalhesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -200,10 +280,14 @@ const rootRouteChildren: RootRouteChildren = {
   CanaisRoute: CanaisRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   FilmesRoute: FilmesRoute,
+  FiltrosRoute: FiltrosRoute,
   HomeRoute: HomeRoute,
+  LoginRoute: LoginRoute,
   PlaylistRoute: PlaylistRoute,
   SeriesRoute: SeriesRoute,
   TvAoVivoRoute: TvAoVivoRoute,
+  DetalhesIdRoute: DetalhesIdRoute,
+  SerieIdRoute: SerieIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
