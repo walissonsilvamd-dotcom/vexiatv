@@ -1,8 +1,10 @@
 import { ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { PlaylistEpisode } from "../../lib/m3u";
 import { useProgress } from "../../lib/progress-store";
+import { useSettings } from "../../lib/settings-store";
 import { useTmdbSeason } from "../../lib/use-tmdb-season";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type Props = {
   seriesId: string;
@@ -14,17 +16,11 @@ type Props = {
   onSelect: (episode: PlaylistEpisode) => void;
 };
 
-const QUICK_KEY = "vexia:episode-quick-switch";
-
-function readQuick() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(QUICK_KEY) === "1";
-}
-
 function minutesLabel(min: number) {
   if (!min) return "";
   return min >= 60 ? `${Math.floor(min / 60)}h ${min % 60}min` : `${min} minutos`;
 }
+
 
 export function EpisodeCarousel({
   seriesId,
