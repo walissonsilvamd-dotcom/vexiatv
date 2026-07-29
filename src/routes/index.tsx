@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
 
 export const Route = createFileRoute("/")({
