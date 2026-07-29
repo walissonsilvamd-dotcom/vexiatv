@@ -19,13 +19,13 @@ export function PosterCard({
   const showPoster = !!item.poster && !broken;
 
   return (
-    <div className="relative">
+    <div className="group relative">
       <Link
         to={kind === "series" ? "/serie/$id" : "/detalhes/$id"}
         params={{ id: item.id }}
         data-nav-row={navRow}
         tabIndex={0}
-        className="vexia-focus block overflow-hidden rounded-lg border border-white/10 bg-vexia-card"
+        className="vexia-focus block overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgba(123,47,190,0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgba(0,200,255,0.25)]"
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
@@ -34,7 +34,7 @@ export function PosterCard({
               alt={item.title}
               loading="lazy"
               onError={() => setBroken(true)}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               style={{ objectPosition: item.posterPosition ?? "center" }}
             />
           ) : (
@@ -42,22 +42,28 @@ export function PosterCard({
               <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/35" />
+          {/* brilho espelhado */}
+          <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+          <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-vexia-purple/25 via-transparent to-transparent" />
           {item.rating > 0 ? (
-            <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[11px] font-bold text-vexia-gold">
+            <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-0.5 text-[11px] font-black text-vexia-gold backdrop-blur-md">
               <Star className="h-3 w-3 fill-current" aria-hidden />
               {item.rating.toFixed(1)}
             </span>
           ) : null}
           {progress != null ? (
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-white/15">
-              <div className="h-full bg-vexia-purple" style={{ width: `${progress}%` }} />
+            <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
+              <div
+                className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgba(123,47,190,0.8)]"
+                style={{ width: `${progress}%` }}
+              />
             </div>
           ) : null}
         </div>
-        <div className="space-y-0.5 p-2">
-          <p className="truncate text-xs font-bold text-vexia-text">{item.title}</p>
-          <p className="truncate text-[11px] text-vexia-cyan">
+        <div className="space-y-0.5 border-t border-white/5 p-2.5">
+          <p className="truncate text-xs font-extrabold text-vexia-text">{item.title}</p>
+          <p className="truncate text-[11px] font-medium text-vexia-cyan/80">
             {item.year ? item.year : item.genres[0]}
             {item.seasons ? ` • ${item.seasons} temp.` : ""}
           </p>
@@ -67,16 +73,21 @@ export function PosterCard({
         type="button"
         onClick={() => setFav((f) => !f)}
         aria-label={fav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-        className="absolute left-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/70"
+        className={`absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition-all ${
+          fav
+            ? "border-vexia-purple/60 bg-vexia-purple/80 shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+            : "border-white/15 bg-black/60 hover:border-vexia-cyan/60"
+        }`}
       >
         <Heart
-          className={`h-3.5 w-3.5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
+          className={`h-3.5 w-3.5 ${fav ? "fill-current text-white" : "text-vexia-cyan"}`}
           aria-hidden
         />
       </button>
     </div>
   );
 }
+
 
 export function PosterGrid({
   items,
@@ -120,7 +131,7 @@ export function LoadMore({
         data-nav-row={navRow}
         tabIndex={0}
         onClick={onClick}
-        className="vexia-focus rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
+        className="vexia-focus rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-9 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_28px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_34px_-8px_rgba(123,47,190,1)]"
       >
         {label}
       </button>
