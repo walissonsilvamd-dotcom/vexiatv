@@ -78,6 +78,8 @@ function parseInWorker(
       const msg = event.data;
       if (msg.type === "stage") {
         onEvent?.({ stage: msg.stage, counts: msg.counts });
+      } else if (msg.type === "progress") {
+        onEvent?.({ stage: msg.stage, ratio: msg.ratio });
       } else if (msg.type === "done") {
         worker.terminate();
         resolve(msg.data);
