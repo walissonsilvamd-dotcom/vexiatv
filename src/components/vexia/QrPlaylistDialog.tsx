@@ -50,19 +50,11 @@ export function QrPlaylistDialog({
 
   if (!open) return null;
 
-  const submit = async () => {
+  const submit = () => {
     if (!url.trim()) return;
     const finalName = name.trim() || "Minha Lista IPTV";
-    const ok = await loadFromUrl(url.trim(), finalName);
-    if (ok) {
-      setDone(true);
-      setTimeout(() => {
-        setDone(false);
-        setName("");
-        setUrl("");
-        onClose();
-      }, 1400);
-    }
+    onClose();
+    void navigate({ to: "/carregando", search: { url: url.trim(), name: finalName } });
   };
 
   const isLoading = loading || done;
