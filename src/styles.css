@@ -233,3 +233,47 @@ body {
   border-radius: 9999px;
   background: var(--vexia-purple);
 }
+
+/* ── Tela de carregamento da lista (anel de energia VÉXIA) ── */
+@keyframes vexia-ring-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes vexia-ring-spin-rev {
+  to { transform: rotate(-360deg); }
+}
+@keyframes vexia-loader-breathe {
+  0%, 100% { opacity: 0.35; transform: scale(0.96); }
+  50% { opacity: 0.75; transform: scale(1.04); }
+}
+@keyframes vexia-logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 14px color-mix(in oklab, var(--vexia-purple) 70%, transparent));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 26px color-mix(in oklab, var(--vexia-cyan) 65%, transparent));
+  }
+}
+.vexia-loader-ring {
+  border: 2px solid transparent;
+  border-top-color: var(--vexia-purple);
+  border-right-color: var(--vexia-cyan);
+  animation: vexia-ring-spin 2.6s linear infinite;
+  box-shadow: 0 0 26px -6px var(--vexia-purple);
+}
+.vexia-loader-ring-2 {
+  border: 1px dashed color-mix(in oklab, var(--vexia-cyan) 55%, transparent);
+  animation: vexia-ring-spin-rev 5s linear infinite;
+}
+.vexia-loader-pulse {
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--vexia-purple) 40%, transparent) 0%,
+    transparent 70%
+  );
+  animation: vexia-loader-breathe 2.4s ease-in-out infinite;
+}
+.vexia-loader-logo {
+  animation: vexia-logo-pulse 2.6s ease-in-out infinite;
+}

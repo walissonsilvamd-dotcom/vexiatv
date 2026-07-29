@@ -56,17 +56,14 @@ function ListsPage() {
     return "";
   };
 
-  const submit = async () => {
+  const submit = () => {
     const finalUrl = buildUrl();
     if (!finalUrl) return;
-    const ok = await loadFromUrl(finalUrl, name.trim() || undefined);
-    if (ok) {
-      setDone(true);
-      setTimeout(() => {
-        setForm(false);
-        setDone(false);
-      }, 1200);
-    }
+    setForm(false);
+    void navigate({
+      to: "/carregando",
+      search: { url: finalUrl, name: name.trim() || undefined },
+    });
   };
 
   return (

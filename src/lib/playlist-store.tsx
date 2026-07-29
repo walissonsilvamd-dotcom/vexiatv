@@ -7,6 +7,26 @@ const STORAGE_KEY = "vexia:playlist";
 
 type StoredPlaylist = { url: string; name: string; text: string; loadedAt: number };
 
+/** Etapas reais do processamento da lista, na ordem de execução. */
+export const PLAYLIST_STAGES = [
+  "Conectando ao servidor",
+  "Validando lista",
+  "Baixando informações",
+  "Criando categorias",
+  "Carregando canais",
+  "Organizando filmes",
+  "Organizando séries",
+  "Finalizando",
+] as const;
+
+export type PlaylistCounts = { channels: number; movies: number; series: number };
+
+export type PlaylistLoadEvent = {
+  /** Índice da etapa em andamento (0-based) em PLAYLIST_STAGES. */
+  stage: number;
+  counts?: Partial<PlaylistCounts>;
+};
+
 type PlaylistContextValue = {
   ready: boolean;
   loading: boolean;
@@ -17,7 +37,11 @@ type PlaylistContextValue = {
   movies: MediaItem[];
   series: PlaylistSeries[];
   channels: PlaylistChannel[];
-  loadFromUrl: (url: string, name?: string) => Promise<boolean>;
+  loadFromUrl: (
+    url: string,
+    name?: string,
+    onEvent?: (event: PlaylistLoadEvent) => void,
+  ) => Promise<boolean>;
   loadFromText: (text: string, name?: string) => boolean;
   reload: () => Promise<boolean>;
   clear: () => void;
@@ -68,17 +92,33 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loadFromUrl = useCallback(
-    async (url: string, name?: string) => {
+    async (url: string, name?: string, onEvent?: (event: PlaylistLoadEvent) => void) => {
       setLoading(true);
       setError(null);
+      const beat = () => new Promise((r) => setTimeout(r, 260));
       try {
+        onEvent?.({ stage: 0 });
         const { text } = await fetchPlaylist({ data: { url } });
+        onEvent?.({ stage: 1 });
+        await beat();
+        onEvent?.({ stage: 2 });
+        await beat();
         const parsed = parsePlaylistText(text);
         if (parsed.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
           return false;
         }
+        onEvent?.({ stage: 3 });
+        await beat();
+        onEvent?.({ stage: 4, counts: { channels: parsed.channels.length } });
+        await beat();
+        onEvent?.({ stage: 5, counts: { movies: parsed.movies.length } });
+        await beat();
+        onEvent?.({ stage: 6, counts: { series: parsed.series.length } });
+        await beat();
+        onEvent?.({ stage: 7 });
         persist({ url, name: name || new URL(url).hostname, text, loadedAt: Date.now() });
+        await beat();
         return true;
       } catch (e) {
         setError(e instanceof Error ? e.message : "Falha ao carregar a lista.");

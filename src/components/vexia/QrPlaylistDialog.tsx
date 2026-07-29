@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DEVICE_MAC } from "../../data/vexia-catalog";
@@ -18,7 +19,8 @@ export function QrPlaylistDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { loadFromUrl, loading, error, source } = usePlaylist();
+  const navigate = useNavigate();
+  const { loading, error } = usePlaylist();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [done, setDone] = useState(false);
@@ -50,19 +52,11 @@ export function QrPlaylistDialog({
 
   if (!open) return null;
 
-  const submit = async () => {
+  const submit = () => {
     if (!url.trim()) return;
     const finalName = name.trim() || "Minha Lista IPTV";
-    const ok = await loadFromUrl(url.trim(), finalName);
-    if (ok) {
-      setDone(true);
-      setTimeout(() => {
-        setDone(false);
-        setName("");
-        setUrl("");
-        onClose();
-      }, 1400);
-    }
+    onClose();
+    void navigate({ to: "/carregando", search: { url: url.trim(), name: finalName } });
   };
 
   const isLoading = loading || done;
