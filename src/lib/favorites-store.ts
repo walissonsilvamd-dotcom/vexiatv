@@ -23,6 +23,7 @@ export type Favorite = {
 };
 
 const KEY = "vexia:favorites";
+const EMPTY: Favorite[] = [];
 const LEGACY_CHANNELS = "vexia:fav-channels";
 
 /** Normaliza nomes para matching: remove emojis, HD/FHD/4K e acentos. */
@@ -117,7 +118,7 @@ export function isFavorite(kind: FavoriteKind, name: string) {
 
 /** Hook reativo com a lista completa de favoritos. */
 export function useFavorites() {
-  const favorites = useSyncExternalStore(subscribe, read, () => [] as Favorite[]);
+  const favorites = useSyncExternalStore(subscribe, read, () => EMPTY);
   const has = useCallback(
     (kind: FavoriteKind, name: string) => favorites.some((f) => f.key === favKey(kind, name)),
     [favorites],
