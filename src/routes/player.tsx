@@ -125,12 +125,23 @@ function PlayerPage() {
     if (!video || !src) return;
     let destroyed = false;
     let hls: { destroy: () => void } | null = null;
+    let retries = 0;
+    let backoff: ReturnType<typeof setTimeout> | undefined;
 
     const isHls = /\.m3u8(\?|$)/i.test(src) || /\.ts(\?|$)/i.test(src);
     const nativeHls = video.canPlayType("application/vnd.apple.mpegurl") !== "";
 
+    const fail = (message: string, detail?: string) => {
+      if (destroyed) return;
+      setReconnecting(false);
+      setBuffering(false);
+      setFatalError({ message, detail });
+    };
+
     async function attach() {
       if (!video) return;
+      setFatalError(null);
+      setBuffering(true);
       if (isHls && !nativeHls) {
         const { default: Hls } = await import("hls.js");
         if (destroyed || !video) return;
@@ -144,24 +155,68 @@ function PlayerPage() {
           instance.attachMedia(video);
           instance.on(Hls.Events.ERROR, (_e, data) => {
             if (!data.fatal) return;
+            if (retries >= MAX_RETRIES) {
+              instance.destroy();
+              fail(
+                data.type === Hls.ErrorTypes.NETWORK_ERROR
+                  ? "Falha de conexão com o servidor da lista"
+                  : "Não foi possível decodificar este stream",
+                `${data.type}${data.details ? ` • ${data.details}` : ""}`,
+              );
+              return;
+            }
+            retries += 1;
+            setAttempt(retries);
             setReconnecting(true);
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
-            else instance.recoverMediaError();
-            window.setTimeout(() => setReconnecting(false), 2500);
+            backoff = setTimeout(
+              () => {
+                if (destroyed) return;
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
+                else instance.recoverMediaError();
+                setReconnecting(false);
+              },
+              Math.min(6000, 1200 * retries),
+            );
           });
           hls = instance;
           return;
         }
+        fail("Este dispositivo não suporta a reprodução deste formato");
+        return;
       }
       video.src = src;
+      video.load();
     }
+
+    const onNativeError = () => {
+      if (retries >= MAX_RETRIES) {
+        fail("Não foi possível carregar o stream", video.error?.message || undefined);
+        return;
+      }
+      retries += 1;
+      setAttempt(retries);
+      setReconnecting(true);
+      backoff = setTimeout(
+        () => {
+          if (destroyed || !video) return;
+          video.load();
+          void video.play().catch(() => undefined);
+          setReconnecting(false);
+        },
+        Math.min(6000, 1200 * retries),
+      );
+    };
+    video.addEventListener("error", onNativeError);
 
     void attach();
     return () => {
       destroyed = true;
+      clearTimeout(backoff);
+      video.removeEventListener("error", onNativeError);
       hls?.destroy();
     };
-  }, [src, type]);
+  }, [src, type, retryNonce]);
+
 
   /* ── Eventos do vídeo ── */
   useEffect(() => {
