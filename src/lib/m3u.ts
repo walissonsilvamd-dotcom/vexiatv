@@ -1,5 +1,6 @@
 import type { MediaItem } from "../data/vexia";
 import { detectAudio } from "./filters-store";
+import { stableId } from "./stable-id";
 
 export type M3UEntry = {
   name: string;
@@ -185,11 +186,11 @@ export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
   const channels: PlaylistChannel[] = [];
   const seriesMap = new Map<string, PlaylistSeries>();
 
-  entries.forEach((entry, index) => {
+  entries.forEach((entry) => {
     const kind = classify(entry);
 
     if (kind === "movie") {
-      movies.push(toMedia(entry, `m3u-mv-${slug(entry.name)}-${index}`));
+      movies.push(toMedia(entry, stableId("mv", entry.name, entry.url)));
       return;
     }
 
@@ -203,7 +204,7 @@ export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
       let serie = seriesMap.get(key);
       if (!serie) {
         serie = {
-          ...toMedia(entry, `m3u-sr-${slug(base)}`),
+          ...toMedia(entry, stableId("sr", base, entry.group)),
           title: base,
           seasons: 0,
           episodes: 0,
@@ -212,7 +213,7 @@ export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
         seriesMap.set(key, serie);
       }
       serie.episodesList.push({
-        id: `${serie.id}-s${season}-e${number}`,
+        id: stableId("ep", serie.id, entry.url),
         season,
         number,
         title: entry.name,
@@ -225,7 +226,7 @@ export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
     }
 
     channels.push({
-      id: `m3u-ch-${slug(entry.name)}-${index}`,
+      id: stableId("ch", entry.name, entry.url),
       name: entry.name,
       category: entry.group,
       group: entry.group,
