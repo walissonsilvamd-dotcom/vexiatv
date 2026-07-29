@@ -2,7 +2,9 @@ import { ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PlaylistEpisode } from "../../lib/m3u";
 import { useProgress } from "../../lib/progress-store";
+import { useSettings } from "../../lib/settings-store";
 import { useTmdbSeason } from "../../lib/use-tmdb-season";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type Props = {
   seriesId: string;
@@ -14,17 +16,11 @@ type Props = {
   onSelect: (episode: PlaylistEpisode) => void;
 };
 
-const QUICK_KEY = "vexia:episode-quick-switch";
-
-function readQuick() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(QUICK_KEY) === "1";
-}
-
 function minutesLabel(min: number) {
   if (!min) return "";
   return min >= 60 ? `${Math.floor(min / 60)}h ${min % 60}min` : `${min} minutos`;
 }
+
 
 export function EpisodeCarousel({
   seriesId,
@@ -41,12 +37,14 @@ export function EpisodeCarousel({
   );
   const currentEpisode = episodes.find((e) => e.id === currentEpisodeId);
   const [season, setSeason] = useState<number>(currentEpisode?.season ?? seasons[0] ?? 1);
-  const [quickSwitch, setQuickSwitch] = useState(false);
   const [pending, setPending] = useState<PlaylistEpisode | null>(null);
+  const [dontAsk, setDontAsk] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => setQuickSwitch(readQuick()), []);
+  const { settings, toggle, set } = useSettings();
+  const quickSwitch = settings.episodeQuickSwitch;
+
   useEffect(() => {
     if (currentEpisode) setSeason(currentEpisode.season);
   }, [currentEpisode?.season]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -70,16 +68,21 @@ export function EpisodeCarousel({
   const choose = (episode: PlaylistEpisode) => {
     if (episode.id === currentEpisodeId) return;
     if (quickSwitch) onSelect(episode);
-    else setPending(episode);
+    else {
+      setDontAsk(false);
+      setPending(episode);
+    }
   };
 
-  const toggleQuick = () => {
-    setQuickSwitch((v) => {
-      const next = !v;
-      window.localStorage.setItem(QUICK_KEY, next ? "1" : "0");
-      return next;
-    });
+  const confirmPending = () => {
+    const target = pending;
+    setPending(null);
+    if (dontAsk) set("episodeQuickSwitch", true);
+    if (target) onSelect(target);
   };
+
+  const toggleQuick = () => toggle("episodeQuickSwitch");
+
 
   return (
     <section className="bg-[#050505] px-5 pb-10 pt-6 md:px-10">
@@ -241,39 +244,42 @@ export function EpisodeCarousel({
         </div>
       ) : null}
 
-      {/* Confirmação de troca */}
-      {pending ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6">
-          <div className="w-full max-w-sm rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f] p-5 text-center">
-            <p className="text-sm font-bold text-white">Reproduzir episódio?</p>
-            <p className="mt-1 text-xs text-vexia-cyan">
-              T{pending.season} • EP {String(pending.number).padStart(2, "0")} —{" "}
-              {byNumber.get(pending.number)?.name || pending.title}
-            </p>
-            <div className="mt-4 flex justify-center gap-3">
-              <button
-                type="button"
-                autoFocus
-                onClick={() => {
-                  const target = pending;
-                  setPending(null);
-                  onSelect(target);
-                }}
-                className="vexia-focus rounded-full bg-vexia-purple px-5 py-2 text-xs font-bold text-white"
-              >
-                REPRODUZIR
-              </button>
-              <button
-                type="button"
-                onClick={() => setPending(null)}
-                className="vexia-focus rounded-full border border-white/20 px-5 py-2 text-xs font-bold text-white"
-              >
-                CANCELAR
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Confirmação de troca de episódio */}
+      <ConfirmDialog
+        open={!!pending}
+        title="Trocar de episódio?"
+        message={
+          pending
+            ? `T${pending.season} • EP ${String(pending.number).padStart(2, "0")} — ${
+                byNumber.get(pending.number)?.name || pending.title
+              }`
+            : undefined
+        }
+        confirmLabel="REPRODUZIR"
+        onConfirm={confirmPending}
+        onCancel={() => setPending(null)}
+      >
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={dontAsk}
+          onClick={() => setDontAsk((v) => !v)}
+          className="vexia-focus mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-[11px] font-semibold text-[#B0B0B0]"
+        >
+          <span
+            className={`grid h-4 w-4 place-items-center rounded border text-[10px] ${
+              dontAsk
+                ? "border-vexia-purple bg-vexia-purple text-white"
+                : "border-white/25 text-transparent"
+            }`}
+            aria-hidden
+          >
+            ✓
+          </span>
+          Não perguntar novamente (troca imediata)
+        </button>
+      </ConfirmDialog>
+
     </section>
   );
 }

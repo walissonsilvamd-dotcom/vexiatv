@@ -32,6 +32,8 @@ export type VexiaSettings = {
   quality: Quality;
   player: PlayerMode;
   autoPlay: boolean;
+  /** Troca de episódio sem pedir confirmação. */
+  episodeQuickSwitch: boolean;
   autoUpdate: boolean;
   timeFormat: TimeFormat;
   // Legendas
@@ -52,6 +54,7 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   quality: "auto",
   player: "internal",
   autoPlay: true,
+  episodeQuickSwitch: false,
   autoUpdate: true,
   timeFormat: "24h",
   subtitlesEnabled: false,
