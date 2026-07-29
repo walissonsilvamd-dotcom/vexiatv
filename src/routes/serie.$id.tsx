@@ -29,7 +29,9 @@ function EpisodesPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { series } = usePlaylist();
-  const serie = series.find((s) => s.id === id);
+  const raw = series.find((s) => s.id === id);
+  const { data: enriched } = useTmdbItem(raw ?? null, "series");
+  const serie = enriched ?? raw;
 
   const seasons = useMemo(() => {
     if (!serie) return [];
