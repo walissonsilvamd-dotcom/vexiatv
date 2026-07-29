@@ -131,7 +131,7 @@ export function LoadMore({
         data-nav-row={navRow}
         tabIndex={0}
         onClick={onClick}
-        className="vexia-focus rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
+        className="vexia-focus rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-9 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_28px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_34px_-8px_rgba(123,47,190,1)]"
       >
         {label}
       </button>
