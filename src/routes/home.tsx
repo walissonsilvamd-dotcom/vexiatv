@@ -288,6 +288,27 @@ function HomePage() {
         ) : null}
       </section>
 
+      {/* Continuar assistindo (histórico local) */}
+      {continueList.length > 0 ? (
+        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+          <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
+            Continuar assistindo
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {continueList.map((entry) => (
+              <WatchCard
+                key={entry.key}
+                entry={entry}
+                compact
+                onOpen={() => openWatch(entry)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+
+
 
       {/* Menu de blocos */}
       <nav
