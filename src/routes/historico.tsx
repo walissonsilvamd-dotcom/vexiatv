@@ -11,6 +11,7 @@ import {
 } from "../components/vexia/WatchCard";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { clearCompleted, useWatchHistory, type WatchKind } from "../lib/history-store";
+import { clearProgress } from "../lib/progress-store";
 
 export const Route = createFileRoute("/historico")({
   head: () => ({
@@ -177,7 +178,11 @@ function HistoryPage() {
                   entry={entry}
                   navRow={2}
                   onOpen={() => open(entry)}
-                  onRemove={() => remove(entry.key)}
+                  onRemove={() => {
+                    remove(entry.key);
+                    clearProgress(entry.liveId ?? entry.id);
+                    if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
+                  }}
                 />
               ))}
             </div>
