@@ -22,8 +22,14 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
-import { saveProgress, useProgress } from "../lib/progress-store";
-import { completeWatch, recordWatch, type WatchKind } from "../lib/history-store";
+import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
+import {
+  completeWatch,
+  historyKey,
+  recordWatch,
+  removeWatch,
+  type WatchKind,
+} from "../lib/history-store";
 
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
@@ -560,6 +566,19 @@ function PlayerPage() {
                 DO INÍCIO
               </button>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                clearProgress(progressKey);
+                const meta = watchMetaRef.current;
+                if (meta?.name) removeWatch(historyKey(meta.kind, meta.name));
+                if (videoRef.current) videoRef.current.currentTime = 0;
+                setResumeAsk(false);
+              }}
+              className="vexia-focus mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-vexia-text/60 transition-colors hover:text-red-400"
+            >
+              <Trash2 className="h-3.5 w-3.5" aria-hidden /> REMOVER DO HISTÓRICO
+            </button>
           </div>
         </div>
       ) : null}
