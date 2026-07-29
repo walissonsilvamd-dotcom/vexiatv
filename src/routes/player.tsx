@@ -15,6 +15,7 @@ import {
   SkipBack,
   SkipForward,
   RotateCcw,
+  Trash2,
   Volume2,
   VolumeX,
   WifiOff,
