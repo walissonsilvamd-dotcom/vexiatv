@@ -24,6 +24,7 @@ import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
 import { useContinueWatching } from "../lib/history-store";
 import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
+import { DiscoverRows } from "../components/vexia/DiscoverRows";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -179,8 +180,9 @@ function HomePage() {
   };
 
   return (
-    <main
-      className="relative flex h-screen w-full flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+    <main className="relative bg-vexia-bg text-vexia-text">
+    <section
+      className="relative flex h-screen w-full flex-col overflow-hidden"
       onKeyDown={(e) => {
         if (e.key === "ArrowRight") {
           e.preventDefault();
@@ -412,6 +414,10 @@ function HomePage() {
       </footer>
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+    </section>
+
+      {/* Carrosséis premium de descoberta (M3U + TMDB) */}
+      <DiscoverRows />
     </main>
   );
 }

@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, Clock, Search, Undo2 } from "lucide-react";
+import { ChevronDown, Clock, Search, SlidersHorizontal, Undo2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
+import { matchesFilters, useFilters } from "../../lib/filters-store";
+import { useTmdbHeroes } from "../../lib/use-tmdb";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
 import { QrPlaylistDialog } from "./QrPlaylistDialog";
@@ -29,6 +31,7 @@ export function CatalogScreen({
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
+  const { filters, active: activeFilters } = useFilters();
 
   const noun = kind === "series" ? "séries" : "filmes";
 
@@ -50,7 +53,16 @@ export function CatalogScreen({
     );
   }, [items, category, query]);
 
-  const visible = filtered.slice(0, limit);
+  // Filtros inteligentes: enriquece a página atual com TMDB antes de aplicar.
+  const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
+  const enriched = useTmdbHeroes(activeFilters > 0 ? page : [], kind);
+  const visible = useMemo(
+    () =>
+      activeFilters === 0
+        ? page
+        : enriched.filter((item) => matchesFilters(item, kind, filters)),
+    [activeFilters, page, enriched, filters, kind],
+  );
   const hasContent = items.length > 0;
 
   return (
@@ -86,6 +98,22 @@ export function CatalogScreen({
             className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
           />
         </label>
+
+        <Link
+          to="/filtros"
+          data-nav-row={0}
+          tabIndex={0}
+          aria-label="Abrir filtros"
+          className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-[11px] font-bold text-vexia-cyan backdrop-blur-xl"
+        >
+          <SlidersHorizontal className="h-4 w-4" aria-hidden />
+          FILTROS
+          {activeFilters > 0 ? (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-vexia-purple px-1 text-[10px] font-black text-white">
+              {activeFilters}
+            </span>
+          ) : null}
+        </Link>
 
         <div className="ml-auto">
           <VexiaLogo className="h-12" />

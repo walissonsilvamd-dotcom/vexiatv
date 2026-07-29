@@ -35,6 +35,8 @@ type TmdbMovieDetails = {
   poster_path: string | null;
   backdrop_path: string | null;
   genres: TmdbGenre[];
+  production_countries?: { iso_3166_1: string }[];
+  origin_country?: string[];
   credits?: { cast: TmdbCast[]; crew: TmdbCrew[] };
 };
 
@@ -51,6 +53,8 @@ type TmdbTvDetails = {
   poster_path: string | null;
   backdrop_path: string | null;
   genres: TmdbGenre[];
+  production_countries?: { iso_3166_1: string }[];
+  origin_country?: string[];
   credits?: { cast: TmdbCast[]; crew: TmdbCrew[] };
 };
 
@@ -78,7 +82,15 @@ export function normalizeTmdb(
   const year = isMovie
     ? Number(movie.release_date?.slice(0, 4)) || 0
     : Number(tv.first_air_date?.slice(0, 4)) || 0;
-  const runtime = isMovie ? runtimeLabel(movie.runtime) : "";
+  const runtimeMin = isMovie ? movie.runtime || 0 : (tv.episode_run_time?.[0] ?? 0);
+  const runtime = runtimeLabel(runtimeMin);
+  const releaseDate = isMovie ? movie.release_date : tv.first_air_date;
+  const countries = Array.from(
+    new Set([
+      ...(details.production_countries?.map((c) => c.iso_3166_1) ?? []),
+      ...(details.origin_country ?? []),
+    ]),
+  );
   const seasons = isMovie ? undefined : tv.number_of_seasons;
   const episodes = isMovie ? undefined : tv.number_of_episodes;
 
@@ -98,6 +110,9 @@ export function normalizeTmdb(
     genres: details.genres?.map((g) => g.name) ?? [],
     overview: details.overview ?? "",
     runtime,
+    runtimeMin,
+    releaseDate,
+    countries,
     seasons,
     episodes,
     cast,

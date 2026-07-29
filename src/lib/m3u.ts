@@ -1,4 +1,5 @@
 import type { MediaItem } from "../data/vexia";
+import { detectAudio } from "./filters-store";
 
 export type M3UEntry = {
   name: string;
@@ -153,6 +154,8 @@ function toMedia(entry: M3UEntry, id: string): MediaItem {
     year: yearOf(entry.name),
     rating: 0,
     genres: [entry.group],
+    category: entry.group,
+    audio: detectAudio(`${entry.name} ${entry.group}`),
     overview: "",
     backdrop: entry.logo,
     poster: entry.logo,
