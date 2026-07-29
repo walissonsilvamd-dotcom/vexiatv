@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
+import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { SLOGAN } from "../data/vexia-catalog";
 
 export const Route = createFileRoute("/")({
