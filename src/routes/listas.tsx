@@ -7,6 +7,8 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { usePlaylist } from "../lib/playlist-store";
 
+import { TopNav } from "../components/vexia/TopNav";
+
 export const Route = createFileRoute("/listas")({
   head: () => ({
     meta: [
@@ -78,6 +80,8 @@ function ListsPage() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/85" />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-[4vw] py-6">
+        <TopNav className="w-fit" />
+
         {/* Cabeçalho */}
         <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4">
           <button

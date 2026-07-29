@@ -49,6 +49,8 @@ type Item =
   | { kind: "toggle"; icon: LucideIcon; label: string; sub: (v: string) => string; key: "hideCategories" | "hideVod" | "hideSeries" | "autoUpdate" }
   | { kind: "action"; icon: LucideIcon; label: string; sub: string; dialog: Exclude<Dialog, null> };
 
+import { TopNav } from "../components/vexia/TopNav";
+
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({
     meta: [
@@ -200,6 +202,9 @@ function SettingsPage() {
 
   return (
     <main className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+      <div className="px-[4vw] pt-5">
+        <TopNav active="Ajustes" className="w-fit" />
+      </div>
       <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-[4vw] py-6">
         <button
           type="button"
