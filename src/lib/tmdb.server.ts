@@ -236,3 +236,85 @@ async function fetchTmdb(
   return normalizeTmdb(details, kind);
 }
 
+
+/* ── Episódios de temporada (thumbnail, sinopse, duração, nota) ── */
+export type TmdbEpisode = {
+  number: number;
+  name: string;
+  overview: string;
+  still: string;
+  runtimeMin: number;
+  airDate: string;
+  rating: number;
+};
+
+const seasonCache = new Map<string, { value: TmdbEpisode[]; at: number }>();
+const seasonInflight = new Map<string, Promise<TmdbEpisode[]>>();
+
+export async function fetchSeasonEpisodes(
+  credential: string,
+  title: string,
+  year: number | undefined,
+  season: number,
+  language: string,
+): Promise<TmdbEpisode[]> {
+  const key = `season|${language}|${slug(title)}|${year || ""}|${season}`;
+  const cached = seasonCache.get(key);
+  if (cached && Date.now() - cached.at < SERVER_TTL) return cached.value;
+  const running = seasonInflight.get(key);
+  if (running) return running;
+
+  const promise = (async () => {
+    try {
+      const isBearer = credential.split(".").length === 3;
+      const headers: Record<string, string> = {
+        "User-Agent": "VEXIA TV/1.0",
+        accept: "application/json",
+      };
+      if (isBearer) headers.Authorization = `Bearer ${credential}`;
+      const auth = isBearer ? "" : `api_key=${credential}&`;
+
+      const searchUrl = `${TMDB_BASE}/search/tv?${auth}query=${encodeURIComponent(title)}&language=${language}${year ? `&first_air_date_year=${year}` : ""}`;
+      const searchRes = await fetch(searchUrl, { headers });
+      if (!searchRes.ok) return [];
+      const searchJson = (await searchRes.json()) as { results?: TmdbSearchResult[] };
+      const match = pickBestMatch(searchJson.results ?? [], title, year);
+      if (!match) return [];
+
+      const seasonUrl = `${TMDB_BASE}/tv/${match.id}/season/${season}?${auth}language=${language}`;
+      const res = await fetch(seasonUrl, { headers });
+      if (!res.ok) return [];
+      const json = (await res.json()) as {
+        episodes?: {
+          episode_number: number;
+          name?: string;
+          overview?: string;
+          still_path?: string | null;
+          runtime?: number | null;
+          air_date?: string;
+          vote_average?: number;
+        }[];
+      };
+      const list: TmdbEpisode[] = (json.episodes ?? []).map((e) => ({
+        number: e.episode_number,
+        name: e.name ?? "",
+        overview: e.overview ?? "",
+        still: tmdbImageUrl(e.still_path, "w300"),
+        runtimeMin: e.runtime ?? 0,
+        airDate: e.air_date ?? "",
+        rating: e.vote_average ?? 0,
+      }));
+      if (seasonCache.size >= SERVER_MAX) {
+        const oldest = seasonCache.keys().next().value;
+        if (oldest) seasonCache.delete(oldest);
+      }
+      seasonCache.set(key, { value: list, at: Date.now() });
+      return list;
+    } finally {
+      seasonInflight.delete(key);
+    }
+  })();
+
+  seasonInflight.set(key, promise);
+  return promise;
+}

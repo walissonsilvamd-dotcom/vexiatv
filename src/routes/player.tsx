@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
+import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
@@ -84,6 +85,7 @@ function PlayerPage() {
   const { movies, series, channels } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastTap = useRef(0);
   const watchMetaRef = useRef<{ kind: WatchKind; name: string } | null>(null);
@@ -96,6 +98,7 @@ function PlayerPage() {
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
+  const menuOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [subtitle, setSubtitle] = useState("Desligada");
@@ -391,7 +394,33 @@ function PlayerPage() {
         retryStream();
         return;
       }
+      // Foco dentro do carrossel: setas navegam entre episódios.
+      const inCarousel =
+        !!carouselRef.current &&
+        carouselRef.current.contains(document.activeElement) &&
+        document.activeElement !== document.body;
+      if (inCarousel) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          e.preventDefault();
+          const cards = Array.from(
+            carouselRef.current!.querySelectorAll<HTMLButtonElement>("button[aria-current]"),
+          );
+          const i = cards.indexOf(document.activeElement as HTMLButtonElement);
+          const next = cards[i + (e.key === "ArrowRight" ? 1 : -1)];
+          next?.focus();
+          next?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          (document.activeElement as HTMLElement).blur();
+          shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (e.key === "Enter" || e.key === " ") return;
+      }
       switch (e.key) {
+
         case " ":
         case "Enter":
         case "MediaPlayPause":
@@ -408,7 +437,15 @@ function PlayerPage() {
           setMenu((m) => (m ? null : "quality"));
           break;
         case "ArrowDown":
-          setMenu(null);
+          if (menuOpenRef.current) {
+            setMenu(null);
+            break;
+          }
+          if (carouselRef.current) {
+            e.preventDefault();
+            carouselRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            carouselRef.current.querySelector<HTMLButtonElement>('button[aria-current="true"]')?.focus();
+          }
           break;
         case "Backspace":
         case "Escape":
@@ -421,6 +458,10 @@ function PlayerPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
+
+  useEffect(() => {
+    menuOpenRef.current = menu !== null;
+  }, [menu]);
 
   const applySpeed = (value: number) => {
     setSpeed(value);
@@ -454,11 +495,16 @@ function PlayerPage() {
     ? "opacity-100"
     : "pointer-events-none opacity-0";
 
+  const showEpisodes = type === "series" && episodes.length > 1;
+
   return (
     <main
-      ref={shellRef}
-      className="relative h-screen w-screen overflow-hidden bg-vexia-bg font-sans text-white"
+      className={`min-h-screen w-full bg-vexia-bg font-sans text-white ${showEpisodes ? "overflow-y-auto" : "h-screen overflow-hidden"}`}
     >
+      <div
+        ref={shellRef}
+        className={`relative w-full overflow-hidden bg-black ${showEpisodes ? "h-[62vh] min-h-[320px]" : "h-screen"}`}
+      >
       {/* ── Superfície do vídeo ── */}
       <video
         ref={videoRef}
@@ -468,6 +514,7 @@ function PlayerPage() {
         muted={muted}
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
+
 
       {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -866,6 +913,25 @@ function PlayerPage() {
           </div>
         ) : null}
       </section>
+      </div>
+
+      {showEpisodes && serie ? (
+        <div ref={carouselRef}>
+          <EpisodeCarousel
+            seriesId={id}
+            seriesTitle={serie.title}
+            seriesYear={serie.year || undefined}
+            seriesPoster={serie.poster}
+            episodes={episodes}
+            currentEpisodeId={episode?.id}
+            onSelect={(next) => {
+              navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
+              shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          />
+        </div>
+      ) : null}
     </main>
+
   );
 }
