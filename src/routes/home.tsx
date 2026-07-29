@@ -65,8 +65,8 @@ function HomePage() {
       />
 
       <div className="relative mx-auto max-w-[1600px] px-6 py-6 md:px-12">
-        <header className="flex flex-wrap items-center justify-between gap-6">
-          <VexiaLogo className="h-16" />
+        <header className="flex flex-wrap items-center justify-between gap-6 py-3">
+          <VexiaLogo className="h-20" />
           <TopMenu navRow={0} onAction={handleAction} />
         </header>
 
