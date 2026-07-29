@@ -13,6 +13,7 @@ import { useMemo, useRef, useState } from "react";
 import { PosterCard } from "../components/vexia/PosterGrid";
 import { TopNav } from "../components/vexia/TopNav";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
+import type { PlaylistEpisode, PlaylistSeries } from "../lib/m3u";
 import { usePlaylist } from "../lib/playlist-store";
 import { isWatched, saveProgress, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
