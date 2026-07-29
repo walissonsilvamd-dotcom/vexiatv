@@ -8,6 +8,7 @@ import {
   useOpenWatch,
   useResolvedHistory,
   WatchCard,
+  type ResolvedWatch,
 } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
