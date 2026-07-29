@@ -212,7 +212,7 @@ function HomePage() {
               onClick={() => openTile(tile)}
               className={`group relative flex h-[14vh] min-h-[118px] w-[10.5vw] min-w-[118px] flex-col items-center justify-center gap-[1.2vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "-translate-y-[0.6vh] scale-[1.06] border-vexia-cyan/70 bg-gradient-to-b from-vexia-purple to-[#3a0f78] shadow-[0_0_0_2px_var(--vexia-cyan)/40,0_18px_46px_-10px_var(--vexia-purple)]"
+                  ? "-translate-y-[0.6vh] scale-[1.06] border-vexia-cyan/70 bg-gradient-to-b from-vexia-purple to-[#3a0f78] shadow-[0_18px_46px_-10px_var(--vexia-purple),0_0_26px_-6px_var(--vexia-cyan)]"
                   : "border-white/10 bg-gradient-to-b from-[#241A6B]/70 to-[#120b38]/80 hover:border-vexia-cyan/40 hover:from-[#2c208a]/80"
               }`}
             >
