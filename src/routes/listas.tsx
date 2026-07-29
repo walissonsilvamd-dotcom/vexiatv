@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
-import splashAsset from "../assets/splash-clean.jpeg.asset.json";
+import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { usePlaylist } from "../lib/playlist-store";
@@ -67,10 +67,10 @@ function ListsPage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-vexia-bg text-vexia-text">
       <img
-        src={splashAsset.url}
+        src={nebulaAsset.url}
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70"
       />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/85" />
 
