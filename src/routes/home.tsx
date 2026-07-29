@@ -199,7 +199,7 @@ function HomePage() {
 
       {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
       <header className="relative z-10 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-[3vw] px-[5vw] pt-[3vh]">
-        <VexiaLogo className="h-[11vh] max-h-[120px] min-h-[64px] w-auto" />
+        <VexiaLogo className="h-[14vh] max-h-[160px] min-h-[80px] w-auto" />
 
         <div
           key={`meta-${HERO.title}`}
