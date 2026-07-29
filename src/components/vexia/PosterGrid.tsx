@@ -76,7 +76,7 @@ export function PosterCard({
       </Link>
       <button
         type="button"
-        onClick={() => setFav((f) => !f)}
+        onClick={() => toggle(mediaFavorite({ ...item, poster: active.poster, rating: active.rating, year: active.year }, kind))}
         aria-label={fav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         className={`absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition-all ${
           fav
