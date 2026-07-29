@@ -14,10 +14,11 @@ import {
   Tv,
   type LucideIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { usePlaylist } from "../lib/playlist-store";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -37,14 +38,26 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
-const HERO = {
-  title: "A ODISSEIA",
-  year: 2026,
-  release: "2026-07-15 (US GB)",
-  genres: ["AVENTURA", "AÇÃO", "FANTASIA"],
-  runtime: "2H 52M",
-  votes: 8,
-  stars: 8,
+type Hero = {
+  title: string;
+  year: number;
+  release: string;
+  genres: string[];
+  runtime: string;
+  votes: number;
+  stars: number;
+  image: string;
+};
+
+const FALLBACK_HERO: Hero = {
+  title: "CARREGUE SUA LISTA",
+  year: new Date().getFullYear(),
+  release: "Menu LISTAS",
+  genres: ["CANAIS", "FILMES", "SÉRIES"],
+  runtime: "M3U / M3U8",
+  votes: 0,
+  stars: 0,
+  image: heroAsset.url,
 };
 
 type Tile = { label: string; icon: LucideIcon; to?: string; action?: "reload" | "lists" };
@@ -64,6 +77,36 @@ function HomePage() {
   const rowRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
+  const { movies, series, channels, hasContent } = usePlaylist();
+
+  // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
+  const slides = useMemo<Hero[]>(() => {
+    const pool = [...movies, ...series]
+      .map((m) => ({ m, image: m.backdrop || m.poster }))
+      .filter((x) => !!x.image)
+      .slice(0, 40);
+    const step = Math.max(1, Math.floor(pool.length / 8));
+    const picked = pool.filter((_, i) => i % step === 0).slice(0, 8);
+    return (picked.length ? picked : pool.slice(0, 8)).map(({ m, image }) => ({
+      title: m.title.toUpperCase(),
+      year: m.year,
+      release: m.genres[0] ?? "LISTA M3U",
+      genres: m.genres.slice(0, 3).map((g) => g.toUpperCase()),
+      runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
+      votes: m.rating,
+      stars: Math.round(m.rating),
+      image: image as string,
+    }));
+  }, [movies, series]);
+
+  const [slide, setSlide] = useState(0);
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const id = setInterval(() => setSlide((s) => (s + 1) % slides.length), 8000);
+    return () => clearInterval(id);
+  }, [slides.length]);
+
+  const HERO = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
 
   const focusTile = (i: number) => {
     const next = (i + TILES.length) % TILES.length;
@@ -92,11 +135,10 @@ function HomePage() {
       }}
     >
       <img
-        src={heroAsset.url}
-        alt="A Odisseia (2026)"
-        width={1920}
-        height={1088}
-        className="absolute inset-0 h-full w-full object-cover"
+        key={HERO.image}
+        src={HERO.image}
+        alt={HERO.title}
+        className="absolute inset-0 h-full w-full object-cover animate-[vexia-fade-in_700ms_ease-out]"
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
@@ -143,6 +185,12 @@ function HomePage() {
           ))}
           <span className="ml-1 text-[clamp(0.9rem,1.8vw,1.7rem)] font-bold">({HERO.votes})</span>
         </div>
+
+        <p className="mt-3 text-[clamp(0.6rem,0.9vw,0.9rem)] font-semibold tracking-wide text-vexia-cyan">
+          {hasContent
+            ? `${channels.length} canais · ${movies.length} filmes · ${series.length} séries na sua lista`
+            : "Abra LISTAS e carregue sua lista M3U para preencher o app"}
+        </p>
       </div>
 
       {/* Menu de blocos */}

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, Star } from "lucide-react";
+import { Heart, ImageOff, Star } from "lucide-react";
 import { useState } from "react";
 import type { MediaItem } from "../../data/vexia";
 
@@ -7,35 +7,48 @@ export function PosterCard({
   item,
   navRow,
   progress,
+  kind = "movie",
 }: {
   item: MediaItem;
   navRow: number;
   progress?: number;
+  kind?: "movie" | "series";
 }) {
   const [fav, setFav] = useState(false);
+  const [broken, setBroken] = useState(false);
+  const showPoster = !!item.poster && !broken;
 
   return (
     <div className="relative">
       <Link
-        to="/detalhes/$id"
+        to={kind === "series" ? "/serie/$id" : "/detalhes/$id"}
         params={{ id: item.id }}
         data-nav-row={navRow}
         tabIndex={0}
         className="vexia-focus block overflow-hidden rounded-lg border border-white/10 bg-vexia-card"
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden">
-          <img
-            src={item.poster}
-            alt={item.title}
-            loading="lazy"
-            className="h-full w-full object-cover"
-            style={{ objectPosition: item.posterPosition ?? "center" }}
-          />
+          {showPoster ? (
+            <img
+              src={item.poster}
+              alt={item.title}
+              loading="lazy"
+              onError={() => setBroken(true)}
+              className="h-full w-full object-cover"
+              style={{ objectPosition: item.posterPosition ?? "center" }}
+            />
+          ) : (
+            <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
+              <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-          <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[11px] font-bold text-vexia-gold">
-            <Star className="h-3 w-3 fill-current" aria-hidden />
-            {item.rating.toFixed(1)}
-          </span>
+          {item.rating > 0 ? (
+            <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[11px] font-bold text-vexia-gold">
+              <Star className="h-3 w-3 fill-current" aria-hidden />
+              {item.rating.toFixed(1)}
+            </span>
+          ) : null}
           {progress != null ? (
             <div className="absolute inset-x-0 bottom-0 h-1 bg-white/15">
               <div className="h-full bg-vexia-purple" style={{ width: `${progress}%` }} />
@@ -45,8 +58,8 @@ export function PosterCard({
         <div className="space-y-0.5 p-2">
           <p className="truncate text-xs font-bold text-vexia-text">{item.title}</p>
           <p className="truncate text-[11px] text-vexia-cyan">
-            {item.year}
-            {item.seasons ? ` • ${item.seasons} temporadas` : ""}
+            {item.year ? item.year : item.genres[0]}
+            {item.seasons ? ` • ${item.seasons} temp.` : ""}
           </p>
         </div>
       </Link>
@@ -69,10 +82,12 @@ export function PosterGrid({
   items,
   navRow,
   progressMap,
+  kind = "movie",
 }: {
   items: MediaItem[];
   navRow: number;
   progressMap?: Record<string, number>;
+  kind?: "movie" | "series";
 }) {
   return (
     <div className="grid grid-cols-3 gap-3 md:grid-cols-6 lg:grid-cols-8">
@@ -81,6 +96,7 @@ export function PosterGrid({
           key={item.id}
           item={item}
           navRow={navRow}
+          kind={kind}
           progress={progressMap?.[item.id]}
         />
       ))}
@@ -88,13 +104,22 @@ export function PosterGrid({
   );
 }
 
-export function LoadMore({ label, navRow }: { label: string; navRow: number }) {
+export function LoadMore({
+  label,
+  navRow,
+  onClick,
+}: {
+  label: string;
+  navRow: number;
+  onClick?: () => void;
+}) {
   return (
     <div className="flex justify-center py-6">
       <button
         type="button"
         data-nav-row={navRow}
         tabIndex={0}
+        onClick={onClick}
         className="vexia-focus rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
       >
         {label}
