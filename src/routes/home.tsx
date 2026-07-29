@@ -143,7 +143,7 @@ function HomePage() {
   }, []);
 
   const focusTile = (i: number) => {
-    const next = (i + TILES.length) % TILES.length;
+    const next = (i + tiles.length) % tiles.length;
     setActive(next);
     const el = rowRef.current?.querySelectorAll<HTMLElement>("[data-tile]")[next];
     el?.focus();
@@ -200,7 +200,7 @@ function HomePage() {
           <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
             <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
             <span className="tabular-nums">
-              {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+              {formatTime(now)}
             </span>
             <span>{now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
           </div>
@@ -284,9 +284,10 @@ function HomePage() {
       {/* Menu de blocos */}
       <nav
         ref={rowRef}
-        className="relative z-10 grid shrink-0 grid-cols-6 gap-[1.1vw] px-[5vw]"
+        className="relative z-10 grid shrink-0 gap-[1.1vw] px-[5vw]"
+        style={{ gridTemplateColumns: `repeat(${tiles.length}, minmax(0, 1fr))` }}
       >
-        {TILES.map((tile, i) => {
+        {tiles.map((tile, i) => {
           const Icon = tile.icon;
           const isActive = i === active;
           return (
