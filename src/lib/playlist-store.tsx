@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { parsePlaylistText, type ParsedPlaylist, type PlaylistChannel, type PlaylistSeries } from "./m3u";
 import { fetchPlaylist } from "./playlist.functions";
+import { idbDel, idbGet, idbSet } from "./idb";
 import type { MediaItem } from "../data/vexia";
 
 const STORAGE_KEY = "vexia:playlist";
@@ -56,23 +57,35 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) setStored(JSON.parse(raw) as StoredPlaylist);
-    } catch {
-      /* lista inválida no armazenamento local */
-    }
-    setReady(true);
+    let alive = true;
+    (async () => {
+      // IndexedDB é a fonte oficial (listas reais passam de 5MB).
+      let value = await idbGet<StoredPlaylist>(STORAGE_KEY);
+      if (!value) {
+        // Migração das listas antigas salvas em localStorage.
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            value = JSON.parse(raw) as StoredPlaylist;
+            await idbSet(STORAGE_KEY, value);
+          }
+        } catch {
+          /* lista inválida no armazenamento antigo */
+        }
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+      if (!alive) return;
+      if (value) setStored(value);
+      setReady(true);
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const persist = useCallback((value: StoredPlaylist | null) => {
     setStored(value);
-    try {
-      if (value) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-      else window.localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* armazenamento cheio: mantém apenas em memória */
-    }
+    void (value ? idbSet(STORAGE_KEY, value) : idbDel(STORAGE_KEY));
   }, []);
 
   const data = useMemo(() => (stored ? parsePlaylistText(stored.text) : null), [stored]);
@@ -95,30 +108,31 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     async (url: string, name?: string, onEvent?: (event: PlaylistLoadEvent) => void) => {
       setLoading(true);
       setError(null);
-      const beat = () => new Promise((r) => setTimeout(r, 260));
+      // Cede a thread para a UI pintar a etapa antes de seguir (sem delay artificial).
+      const yieldUi = () => new Promise((r) => setTimeout(r, 0));
       try {
         onEvent?.({ stage: 0 });
         const { text } = await fetchPlaylist({ data: { url } });
         onEvent?.({ stage: 1 });
-        await beat();
+        await yieldUi();
         onEvent?.({ stage: 2 });
-        await beat();
+        await yieldUi();
         const parsed = parsePlaylistText(text);
         if (parsed.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
           return false;
         }
         onEvent?.({ stage: 3 });
-        await beat();
+        await yieldUi();
         onEvent?.({ stage: 4, counts: { channels: parsed.channels.length } });
-        await beat();
+        await yieldUi();
         onEvent?.({ stage: 5, counts: { movies: parsed.movies.length } });
-        await beat();
+        await yieldUi();
         onEvent?.({ stage: 6, counts: { series: parsed.series.length } });
-        await beat();
+        await yieldUi();
         onEvent?.({ stage: 7 });
         persist({ url, name: name || new URL(url).hostname, text, loadedAt: Date.now() });
-        await beat();
+        await yieldUi();
         return true;
       } catch (e) {
         setError(e instanceof Error ? e.message : "Falha ao carregar a lista.");
