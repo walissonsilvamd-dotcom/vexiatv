@@ -32,6 +32,8 @@ export type PlaylistCounts = { channels: number; movies: number; series: number 
 export type PlaylistLoadEvent = {
   /** Índice da etapa em andamento (0-based) em PLAYLIST_STAGES. */
   stage: number;
+  /** Progresso real dentro da etapa (0..1), quando disponível. */
+  ratio?: number;
   counts?: Partial<PlaylistCounts>;
 };
 
