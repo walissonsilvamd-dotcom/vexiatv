@@ -37,12 +37,14 @@ export function EpisodeCarousel({
   );
   const currentEpisode = episodes.find((e) => e.id === currentEpisodeId);
   const [season, setSeason] = useState<number>(currentEpisode?.season ?? seasons[0] ?? 1);
-  const [quickSwitch, setQuickSwitch] = useState(false);
   const [pending, setPending] = useState<PlaylistEpisode | null>(null);
+  const [dontAsk, setDontAsk] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => setQuickSwitch(readQuick()), []);
+  const { settings, toggle, set } = useSettings();
+  const quickSwitch = settings.episodeQuickSwitch;
+
   useEffect(() => {
     if (currentEpisode) setSeason(currentEpisode.season);
   }, [currentEpisode?.season]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -66,16 +68,21 @@ export function EpisodeCarousel({
   const choose = (episode: PlaylistEpisode) => {
     if (episode.id === currentEpisodeId) return;
     if (quickSwitch) onSelect(episode);
-    else setPending(episode);
+    else {
+      setDontAsk(false);
+      setPending(episode);
+    }
   };
 
-  const toggleQuick = () => {
-    setQuickSwitch((v) => {
-      const next = !v;
-      window.localStorage.setItem(QUICK_KEY, next ? "1" : "0");
-      return next;
-    });
+  const confirmPending = () => {
+    const target = pending;
+    setPending(null);
+    if (dontAsk) set("episodeQuickSwitch", true);
+    if (target) onSelect(target);
   };
+
+  const toggleQuick = () => toggle("episodeQuickSwitch");
+
 
   return (
     <section className="bg-[#050505] px-5 pb-10 pt-6 md:px-10">
