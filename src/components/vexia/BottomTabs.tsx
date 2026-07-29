@@ -1,23 +1,28 @@
 import { Link } from "@tanstack/react-router";
 import { Home, Tv, Film, MonitorPlay, Settings, type LucideIcon } from "lucide-react";
 import { SLOGAN } from "../../data/vexia-catalog";
+import { useSettings } from "../../lib/settings-store";
 
-const TABS: { label: string; icon: LucideIcon; to: string }[] = [
+const TABS: { label: string; icon: LucideIcon; to: string; hideKey?: "hideVod" | "hideSeries" }[] = [
   { label: "Home", icon: Home, to: "/home" },
   { label: "Canais", icon: Tv, to: "/canais" },
-  { label: "Filmes", icon: Film, to: "/filmes" },
-  { label: "Séries", icon: MonitorPlay, to: "/series" },
+  { label: "Filmes", icon: Film, to: "/filmes", hideKey: "hideVod" },
+  { label: "Séries", icon: MonitorPlay, to: "/series", hideKey: "hideSeries" },
   { label: "Ajustes", icon: Settings, to: "/configuracoes" },
 ];
 
 export function BottomTabs({ active, navRow = 90 }: { active: string; navRow?: number }) {
+  const { settings } = useSettings();
+  const tabs = TABS.filter((t) => !t.hideKey || !settings[t.hideKey]);
+
   return (
     <nav
       aria-label="Navegação principal"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/85 backdrop-blur-md"
     >
       <ul className="mx-auto flex max-w-[1600px] items-stretch justify-around px-2">
-        {TABS.map((tab) => {
+
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.label;
           return (
