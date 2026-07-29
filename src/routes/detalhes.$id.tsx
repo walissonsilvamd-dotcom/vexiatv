@@ -15,6 +15,7 @@ import { TopNav } from "../components/vexia/TopNav";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import type { PlaylistEpisode, PlaylistSeries } from "../lib/m3u";
 import { usePlaylist } from "../lib/playlist-store";
+import { mediaFavorite, useFavorites } from "../lib/favorites-store";
 import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 
@@ -53,11 +54,12 @@ function DetailsPage() {
   const navigate = useNavigate();
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
-  const [fav, setFav] = useState(false);
+  const { has, toggle } = useFavorites();
   const { movies, series, source } = usePlaylist();
 
   const raw = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
   const isSeries = !!raw && "episodesList" in raw;
+  const fav = has(isSeries ? "series" : "movie", raw?.title ?? "");
   const kind: "movie" | "series" = isSeries ? "series" : "movie";
   const { data: enriched } = useTmdbItem(raw ?? null, kind);
   const item = enriched ?? raw;
@@ -134,7 +136,7 @@ function DetailsPage() {
             type="button"
             data-nav-row={0}
             tabIndex={0}
-            onClick={() => setFav((f) => !f)}
+            onClick={() => item && toggle(mediaFavorite(item, isSeries ? "series" : "movie"))}
             className={`vexia-focus grid h-10 w-10 place-items-center rounded-full border bg-black/60 ${
               fav ? "border-vexia-purple" : "border-vexia-cyan/70"
             }`}
