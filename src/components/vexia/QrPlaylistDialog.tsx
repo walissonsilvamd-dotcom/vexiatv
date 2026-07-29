@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DEVICE_MAC } from "../../data/vexia-catalog";
