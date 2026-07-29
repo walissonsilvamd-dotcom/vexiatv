@@ -38,7 +38,18 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
-const FALLBACK_HERO = {
+type Hero = {
+  title: string;
+  year: number;
+  release: string;
+  genres: string[];
+  runtime: string;
+  votes: number;
+  stars: number;
+  image: string;
+};
+
+const FALLBACK_HERO: Hero = {
   title: "CARREGUE SUA LISTA",
   year: new Date().getFullYear(),
   release: "Menu LISTAS",
