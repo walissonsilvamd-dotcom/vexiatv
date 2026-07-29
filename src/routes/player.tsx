@@ -334,6 +334,11 @@ function PlayerPage() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       ping();
+      if (fatalError && (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause")) {
+        e.preventDefault();
+        retryStream();
+        return;
+      }
       switch (e.key) {
         case " ":
         case "Enter":
