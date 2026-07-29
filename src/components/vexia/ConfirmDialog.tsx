@@ -1,5 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 /** Diálogo de confirmação premium (D-pad / teclado: Esc cancela). */
 export function ConfirmDialog({
@@ -10,6 +10,7 @@ export function ConfirmDialog({
   cancelLabel = "CANCELAR",
   onConfirm,
   onCancel,
+  children,
 }: {
   open: boolean;
   title: string;
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  children?: ReactNode;
 }) {
   const confirmRef = useRef<HTMLButtonElement>(null);
 
@@ -53,6 +55,7 @@ export function ConfirmDialog({
         </span>
         <p className="text-base font-black text-vexia-text">{title}</p>
         {message ? <p className="mt-2 text-sm text-vexia-text/70">{message}</p> : null}
+        {children}
         <div className="mt-5 flex justify-center gap-3">
           <button
             type="button"
