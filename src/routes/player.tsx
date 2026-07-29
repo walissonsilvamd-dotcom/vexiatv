@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { saveProgress, useProgress } from "../lib/progress-store";
+import { completeWatch, recordWatch, type WatchKind } from "../lib/history-store";
 
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
@@ -240,6 +241,9 @@ function PlayerPage() {
     const onWaiting = () => setBuffering(true);
     const onPlaying = () => setBuffering(false);
     const onEnded = () => {
+      if (watchMetaRef.current?.name && type !== "live") {
+        completeWatch(watchMetaRef.current.kind, watchMetaRef.current.name);
+      }
       if (nextEpisode) navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } });
     };
     video.addEventListener("timeupdate", onTime);
@@ -267,21 +271,58 @@ function PlayerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progressKey]);
 
-  /* ── Salvar progresso ── */
+  /* ── Histórico: dados do conteúdo em reprodução ── */
+  const watchMeta = useMemo(() => {
+    const kind: WatchKind = type === "live" ? "channel" : type === "movie" ? "movie" : "series";
+    const name = channel?.name ?? movie?.title ?? serie?.title ?? "";
+    return {
+      kind,
+      id,
+      name,
+      poster: channel?.logo ?? movie?.poster ?? serie?.poster,
+      url: src,
+      category: channel?.category ?? movie?.genres?.[0] ?? serie?.genres?.[0],
+      season: episode?.season,
+      episode: episode?.number,
+      episodeId: episode?.id,
+      episodeName: episode?.title,
+    };
+  }, [type, id, src, channel, movie, serie, episode]);
+
+  /* ── Salvar progresso + histórico (a cada 10s) ── */
   useEffect(() => {
-    if (type === "live" || !duration) return;
-    const t = window.setInterval(() => {
+    if (!watchMeta.name) return;
+    const snapshot = (force = false) => {
       const video = videoRef.current;
-      if (!video || video.paused) return;
+      if (!video) return;
+      if (type === "live") {
+        recordWatch({ ...watchMeta, positionSec: 0, durationSec: 0, percent: 0, completed: false });
+        return;
+      }
+      if (!video.duration || (!force && video.paused)) return;
+      const percent = (video.currentTime / video.duration) * 100;
       saveProgress(progressKey, {
-        percent: (video.currentTime / video.duration) * 100,
+        percent,
         positionSec: video.currentTime,
         durationSec: video.duration,
         label: episode ? `${title} • T${episode.season}E${episode.number}` : title,
       });
-    }, 5000);
-    return () => window.clearInterval(t);
-  }, [type, duration, progressKey, title, episode]);
+      recordWatch({
+        ...watchMeta,
+        positionSec: video.currentTime,
+        durationSec: video.duration,
+        percent,
+      });
+    };
+
+    snapshot();
+    const t = window.setInterval(() => snapshot(), 10000);
+    return () => {
+      window.clearInterval(t);
+      // Salva imediatamente ao sair do player.
+      snapshot(true);
+    };
+  }, [type, progressKey, title, episode, watchMeta]);
 
   const ping = useCallback(() => {
     setShowControls(true);
