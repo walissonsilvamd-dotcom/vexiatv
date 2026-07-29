@@ -1,0 +1,285 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import splashAsset from "../assets/splash-clean.jpeg.asset.json";
+import { VexiaLogo } from "../components/vexia/VexiaLogo";
+import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
+import { usePlaylist } from "../lib/playlist-store";
+
+export const Route = createFileRoute("/listas")({
+  head: () => ({
+    meta: [
+      { title: "VÉXIA TV — Listas" },
+      {
+        name: "description",
+        content: "Gerencie suas listas M3U no VÉXIA TV: adicione, atualize e edite suas fontes de canais, filmes e séries.",
+      },
+      { property: "og:title", content: "VÉXIA TV — Listas" },
+      { property: "og:description", content: "Gerencie suas fontes de conteúdo IPTV no VÉXIA TV." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: ListsPage,
+});
+
+function ListsPage() {
+  const navigate = useNavigate();
+  const { source, data, loading, error, loadFromUrl, reload, clear } = usePlaylist();
+  const [form, setForm] = useState(false);
+  const [done, setDone] = useState(false);
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
+  const [server, setServer] = useState("");
+
+  const openForm = () => {
+    setName(source?.name ?? "");
+    setUrl(source?.url ?? "");
+    setDone(false);
+    setForm(true);
+  };
+
+  const buildUrl = () => {
+    if (url.trim()) return url.trim();
+    if (server.trim() && user.trim()) {
+      const base = server.trim().replace(/\/$/, "");
+      const host = /^https?:\/\//.test(base) ? base : `http://${base}`;
+      return `${host}/get.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&type=m3u_plus&output=ts`;
+    }
+    return "";
+  };
+
+  const submit = async () => {
+    const finalUrl = buildUrl();
+    if (!finalUrl) return;
+    const ok = await loadFromUrl(finalUrl, name.trim() || undefined);
+    if (ok) {
+      setDone(true);
+      setTimeout(() => {
+        setForm(false);
+        setDone(false);
+      }, 1200);
+    }
+  };
+
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-vexia-bg text-vexia-text">
+      <img
+        src={splashAsset.url}
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
+      />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/85" />
+
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1600px] flex-col gap-6 px-[4vw] py-6">
+        {/* Cabeçalho */}
+        <header className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/home" })}
+            aria-label="Voltar"
+            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-full border border-vexia-purple/50 bg-black/50"
+          >
+            <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
+          </button>
+          <div className="min-w-0 text-center">
+            <h1 className="truncate text-2xl font-black tracking-[0.18em] md:text-3xl">LISTAS</h1>
+            <p className="mt-1 truncate text-xs text-white/70 md:text-sm">
+              Gerencie suas fontes de conteúdo
+            </p>
+          </div>
+          <VexiaLogo className="h-10 shrink-0 md:h-14" />
+        </header>
+
+        <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-6">
+            {/* Card adicionar */}
+            <section className="grid gap-4 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={openForm}
+                className="vexia-focus group flex flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-purple/40 bg-vexia-card/80 px-6 py-10 text-center shadow-[0_0_40px_-18px_var(--vexia-purple)] backdrop-blur-sm"
+              >
+                <span className="grid h-16 w-16 place-items-center rounded-full bg-vexia-purple/90">
+                  <Plus className="h-8 w-8 text-white" aria-hidden />
+                </span>
+                <span className="text-sm font-black tracking-[0.14em]">ADICIONAR LISTA</span>
+                <span className="max-w-xs text-xs text-white/70">
+                  Carregue sua lista M3U para acessar canais, filmes e séries
+                </span>
+                <span className="mt-2 rounded-full bg-vexia-purple px-7 py-2 text-xs font-bold tracking-[0.16em]">
+                  ADICIONAR
+                </span>
+              </button>
+
+              {/* Lista salva */}
+              {source ? (
+                <article className="flex flex-col justify-between rounded-2xl border border-vexia-purple/60 bg-vexia-card/85 p-5 shadow-[0_0_40px_-16px_var(--vexia-purple)] backdrop-blur-sm">
+                  <div>
+                    <p className="text-[10px] font-bold tracking-[0.24em] text-white/60">
+                      MINHAS LISTAS
+                    </p>
+                    <h2 className="mt-1 truncate text-base font-black">{source.name}</h2>
+                    <div className="mt-3 h-2 w-full rounded-full bg-black/60">
+                      <div className="relative h-2 w-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-purple-soft">
+                        <span className="absolute -right-0.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-vexia-cyan" />
+                      </div>
+                    </div>
+                    <p className="mt-2 text-center text-xs font-bold text-vexia-cyan">Conectada</p>
+
+                    <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      {[
+                        ["CANAIS", data?.channels.length ?? 0],
+                        ["FILMES", data?.movies.length ?? 0],
+                        ["SÉRIES", data?.series.length ?? 0],
+                      ].map(([label, value]) => (
+                        <div key={label} className="rounded-xl bg-black/50 py-2">
+                          <dt className="text-[9px] tracking-[0.16em] text-white/60">{label}</dt>
+                          <dd className="text-sm font-black text-vexia-gold">{value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void reload()}
+                      disabled={loading}
+                      className="vexia-focus flex flex-1 items-center justify-center gap-2 rounded-full bg-vexia-purple px-4 py-2 text-[11px] font-bold tracking-[0.14em] disabled:opacity-60"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                      ) : (
+                        <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+                      )}
+                      ATUALIZAR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openForm}
+                      className="vexia-focus flex flex-1 items-center justify-center gap-2 rounded-full border border-vexia-cyan/50 px-4 py-2 text-[11px] font-bold tracking-[0.14em]"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
+                      EDITAR
+                    </button>
+                    <button
+                      type="button"
+                      onClick={clear}
+                      aria-label="Remover lista"
+                      className="vexia-focus grid h-9 w-9 place-items-center rounded-full border border-white/20"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-white/70" aria-hidden />
+                    </button>
+                  </div>
+                </article>
+              ) : null}
+            </section>
+
+            {!source ? (
+              <p className="text-center text-xs text-white/60">
+                Nenhuma lista salva ainda — adicione a primeira para liberar canais, filmes e séries.
+              </p>
+            ) : null}
+          </div>
+
+          {/* Coluna direita: dispositivo */}
+          <aside className="hidden flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-cyan/25 bg-black/45 p-6 text-center backdrop-blur-sm lg:flex">
+            <VexiaLogo className="h-28" />
+            <div className="mt-4">
+              <p className="text-xs text-white/70">Endereço MAC</p>
+              <p className="text-lg font-bold text-vexia-gold">{DEVICE_MAC}</p>
+            </div>
+            <div>
+              <p className="text-xs text-white/70">Chave do dispositivo</p>
+              <p className="text-lg font-bold text-vexia-gold">{DEVICE_KEY}</p>
+            </div>
+            <p className="mt-auto self-end text-[10px] text-white/50">v4.1</p>
+          </aside>
+        </div>
+
+        <p className="pb-2 text-center text-xs font-bold tracking-[0.2em] text-white/80">
+          Bem-vindo
+        </p>
+      </div>
+
+      {/* Formulário de cadastro */}
+      {form ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4 backdrop-blur-sm">
+          <div className="w-[min(94vw,520px)] rounded-2xl border border-vexia-purple/50 bg-vexia-card p-6 shadow-[0_0_60px_-20px_var(--vexia-purple)]">
+            <h2 className="text-center text-base font-black tracking-[0.18em]">ADICIONAR LISTA</h2>
+            <p className="mt-1 text-center text-xs text-white/65">
+              Informe o link M3U ou os dados do servidor Xtream
+            </p>
+
+            <div className="mt-5 space-y-3">
+              {[
+                { label: "Nome da lista", value: name, set: setName, ph: "Minha Lista IPTV" },
+                { label: "URL M3U", value: url, set: setUrl, ph: "http://servidor/get.php?...type=m3u_plus" },
+                { label: "Servidor", value: server, set: setServer, ph: "http://servidor:8080" },
+                { label: "Usuário", value: user, set: setUser, ph: "usuario" },
+              ].map((f) => (
+                <label key={f.label} className="block">
+                  <span className="text-[10px] font-bold tracking-[0.16em] text-white/60">
+                    {f.label.toUpperCase()}
+                  </span>
+                  <input
+                    value={f.value}
+                    onChange={(e) => f.set(e.target.value)}
+                    placeholder={f.ph}
+                    className="mt-1 w-full rounded-lg border border-vexia-purple/60 bg-black px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none"
+                  />
+                </label>
+              ))}
+              <label className="block">
+                <span className="text-[10px] font-bold tracking-[0.16em] text-white/60">SENHA</span>
+                <input
+                  type="password"
+                  value={pass}
+                  onChange={(e) => setPass(e.target.value)}
+                  placeholder="senha"
+                  className="mt-1 w-full rounded-lg border border-vexia-purple/60 bg-black px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none"
+                />
+              </label>
+            </div>
+
+            {loading ? (
+              <p className="mt-4 flex items-center justify-center gap-2 text-xs text-vexia-cyan">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                Conectando ao servidor...
+              </p>
+            ) : null}
+            {done ? (
+              <p className="mt-4 flex items-center justify-center gap-2 text-xs text-vexia-cyan">
+                <Check className="h-3.5 w-3.5" aria-hidden />
+                Lista carregada com sucesso
+              </p>
+            ) : null}
+            {error ? <p className="mt-4 text-center text-xs text-vexia-gold">{error}</p> : null}
+
+            <div className="mt-5 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => void submit()}
+                disabled={loading}
+                className="vexia-focus rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-[0.16em] disabled:opacity-60"
+              >
+                CARREGAR LISTA
+              </button>
+              <button
+                type="button"
+                onClick={() => setForm(false)}
+                className="vexia-focus rounded-full border border-vexia-cyan/50 px-6 py-2.5 text-xs font-bold tracking-[0.16em] text-vexia-cyan"
+              >
+                CANCELAR
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </main>
+  );
+}
