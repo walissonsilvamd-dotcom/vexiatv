@@ -91,7 +91,7 @@ const QUALITIES = [
 function SettingsPage() {
   const navigate = useNavigate();
   const { settings, set, toggle, history, clearHistory, formatTime } = useSettings();
-  const { refresh } = usePlaylist();
+  const { reload } = usePlaylist();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [pin, setPin] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
@@ -601,7 +601,7 @@ function SettingsPage() {
         open={dialog === "playlist"}
         onClose={() => {
           close();
-          if (settings.autoUpdate) refresh?.();
+          if (settings.autoUpdate) void reload();
         }}
       />
     </main>
