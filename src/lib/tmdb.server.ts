@@ -130,7 +130,7 @@ export async function searchTmdb(
   if (!response.ok) return null;
 
   const json = (await response.json()) as { results?: TmdbSearchResult[] };
-  const result = json.results?.[0];
+  const result = pickBestMatch(json.results ?? [], title, year);
   if (!result) return null;
 
   const detailsUrl = `${TMDB_BASE}/${kind}/${result.id}?${auth}language=${language}&append_to_response=credits`;
