@@ -368,7 +368,7 @@ function PlayerPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [ping, toggle, seekBy, goBack, type]);
+  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
 
   const applySpeed = (value: number) => {
     setSpeed(value);
