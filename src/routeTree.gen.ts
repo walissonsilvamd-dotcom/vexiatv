@@ -15,6 +15,7 @@ import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TvAoVivoRoute = TvAoVivoRouteImport.update({
@@ -47,6 +48,11 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanaisRoute = CanaisRouteImport.update({
+  id: '/canais',
+  path: '/canais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +61,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
@@ -74,6 +82,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
@@ -85,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
     | '/home'
@@ -94,6 +104,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
     | '/home'
@@ -103,6 +114,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
     | '/home'
@@ -113,6 +125,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CanaisRoute: typeof CanaisRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FilmesRoute: typeof FilmesRoute
   HomeRoute: typeof HomeRoute
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canais': {
+      id: '/canais'
+      path: '/canais'
+      fullPath: '/canais'
+      preLoaderRoute: typeof CanaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +197,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CanaisRoute: CanaisRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   FilmesRoute: FilmesRoute,
   HomeRoute: HomeRoute,
