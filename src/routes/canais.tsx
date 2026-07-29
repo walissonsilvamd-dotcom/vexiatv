@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Tv } from "lucide-react";
 import { AppHeader } from "../components/vexia/AppHeader";
 import { TopNav } from "../components/vexia/TopNav";
-import { BottomTabs } from "../components/vexia/BottomTabs";
+
 import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
 import { LoadMore } from "../components/vexia/PosterGrid";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
