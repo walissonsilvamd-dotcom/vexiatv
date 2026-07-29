@@ -21,6 +21,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
@@ -129,6 +130,7 @@ function PlayerPage() {
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
   const [resumeAsk, setResumeAsk] = useState(false);
+  const [confirmForget, setConfirmForget] = useState(false);
 
   const title =
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
@@ -577,6 +579,21 @@ function PlayerPage() {
           </div>
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={confirmForget}
+        title="Remover do histórico?"
+        message="O progresso salvo deste conteúdo será apagado e a reprodução começará do início."
+        onConfirm={() => {
+          clearProgress(progressKey);
+          const meta = watchMetaRef.current;
+          if (meta?.name) removeWatch(historyKey(meta.kind, meta.name));
+          if (videoRef.current) videoRef.current.currentTime = 0;
+          setConfirmForget(false);
+          setResumeAsk(false);
+        }}
+        onCancel={() => setConfirmForget(false)}
+      />
 
       {/* ── Topo ── */}
       <header
