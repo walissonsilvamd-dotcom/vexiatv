@@ -27,7 +27,7 @@ export function EmptyPlaylist({
         </button>
       ) : (
         <Link
-          to="/home"
+          to="/listas"
           className="vexia-focus mt-5 rounded-full bg-vexia-purple px-7 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
         >
           IR PARA LISTAS
