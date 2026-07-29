@@ -155,16 +155,12 @@ function FavoritesPage() {
   }, [resolved, filter, query]);
 
   const open = (fav: (typeof resolved)[number]) => {
-    const url = fav.liveUrl ?? fav.url;
+    const id = fav.liveId ?? fav.id;
     if (fav.kind === "channel") {
-      if (!url) return;
-      void navigate({
-        to: "/player",
-        search: { url, title: fav.name, type: "live", poster: fav.liveLogo ?? fav.logo ?? "" },
-      });
+      if (!fav.liveId) return;
+      void navigate({ to: "/player", search: { type: "live", id } });
       return;
     }
-    const id = fav.liveId ?? fav.id;
     void navigate({
       to: fav.kind === "series" ? "/serie/$id" : "/detalhes/$id",
       params: { id },
