@@ -63,9 +63,10 @@ function DetailsPage() {
   const { entryFor, resume } = useProgress(item?.id);
 
   const seasons = useMemo(() => {
-    if (!raw || !("episodesList" in raw)) return [];
-    const map = new Map<number, (typeof raw.episodesList)[number][]>();
-    for (const ep of raw.episodesList) {
+    const list = (raw as PlaylistSeries | undefined)?.episodesList;
+    if (!list) return [];
+    const map = new Map<number, PlaylistEpisode[]>();
+    for (const ep of list) {
       const arr = map.get(ep.season) ?? [];
       arr.push(ep);
       map.set(ep.season, arr);
