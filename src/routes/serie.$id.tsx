@@ -3,6 +3,7 @@ import { ArrowLeft, ImageOff, Play } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
+import { useTmdbItem } from "../lib/use-tmdb";
 
 import { TopNav } from "../components/vexia/TopNav";
 
