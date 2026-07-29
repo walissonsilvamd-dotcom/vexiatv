@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { PosterCard, SectionTitle } from "../components/vexia/PosterGrid";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
+import { useTmdbItem } from "../lib/use-tmdb";
 
 import { TopNav } from "../components/vexia/TopNav";
 
