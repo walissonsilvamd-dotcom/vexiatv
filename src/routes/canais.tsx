@@ -126,28 +126,32 @@ function ChannelsPage() {
           </div>
 
           <ul className="grid gap-2.5 md:grid-cols-2">
-
             {list.slice(0, limit).map((ch) => (
-              <li key={ch.id} className="relative">
+              <li key={ch.id} className="group relative">
                 <button
                   type="button"
                   data-nav-row={3}
                   tabIndex={0}
                   onClick={() => setSelected(ch)}
-                  className="vexia-focus flex w-full items-center gap-3 rounded-lg bg-vexia-card p-3 text-left"
+                  className={`vexia-focus relative flex w-full items-center gap-3 overflow-hidden rounded-xl border p-3 text-left shadow-[0_8px_22px_-14px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 ${
+                    selected?.id === ch.id
+                      ? "border-vexia-purple/60 bg-gradient-to-br from-vexia-purple/25 to-[#121212] shadow-[0_0_24px_-8px_rgba(123,47,190,0.7)]"
+                      : "border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] hover:border-vexia-purple/40"
+                  }`}
                 >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-black text-xs font-black text-vexia-purple-soft">
+                  <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                  <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/10 bg-black/70 text-xs font-black text-vexia-purple-soft shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
                     {ch.logo ? (
-                      <img src={ch.logo} alt="" loading="lazy" className="h-full w-full object-contain" />
+                      <img src={ch.logo} alt="" loading="lazy" className="h-full w-full object-contain p-1" />
                     ) : (
                       <Tv className="h-5 w-5" aria-hidden />
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-vexia-text">
+                    <span className="block truncate text-sm font-bold text-vexia-text">
                       {ch.name}
                     </span>
-                    <span className="block truncate text-[11px] text-vexia-cyan">{ch.group}</span>
+                    <span className="block truncate text-[11px] font-medium text-vexia-cyan/80">{ch.group}</span>
                   </span>
                   <span className="w-8" />
                 </button>
@@ -155,10 +159,13 @@ function ChannelsPage() {
                   type="button"
                   onClick={() => toggleFav(ch.id)}
                   aria-label="Favoritar canal"
-                  className={`absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full ${
-                    favs.includes(ch.id) ? "bg-vexia-purple" : "border border-vexia-cyan/60"
+                  className={`absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border backdrop-blur-md transition-all ${
+                    favs.includes(ch.id)
+                      ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+                      : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
                   }`}
                 >
+
                   <Heart
                     className={`h-4 w-4 ${favs.includes(ch.id) ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
                     aria-hidden
