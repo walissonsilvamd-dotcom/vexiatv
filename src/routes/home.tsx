@@ -47,6 +47,7 @@ type Hero = {
   votes: number;
   stars: number;
   image: string;
+  overview: string;
 };
 
 const FALLBACK_HERO: Hero = {
@@ -58,7 +59,10 @@ const FALLBACK_HERO: Hero = {
   votes: 0,
   stars: 0,
   image: heroAsset.url,
+  overview:
+    "Adicione sua lista M3U pelo menu LISTAS para preencher canais, filmes e séries com capas, sinopses e destaques automáticos.",
 };
+
 
 type Tile = { label: string; icon: LucideIcon; to?: string; action?: "reload" | "lists" };
 
