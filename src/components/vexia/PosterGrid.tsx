@@ -3,6 +3,7 @@ import { Heart, ImageOff, Star } from "lucide-react";
 import { useState } from "react";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
+import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 
 export function PosterCard({
   item,
@@ -15,7 +16,8 @@ export function PosterCard({
   progress?: number;
   kind?: "movie" | "series";
 }) {
-  const [fav, setFav] = useState(false);
+  const { has, toggle } = useFavorites();
+  const fav = has(kind, item.title);
   const [broken, setBroken] = useState(false);
   const { data: display } = useTmdbItem(item, kind);
   const active = display ?? item;
@@ -74,7 +76,7 @@ export function PosterCard({
       </Link>
       <button
         type="button"
-        onClick={() => setFav((f) => !f)}
+        onClick={() => toggle(mediaFavorite({ ...item, poster: active.poster, rating: active.rating, year: active.year }, kind))}
         aria-label={fav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         className={`absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition-all ${
           fav

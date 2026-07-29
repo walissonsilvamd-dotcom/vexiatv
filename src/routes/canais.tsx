@@ -9,6 +9,7 @@ import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import type { PlaylistChannel } from "../lib/m3u";
+import { channelFavorite, useFavorites } from "../lib/favorites-store";
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -29,7 +30,6 @@ export const Route = createFileRoute("/canais")({
 });
 
 const PAGE = 50;
-const FAV_KEY = "vexia:fav-channels";
 
 /** Extrai a qualidade anunciada no nome do canal (FHD, HD, SD, 4K, 1080p...). */
 function qualityOf(name: string) {
@@ -42,34 +42,23 @@ function ChannelsPage() {
   useSpatialNav(scopeRef);
   const navigate = useNavigate();
   const { channels, data, hasContent } = usePlaylist();
+  const { has, toggle } = useFavorites();
 
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
-  const [favs, setFavs] = useState<string[]>([]);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(FAV_KEY);
-      if (raw) setFavs(JSON.parse(raw) as string[]);
-    } catch {
-      /* favoritos inválidos */
-    }
-  }, []);
+  const favs = useMemo(
+    () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
+    [channels, has],
+  );
 
-  const toggleFav = useCallback((id: string) => {
-    setFavs((f) => {
-      const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
-      try {
-        window.localStorage.setItem(FAV_KEY, JSON.stringify(next));
-      } catch {
-        /* armazenamento cheio */
-      }
-      return next;
-    });
-  }, []);
+  const toggleFav = useCallback(
+    (ch: PlaylistChannel) => toggle(channelFavorite(ch)),
+    [toggle],
+  );
 
   // Categorias 100% dinâmicas: vêm sempre do group-title da lista carregada.
   const counts = useMemo(() => {
@@ -231,7 +220,7 @@ function ChannelsPage() {
               </button>
               <button
                 type="button"
-                onClick={() => toggleFav(ch.id)}
+                onClick={() => toggleFav(ch)}
                 aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                 className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
                   favs.includes(ch.id)
@@ -304,7 +293,7 @@ function ChannelsPage() {
             type="button"
             data-nav-row={4}
             tabIndex={0}
-            onClick={() => selected && toggleFav(selected.id)}
+            onClick={() => selected && toggleFav(selected)}
             className="vexia-focus rounded-xl border border-vexia-cyan/40 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
           >
             {selected && favs.includes(selected.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}

@@ -16,6 +16,7 @@ import { Route as ListasRouteImport } from './routes/listas'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FiltrosRouteImport } from './routes/filtros'
 import { Route as FilmesRouteImport } from './routes/filmes'
+import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CarregandoRouteImport } from './routes/carregando'
 import { Route as CanaisRouteImport } from './routes/canais'
@@ -58,6 +59,11 @@ const FilmesRoute = FilmesRouteImport.update({
   path: '/filmes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FavoritosRoute = FavoritosRouteImport.update({
+  id: '/favoritos',
+  path: '/favoritos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
@@ -142,6 +151,7 @@ export interface FileRouteTypes {
     | '/canais'
     | '/carregando'
     | '/configuracoes'
+    | '/favoritos'
     | '/filmes'
     | '/filtros'
     | '/home'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/canais'
     | '/carregando'
     | '/configuracoes'
+    | '/favoritos'
     | '/filmes'
     | '/filtros'
     | '/home'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/canais'
     | '/carregando'
     | '/configuracoes'
+    | '/favoritos'
     | '/filmes'
     | '/filtros'
     | '/home'
@@ -188,6 +200,7 @@ export interface RootRouteChildren {
   CanaisRoute: typeof CanaisRoute
   CarregandoRoute: typeof CarregandoRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  FavoritosRoute: typeof FavoritosRoute
   FilmesRoute: typeof FilmesRoute
   FiltrosRoute: typeof FiltrosRoute
   HomeRoute: typeof HomeRoute
@@ -250,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilmesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/favoritos': {
+      id: '/favoritos'
+      path: '/favoritos'
+      fullPath: '/favoritos'
+      preLoaderRoute: typeof FavoritosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/configuracoes': {
       id: '/configuracoes'
       path: '/configuracoes'
@@ -300,6 +320,7 @@ const rootRouteChildren: RootRouteChildren = {
   CanaisRoute: CanaisRoute,
   CarregandoRoute: CarregandoRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  FavoritosRoute: FavoritosRoute,
   FilmesRoute: FilmesRoute,
   FiltrosRoute: FiltrosRoute,
   HomeRoute: HomeRoute,
