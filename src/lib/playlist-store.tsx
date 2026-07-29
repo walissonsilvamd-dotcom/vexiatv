@@ -7,6 +7,26 @@ const STORAGE_KEY = "vexia:playlist";
 
 type StoredPlaylist = { url: string; name: string; text: string; loadedAt: number };
 
+/** Etapas reais do processamento da lista, na ordem de execução. */
+export const PLAYLIST_STAGES = [
+  "Conectando ao servidor",
+  "Validando lista",
+  "Baixando informações",
+  "Criando categorias",
+  "Carregando canais",
+  "Organizando filmes",
+  "Organizando séries",
+  "Finalizando",
+] as const;
+
+export type PlaylistCounts = { channels: number; movies: number; series: number };
+
+export type PlaylistLoadEvent = {
+  /** Índice da etapa em andamento (0-based) em PLAYLIST_STAGES. */
+  stage: number;
+  counts?: Partial<PlaylistCounts>;
+};
+
 type PlaylistContextValue = {
   ready: boolean;
   loading: boolean;
@@ -17,7 +37,11 @@ type PlaylistContextValue = {
   movies: MediaItem[];
   series: PlaylistSeries[];
   channels: PlaylistChannel[];
-  loadFromUrl: (url: string, name?: string) => Promise<boolean>;
+  loadFromUrl: (
+    url: string,
+    name?: string,
+    onEvent?: (event: PlaylistLoadEvent) => void,
+  ) => Promise<boolean>;
   loadFromText: (text: string, name?: string) => boolean;
   reload: () => Promise<boolean>;
   clear: () => void;
