@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Heart, ListVideo, Play, Star } from "lucide-react";
+import { ArrowLeft, Heart, ImageOff, ListVideo, Play, Star } from "lucide-react";
 import { useRef, useState } from "react";
 import { PosterCard, SectionTitle } from "../components/vexia/PosterGrid";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
-import { allMedia, findMedia } from "../data/vexia-catalog";
+import { usePlaylist } from "../lib/playlist-store";
 
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
@@ -11,10 +11,10 @@ export const Route = createFileRoute("/detalhes/$id")({
       { title: "VÉXIA TV — Detalhes" },
       {
         name: "description",
-        content: "Sinopse, elenco, nota e recomendações do título selecionado no VÉXIA TV.",
+        content: "Informações do título selecionado da sua lista M3U no VÉXIA TV.",
       },
       { property: "og:title", content: "VÉXIA TV — Detalhes do título" },
-      { property: "og:description", content: "Sinopse, elenco e recomendações no VÉXIA TV." },
+      { property: "og:description", content: "Detalhes e recomendações no VÉXIA TV." },
       { property: "og:type", content: "video.movie" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -28,13 +28,15 @@ function DetailsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const [fav, setFav] = useState(false);
+  const { movies, series } = usePlaylist();
 
-  const item = findMedia(id);
+  const item = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
+
   if (!item) {
     return (
       <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
         <div className="text-center">
-          <p className="text-lg font-bold">Título não encontrado</p>
+          <p className="text-lg font-bold">Título não encontrado na lista carregada</p>
           <Link to="/home" className="mt-4 inline-block text-xs text-vexia-cyan">
             Voltar para a Home
           </Link>
@@ -43,13 +45,21 @@ function DetailsPage() {
     );
   }
 
-  const cast = item.cast ?? ["Ana Duarte", "Marco Reis", "Lia Fontes", "Bruno Antunes"];
-  const recommendations = allMedia.filter((m) => m.id !== item.id).slice(0, 10);
+  const pool = [...movies, ...series];
+  const recommendations = pool
+    .filter((m) => m.id !== item.id && m.genres[0] === item.genres[0])
+    .slice(0, 12);
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
       <section className="relative h-[58vh] min-h-[340px] w-full overflow-hidden">
-        <img src={item.backdrop} alt={item.title} className="h-full w-full object-cover" />
+        {item.backdrop ? (
+          <img src={item.backdrop} alt={item.title} className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
+            <ImageOff className="h-10 w-10 text-vexia-cyan/60" aria-hidden />
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/60 to-black/60" />
 
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-4 md:px-10">
@@ -81,15 +91,19 @@ function DetailsPage() {
         <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-10">
           <h1 className="text-2xl font-black md:text-4xl">{item.title}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
-            <span className="flex items-center gap-1 text-vexia-gold">
-              <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
-              {item.rating.toFixed(1)}
-            </span>
-            <span className="text-vexia-purple-soft">{item.year}</span>
+            {item.rating > 0 ? (
+              <span className="flex items-center gap-1 text-vexia-gold">
+                <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
+                {item.rating.toFixed(1)}
+              </span>
+            ) : null}
+            {item.year ? <span className="text-vexia-purple-soft">{item.year}</span> : null}
             <span className="text-vexia-purple-soft">{item.genres.join(" • ")}</span>
-            <span className="text-vexia-cyan">
-              {item.runtime ?? `${item.seasons ?? 1} temporadas`}
-            </span>
+            {item.seasons ? (
+              <span className="text-vexia-cyan">
+                {item.seasons} temporadas • {item.episodes} episódios
+              </span>
+            ) : null}
           </div>
           <div className="mt-5 flex flex-wrap gap-3">
             <button
@@ -117,43 +131,24 @@ function DetailsPage() {
 
       <div className="space-y-8 px-5 pt-8 md:px-10">
         <section className="space-y-2">
-          <SectionTitle>SINOPSE</SectionTitle>
-          <p className="max-w-3xl text-sm leading-relaxed text-vexia-text">{item.overview}</p>
+          <SectionTitle>SOBRE</SectionTitle>
+          <p className="max-w-3xl text-sm leading-relaxed text-vexia-muted">
+            {item.overview || "Sem sinopse na lista M3U para este título."}
+          </p>
         </section>
 
-        <section className="space-y-3">
-          <SectionTitle>ELENCO</SectionTitle>
-          <div className="no-scrollbar flex gap-5 overflow-x-auto pb-1">
-            {cast.map((name) => (
-              <div key={name} className="w-20 shrink-0 text-center">
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-sm font-bold text-vexia-purple-soft">
-                  {name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)}
+        {recommendations.length > 0 ? (
+          <section className="space-y-3">
+            <SectionTitle>RELACIONADOS</SectionTitle>
+            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+              {recommendations.map((rec) => (
+                <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
+                  <PosterCard item={rec} navRow={4} kind={rec.seasons ? "series" : "movie"} />
                 </div>
-                <p className="mt-2 text-[11px] text-vexia-text">{name}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-1">
-          <SectionTitle>ADICIONADO EM</SectionTitle>
-          <p className="text-sm text-vexia-cyan">12/07/2026</p>
-        </section>
-
-        <section className="space-y-3">
-          <SectionTitle>RECOMENDAÇÕES</SectionTitle>
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-            {recommendations.map((rec) => (
-              <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
-                <PosterCard item={rec} navRow={4} />
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </main>
   );
