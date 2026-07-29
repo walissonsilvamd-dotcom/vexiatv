@@ -9,6 +9,7 @@ import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import type { PlaylistChannel } from "../lib/m3u";
+import { channelFavorite, useFavorites } from "../lib/favorites-store";
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -29,7 +30,6 @@ export const Route = createFileRoute("/canais")({
 });
 
 const PAGE = 50;
-const FAV_KEY = "vexia:fav-channels";
 
 /** Extrai a qualidade anunciada no nome do canal (FHD, HD, SD, 4K, 1080p...). */
 function qualityOf(name: string) {
@@ -220,7 +220,7 @@ function ChannelsPage() {
               </button>
               <button
                 type="button"
-                onClick={() => toggleFav(ch.id)}
+                onClick={() => toggleFav(ch)}
                 aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                 className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
                   favs.includes(ch.id)
@@ -293,7 +293,7 @@ function ChannelsPage() {
             type="button"
             data-nav-row={4}
             tabIndex={0}
-            onClick={() => selected && toggleFav(selected.id)}
+            onClick={() => selected && toggleFav(selected)}
             className="vexia-focus rounded-xl border border-vexia-cyan/40 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
           >
             {selected && favs.includes(selected.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
