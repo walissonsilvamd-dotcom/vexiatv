@@ -1,4 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -18,6 +19,13 @@ export const Route = createFileRoute("/")({
 });
 
 function SplashScreen() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const id = setTimeout(() => navigate({ to: "/home" }), 3200);
+    return () => clearTimeout(id);
+  }, [navigate]);
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-black">
       <img

@@ -9,8 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TvAoVivoRouteImport } from './routes/tv-ao-vivo'
+import { Route as SeriesRouteImport } from './routes/series'
+import { Route as PlaylistRouteImport } from './routes/playlist'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as FilmesRouteImport } from './routes/filmes'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TvAoVivoRoute = TvAoVivoRouteImport.update({
+  id: '/tv-ao-vivo',
+  path: '/tv-ao-vivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeriesRoute = SeriesRouteImport.update({
+  id: '/series',
+  path: '/series',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistRoute = PlaylistRouteImport.update({
+  id: '/playlist',
+  path: '/playlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilmesRoute = FilmesRouteImport.update({
+  id: '/filmes',
+  path: '/filmes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +55,116 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/filmes': typeof FilmesRoute
+  '/home': typeof HomeRoute
+  '/playlist': typeof PlaylistRoute
+  '/series': typeof SeriesRoute
+  '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/filmes': typeof FilmesRoute
+  '/home': typeof HomeRoute
+  '/playlist': typeof PlaylistRoute
+  '/series': typeof SeriesRoute
+  '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/filmes': typeof FilmesRoute
+  '/home': typeof HomeRoute
+  '/playlist': typeof PlaylistRoute
+  '/series': typeof SeriesRoute
+  '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/filmes'
+    | '/home'
+    | '/playlist'
+    | '/series'
+    | '/tv-ao-vivo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/filmes'
+    | '/home'
+    | '/playlist'
+    | '/series'
+    | '/tv-ao-vivo'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/filmes'
+    | '/home'
+    | '/playlist'
+    | '/series'
+    | '/tv-ao-vivo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  FilmesRoute: typeof FilmesRoute
+  HomeRoute: typeof HomeRoute
+  PlaylistRoute: typeof PlaylistRoute
+  SeriesRoute: typeof SeriesRoute
+  TvAoVivoRoute: typeof TvAoVivoRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tv-ao-vivo': {
+      id: '/tv-ao-vivo'
+      path: '/tv-ao-vivo'
+      fullPath: '/tv-ao-vivo'
+      preLoaderRoute: typeof TvAoVivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/series': {
+      id: '/series'
+      path: '/series'
+      fullPath: '/series'
+      preLoaderRoute: typeof SeriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlist': {
+      id: '/playlist'
+      path: '/playlist'
+      fullPath: '/playlist'
+      preLoaderRoute: typeof PlaylistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filmes': {
+      id: '/filmes'
+      path: '/filmes'
+      fullPath: '/filmes'
+      preLoaderRoute: typeof FilmesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,7 +177,23 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  FilmesRoute: FilmesRoute,
+  HomeRoute: HomeRoute,
+  PlaylistRoute: PlaylistRoute,
+  SeriesRoute: SeriesRoute,
+  TvAoVivoRoute: TvAoVivoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -19,6 +19,16 @@
  */
 
 @theme inline {
+  --color-vexia-bg: var(--vexia-bg);
+  --color-vexia-surface: var(--vexia-surface);
+  --color-vexia-card: var(--vexia-card);
+  --color-vexia-purple: var(--vexia-purple);
+  --color-vexia-purple-soft: var(--vexia-purple-soft);
+  --color-vexia-cyan: var(--vexia-cyan);
+  --color-vexia-gold: var(--vexia-gold);
+  --color-vexia-text: var(--vexia-text);
+  --color-vexia-muted: var(--vexia-muted);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -62,7 +72,17 @@
 }
 
 :root {
+  --vexia-bg: oklch(0.09 0.012 285);
+  --vexia-surface: oklch(0.15 0.025 288);
+  --vexia-card: oklch(0.19 0.028 288);
+  --vexia-purple: oklch(0.52 0.24 305);
+  --vexia-purple-soft: oklch(0.66 0.19 300);
+  --vexia-cyan: oklch(0.79 0.16 220);
+  --vexia-gold: oklch(0.88 0.17 92);
+  --vexia-text: oklch(1 0 0);
+  --vexia-muted: oklch(0.75 0.012 285);
   --radius: 0.625rem;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -140,5 +160,28 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility vexia-focus {
+  outline: none;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  &:focus-visible,
+  &:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 0 2px var(--vexia-purple-soft),
+      0 0 28px -2px color-mix(in oklab, var(--vexia-purple) 75%, transparent);
   }
 }
