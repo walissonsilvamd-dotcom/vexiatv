@@ -10,7 +10,8 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import type { PlaylistChannel } from "../lib/m3u";
 import { channelFavorite, useFavorites } from "../lib/favorites-store";
-import { matchesChannel, useFilters } from "../lib/filters-store";
+import { matchesChannel, sortChannels, useFilters, useSort } from "../lib/filters-store";
+import { SortControl } from "../components/vexia/SortControl";
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -70,10 +71,11 @@ function ChannelsPage() {
 
   const categories = data?.channelCategories ?? ["Todos"];
   const { filters, active: activeFilters } = useFilters();
+  const { sort } = useSort();
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return channels.filter(
+    const base = channels.filter(
       (c) =>
         (category === "Todos" ||
           (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
@@ -83,7 +85,8 @@ function ChannelsPage() {
           c.group.toLowerCase().includes(q)) &&
         matchesChannel(c.name, c.category, filters),
     );
-  }, [channels, category, query, favs, filters]);
+    return sortChannels(base, sort);
+  }, [channels, category, query, favs, filters, sort]);
 
   useEffect(() => {
     setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
@@ -120,6 +123,7 @@ function ChannelsPage() {
             className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text outline-none backdrop-blur-xl placeholder:text-vexia-text/45"
           />
         </label>
+        <SortControl navRow={0} labels={{ nota: "A → Z", recentes: "Mais recentes" }} />
         <Link
           to="/filtros"
           data-nav-row={0}
