@@ -82,7 +82,12 @@ export function normalizeTmdb(
   const seasons = isMovie ? undefined : tv.number_of_seasons;
   const episodes = isMovie ? undefined : tv.number_of_episodes;
 
-  const cast = details.credits?.cast?.slice(0, 5).map((c) => c.name);
+  const cast = details.credits?.cast?.slice(0, 10).map((c) => c.name);
+  const castList = details.credits?.cast?.slice(0, 10).map((c) => ({
+    name: c.name,
+    character: c.character,
+    photo: tmdbImageUrl(c.profile_path, "w185"),
+  }));
   const director = details.credits?.crew?.find((c) => c.job === "Director")?.name;
 
   return {
