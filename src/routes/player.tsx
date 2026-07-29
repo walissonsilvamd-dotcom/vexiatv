@@ -90,6 +90,9 @@ function PlayerPage() {
   const [audioTrack, setAudioTrack] = useState("Original");
   const [liveDelay, setLiveDelay] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
+  const [fatalError, setFatalError] = useState<{ message: string; detail?: string } | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   const channel = type === "live" ? channels.find((c) => c.id === id) : undefined;
   const movie = type === "movie" ? movies.find((m) => m.id === id) : undefined;
