@@ -182,7 +182,15 @@ export function CatalogScreen({
 
           {/* Coluna direita */}
           <section className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between">
+              <div>
+                <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgba(123,47,190,0.85)]">
+                  {kind === "series" ? "Séries" : "Filmes"}
+                </h1>
+                <p className="text-xs font-medium uppercase tracking-widest text-vexia-cyan/80">
+                  {items.length} {noun} na sua lista
+                </p>
+              </div>
               <span className="flex items-center gap-1.5 text-sm font-medium text-vexia-text/85">
                 Ordenar por Adicionados <ChevronDown className="h-4 w-4" aria-hidden />
               </span>
