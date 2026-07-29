@@ -14,10 +14,11 @@ import {
   Tv,
   type LucideIcon,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { usePlaylist } from "../lib/playlist-store";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
