@@ -184,12 +184,17 @@ function uniqueCats(values: string[]) {
 }
 
 /** Organiza as entradas da lista em filmes, séries (com episódios) e canais ao vivo. */
-export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
+export function buildPlaylist(
+  entries: M3UEntry[],
+  onProgress?: (ratio: number) => void,
+): ParsedPlaylist {
   const movies: MediaItem[] = [];
   const channels: PlaylistChannel[] = [];
   const seriesMap = new Map<string, PlaylistSeries>();
+  const totalEntries = entries.length || 1;
 
-  entries.forEach((entry) => {
+  entries.forEach((entry, entryIndex) => {
+    if (onProgress && (entryIndex & 1023) === 0) onProgress(entryIndex / totalEntries);
     const kind = classify(entry);
 
     if (kind === "movie") {
