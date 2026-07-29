@@ -82,8 +82,10 @@ function ChannelsPage() {
                   setCategory(cat);
                   setLimit(PAGE);
                 }}
-                className={`vexia-focus shrink-0 truncate rounded-lg px-4 py-2 text-left text-xs font-semibold ${
-                  category === cat ? "bg-vexia-purple text-vexia-text" : "bg-vexia-card text-vexia-text"
+                className={`vexia-focus shrink-0 truncate rounded-xl border px-4 py-2.5 text-left text-xs font-bold transition-all ${
+                  category === cat
+                    ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgba(123,47,190,0.8),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                    : "border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] text-vexia-text hover:border-vexia-purple/40"
                 }`}
               >
                 {cat}
