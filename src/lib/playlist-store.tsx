@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { parsePlaylistText, type ParsedPlaylist, type PlaylistChannel, type PlaylistSeries } from "./m3u";
-import { fetchPlaylist } from "./playlist.functions";
+import { downloadPlaylist } from "../services/playlist.service";
 import {
   clearPlaylist,
   dropLegacyText,
@@ -34,6 +34,9 @@ export type PlaylistLoadEvent = {
   stage: number;
   /** Progresso real dentro da etapa (0..1), quando disponível. */
   ratio?: number;
+  /** Tentativa de download em andamento (1..3). */
+  attempt?: number;
+  attempts?: number;
   counts?: Partial<PlaylistCounts>;
 };
 
