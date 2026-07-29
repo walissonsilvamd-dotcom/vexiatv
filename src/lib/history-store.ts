@@ -174,3 +174,31 @@ export function formatDuration(sec: number) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
+
+type Matchable = {
+  id: string;
+  name?: string;
+  title?: string;
+  url?: string;
+  streamUrl?: string;
+  tvgId?: string;
+  poster?: string;
+  logo?: string;
+};
+
+/**
+ * Matching inteligente após atualizar a lista:
+ * 1) id / tvg-id  2) url do stream  3) nome normalizado.
+ */
+export function matchWatch<T extends Matchable>(entry: WatchEntry, pool: T[]): T | undefined {
+  const byId = pool.find(
+    (x) => x.id === entry.id || (!!entry.tvgId && !!x.tvgId && x.tvgId === entry.tvgId),
+  );
+  if (byId) return byId;
+  if (entry.url) {
+    const byUrl = pool.find((x) => (x.url ?? x.streamUrl) === entry.url);
+    if (byUrl) return byUrl;
+  }
+  const target = normalizeName(entry.name);
+  return pool.find((x) => normalizeName(x.name ?? x.title ?? "") === target);
+}
