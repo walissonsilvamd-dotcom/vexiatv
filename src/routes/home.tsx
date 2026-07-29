@@ -80,7 +80,7 @@ function HomePage() {
   const { movies, series, channels, hasContent } = usePlaylist();
 
   // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
-  const slides = useMemo(() => {
+  const slides = useMemo<Hero[]>(() => {
     const pool = [...movies, ...series].filter((m) => !!m.backdrop).slice(0, 40);
     const picked = pool.filter((_, i) => i % Math.max(1, Math.floor(pool.length / 8)) === 0).slice(0, 8);
     return (picked.length ? picked : pool.slice(0, 8)).map((m) => ({
