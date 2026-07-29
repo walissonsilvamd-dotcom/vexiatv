@@ -93,6 +93,13 @@ function HomePage() {
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
 
+  // Continuar assistindo: histórico local reconciliado com a lista atual.
+  const continueEntries = useContinueWatching(15);
+  const continueList = useResolvedHistory(continueEntries);
+  const openWatch = useOpenWatch();
+
+
+
   // Blocos visíveis respeitando "Ocultar VOD" e "Ocultar Séries" dos Ajustes.
   const tiles = useMemo(
     () => TILES.filter((t) => !t.hideKey || !settings[t.hideKey]),
