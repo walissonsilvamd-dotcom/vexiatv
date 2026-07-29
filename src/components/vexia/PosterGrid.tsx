@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, ImageOff, Star } from "lucide-react";
 import { useState } from "react";
 import type { MediaItem } from "../../data/vexia";
+import { useTmdbItem } from "../../lib/use-tmdb";
 
 export function PosterCard({
   item,
