@@ -394,7 +394,33 @@ function PlayerPage() {
         retryStream();
         return;
       }
+      // Foco dentro do carrossel: setas navegam entre episódios.
+      const inCarousel =
+        !!carouselRef.current &&
+        carouselRef.current.contains(document.activeElement) &&
+        document.activeElement !== document.body;
+      if (inCarousel) {
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+          e.preventDefault();
+          const cards = Array.from(
+            carouselRef.current!.querySelectorAll<HTMLButtonElement>("button[aria-current]"),
+          );
+          const i = cards.indexOf(document.activeElement as HTMLButtonElement);
+          const next = cards[i + (e.key === "ArrowRight" ? 1 : -1)];
+          next?.focus();
+          next?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+          return;
+        }
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          (document.activeElement as HTMLElement).blur();
+          shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        if (e.key === "Enter" || e.key === " ") return;
+      }
       switch (e.key) {
+
         case " ":
         case "Enter":
         case "MediaPlayPause":
