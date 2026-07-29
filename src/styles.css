@@ -215,3 +215,21 @@ body {
   from { width: 0%; }
   to { width: 100%; }
 }
+
+.vexia-seek::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--vexia-purple);
+  box-shadow: 0 0 12px color-mix(in oklab, var(--vexia-purple) 85%, transparent);
+  cursor: pointer;
+}
+
+.vexia-seek::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--vexia-purple);
+}

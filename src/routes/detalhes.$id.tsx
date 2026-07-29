@@ -15,7 +15,7 @@ import { TopNav } from "../components/vexia/TopNav";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import type { PlaylistEpisode, PlaylistSeries } from "../lib/m3u";
 import { usePlaylist } from "../lib/playlist-store";
-import { isWatched, saveProgress, useProgress } from "../lib/progress-store";
+import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 
 export const Route = createFileRoute("/detalhes/$id")({
@@ -185,11 +185,13 @@ function DetailsPage() {
                 data-nav-row={1}
                 tabIndex={0}
                 onClick={() =>
-                  saveProgress(item.id, {
-                    percent: 3,
-                    positionSec: 30,
-                    durationSec: 1000,
-                    label: item.title,
+                  navigate({
+                    to: "/player",
+                    search: {
+                      type: isSeries ? "series" : "movie",
+                      id: item.id,
+                      ep: isSeries ? (resume?.key.split("::")[1] ?? seasons[0]?.episodes[0]?.id) : undefined,
+                    },
                   })
                 }
                 className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
@@ -267,6 +269,16 @@ function DetailsPage() {
                 type="button"
                 data-nav-row={2}
                 tabIndex={0}
+                onClick={() =>
+                  navigate({
+                    to: "/player",
+                    search: {
+                      type: isSeries ? "series" : "movie",
+                      id: item.id,
+                      ep: isSeries ? resume.key.split("::")[1] : undefined,
+                    },
+                  })
+                }
                 className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold tracking-wide text-vexia-text"
               >
                 <Play className="h-4 w-4 fill-current" aria-hidden /> CONTINUAR
@@ -295,11 +307,9 @@ function DetailsPage() {
                           data-nav-row={3 + si}
                           tabIndex={0}
                           onClick={() =>
-                            saveProgress(`${item.id}::${ep.id}`, {
-                              percent: 4,
-                              positionSec: 40,
-                              durationSec: 1000,
-                              label: `${item.title} • T${season.number}E${ep.number}`,
+                            navigate({
+                              to: "/player",
+                              search: { type: "series", id: item.id, ep: ep.id },
                             })
                           }
                           className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-3 text-left"
