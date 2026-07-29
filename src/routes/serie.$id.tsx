@@ -1,9 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Star } from "lucide-react";
-import { useRef } from "react";
-import { LoadMore } from "../components/vexia/PosterGrid";
+import { ArrowLeft, ImageOff, Play } from "lucide-react";
+import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
-import { findMedia, seasonsFor } from "../data/vexia-catalog";
+import { usePlaylist } from "../lib/playlist-store";
 
 export const Route = createFileRoute("/serie/$id")({
   head: () => ({
@@ -11,7 +10,7 @@ export const Route = createFileRoute("/serie/$id")({
       { title: "VÉXIA TV — Episódios" },
       {
         name: "description",
-        content: "Episódios organizados por temporada com sinopse, duração e nota no VÉXIA TV.",
+        content: "Temporadas e episódios da série carregada da sua lista M3U no VÉXIA TV.",
       },
       { property: "og:title", content: "VÉXIA TV — Episódios" },
       { property: "og:description", content: "Temporadas e episódios da série no VÉXIA TV." },
@@ -26,26 +25,37 @@ function EpisodesPage() {
   const { id } = Route.useParams();
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
-  const serie = findMedia(id);
+  const { series } = usePlaylist();
+  const serie = series.find((s) => s.id === id);
+
+  const seasons = useMemo(() => {
+    if (!serie) return [];
+    const map = new Map<number, typeof serie.episodesList>();
+    for (const ep of serie.episodesList) {
+      const arr = map.get(ep.season) ?? [];
+      arr.push(ep);
+      map.set(ep.season, arr);
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([number, episodes]) => ({ number, episodes }));
+  }, [serie]);
 
   if (!serie) {
     return (
       <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
         <Link to="/series" className="text-xs text-vexia-cyan">
-          Série não encontrada — voltar
+          Série não encontrada na lista — voltar
         </Link>
       </main>
     );
   }
 
-  const seasons = seasonsFor(serie);
-
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
       <div className="flex items-center gap-3 px-5 py-4 md:px-10">
         <Link
-          to="/detalhes/$id"
-          params={{ id: serie.id }}
+          to="/series"
           data-nav-row={0}
           tabIndex={0}
           className="vexia-focus grid h-10 w-10 place-items-center rounded-full bg-vexia-card"
@@ -58,7 +68,7 @@ function EpisodesPage() {
             {serie.title}
           </h1>
           <p className="text-xs text-vexia-cyan">
-            {seasons.length} temporadas • {seasons.length * 6} episódios
+            {seasons.length} temporadas • {serie.episodesList.length} episódios
           </p>
         </div>
       </div>
@@ -67,7 +77,7 @@ function EpisodesPage() {
         {seasons.map((season, si) => (
           <section key={season.number} className="space-y-3">
             <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">
-              SEASON {season.number}
+              TEMPORADA {season.number}
             </h2>
             <ul className="space-y-2">
               {season.episodes.map((ep) => (
@@ -78,31 +88,28 @@ function EpisodesPage() {
                     tabIndex={0}
                     className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
                   >
-                    <img
-                      src={ep.thumb}
-                      alt={ep.title}
-                      loading="lazy"
-                      className="h-16 w-28 shrink-0 rounded-lg object-cover"
-                    />
+                    {ep.thumb ? (
+                      <img
+                        src={ep.thumb}
+                        alt=""
+                        loading="lazy"
+                        className="h-16 w-28 shrink-0 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <span className="grid h-16 w-28 shrink-0 place-items-center rounded-lg bg-black">
+                        <ImageOff className="h-4 w-4 text-vexia-cyan/60" aria-hidden />
+                      </span>
+                    )}
                     <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="text-sm font-black text-vexia-purple-soft">
-                          {String(ep.number).padStart(2, "0")}
-                        </span>
-                        <span className="truncate text-sm font-medium text-vexia-text">
-                          {ep.title}
-                        </span>
+                      <span className="block truncate text-sm font-bold text-vexia-text">
+                        {String(ep.number).padStart(2, "0")} — {ep.title}
                       </span>
-                      <span className="mt-1 line-clamp-2 block text-[11px] text-vexia-muted">
-                        {ep.overview}
+                      <span className="mt-1 block truncate text-[11px] text-vexia-cyan">
+                        Temporada {season.number} • Episódio {ep.number}
                       </span>
-                      <span className="mt-1 flex items-center gap-3 text-[11px]">
-                        <span className="text-vexia-cyan">{ep.runtime}</span>
-                        <span className="flex items-center gap-1 text-vexia-gold">
-                          <Star className="h-3 w-3 fill-current" aria-hidden />
-                          {ep.rating.toFixed(1)}
-                        </span>
-                      </span>
+                    </span>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center self-center rounded-full bg-vexia-purple">
+                      <Play className="h-4 w-4 fill-current text-vexia-text" aria-hidden />
                     </span>
                   </button>
                 </li>
@@ -110,8 +117,6 @@ function EpisodesPage() {
             </ul>
           </section>
         ))}
-
-        <LoadMore label="CARREGAR MAIS EPISÓDIOS" navRow={20} />
       </div>
     </main>
   );
