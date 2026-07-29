@@ -1,12 +1,19 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { parsePlaylistText, type ParsedPlaylist, type PlaylistChannel, type PlaylistSeries } from "./m3u";
 import { fetchPlaylist } from "./playlist.functions";
-import { idbDel, idbGet, idbSet } from "./idb";
+import {
+  clearPlaylist,
+  dropLegacyText,
+  loadPlaylist,
+  readLegacyText,
+  savePlaylist,
+  StorageQuotaError,
+  type StoredPlaylist,
+} from "../db/playlist";
+import type { ParseWorkerResponse } from "../workers/parse.worker";
+import { StorageErrorDialog } from "../components/StorageErrorDialog";
+import { matchesLegacyId } from "../utils/hash";
 import type { MediaItem } from "../data/vexia";
-
-const STORAGE_KEY = "vexia:playlist";
-
-type StoredPlaylist = { url: string; name: string; text: string; loadedAt: number };
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
 export const PLAYLIST_STAGES = [
@@ -43,39 +50,84 @@ type PlaylistContextValue = {
     name?: string,
     onEvent?: (event: PlaylistLoadEvent) => void,
   ) => Promise<boolean>;
-  loadFromText: (text: string, name?: string) => boolean;
+  loadFromText: (text: string, name?: string) => Promise<boolean>;
   reload: () => Promise<boolean>;
   clear: () => void;
 };
 
 const PlaylistContext = createContext<PlaylistContextValue | null>(null);
 
+/** Processa a lista em um Web Worker (fora da thread de UI). Cai para a main thread se indisponível. */
+function parseInWorker(
+  text: string,
+  onEvent?: (event: PlaylistLoadEvent) => void,
+): Promise<ParsedPlaylist> {
+  if (typeof Worker === "undefined") {
+    return Promise.resolve(parsePlaylistText(text));
+  }
+  return new Promise((resolve, reject) => {
+    let worker: Worker;
+    try {
+      worker = new Worker(new URL("../workers/parse.worker.ts", import.meta.url), { type: "module" });
+    } catch (err) {
+      console.error("[vexia] Web Worker indisponível, processando na thread principal", err);
+      resolve(parsePlaylistText(text));
+      return;
+    }
+    worker.onmessage = (event: MessageEvent<ParseWorkerResponse>) => {
+      const msg = event.data;
+      if (msg.type === "stage") {
+        onEvent?.({ stage: msg.stage, counts: msg.counts });
+      } else if (msg.type === "done") {
+        worker.terminate();
+        resolve(msg.data);
+      } else {
+        worker.terminate();
+        reject(new Error(msg.message));
+      }
+    };
+    worker.onerror = (err) => {
+      worker.terminate();
+      console.error("[vexia] erro no worker de parse", err);
+      try {
+        resolve(parsePlaylistText(text));
+      } catch (e) {
+        reject(e instanceof Error ? e : new Error("Falha ao processar a lista."));
+      }
+    };
+    worker.postMessage({ text });
+  });
+}
+
 export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   const [stored, setStored] = useState<StoredPlaylist | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quotaOpen, setQuotaOpen] = useState(false);
+  const retryRef = useRef<(() => void) | null>(null);
 
+  /* Carrega a lista já processada do IndexedDB — sem re-parse a cada abertura. */
   useEffect(() => {
     let alive = true;
     (async () => {
-      // IndexedDB é a fonte oficial (listas reais passam de 5MB).
-      let value = await idbGet<StoredPlaylist>(STORAGE_KEY);
-      if (!value) {
-        // Migração das listas antigas salvas em localStorage.
-        try {
-          const raw = window.localStorage.getItem(STORAGE_KEY);
-          if (raw) {
-            value = JSON.parse(raw) as StoredPlaylist;
-            await idbSet(STORAGE_KEY, value);
+      let record = await loadPlaylist();
+      if (!record) {
+        // Migração única de versões antigas que guardavam o texto bruto.
+        const legacy = readLegacyText();
+        if (legacy) {
+          try {
+            const data = await parseInWorker(legacy.text);
+            record = { url: legacy.url, name: legacy.name, loadedAt: Date.now(), data };
+            await savePlaylist(record);
+          } catch (err) {
+            console.error("[vexia] falha ao migrar a lista antiga", err);
           }
-        } catch {
-          /* lista inválida no armazenamento antigo */
+          dropLegacyText();
         }
-        window.localStorage.removeItem(STORAGE_KEY);
       }
       if (!alive) return;
-      if (value) setStored(value);
+      if (record) setStored(record);
       setReady(true);
     })();
     return () => {
@@ -83,22 +135,31 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const persist = useCallback((value: StoredPlaylist | null) => {
-    setStored(value);
-    void (value ? idbSet(STORAGE_KEY, value) : idbDel(STORAGE_KEY));
+  const persist = useCallback(async (record: StoredPlaylist, retry: () => void) => {
+    setStored(record);
+    try {
+      await savePlaylist(record);
+      return true;
+    } catch (err) {
+      if (err instanceof StorageQuotaError) {
+        retryRef.current = retry;
+        setQuotaOpen(true);
+        return false;
+      }
+      console.error("[vexia] falha ao persistir a lista", err);
+      return false;
+    }
   }, []);
 
-  const data = useMemo(() => (stored ? parsePlaylistText(stored.text) : null), [stored]);
-
   const loadFromText = useCallback(
-    (text: string, name = "Lista local") => {
-      const parsed = parsePlaylistText(text);
-      if (parsed.total === 0) {
+    async (text: string, name = "Lista local") => {
+      const data = await parseInWorker(text);
+      if (data.total === 0) {
         setError("Nenhum canal ou título encontrado nessa lista.");
         return false;
       }
       setError(null);
-      persist({ url: "", name, text, loadedAt: Date.now() });
+      await persist({ url: "", name, loadedAt: Date.now(), data }, () => void loadFromText(text, name));
       return true;
     },
     [persist],
@@ -108,31 +169,22 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     async (url: string, name?: string, onEvent?: (event: PlaylistLoadEvent) => void) => {
       setLoading(true);
       setError(null);
-      // Cede a thread para a UI pintar a etapa antes de seguir (sem delay artificial).
-      const yieldUi = () => new Promise((r) => setTimeout(r, 0));
       try {
         onEvent?.({ stage: 0 });
         const { text } = await fetchPlaylist({ data: { url } });
-        onEvent?.({ stage: 1 });
-        await yieldUi();
-        onEvent?.({ stage: 2 });
-        await yieldUi();
-        const parsed = parsePlaylistText(text);
-        if (parsed.total === 0) {
+        const data = await parseInWorker(text, onEvent);
+        if (data.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
           return false;
         }
-        onEvent?.({ stage: 3 });
-        await yieldUi();
-        onEvent?.({ stage: 4, counts: { channels: parsed.channels.length } });
-        await yieldUi();
-        onEvent?.({ stage: 5, counts: { movies: parsed.movies.length } });
-        await yieldUi();
-        onEvent?.({ stage: 6, counts: { series: parsed.series.length } });
-        await yieldUi();
         onEvent?.({ stage: 7 });
-        persist({ url, name: name || new URL(url).hostname, text, loadedAt: Date.now() });
-        await yieldUi();
+        const record: StoredPlaylist = {
+          url,
+          name: name || new URL(url).hostname,
+          loadedAt: Date.now(),
+          data,
+        };
+        await persist(record, () => void loadFromUrl(url, name));
         return true;
       } catch (e) {
         setError(e instanceof Error ? e.message : "Falha ao carregar a lista.");
@@ -149,6 +201,14 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     return loadFromUrl(stored.url, stored.name);
   }, [stored, loadFromUrl]);
 
+  const clear = useCallback(() => {
+    setError(null);
+    setStored(null);
+    void clearPlaylist();
+  }, []);
+
+  const data = stored?.data ?? null;
+
   const value: PlaylistContextValue = {
     ready,
     loading,
@@ -162,13 +222,26 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     loadFromUrl,
     loadFromText,
     reload,
-    clear: () => {
-      setError(null);
-      persist(null);
-    },
+    clear,
   };
 
-  return <PlaylistContext.Provider value={value}>{children}</PlaylistContext.Provider>;
+  return (
+    <PlaylistContext.Provider value={value}>
+      {children}
+      <StorageErrorDialog
+        open={quotaOpen}
+        onClose={() => setQuotaOpen(false)}
+        onRetry={() => {
+          setQuotaOpen(false);
+          retryRef.current?.();
+        }}
+        onClear={() => {
+          setQuotaOpen(false);
+          clear();
+        }}
+      />
+    </PlaylistContext.Provider>
+  );
 }
 
 export function usePlaylist() {
@@ -179,5 +252,11 @@ export function usePlaylist() {
 
 export function findPlaylistMedia(data: ParsedPlaylist | null, id: string) {
   if (!data) return undefined;
-  return data.movies.find((m) => m.id === id) ?? data.series.find((s) => s.id === id);
+  return (
+    data.movies.find((m) => m.id === id) ??
+    data.series.find((s) => s.id === id) ??
+    // IDs antigos (slug + índice) continuam válidos para favoritos/histórico.
+    data.movies.find((m) => matchesLegacyId(id, m.title)) ??
+    data.series.find((s) => matchesLegacyId(id, s.title))
+  );
 }

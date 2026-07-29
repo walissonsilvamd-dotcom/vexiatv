@@ -1,6 +1,6 @@
 import type { MediaItem } from "../data/vexia";
 import { detectAudio } from "./filters-store";
-import { stableId } from "./stable-id";
+import { stableId } from "../utils/hash";
 
 export type M3UEntry = {
   name: string;
