@@ -14,8 +14,10 @@ import {
   Settings,
   SkipBack,
   SkipForward,
+  RotateCcw,
   Volume2,
   VolumeX,
+  WifiOff,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -65,6 +67,7 @@ function fmt(sec: number) {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
+const MAX_RETRIES = 3;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
@@ -89,6 +92,9 @@ function PlayerPage() {
   const [audioTrack, setAudioTrack] = useState("Original");
   const [liveDelay, setLiveDelay] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
+  const [fatalError, setFatalError] = useState<{ message: string; detail?: string } | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [retryNonce, setRetryNonce] = useState(0);
 
   const channel = type === "live" ? channels.find((c) => c.id === id) : undefined;
   const movie = type === "movie" ? movies.find((m) => m.id === id) : undefined;
@@ -125,12 +131,23 @@ function PlayerPage() {
     if (!video || !src) return;
     let destroyed = false;
     let hls: { destroy: () => void } | null = null;
+    let retries = 0;
+    let backoff: ReturnType<typeof setTimeout> | undefined;
 
     const isHls = /\.m3u8(\?|$)/i.test(src) || /\.ts(\?|$)/i.test(src);
     const nativeHls = video.canPlayType("application/vnd.apple.mpegurl") !== "";
 
+    const fail = (message: string, detail?: string) => {
+      if (destroyed) return;
+      setReconnecting(false);
+      setBuffering(false);
+      setFatalError({ message, detail });
+    };
+
     async function attach() {
       if (!video) return;
+      setFatalError(null);
+      setBuffering(true);
       if (isHls && !nativeHls) {
         const { default: Hls } = await import("hls.js");
         if (destroyed || !video) return;
@@ -144,24 +161,68 @@ function PlayerPage() {
           instance.attachMedia(video);
           instance.on(Hls.Events.ERROR, (_e, data) => {
             if (!data.fatal) return;
+            if (retries >= MAX_RETRIES) {
+              instance.destroy();
+              fail(
+                data.type === Hls.ErrorTypes.NETWORK_ERROR
+                  ? "Falha de conexão com o servidor da lista"
+                  : "Não foi possível decodificar este stream",
+                `${data.type}${data.details ? ` • ${data.details}` : ""}`,
+              );
+              return;
+            }
+            retries += 1;
+            setAttempt(retries);
             setReconnecting(true);
-            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
-            else instance.recoverMediaError();
-            window.setTimeout(() => setReconnecting(false), 2500);
+            backoff = setTimeout(
+              () => {
+                if (destroyed) return;
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
+                else instance.recoverMediaError();
+                setReconnecting(false);
+              },
+              Math.min(6000, 1200 * retries),
+            );
           });
           hls = instance;
           return;
         }
+        fail("Este dispositivo não suporta a reprodução deste formato");
+        return;
       }
       video.src = src;
+      video.load();
     }
+
+    const onNativeError = () => {
+      if (retries >= MAX_RETRIES) {
+        fail("Não foi possível carregar o stream", video.error?.message || undefined);
+        return;
+      }
+      retries += 1;
+      setAttempt(retries);
+      setReconnecting(true);
+      backoff = setTimeout(
+        () => {
+          if (destroyed || !video) return;
+          video.load();
+          void video.play().catch(() => undefined);
+          setReconnecting(false);
+        },
+        Math.min(6000, 1200 * retries),
+      );
+    };
+    video.addEventListener("error", onNativeError);
 
     void attach();
     return () => {
       destroyed = true;
+      clearTimeout(backoff);
+      video.removeEventListener("error", onNativeError);
       hls?.destroy();
     };
-  }, [src, type]);
+  }, [src, type, retryNonce]);
+
 
   /* ── Eventos do vídeo ── */
   useEffect(() => {
@@ -260,10 +321,24 @@ function PlayerPage() {
     navigate({ to: "/detalhes/$id", params: { id } });
   }, [menu, navigate, type, id]);
 
+  const retryStream = useCallback(() => {
+    setFatalError(null);
+    setAttempt(0);
+    setBuffering(true);
+    setRetryNonce((n) => n + 1);
+  }, []);
+
+
+
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       ping();
+      if (fatalError && (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause")) {
+        e.preventDefault();
+        retryStream();
+        return;
+      }
       switch (e.key) {
         case " ":
         case "Enter":
@@ -293,7 +368,7 @@ function PlayerPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [ping, toggle, seekBy, goBack, type]);
+  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
 
   const applySpeed = (value: number) => {
     setSpeed(value);
@@ -342,7 +417,7 @@ function PlayerPage() {
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
-      {(buffering || reconnecting) && (
+      {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="flex flex-col items-center gap-2">
             <Loader2
@@ -350,14 +425,17 @@ function PlayerPage() {
               aria-hidden
             />
             {reconnecting ? (
-              <span className="text-xs font-semibold text-vexia-cyan">Reconectando…</span>
+              <span className="text-xs font-semibold text-vexia-cyan">
+                Reconectando… ({attempt}/{MAX_RETRIES})
+              </span>
             ) : null}
+
           </div>
         </div>
       )}
 
       {!src ? (
-        <div className="absolute inset-0 grid place-items-center bg-black/80 text-center">
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
           <div>
             <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
             <button
@@ -370,6 +448,44 @@ function PlayerPage() {
           </div>
         </div>
       ) : null}
+
+      {/* ── Erro fatal / recuperação ── */}
+      {src && fatalError ? (
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/90 px-6">
+          <div className="w-full max-w-md rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f]/95 p-6 text-center shadow-[0_0_40px_rgba(123,47,190,0.35)]">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-[#FF1744]/60 bg-[#FF1744]/10">
+              <WifiOff className="h-7 w-7 text-[#FF1744]" aria-hidden />
+            </div>
+            <p className="mt-4 text-base font-bold text-white">Falha na reprodução</p>
+            <p className="mt-1 text-sm text-white/70">{fatalError.message}</p>
+            <p className="mt-2 text-[11px] text-vexia-cyan/80">
+              {attempt > 0 ? `${attempt} tentativa(s) automática(s) realizada(s). ` : ""}
+              Verifique sua conexão ou tente novamente.
+            </p>
+            {fatalError.detail ? (
+              <p className="mt-1 truncate text-[10px] text-white/35">{fatalError.detail}</p>
+            ) : null}
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                autoFocus
+                onClick={retryStream}
+                className="vexia-focus flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold text-white"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden /> TENTAR NOVAMENTE
+              </button>
+              <button
+                type="button"
+                onClick={goBack}
+                className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/60 px-6 py-2 text-xs font-bold text-vexia-cyan"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden /> VOLTAR
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
 
       {/* ── Retomar reprodução ── */}
       {resumeAsk && savedEntry ? (
