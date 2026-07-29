@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
@@ -33,6 +34,8 @@ function ListsPage() {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [server, setServer] = useState("");
+
+  const qrValue = url.trim() || source?.url || `https://vexia.tv/pair?mac=${DEVICE_MAC}&key=${DEVICE_KEY}`;
 
   const openForm = () => {
     setName(source?.name ?? "");
