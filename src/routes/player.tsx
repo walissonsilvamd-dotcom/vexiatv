@@ -872,6 +872,25 @@ function PlayerPage() {
           </div>
         ) : null}
       </section>
+      </div>
+
+      {showEpisodes && serie ? (
+        <div ref={carouselRef}>
+          <EpisodeCarousel
+            seriesId={id}
+            seriesTitle={serie.title}
+            seriesYear={serie.year || undefined}
+            seriesPoster={serie.poster}
+            episodes={episodes}
+            currentEpisodeId={episode?.id}
+            onSelect={(next) => {
+              navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
+              shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+          />
+        </div>
+      ) : null}
     </main>
+
   );
 }
