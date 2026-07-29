@@ -103,23 +103,32 @@ export function normalizeTmdb(
 }
 
 export async function searchTmdb(
-  apiKey: string,
+  credential: string,
   title: string,
   year: number | undefined,
   kind: TmdbKind,
   language: string,
 ): Promise<Partial<MediaItem> | null> {
+  // Token v4 (JWT) usa Bearer; chave v3 vai na query string.
+  const isBearer = credential.split(".").length === 3;
+  const headers: Record<string, string> = {
+    "User-Agent": "VEXIA TV/1.0",
+    accept: "application/json",
+  };
+  if (isBearer) headers.Authorization = `Bearer ${credential}`;
+  const auth = isBearer ? "" : `api_key=${credential}&`;
+
   const encoded = encodeURIComponent(title);
-  const url = `${TMDB_BASE}/search/${kind}?api_key=${apiKey}&query=${encoded}&language=${language}${year ? `&year=${year}` : ""}`;
-  const response = await fetch(url, { headers: { "User-Agent": "VÉXIA TV/1.0" } });
+  const url = `${TMDB_BASE}/search/${kind}?${auth}query=${encoded}&language=${language}${year ? `&year=${year}` : ""}`;
+  const response = await fetch(url, { headers });
   if (!response.ok) return null;
 
   const json = (await response.json()) as { results?: TmdbSearchResult[] };
   const result = json.results?.[0];
   if (!result) return null;
 
-  const detailsUrl = `${TMDB_BASE}/${kind}/${result.id}?api_key=${apiKey}&language=${language}&append_to_response=credits`;
-  const detailsRes = await fetch(detailsUrl, { headers: { "User-Agent": "VÉXIA TV/1.0" } });
+  const detailsUrl = `${TMDB_BASE}/${kind}/${result.id}?${auth}language=${language}&append_to_response=credits`;
+  const detailsRes = await fetch(detailsUrl, { headers });
   if (!detailsRes.ok) return null;
 
   const details = (await detailsRes.json()) as TmdbMovieDetails | TmdbTvDetails;

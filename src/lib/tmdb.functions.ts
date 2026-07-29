@@ -14,7 +14,7 @@ export const tmdbSearch = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const apiKey = process.env.TMDB_API_KEY;
-    if (!apiKey) throw new Error("TMDB_API_KEY not configured");
-    return searchTmdb(apiKey, data.title, data.year, data.kind as TmdbKind, data.language);
+    const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
+    if (!credential) throw new Error("TMDB credentials not configured");
+    return searchTmdb(credential, data.title, data.year, data.kind as TmdbKind, data.language);
   });
