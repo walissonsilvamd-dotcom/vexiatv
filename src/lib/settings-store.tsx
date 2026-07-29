@@ -54,6 +54,7 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   quality: "auto",
   player: "internal",
   autoPlay: true,
+  episodeQuickSwitch: false,
   autoUpdate: true,
   timeFormat: "24h",
   subtitlesEnabled: false,
