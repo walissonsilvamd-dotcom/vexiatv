@@ -321,6 +321,15 @@ function PlayerPage() {
     navigate({ to: "/detalhes/$id", params: { id } });
   }, [menu, navigate, type, id]);
 
+  const retryStream = useCallback(() => {
+    setFatalError(null);
+    setAttempt(0);
+    setBuffering(true);
+    setRetryNonce((n) => n + 1);
+  }, []);
+
+
+
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
