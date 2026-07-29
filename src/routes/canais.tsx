@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Play, Search, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
@@ -40,6 +40,7 @@ function qualityOf(name: string) {
 function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
+  const navigate = useNavigate();
   const { channels, data, hasContent } = usePlaylist();
 
   const [category, setCategory] = useState("Todos");
@@ -294,7 +295,7 @@ function ChannelsPage() {
             type="button"
             data-nav-row={4}
             tabIndex={0}
-            onClick={() => selected && window.open(selected.url, "_blank", "noopener")}
+            onClick={() => selected && navigate({ to: "/player", search: { type: "live", id: selected.id } })}
             className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
           >
             <Play className="h-4 w-4" aria-hidden /> Assistir

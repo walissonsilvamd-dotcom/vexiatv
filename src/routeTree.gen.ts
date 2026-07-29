@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SeriesRouteImport } from './routes/series'
+import { Route as PlayerRouteImport } from './routes/player'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ListasRouteImport } from './routes/listas'
 import { Route as HomeRouteImport } from './routes/home'
@@ -24,6 +25,11 @@ import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 const SeriesRoute = SeriesRouteImport.update({
   id: '/series',
   path: '/series',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayerRoute = PlayerRouteImport.update({
+  id: '/player',
+  path: '/player',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
+  '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
+  '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
+  '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/listas'
     | '/login'
+    | '/player'
     | '/series'
     | '/detalhes/$id'
     | '/serie/$id'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/listas'
     | '/login'
+    | '/player'
     | '/series'
     | '/detalhes/$id'
     | '/serie/$id'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/listas'
     | '/login'
+    | '/player'
     | '/series'
     | '/detalhes/$id'
     | '/serie/$id'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   ListasRoute: typeof ListasRoute
   LoginRoute: typeof LoginRoute
+  PlayerRoute: typeof PlayerRoute
   SeriesRoute: typeof SeriesRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
   SerieIdRoute: typeof SerieIdRoute
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/series'
       fullPath: '/series'
       preLoaderRoute: typeof SeriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/player': {
+      id: '/player'
+      path: '/player'
+      fullPath: '/player'
+      preLoaderRoute: typeof PlayerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   ListasRoute: ListasRoute,
   LoginRoute: LoginRoute,
+  PlayerRoute: PlayerRoute,
   SeriesRoute: SeriesRoute,
   DetalhesIdRoute: DetalhesIdRoute,
   SerieIdRoute: SerieIdRoute,
