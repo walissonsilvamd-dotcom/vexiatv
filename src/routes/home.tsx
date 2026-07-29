@@ -81,9 +81,13 @@ function HomePage() {
 
   // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
   const slides = useMemo<Hero[]>(() => {
-    const pool = [...movies, ...series].filter((m) => !!m.backdrop).slice(0, 40);
-    const picked = pool.filter((_, i) => i % Math.max(1, Math.floor(pool.length / 8)) === 0).slice(0, 8);
-    return (picked.length ? picked : pool.slice(0, 8)).map((m) => ({
+    const pool = [...movies, ...series]
+      .map((m) => ({ m, image: m.backdrop || m.poster }))
+      .filter((x) => !!x.image)
+      .slice(0, 40);
+    const step = Math.max(1, Math.floor(pool.length / 8));
+    const picked = pool.filter((_, i) => i % step === 0).slice(0, 8);
+    return (picked.length ? picked : pool.slice(0, 8)).map(({ m, image }) => ({
       title: m.title.toUpperCase(),
       year: m.year,
       release: m.genres[0] ?? "LISTA M3U",
@@ -91,7 +95,7 @@ function HomePage() {
       runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
       votes: m.rating,
       stars: Math.round(m.rating),
-      image: m.backdrop,
+      image: image as string,
     }));
   }, [movies, series]);
 
