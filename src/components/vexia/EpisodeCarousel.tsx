@@ -153,7 +153,7 @@ export function EpisodeCarousel({
             const active = episode.id === currentEpisodeId;
             const progress = entryFor(`${seriesId}::${episode.id}`);
             const pct = Math.min(100, Math.round(progress?.percent ?? 0));
-            const thumb = episode.thumb || meta?.still || seriesPoster || "";
+            const thumb = meta?.still || episode.thumb || seriesPoster || "";
             const name = meta?.name || episode.title || `Episódio ${episode.number}`;
             return (
               <button
@@ -199,9 +199,10 @@ export function EpisodeCarousel({
                     EP {String(episode.number).padStart(2, "0")}
                   </p>
                   <p className="line-clamp-1 text-xs font-semibold text-white">{name}</p>
-                  {meta?.runtimeMin ? (
+                  {meta?.runtimeMin || episode.runtimeMin ? (
                     <p className="flex items-center gap-1 text-[11px] text-[#B0B0B0]">
-                      <Clock className="h-3 w-3" aria-hidden /> {minutesLabel(meta.runtimeMin)}
+                      <Clock className="h-3 w-3" aria-hidden />{" "}
+                      {minutesLabel(meta?.runtimeMin || episode.runtimeMin)}
                     </p>
                   ) : null}
                   {pct > 0 ? (
@@ -239,6 +240,7 @@ export function EpisodeCarousel({
           </p>
           <p className="text-xs leading-relaxed text-[#B0B0B0]">
             {byNumber.get(currentEpisode.number)?.overview ||
+              currentEpisode.overview ||
               "Sinopse indisponível para este episódio."}
           </p>
         </div>
