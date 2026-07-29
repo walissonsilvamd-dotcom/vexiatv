@@ -210,10 +210,10 @@ function SettingsPage() {
           <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
         </button>
         <div className="text-center">
-          <h1 className="text-2xl font-black tracking-[0.18em] text-white md:text-3xl">
-            <span className="text-vexia-purple">A</span>
-            <span className="text-vexia-cyan">JUSTES</span>
+          <h1 className="text-2xl font-black tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgba(123,43,190,0.55)] md:text-3xl">
+            AJUSTES
           </h1>
+
           <p className="mt-1 text-[11px] font-medium tracking-widest text-[#9CA3AF]">
             {formatTime(new Date())} • Preferências salvas no aparelho
           </p>
