@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { Heart } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Heart, Tv } from "lucide-react";
 import { AppHeader } from "../components/vexia/AppHeader";
 import { BottomTabs } from "../components/vexia/BottomTabs";
+import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
 import { LoadMore } from "../components/vexia/PosterGrid";
+import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
-import { channelCategories, fullChannels } from "../data/vexia-catalog";
+import { usePlaylist } from "../lib/playlist-store";
+import type { PlaylistChannel } from "../lib/m3u";
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -13,7 +16,7 @@ export const Route = createFileRoute("/canais")({
       { title: "VÉXIA TV — Canais ao vivo" },
       {
         name: "description",
-        content: "Lista de canais ao vivo do VÉXIA TV com filtros por categoria e favoritos.",
+        content: "Canais ao vivo da sua lista M3U com filtros por categoria e favoritos.",
       },
       { property: "og:title", content: "VÉXIA TV — Canais" },
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
@@ -24,18 +27,42 @@ export const Route = createFileRoute("/canais")({
   component: ChannelsPage,
 });
 
+const PAGE = 60;
+
 function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
+  const { channels, data, hasContent } = usePlaylist();
   const [category, setCategory] = useState("Todos");
-  const [selected, setSelected] = useState(fullChannels[0]);
+  const [selected, setSelected] = useState<PlaylistChannel | null>(null);
   const [favs, setFavs] = useState<string[]>([]);
+  const [limit, setLimit] = useState(PAGE);
+  const [listsOpen, setListsOpen] = useState(false);
 
-  const list =
-    category === "Todos" ? fullChannels : fullChannels.filter((c) => c.category === category);
+  const list = useMemo(
+    () => (category === "Todos" ? channels : channels.filter((c) => c.category === category)),
+    [channels, category],
+  );
+
+  useEffect(() => {
+    setSelected((cur) => (cur && list.includes(cur) ? cur : (list[0] ?? null)));
+  }, [list]);
 
   const toggleFav = (id: string) =>
     setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+
+  if (!hasContent || channels.length === 0) {
+    return (
+      <main className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+        <AppHeader />
+        <div className="px-5 md:px-10">
+          <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
+        </div>
+        <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+        <BottomTabs active="Canais" />
+      </main>
+    );
+  }
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
@@ -43,16 +70,19 @@ function ChannelsPage() {
 
       <div className="grid gap-5 px-5 md:grid-cols-[220px_1fr] md:px-10">
         <aside className="space-y-2">
-          <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">FILTROS</h2>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
-            {channelCategories.map((cat) => (
+          <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">CATEGORIAS</h2>
+          <div className="no-scrollbar flex gap-2 overflow-x-auto md:max-h-[70vh] md:flex-col md:overflow-y-auto">
+            {(data?.channelCategories ?? ["Todos"]).map((cat) => (
               <button
                 key={cat}
                 type="button"
                 data-nav-row={1}
                 tabIndex={0}
-                onClick={() => setCategory(cat)}
-                className={`vexia-focus shrink-0 rounded-lg px-4 py-2 text-left text-xs font-semibold ${
+                onClick={() => {
+                  setCategory(cat);
+                  setLimit(PAGE);
+                }}
+                className={`vexia-focus shrink-0 truncate rounded-lg px-4 py-2 text-left text-xs font-semibold ${
                   category === cat ? "bg-vexia-purple text-vexia-text" : "bg-vexia-card text-vexia-text"
                 }`}
               >
@@ -64,26 +94,36 @@ function ChannelsPage() {
 
         <section className="space-y-4">
           <div className="rounded-xl border-2 border-vexia-purple bg-black p-4">
-            <div className="grid aspect-video w-full place-items-center rounded-lg bg-black/60 text-xs tracking-[0.3em] text-vexia-muted">
-              PRÉVIA AO VIVO
+            <div className="grid aspect-video w-full place-items-center overflow-hidden rounded-lg bg-black/60 text-xs tracking-[0.3em] text-vexia-muted">
+              {selected?.logo ? (
+                <img
+                  src={selected.logo}
+                  alt={selected.name}
+                  className="max-h-[60%] max-w-[50%] object-contain"
+                />
+              ) : (
+                "PRÉVIA AO VIVO"
+              )}
             </div>
-            <p className="mt-3 text-base font-bold text-vexia-text">{selected.name}</p>
+            <p className="mt-3 text-base font-bold text-vexia-text">{selected?.name}</p>
             <p className="text-xs text-vexia-cyan">
-              {selected.group} • {selected.category} • {selected.schedule}
+              {selected?.group} • {selected?.schedule}
             </p>
             <button
               type="button"
               data-nav-row={2}
               tabIndex={0}
-              onClick={() => toggleFav(selected.id)}
+              onClick={() => selected && toggleFav(selected.id)}
               className="vexia-focus mt-4 rounded-full bg-vexia-purple px-6 py-2 text-[11px] font-bold tracking-wide"
             >
-              {favs.includes(selected.id) ? "REMOVER DOS FAVORITOS" : "ADICIONAR AOS FAVORITOS"}
+              {selected && favs.includes(selected.id)
+                ? "REMOVER DOS FAVORITOS"
+                : "ADICIONAR AOS FAVORITOS"}
             </button>
           </div>
 
           <ul className="grid gap-2 md:grid-cols-2">
-            {list.map((ch) => (
+            {list.slice(0, limit).map((ch) => (
               <li key={ch.id} className="relative">
                 <button
                   type="button"
@@ -92,16 +132,18 @@ function ChannelsPage() {
                   onClick={() => setSelected(ch)}
                   className="vexia-focus flex w-full items-center gap-3 rounded-lg bg-vexia-card p-3 text-left"
                 >
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-black text-xs font-black text-vexia-purple-soft">
-                    {ch.initials}
+                  <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-black text-xs font-black text-vexia-purple-soft">
+                    {ch.logo ? (
+                      <img src={ch.logo} alt="" loading="lazy" className="h-full w-full object-contain" />
+                    ) : (
+                      <Tv className="h-5 w-5" aria-hidden />
+                    )}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium text-vexia-text">
                       {ch.name}
                     </span>
-                    <span className="block truncate text-[11px] text-vexia-cyan">
-                      {ch.group} • {ch.now}
-                    </span>
+                    <span className="block truncate text-[11px] text-vexia-cyan">{ch.group}</span>
                   </span>
                   <span className="w-8" />
                 </button>
@@ -122,7 +164,13 @@ function ChannelsPage() {
             ))}
           </ul>
 
-          <LoadMore label="CARREGAR MAIS CANAIS" navRow={4} />
+          {limit < list.length ? (
+            <LoadMore
+              label="CARREGAR MAIS CANAIS"
+              navRow={4}
+              onClick={() => setLimit((l) => l + PAGE)}
+            />
+          ) : null}
         </section>
       </div>
 
