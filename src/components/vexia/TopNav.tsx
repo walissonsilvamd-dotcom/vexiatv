@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useSettings } from "../../lib/settings-store";
 
-type TabKey = "Home" | "Canais" | "Filmes" | "Séries" | "Favoritos" | "Ajustes";
+type TabKey = "Home" | "Canais" | "Filmes" | "Séries" | "Favoritos" | "Histórico" | "Ajustes";
 
 const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] = [
   { label: "Home", to: "/home" },
@@ -9,6 +9,7 @@ const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] 
   { label: "Filmes", to: "/filmes", hideKey: "hideVod" },
   { label: "Séries", to: "/series", hideKey: "hideSeries" },
   { label: "Favoritos", to: "/favoritos" },
+  { label: "Histórico", to: "/historico" },
   { label: "Ajustes", to: "/configuracoes" },
 ];
 

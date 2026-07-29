@@ -14,6 +14,7 @@ import { Route as PlayerRouteImport } from './routes/player'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ListasRouteImport } from './routes/listas'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FiltrosRouteImport } from './routes/filtros'
 import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as FavoritosRouteImport } from './routes/favoritos'
@@ -47,6 +48,11 @@ const ListasRoute = ListasRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FiltrosRoute = FiltrosRouteImport.update({
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
+  '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
+  '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/favoritos': typeof FavoritosRoute
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
+  '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/filmes'
     | '/filtros'
+    | '/historico'
     | '/home'
     | '/listas'
     | '/login'
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/filmes'
     | '/filtros'
+    | '/historico'
     | '/home'
     | '/listas'
     | '/login'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/favoritos'
     | '/filmes'
     | '/filtros'
+    | '/historico'
     | '/home'
     | '/listas'
     | '/login'
@@ -203,6 +215,7 @@ export interface RootRouteChildren {
   FavoritosRoute: typeof FavoritosRoute
   FilmesRoute: typeof FilmesRoute
   FiltrosRoute: typeof FiltrosRoute
+  HistoricoRoute: typeof HistoricoRoute
   HomeRoute: typeof HomeRoute
   ListasRoute: typeof ListasRoute
   LoginRoute: typeof LoginRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/filtros': {
@@ -323,6 +343,7 @@ const rootRouteChildren: RootRouteChildren = {
   FavoritosRoute: FavoritosRoute,
   FilmesRoute: FilmesRoute,
   FiltrosRoute: FiltrosRoute,
+  HistoricoRoute: HistoricoRoute,
   HomeRoute: HomeRoute,
   ListasRoute: ListasRoute,
   LoginRoute: LoginRoute,
