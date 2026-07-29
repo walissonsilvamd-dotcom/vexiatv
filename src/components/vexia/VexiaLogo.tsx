@@ -1,4 +1,4 @@
-import logoAsset from "../../assets/vexia-logo.png.asset.json";
+import logoAsset from "../../assets/vexia-logo-app.png.asset.json";
 
 export function VexiaLogo({ className = "h-14" }: { className?: string }) {
   return (
