@@ -294,6 +294,15 @@ export function matchesFilters(item: MediaItem, kind: MediaKind, state: FilterSt
   );
 }
 
+/** Aplica o filtro de TIPO em um canal ao vivo (Kids, Anime, Doc, Reality). */
+export function matchesChannel(name: string, category: string, state: FilterState) {
+  const tipo = state.tipo;
+  if (tipo === "Todos" || tipo === "Canais") return true;
+  if (tipo === "Filmes" || tipo === "Séries") return false;
+  const re = TAG_RE[tipo];
+  return re ? re.test(norm(`${name} ${category}`)) : true;
+}
+
 /** Detecta o áudio a partir das marcações comuns das listas IPTV. */
 export function detectAudio(text: string): MediaItem["audio"] {
   const value = norm(text);

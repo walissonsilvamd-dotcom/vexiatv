@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Play, Search, Tv } from "lucide-react";
+import { Heart, Play, Search, SlidersHorizontal, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -10,6 +10,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import type { PlaylistChannel } from "../lib/m3u";
 import { channelFavorite, useFavorites } from "../lib/favorites-store";
+import { matchesChannel, useFilters } from "../lib/filters-store";
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -68,6 +69,7 @@ function ChannelsPage() {
   }, [channels]);
 
   const categories = data?.channelCategories ?? ["Todos"];
+  const { filters, active: activeFilters } = useFilters();
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -78,9 +80,10 @@ function ChannelsPage() {
         (!q ||
           c.name.toLowerCase().includes(q) ||
           c.category.toLowerCase().includes(q) ||
-          c.group.toLowerCase().includes(q)),
+          c.group.toLowerCase().includes(q)) &&
+        matchesChannel(c.name, c.category, filters),
     );
-  }, [channels, category, query, favs]);
+  }, [channels, category, query, favs, filters]);
 
   useEffect(() => {
     setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
@@ -117,6 +120,21 @@ function ChannelsPage() {
             className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text outline-none backdrop-blur-xl placeholder:text-vexia-text/45"
           />
         </label>
+        <Link
+          to="/filtros"
+          data-nav-row={0}
+          tabIndex={0}
+          aria-label="Abrir filtros"
+          className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-[11px] font-bold text-vexia-cyan backdrop-blur-xl"
+        >
+          <SlidersHorizontal className="h-4 w-4" aria-hidden />
+          FILTROS
+          {activeFilters > 0 ? (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-vexia-purple px-1 text-[10px] font-black text-white">
+              {activeFilters}
+            </span>
+          ) : null}
+        </Link>
         <div className="ml-auto hidden md:block">
           <VexiaLogo className="h-11" />
         </div>
