@@ -347,9 +347,15 @@ function HomePage() {
       </div>
 
       {/* Rodapé de ajuda */}
-      <div className="absolute inset-x-0 bottom-[4%] z-10 flex items-center justify-center gap-8 text-[clamp(0.7rem,1vw,1rem)] text-vexia-text/90">
+      <div className="absolute inset-x-0 bottom-[4%] z-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-[clamp(0.7rem,1vw,1rem)] font-semibold text-white/85">
         <span className="flex items-center gap-2">
-          <Move className="h-4 w-4" aria-hidden /> Navegar
+          <Move className="h-4 w-4 text-vexia-cyan" aria-hidden /> Navegar
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="rounded-full border border-current px-2 py-0.5 text-[0.7em] font-bold">
+            ↑ ↓
+          </span>
+          Trocar destaque
         </span>
         <span className="flex items-center gap-2">
           <span className="rounded-full border border-current px-2 py-0.5 text-[0.7em] font-bold">OK</span>
@@ -362,6 +368,7 @@ function HomePage() {
           <Menu className="h-4 w-4" aria-hidden /> Menu
         </Link>
       </div>
+
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
     </main>
