@@ -54,7 +54,7 @@ function ChannelsPage() {
 
   if (!hasContent || channels.length === 0) {
     return (
-      <main className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+      <main className="min-h-screen bg-vexia-bg text-vexia-text">
         <AppHeader />
       <div className="px-5 pb-2 md:px-10">
         <TopNav active="Canais" className="w-fit" />
@@ -63,13 +63,12 @@ function ChannelsPage() {
           <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
         </div>
         <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
-        <BottomTabs active="Canais" />
       </main>
     );
   }
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+    <main ref={scopeRef} className="min-h-screen bg-vexia-bg text-vexia-text">
       <AppHeader />
       <div className="px-5 pb-2 md:px-10">
         <TopNav active="Canais" className="w-fit" />
