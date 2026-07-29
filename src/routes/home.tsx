@@ -37,14 +37,15 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
-const HERO = {
-  title: "A ODISSEIA",
-  year: 2026,
-  release: "2026-07-15 (US GB)",
-  genres: ["AVENTURA", "AÇÃO", "FANTASIA"],
-  runtime: "2H 52M",
-  votes: 8,
-  stars: 8,
+const FALLBACK_HERO = {
+  title: "CARREGUE SUA LISTA",
+  year: new Date().getFullYear(),
+  release: "Menu LISTAS",
+  genres: ["CANAIS", "FILMES", "SÉRIES"],
+  runtime: "M3U / M3U8",
+  votes: 0,
+  stars: 0,
+  image: heroAsset.url,
 };
 
 type Tile = { label: string; icon: LucideIcon; to?: string; action?: "reload" | "lists" };
