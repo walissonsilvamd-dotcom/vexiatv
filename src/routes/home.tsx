@@ -19,6 +19,7 @@ import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
+import type { MediaItem } from "../data/vexia";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
