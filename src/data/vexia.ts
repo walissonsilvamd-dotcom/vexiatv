@@ -24,6 +24,8 @@ export type MediaItem = {
   backdrop: string;
   poster: string;
   posterPosition?: string;
+  /** URL do stream vinda da lista M3U/HLS (ausente nos dados de exemplo). */
+  streamUrl?: string;
 };
 
 export type Channel = {
