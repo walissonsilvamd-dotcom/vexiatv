@@ -100,6 +100,7 @@ function HomePage() {
       votes: m.rating,
       stars: Math.round(m.rating),
       image: image as string,
+      overview: m.overview ?? "",
     }));
   }, [movies, series]);
 
@@ -112,12 +113,35 @@ function HomePage() {
 
   const HERO = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
 
+  // Pré-carrega a próxima imagem para evitar "piscada" na troca de slide.
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const next = slides[(slide + 1) % slides.length];
+    if (next?.image) {
+      const img = new Image();
+      img.src = next.image;
+    }
+  }, [slide, slides]);
+
+  // Relógio da barra superior.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 20000);
+    return () => clearInterval(id);
+  }, []);
+
   const focusTile = (i: number) => {
     const next = (i + TILES.length) % TILES.length;
     setActive(next);
     const el = rowRef.current?.querySelectorAll<HTMLElement>("[data-tile]")[next];
     el?.focus();
   };
+
+  // Foco inicial no primeiro bloco (D-pad pronto ao abrir).
+  useEffect(() => {
+    const el = rowRef.current?.querySelector<HTMLElement>("[data-tile]");
+    el?.focus();
+  }, []);
 
   const openTile = (tile: Tile) => {
     if (tile.action === "reload") window.location.reload();
@@ -135,15 +159,26 @@ function HomePage() {
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
           focusTile(active - 1);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (slides.length > 1) setSlide((s) => (s - 1 + slides.length) % slides.length);
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (slides.length > 1) setSlide((s) => (s + 1) % slides.length);
         }
       }}
     >
-      <img
-        key={HERO.image}
-        src={HERO.image}
-        alt={HERO.title}
-        className="absolute inset-0 h-full w-full object-cover animate-[vexia-fade-in_700ms_ease-out]"
-      />
+      <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
+        <img
+          src={HERO.image}
+          alt={HERO.title}
+          className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-black/25" />
+      <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/55" />
+
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
 
