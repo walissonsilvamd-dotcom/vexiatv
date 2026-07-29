@@ -19,7 +19,8 @@ export function QrPlaylistDialog({
   open: boolean;
   onClose: () => void;
 }) {
-  const { loadFromUrl, loading, error, source } = usePlaylist();
+  const navigate = useNavigate();
+  const { loading, error } = usePlaylist();
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [done, setDone] = useState(false);
