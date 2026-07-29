@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PlaylistEpisode } from "../../lib/m3u";
 import { useProgress } from "../../lib/progress-store";
 import { useSettings } from "../../lib/settings-store";
