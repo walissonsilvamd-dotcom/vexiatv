@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
+import { SLOGAN } from "../data/vexia-catalog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,39 +23,37 @@ function SplashScreen() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const id = setTimeout(() => navigate({ to: "/home" }), 3200);
+    const id = setTimeout(() => navigate({ to: "/home" }), 2000);
     return () => clearTimeout(id);
   }, [navigate]);
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-black">
-      <img
-        src={splashAsset.url}
-        alt="VÉXIA TV — Carregando"
-        className="absolute inset-0 h-full w-full object-cover"
-        draggable={false}
-      />
-      {/* Spinner segmentado animado, no mesmo lugar do original, acima de "CARREGANDO..." */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2"
-        style={{ top: "78%" }}
-      >
+    <div className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
+      <div className="flex flex-col items-center gap-6">
+        <h1 className="text-6xl font-black tracking-tight md:text-8xl">
+          <span className="text-vexia-purple">VEXIA</span>
+          <span className="text-vexia-cyan"> TV</span>
+        </h1>
+
         <div
-          className="h-12 w-12 rounded-full animate-[splash-spin_1.1s_linear_infinite]"
+          className="h-12 w-12 rounded-full animate-[splash-spin_1s_linear_infinite]"
           style={{
             background:
-              "conic-gradient(from 0deg, #a855f7 0deg, #7c3aed 60deg, #4f46e5 130deg, #3b82f6 200deg, #22d3ee 280deg, transparent 320deg, transparent 360deg)",
+              "conic-gradient(from 0deg, var(--vexia-purple) 0deg, var(--vexia-purple-soft) 140deg, transparent 300deg)",
             WebkitMask:
               "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
             mask: "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
-            filter: "drop-shadow(0 0 10px rgba(168,85,247,0.6))",
           }}
         />
+
+        <p className="text-sm font-medium tracking-[0.4em] text-vexia-muted">CARREGANDO</p>
       </div>
+
+      <p className="absolute bottom-8 text-xs tracking-[0.3em] text-vexia-cyan">{SLOGAN}</p>
+
       <style>{`
-        @keyframes splash-spin {
-          to { transform: rotate(360deg); }
-        }
+        @keyframes splash-spin { to { transform: rotate(360deg); } }
+        @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
       `}</style>
     </div>
   );
