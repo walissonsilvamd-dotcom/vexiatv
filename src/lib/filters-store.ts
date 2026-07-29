@@ -185,6 +185,74 @@ export function useFilters() {
   return { filters: state, set, clear: clearFilters, active: countActive(state) };
 }
 
+/* ───────────────────── ordenação ───────────────────── */
+
+export type SortKey = "relevancia" | "nota" | "recentes";
+
+export const SORT_OPTIONS: { key: SortKey; label: string }[] = [
+  { key: "relevancia", label: "Relevância" },
+  { key: "nota", label: "Nota TMDB" },
+  { key: "recentes", label: "Mais recentes" },
+];
+
+const SORT_KEY = "vexia:sort";
+const sortListeners = new Set<() => void>();
+let sortCache: SortKey | null = null;
+
+function readSort(): SortKey {
+  if (sortCache) return sortCache;
+  if (typeof window === "undefined") return (sortCache = "relevancia");
+  const raw = window.localStorage.getItem(SORT_KEY) as SortKey | null;
+  sortCache = raw === "nota" || raw === "recentes" ? raw : "relevancia";
+  return sortCache;
+}
+
+export function setSort(next: SortKey) {
+  sortCache = next;
+  try {
+    window.localStorage.setItem(SORT_KEY, next);
+  } catch {
+    /* ignore */
+  }
+  for (const fn of sortListeners) fn();
+}
+
+export function useSort() {
+  const sort = useSyncExternalStore(
+    (fn) => {
+      sortListeners.add(fn);
+      return () => sortListeners.delete(fn);
+    },
+    readSort,
+    () => "relevancia" as SortKey,
+  );
+  return { sort, setSort };
+}
+
+function releaseTime(item: MediaItem) {
+  if (item.releaseDate) {
+    const t = Date.parse(item.releaseDate);
+    if (!Number.isNaN(t)) return t;
+  }
+  return item.year > 0 ? Date.UTC(item.year, 0, 1) : 0;
+}
+
+/** Ordena mantendo a ordem original como critério de relevância. */
+export function sortMedia<T extends MediaItem>(items: T[], sort: SortKey): T[] {
+  if (sort === "relevancia") return items;
+  const copy = [...items];
+  if (sort === "nota") copy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  else copy.sort((a, b) => releaseTime(b) - releaseTime(a));
+  return copy;
+}
+
+/** Ordena canais: relevância = ordem da lista; nota = A→Z; recentes = fim da lista primeiro. */
+export function sortChannels<T extends { name: string }>(items: T[], sort: SortKey): T[] {
+  if (sort === "relevancia") return items;
+  if (sort === "nota") return [...items].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  return [...items].reverse();
+}
+
 /* ───────────────────── matching ───────────────────── */
 
 function norm(value: string) {

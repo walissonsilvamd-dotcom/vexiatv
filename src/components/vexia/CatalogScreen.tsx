@@ -4,7 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
-import { matchesFilters, useFilters } from "../../lib/filters-store";
+import { matchesFilters, sortMedia, useFilters, useSort } from "../../lib/filters-store";
+import { SortControl } from "./SortControl";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
@@ -32,6 +33,7 @@ export function CatalogScreen({
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const { filters, active: activeFilters } = useFilters();
+  const { sort } = useSort();
 
   const noun = kind === "series" ? "séries" : "filmes";
 
@@ -56,13 +58,13 @@ export function CatalogScreen({
   // Filtros inteligentes: enriquece a página atual com TMDB antes de aplicar.
   const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
   const enriched = useTmdbHeroes(activeFilters > 0 ? page : [], kind);
-  const visible = useMemo(
-    () =>
+  const visible = useMemo(() => {
+    const base =
       activeFilters === 0
         ? page
-        : enriched.filter((item) => matchesFilters(item, kind, filters)),
-    [activeFilters, page, enriched, filters, kind],
-  );
+        : enriched.filter((item) => matchesFilters(item, kind, filters));
+    return sortMedia(base, sort);
+  }, [activeFilters, page, enriched, filters, kind, sort]);
   const hasContent = items.length > 0;
 
   return (
@@ -114,6 +116,8 @@ export function CatalogScreen({
             </span>
           ) : null}
         </Link>
+
+        <SortControl navRow={0} />
 
         <div className="ml-auto">
           <VexiaLogo className="h-12" />
