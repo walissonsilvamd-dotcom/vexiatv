@@ -3,6 +3,7 @@ import { ArrowLeft, ImageOff, Play } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
+import { useTmdbItem } from "../lib/use-tmdb";
 
 import { TopNav } from "../components/vexia/TopNav";
 
@@ -28,7 +29,9 @@ function EpisodesPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { series } = usePlaylist();
-  const serie = series.find((s) => s.id === id);
+  const raw = series.find((s) => s.id === id);
+  const { data: enriched } = useTmdbItem(raw ?? null, "series");
+  const serie = enriched ?? raw;
 
   const seasons = useMemo(() => {
     if (!serie) return [];

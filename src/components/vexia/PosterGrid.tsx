@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, ImageOff, Star } from "lucide-react";
 import { useState } from "react";
 import type { MediaItem } from "../../data/vexia";
+import { useTmdbItem } from "../../lib/use-tmdb";
 
 export function PosterCard({
   item,
@@ -16,13 +17,15 @@ export function PosterCard({
 }) {
   const [fav, setFav] = useState(false);
   const [broken, setBroken] = useState(false);
-  const showPoster = !!item.poster && !broken;
+  const { data: display } = useTmdbItem(item, kind);
+  const active = display ?? item;
+  const showPoster = !!active.poster && !broken;
 
   return (
     <div className="group relative">
       <Link
         to={kind === "series" ? "/serie/$id" : "/detalhes/$id"}
-        params={{ id: item.id }}
+        params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
         className="vexia-focus block overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgba(123,47,190,0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgba(0,200,255,0.25)]"
@@ -30,12 +33,12 @@ export function PosterCard({
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
             <img
-              src={item.poster}
-              alt={item.title}
+              src={active.poster}
+              alt={active.title}
               loading="lazy"
               onError={() => setBroken(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              style={{ objectPosition: item.posterPosition ?? "center" }}
+              style={{ objectPosition: active.posterPosition ?? "center" }}
             />
           ) : (
             <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
@@ -46,10 +49,10 @@ export function PosterCard({
           {/* brilho espelhado */}
           <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-vexia-purple/25 via-transparent to-transparent" />
-          {item.rating > 0 ? (
+          {active.rating > 0 ? (
             <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-0.5 text-[11px] font-black text-vexia-gold backdrop-blur-md">
               <Star className="h-3 w-3 fill-current" aria-hidden />
-              {item.rating.toFixed(1)}
+              {active.rating.toFixed(1)}
             </span>
           ) : null}
           {progress != null ? (
@@ -62,10 +65,10 @@ export function PosterCard({
           ) : null}
         </div>
         <div className="space-y-0.5 border-t border-white/5 p-2.5">
-          <p className="truncate text-xs font-extrabold text-vexia-text">{item.title}</p>
+          <p className="truncate text-xs font-extrabold text-vexia-text">{active.title}</p>
           <p className="truncate text-[11px] font-medium text-vexia-cyan/80">
-            {item.year ? item.year : item.genres[0]}
-            {item.seasons ? ` • ${item.seasons} temp.` : ""}
+            {active.year ? active.year : active.genres[0]}
+            {active.seasons ? ` • ${active.seasons} temp.` : ""}
           </p>
         </div>
       </Link>

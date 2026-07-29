@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { PosterCard, SectionTitle } from "../components/vexia/PosterGrid";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
+import { useTmdbItem } from "../lib/use-tmdb";
 
 import { TopNav } from "../components/vexia/TopNav";
 
@@ -32,7 +33,10 @@ function DetailsPage() {
   const [fav, setFav] = useState(false);
   const { movies, series } = usePlaylist();
 
-  const item = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
+  const raw = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
+  const kind: "movie" | "series" = raw?.seasons ? "series" : "movie";
+  const { data: enriched } = useTmdbItem(raw ?? null, kind);
+  const item = enriched ?? raw;
 
   if (!item) {
     return (

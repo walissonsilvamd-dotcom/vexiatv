@@ -18,6 +18,8 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
+import { useTmdbHeroes } from "../lib/use-tmdb";
+import type { MediaItem } from "../data/vexia";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -94,15 +96,20 @@ function HomePage() {
   );
 
 
-  // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
-  const slides = useMemo<Hero[]>(() => {
+  // Pool de destaques: até 8 títulos da lista com imagem disponível.
+  const heroPool = useMemo<MediaItem[]>(() => {
     const pool = [...movies, ...series]
-      .map((m) => ({ m, image: m.backdrop || m.poster }))
-      .filter((x) => !!x.image)
-      .slice(0, 40);
-    const step = Math.max(1, Math.floor(pool.length / 8));
-    const picked = pool.filter((_, i) => i % step === 0).slice(0, 8);
-    return (picked.length ? picked : pool.slice(0, 8)).map(({ m, image }) => ({
+      .filter((m) => m.backdrop || m.poster)
+      .slice(0, 8);
+    return pool;
+  }, [movies, series]);
+
+  // Enriquece os destaques com TMDB (nota, sinopse, capas melhores).
+  const enrichedHeroes = useTmdbHeroes(heroPool, "movie");
+
+  // Carrossel do destaque: montado a partir dos títulos enriquecidos da lista M3U.
+  const slides = useMemo<Hero[]>(() => {
+    return enrichedHeroes.map((m) => ({
       title: m.title.toUpperCase(),
       year: m.year,
       release: m.genres[0] ?? "LISTA M3U",
@@ -110,10 +117,10 @@ function HomePage() {
       runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
       votes: m.rating,
       stars: Math.round(m.rating),
-      image: image as string,
+      image: (m.backdrop || m.poster) as string,
       overview: m.overview ?? "",
     }));
-  }, [movies, series]);
+  }, [enrichedHeroes]);
 
   const [slide, setSlide] = useState(0);
   useEffect(() => {
