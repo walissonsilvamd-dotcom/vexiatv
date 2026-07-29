@@ -156,6 +156,7 @@ function toMedia(entry: M3UEntry, id: string): MediaItem {
     overview: "",
     backdrop: entry.logo,
     poster: entry.logo,
+    streamUrl: entry.url,
   };
 }
 
