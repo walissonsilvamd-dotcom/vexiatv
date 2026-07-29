@@ -42,34 +42,23 @@ function ChannelsPage() {
   useSpatialNav(scopeRef);
   const navigate = useNavigate();
   const { channels, data, hasContent } = usePlaylist();
+  const { has, toggle } = useFavorites();
 
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
-  const [favs, setFavs] = useState<string[]>([]);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(FAV_KEY);
-      if (raw) setFavs(JSON.parse(raw) as string[]);
-    } catch {
-      /* favoritos inválidos */
-    }
-  }, []);
+  const favs = useMemo(
+    () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
+    [channels, has],
+  );
 
-  const toggleFav = useCallback((id: string) => {
-    setFavs((f) => {
-      const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
-      try {
-        window.localStorage.setItem(FAV_KEY, JSON.stringify(next));
-      } catch {
-        /* armazenamento cheio */
-      }
-      return next;
-    });
-  }, []);
+  const toggleFav = useCallback(
+    (ch: PlaylistChannel) => toggle(channelFavorite(ch)),
+    [toggle],
+  );
 
   // Categorias 100% dinâmicas: vêm sempre do group-title da lista carregada.
   const counts = useMemo(() => {
