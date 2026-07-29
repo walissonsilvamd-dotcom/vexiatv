@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Tv } from "lucide-react";
-import { AppHeader } from "../components/vexia/AppHeader";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Heart, Play, Search, Tv } from "lucide-react";
+import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
-
+import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
-import { LoadMore } from "../components/vexia/PosterGrid";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
@@ -17,7 +16,8 @@ export const Route = createFileRoute("/canais")({
       { title: "VÉXIA TV — Canais ao vivo" },
       {
         name: "description",
-        content: "Canais ao vivo da sua lista M3U com filtros por categoria e favoritos.",
+        content:
+          "Canais ao vivo da sua lista M3U/HLS com categorias automáticas, prévia e favoritos.",
       },
       { property: "og:title", content: "VÉXIA TV — Canais" },
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
@@ -28,168 +28,297 @@ export const Route = createFileRoute("/canais")({
   component: ChannelsPage,
 });
 
-const PAGE = 60;
+const PAGE = 50;
+const FAV_KEY = "vexia:fav-channels";
+
+/** Extrai a qualidade anunciada no nome do canal (FHD, HD, SD, 4K, 1080p...). */
+function qualityOf(name: string) {
+  const m = name.match(/\b(4K|UHD|FHD|HD|SD|H265|1080p|720p|480p)\b/i);
+  return m ? m[1].toUpperCase() : "";
+}
 
 function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { channels, data, hasContent } = usePlaylist();
+
   const [category, setCategory] = useState("Todos");
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
   const [favs, setFavs] = useState<string[]>([]);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
 
-  const list = useMemo(
-    () => (category === "Todos" ? channels : channels.filter((c) => c.category === category)),
-    [channels, category],
-  );
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(FAV_KEY);
+      if (raw) setFavs(JSON.parse(raw) as string[]);
+    } catch {
+      /* favoritos inválidos */
+    }
+  }, []);
+
+  const toggleFav = useCallback((id: string) => {
+    setFavs((f) => {
+      const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
+      try {
+        window.localStorage.setItem(FAV_KEY, JSON.stringify(next));
+      } catch {
+        /* armazenamento cheio */
+      }
+      return next;
+    });
+  }, []);
+
+  // Categorias 100% dinâmicas: vêm sempre do group-title da lista carregada.
+  const counts = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const ch of channels) map.set(ch.category, (map.get(ch.category) ?? 0) + 1);
+    return map;
+  }, [channels]);
+
+  const categories = data?.channelCategories ?? ["Todos"];
+
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return channels.filter(
+      (c) =>
+        (category === "Todos" ||
+          (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
+        (!q ||
+          c.name.toLowerCase().includes(q) ||
+          c.category.toLowerCase().includes(q) ||
+          c.group.toLowerCase().includes(q)),
+    );
+  }, [channels, category, query, favs]);
 
   useEffect(() => {
-    setSelected((cur) => (cur && list.includes(cur) ? cur : (list[0] ?? null)));
+    setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
   }, [list]);
 
-  const toggleFav = (id: string) =>
-    setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+  const shell = (children: React.ReactNode) => (
+    <main
+      ref={scopeRef}
+      className="relative min-h-screen bg-vexia-bg text-vexia-text"
+      style={{
+        backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <header className="flex items-center gap-4 px-6 py-4 md:px-10">
+        <TopNav active="Canais" />
+        <label className="relative max-w-xl flex-1">
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
+            aria-hidden
+          />
+          <input
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setLimit(PAGE);
+            }}
+            data-nav-row={0}
+            tabIndex={0}
+            placeholder="Buscar canal, categoria ou grupo"
+            aria-label="Buscar canais"
+            className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text outline-none backdrop-blur-xl placeholder:text-vexia-text/45"
+          />
+        </label>
+        <div className="ml-auto hidden md:block">
+          <VexiaLogo className="h-11" />
+        </div>
+      </header>
+
+      {children}
+      <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+    </main>
+  );
 
   if (!hasContent || channels.length === 0) {
-    return (
-      <main className="min-h-screen bg-vexia-bg text-vexia-text">
-        <AppHeader />
-      <div className="px-5 pb-2 md:px-10">
-        <TopNav active="Canais" className="w-fit" />
-      </div>
-        <div className="px-5 md:px-10">
-          <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
-        </div>
-        <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
-      </main>
+    return shell(
+      <div className="px-6 md:px-10">
+        <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
+      </div>,
     );
   }
 
-  return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg text-vexia-text">
-      <AppHeader />
-      <div className="px-5 pb-2 md:px-10">
-        <TopNav active="Canais" className="w-fit" />
-      </div>
+  const visible = list.slice(0, limit);
 
-      <div className="grid gap-5 px-5 md:grid-cols-[220px_1fr] md:px-10">
-        <aside className="space-y-2">
-          <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">CATEGORIAS</h2>
-          <div className="no-scrollbar flex gap-2 overflow-x-auto md:max-h-[70vh] md:flex-col md:overflow-y-auto">
-            {(data?.channelCategories ?? ["Todos"]).map((cat) => (
+  return shell(
+    <div className="grid gap-4 px-4 pb-10 md:grid-cols-[240px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-8">
+      {/* Coluna 1 — categorias dinâmicas */}
+      <aside className="no-scrollbar max-h-[78vh] space-y-1.5 overflow-y-auto pr-1">
+        <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
+        {["Favoritos", ...categories].map((cat) => {
+          const total = cat === "Todos" ? channels.length : cat === "Favoritos" ? favs.length : (counts.get(cat) ?? 0);
+          const isActive = category === cat;
+          return (
+            <button
+              key={cat}
+              type="button"
+              data-nav-row={1}
+              tabIndex={0}
+              onClick={() => {
+                setCategory(cat);
+                setLimit(PAGE);
+              }}
+              className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
+                isActive
+                  ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgba(123,47,190,0.85),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                  : "border-white/10 bg-vexia-card text-vexia-text hover:border-vexia-purple/40"
+              }`}
+            >
+              <Tv className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
+              <span className="min-w-0 flex-1 truncate">{cat.toUpperCase()}</span>
+              <span className={`text-[11px] ${isActive ? "text-white/80" : "text-vexia-muted"}`}>
+                {total}
+              </span>
+            </button>
+          );
+        })}
+      </aside>
+
+      {/* Coluna 2 — lista de canais */}
+      <section className="no-scrollbar max-h-[78vh] space-y-1.5 overflow-y-auto border-x border-white/5 px-2">
+        {visible.map((ch, i) => {
+          const isActive = selected?.id === ch.id;
+          const quality = qualityOf(ch.name);
+          return (
+            <div key={ch.id} className="group relative">
               <button
-                key={cat}
                 type="button"
-                data-nav-row={1}
+                data-nav-row={2}
                 tabIndex={0}
-                onClick={() => {
-                  setCategory(cat);
-                  setLimit(PAGE);
-                }}
-                className={`vexia-focus shrink-0 truncate rounded-xl border px-4 py-2.5 text-left text-xs font-bold transition-all ${
-                  category === cat
-                    ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgba(123,47,190,0.8),inset_0_1px_0_rgba(255,255,255,0.2)]"
-                    : "border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] text-vexia-text hover:border-vexia-purple/40"
+                onClick={() => setSelected(ch)}
+                className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
+                  isActive
+                    ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
+                    : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
                 }`}
               >
-                {cat}
+                <span
+                  className={`w-7 shrink-0 text-right text-xs font-bold ${isActive ? "text-white" : "text-vexia-muted"}`}
+                >
+                  {i + 1}
+                </span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
+                  {ch.logo ? (
+                    <img
+                      src={ch.logo}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-contain p-0.5"
+                    />
+                  ) : (
+                    <Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />
+                  )}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-vexia-text">
+                    {ch.name}
+                  </span>
+                  <span
+                    className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
+                  >
+                    {ch.group}
+                    {quality ? ` • ${quality}` : ""}
+                  </span>
+                </span>
               </button>
-            ))}
-          </div>
-        </aside>
-
-        <section className="space-y-4">
-          <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/40 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] p-4 shadow-[0_16px_40px_-16px_rgba(123,47,190,0.6)]">
-            <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-vexia-cyan/40 to-transparent" />
-            <div className="grid aspect-video w-full place-items-center overflow-hidden rounded-xl border border-white/5 bg-black/70 text-xs tracking-[0.3em] text-vexia-muted">
-              {selected?.logo ? (
-                <img
-                  src={selected.logo}
-                  alt={selected.name}
-                  className="max-h-[60%] max-w-[50%] object-contain drop-shadow-[0_0_18px_rgba(0,200,255,0.25)]"
+              <button
+                type="button"
+                onClick={() => toggleFav(ch.id)}
+                aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
+                  favs.includes(ch.id)
+                    ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+                    : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
+                }`}
+              >
+                <Heart
+                  className={`h-3.5 w-3.5 ${favs.includes(ch.id) ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
+                  aria-hidden
                 />
-              ) : (
-                "PRÉVIA AO VIVO"
-              )}
+              </button>
             </div>
-            <p className="mt-3 text-base font-extrabold text-vexia-text">{selected?.name}</p>
-            <p className="text-xs font-medium text-vexia-cyan/80">
-              {selected?.group} • {selected?.schedule}
-            </p>
-            <button
-              type="button"
-              data-nav-row={2}
-              tabIndex={0}
-              onClick={() => selected && toggleFav(selected.id)}
-              className="vexia-focus mt-4 rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-7 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5"
-            >
-              {selected && favs.includes(selected.id)
-                ? "REMOVER DOS FAVORITOS"
-                : "ADICIONAR AOS FAVORITOS"}
-            </button>
+          );
+        })}
+
+        {limit < list.length ? (
+          <button
+            type="button"
+            data-nav-row={3}
+            tabIndex={0}
+            onClick={() => setLimit((l) => l + PAGE)}
+            className="vexia-focus mt-2 w-full rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
+          >
+            Carregar mais canais
+          </button>
+        ) : null}
+
+        {list.length === 0 ? (
+          <p className="px-3 py-6 text-sm text-vexia-muted">Nenhum canal encontrado.</p>
+        ) : null}
+      </section>
+
+      {/* Coluna 3 — prévia do canal */}
+      <section className="space-y-4">
+        <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
+          <div className="grid aspect-video w-full place-items-center bg-black">
+            {selected?.logo ? (
+              <img
+                src={selected.logo}
+                alt={selected.name}
+                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
+              />
+            ) : (
+              <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
+            )}
           </div>
+        </div>
 
-          <ul className="grid gap-2.5 md:grid-cols-2">
-            {list.slice(0, limit).map((ch) => (
-              <li key={ch.id} className="group relative">
-                <button
-                  type="button"
-                  data-nav-row={3}
-                  tabIndex={0}
-                  onClick={() => setSelected(ch)}
-                  className={`vexia-focus relative flex w-full items-center gap-3 overflow-hidden rounded-xl border p-3 text-left shadow-[0_8px_22px_-14px_rgba(0,0,0,0.9)] transition-all duration-300 hover:-translate-y-0.5 ${
-                    selected?.id === ch.id
-                      ? "border-vexia-purple/60 bg-gradient-to-br from-vexia-purple/25 to-[#121212] shadow-[0_0_24px_-8px_rgba(123,47,190,0.7)]"
-                      : "border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] hover:border-vexia-purple/40"
-                  }`}
-                >
-                  <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-                  <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/10 bg-black/70 text-xs font-black text-vexia-purple-soft shadow-[inset_0_1px_1px_rgba(255,255,255,0.06)]">
-                    {ch.logo ? (
-                      <img src={ch.logo} alt="" loading="lazy" className="h-full w-full object-contain p-1" />
-                    ) : (
-                      <Tv className="h-5 w-5" aria-hidden />
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-bold text-vexia-text">
-                      {ch.name}
-                    </span>
-                    <span className="block truncate text-[11px] font-medium text-vexia-cyan/80">{ch.group}</span>
-                  </span>
-                  <span className="w-8" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => toggleFav(ch.id)}
-                  aria-label="Favoritar canal"
-                  className={`absolute right-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full border backdrop-blur-md transition-all ${
-                    favs.includes(ch.id)
-                      ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
-                      : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
-                  }`}
-                >
+        <div>
+          <h2 className="text-xl font-black text-vexia-text">{selected?.name ?? "—"}</h2>
+          <p className="mt-1 text-sm font-medium text-vexia-cyan">
+            {[qualityOf(selected?.name ?? "") || "SD", "Ao vivo", selected?.category]
+              .filter(Boolean)
+              .join(" • ")}
+          </p>
+        </div>
 
-                  <Heart
-                    className={`h-4 w-4 ${favs.includes(ch.id) ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
-                    aria-hidden
-                  />
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          {limit < list.length ? (
-            <LoadMore
-              label="CARREGAR MAIS CANAIS"
-              navRow={4}
-              onClick={() => setLimit((l) => l + PAGE)}
-            />
-          ) : null}
-    </section>
-  </div>
-</main>
+        <div className="flex flex-wrap gap-2.5">
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && window.open(selected.url, "_blank", "noopener")}
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
+          >
+            <Play className="h-4 w-4" aria-hidden /> Assistir
+          </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && toggleFav(selected.id)}
+            className="vexia-focus rounded-xl border border-vexia-cyan/40 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            {selected && favs.includes(selected.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => document.querySelector<HTMLInputElement>('input[aria-label="Buscar canais"]')?.focus()}
+            className="vexia-focus rounded-xl border border-white/10 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            Procurar
+          </button>
+        </div>
+      </section>
+    </div>,
   );
 }
