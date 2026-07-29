@@ -124,7 +124,6 @@ function HomePage() {
         alt={HERO.title}
         className="absolute inset-0 h-full w-full object-cover animate-[vexia-fade-in_700ms_ease-out]"
       />
-      />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
 
