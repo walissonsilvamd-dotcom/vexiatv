@@ -50,11 +50,38 @@ export function useTmdbItem(
   return { data: merged, isPending, isError };
 }
 
-export function useTmdbItems(
-  items: MediaItem[],
-  kind: "movie" | "series",
-): MediaItem[] {
-  // Hook simples para listas: enriquece cada item individualmente. Reutiliza o cache de queryKey.
-  const results = items.map((item) => useTmdbItem(item, kind));
-  return results.map((r, i) => r.data ?? items[i]);
+export function useTmdbHeroes(items: MediaItem[], kind: "movie" | "series"): MediaItem[] {
+  const search = useServerFn(tmdbSearch);
+  const queries = useQueries({
+    queries: items.map((item) => ({
+      queryKey: ["tmdb", item.id, item.title, item.year, kind],
+      queryFn: async () => {
+        const result = await search({
+          data: {
+            title: item.title,
+            year: item.year || undefined,
+            kind: kind === "series" ? "tv" : "movie",
+          },
+        });
+        if (!result) return undefined;
+        return { ...item, ...result, id: item.id } as MediaItem;
+      },
+      enabled: !!item && needsEnrichment(item),
+      staleTime: 1000 * 60 * 60 * 24,
+    })),
+  });
+
+  return items.map((item, i) => {
+    const data = queries[i].data;
+    if (!data) return item;
+    return {
+      ...data,
+      title: item.title || data.title,
+      genres: data.genres?.length ? data.genres : item.genres,
+      overview: data.overview || item.overview,
+      backdrop: data.backdrop || item.backdrop,
+      poster: data.poster || item.poster,
+    } as MediaItem;
+  });
 }
+
