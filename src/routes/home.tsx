@@ -196,7 +196,7 @@ function HomePage() {
       {/* Menu de blocos */}
       <div
         ref={rowRef}
-        className="absolute bottom-[12%] left-[6%] right-[6%] z-10 flex flex-wrap items-end gap-[1.4vw]"
+        className="absolute bottom-[11%] left-[6%] right-[6%] z-10 flex flex-wrap items-end gap-[1.2vw]"
       >
         {TILES.map((tile, i) => {
           const Icon = tile.icon;
@@ -210,16 +210,43 @@ function HomePage() {
               onFocus={() => setActive(i)}
               onMouseEnter={() => setActive(i)}
               onClick={() => openTile(tile)}
-              className={`flex h-[13vh] min-h-[110px] w-[10.5vw] min-w-[110px] flex-col items-center justify-center gap-[1.4vh] rounded-2xl outline-none transition-all duration-200 ${
+              className={`group relative flex h-[14vh] min-h-[118px] w-[10.5vw] min-w-[118px] flex-col items-center justify-center gap-[1.2vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "scale-[1.04] bg-vexia-purple/85 ring-2 ring-vexia-purple-soft shadow-[0_0_38px_-4px_var(--vexia-purple)]"
-                  : "bg-[#241A6B]/85 hover:bg-[#2c208a]/90"
+                  ? "-translate-y-[0.6vh] scale-[1.06] border-vexia-cyan/70 bg-gradient-to-b from-vexia-purple to-[#3a0f78] shadow-[0_18px_46px_-10px_var(--vexia-purple),0_0_26px_-6px_var(--vexia-cyan)]"
+                  : "border-white/10 bg-gradient-to-b from-[#241A6B]/70 to-[#120b38]/80 hover:border-vexia-cyan/40 hover:from-[#2c208a]/80"
               }`}
             >
-              <Icon className="h-[4.4vh] min-h-9 w-auto stroke-[1.6]" aria-hidden />
-              <span className="text-[clamp(0.65rem,1vw,1rem)] font-semibold tracking-wide">
+              {/* brilho superior */}
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute inset-x-0 top-0 h-px transition-opacity ${
+                  isActive ? "bg-vexia-cyan opacity-90" : "bg-white/25 opacity-60"
+                }`}
+              />
+              <Icon
+                className={`h-[4.6vh] min-h-10 w-auto transition-all duration-200 ${
+                  isActive
+                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_10px_var(--vexia-cyan)]"
+                    : "stroke-[1.8] text-vexia-cyan/90"
+                }`}
+                aria-hidden
+              />
+              <span
+                className={`text-[clamp(0.72rem,1.05vw,1.05rem)] font-bold uppercase leading-none tracking-[0.14em] transition-colors ${
+                  isActive
+                    ? "text-white [text-shadow:0_1px_10px_rgba(0,0,0,0.85)]"
+                    : "text-white/85 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]"
+                }`}
+              >
                 {tile.label}
               </span>
+              {/* barra de foco */}
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute bottom-0 h-[3px] rounded-full bg-vexia-cyan transition-all duration-200 ${
+                  isActive ? "w-2/3 opacity-100 shadow-[0_0_12px_var(--vexia-cyan)]" : "w-0 opacity-0"
+                }`}
+              />
             </button>
           );
         })}
