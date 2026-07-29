@@ -1,23 +1,36 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Heart, ImageOff, ListVideo, Play, Star } from "lucide-react";
-import { useRef, useState } from "react";
-import { PosterCard, SectionTitle } from "../components/vexia/PosterGrid";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Circle,
+  Heart,
+  ImageOff,
+  ListVideo,
+  Play,
+  Star,
+} from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { PosterCard } from "../components/vexia/PosterGrid";
+import { TopNav } from "../components/vexia/TopNav";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
+import { isWatched, saveProgress, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
-
-import { TopNav } from "../components/vexia/TopNav";
 
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Detalhes" },
+      { title: "VÉXIA TV — Detalhes do título" },
       {
         name: "description",
-        content: "Informações do título selecionado da sua lista M3U no VÉXIA TV.",
+        content:
+          "Ficha completa do título da sua lista M3U no VÉXIA TV: sinopse, elenco, temporadas e recomendações.",
       },
       { property: "og:title", content: "VÉXIA TV — Detalhes do título" },
-      { property: "og:description", content: "Detalhes e recomendações no VÉXIA TV." },
+      {
+        property: "og:description",
+        content: "Sinopse, elenco, temporadas e recomendações no VÉXIA TV.",
+      },
       { property: "og:type", content: "video.movie" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -25,18 +38,42 @@ export const Route = createFileRoute("/detalhes/$id")({
   component: DetailsPage,
 });
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <h2 className="text-sm font-black tracking-[0.14em] text-vexia-text">{children}</h2>
+      <span className="block h-0.5 w-16 rounded-full bg-vexia-purple shadow-[0_0_12px_rgba(123,47,190,0.8)]" />
+    </div>
+  );
+}
+
 function DetailsPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const [fav, setFav] = useState(false);
-  const { movies, series } = usePlaylist();
+  const { movies, series, source } = usePlaylist();
 
   const raw = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
-  const kind: "movie" | "series" = raw?.seasons ? "series" : "movie";
+  const isSeries = !!raw && "episodesList" in raw;
+  const kind: "movie" | "series" = isSeries ? "series" : "movie";
   const { data: enriched } = useTmdbItem(raw ?? null, kind);
   const item = enriched ?? raw;
+  const { entryFor, resume } = useProgress(item?.id);
+
+  const seasons = useMemo(() => {
+    if (!raw || !("episodesList" in raw)) return [];
+    const map = new Map<number, (typeof raw.episodesList)[number][]>();
+    for (const ep of raw.episodesList) {
+      const arr = map.get(ep.season) ?? [];
+      arr.push(ep);
+      map.set(ep.season, arr);
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([number, episodes]) => ({ number, episodes }));
+  }, [raw]);
 
   if (!item) {
     return (
@@ -53,30 +90,39 @@ function DetailsPage() {
 
   const pool = [...movies, ...series];
   const recommendations = pool
-    .filter((m) => m.id !== item.id && m.genres[0] === item.genres[0])
-    .slice(0, 12);
+    .filter((m) => m.id !== item.id && m.genres.some((g) => item.genres.includes(g)))
+    .slice(0, 14);
+
+  const addedAt = source?.loadedAt ? new Date(source.loadedAt) : null;
+  const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
-        <TopNav active="Filmes" className="w-fit" />
+        <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
       </div>
-      <section className="relative h-[58vh] min-h-[340px] w-full overflow-hidden">
+
+      {/* ─── Destaque com backdrop ─── */}
+      <section className="relative mt-3 min-h-[360px] w-full overflow-hidden md:h-[60vh]">
         {item.backdrop ? (
-          <img src={item.backdrop} alt={item.title} className="h-full w-full object-cover" />
+          <img
+            src={item.backdrop}
+            alt={item.title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
         ) : (
-          <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
+          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
             <ImageOff className="h-10 w-10 text-vexia-cyan/60" aria-hidden />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/60 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/70 to-black/70" />
 
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between px-5 py-4 md:px-10">
+        <div className="relative flex items-start justify-between px-5 py-4 md:px-10">
           <button
             type="button"
             data-nav-row={0}
             tabIndex={0}
-            onClick={() => navigate({ to: "/home" })}
+            onClick={() => navigate({ to: isSeries ? "/series" : "/filmes" })}
             className="vexia-focus grid h-10 w-10 place-items-center rounded-full bg-black/60"
             aria-label="Voltar"
           >
@@ -87,8 +133,11 @@ function DetailsPage() {
             data-nav-row={0}
             tabIndex={0}
             onClick={() => setFav((f) => !f)}
-            className="vexia-focus grid h-10 w-10 place-items-center rounded-full bg-black/60"
+            className={`vexia-focus grid h-10 w-10 place-items-center rounded-full border bg-black/60 ${
+              fav ? "border-vexia-purple" : "border-vexia-cyan/70"
+            }`}
             aria-label="Favoritar"
+            aria-pressed={fav}
           >
             <Heart
               className={`h-5 w-5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
@@ -97,66 +146,220 @@ function DetailsPage() {
           </button>
         </div>
 
-        <div className="absolute inset-x-0 bottom-0 px-5 pb-6 md:px-10">
-          <h1 className="text-2xl font-black md:text-4xl">{item.title}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
-            {item.rating > 0 ? (
-              <span className="flex items-center gap-1 text-vexia-gold">
-                <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
-                {item.rating.toFixed(1)}
-              </span>
-            ) : null}
-            {item.year ? <span className="text-vexia-purple-soft">{item.year}</span> : null}
-            <span className="text-vexia-purple-soft">{item.genres.join(" • ")}</span>
-            {item.seasons ? (
-              <span className="text-vexia-cyan">
-                {item.seasons} temporadas • {item.episodes} episódios
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              type="button"
-              data-nav-row={1}
-              tabIndex={0}
-              className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide"
-            >
-              <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
-            </button>
-            {item.seasons ? (
-              <Link
-                to="/serie/$id"
-                params={{ id: item.id }}
+        <div className="relative flex flex-col gap-6 px-5 pb-8 pt-4 md:flex-row md:items-end md:px-10">
+          {item.poster ? (
+            <img
+              src={item.poster}
+              alt={item.title}
+              className="hidden w-[180px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgba(123,47,190,0.8)] md:block"
+            />
+          ) : null}
+          <div className="min-w-0">
+            <h1 className="text-2xl font-black leading-tight md:text-4xl">
+              {item.title}
+              {item.year ? ` (${item.year})` : ""}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              {item.rating > 0 ? (
+                <span className="flex items-center gap-1 text-vexia-gold">
+                  <Star className="h-4 w-4 fill-current" aria-hidden />
+                  {item.rating.toFixed(1)}
+                </span>
+              ) : null}
+              {item.genres.length ? (
+                <span className="text-vexia-purple-soft">{item.genres.join(" • ")}</span>
+              ) : null}
+              {item.runtime ? <span className="text-vexia-cyan">{item.runtime}</span> : null}
+              {isSeries ? (
+                <span className="text-vexia-cyan">
+                  {seasons.length} temporadas • {item.episodes ?? 0} episódios
+                </span>
+              ) : null}
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                type="button"
                 data-nav-row={1}
                 tabIndex={0}
-                className="vexia-focus inline-flex items-center gap-2 rounded-full border border-vexia-cyan/50 px-6 py-2.5 text-xs font-bold tracking-wide text-vexia-cyan"
+                onClick={() =>
+                  saveProgress(item.id, {
+                    percent: 3,
+                    positionSec: 30,
+                    durationSec: 1000,
+                    label: item.title,
+                  })
+                }
+                className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
               >
-                <ListVideo className="h-4 w-4" aria-hidden /> EPISÓDIOS
-              </Link>
-            ) : null}
+                <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
+              </button>
+              {isSeries ? (
+                <a
+                  href="#temporadas"
+                  data-nav-row={1}
+                  tabIndex={0}
+                  className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
+                >
+                  <ListVideo className="h-4 w-4" aria-hidden /> TEMPORADAS
+                </a>
+              ) : null}
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="space-y-8 px-5 pt-8 md:px-10">
-        <section className="space-y-2">
-          <SectionTitle>SOBRE</SectionTitle>
-          <p className="max-w-3xl text-sm leading-relaxed text-vexia-muted">
-            {item.overview || "Sem sinopse na lista M3U para este título."}
+      <div className="space-y-9 px-5 pt-8 md:px-10">
+        {/* ─── Sinopse ─── */}
+        <section className="space-y-3">
+          <SectionHeading>SINOPSE</SectionHeading>
+          <p className="max-w-4xl text-sm leading-relaxed text-vexia-text">
+            {item.overview || "Sem sinopse disponível para este título."}
           </p>
         </section>
 
-        {recommendations.length > 0 ? (
+        {/* ─── Elenco ─── */}
+        {cast && cast.length > 0 ? (
           <section className="space-y-3">
-            <SectionTitle>RELACIONADOS</SectionTitle>
-            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-              {recommendations.map((rec) => (
-                <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
-                  <PosterCard item={rec} navRow={4} kind={rec.seasons ? "series" : "movie"} />
+            <SectionHeading>ELENCO</SectionHeading>
+            <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+              {cast.map((person) => (
+                <div key={person.name} className="w-[76px] shrink-0 text-center">
+                  {person.photo ? (
+                    <img
+                      src={person.photo}
+                      alt={person.name}
+                      loading="lazy"
+                      className="mx-auto h-16 w-16 rounded-full border-2 border-vexia-purple object-cover"
+                    />
+                  ) : (
+                    <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-sm font-black text-vexia-cyan">
+                      {person.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                  <p className="mt-1.5 truncate text-[11px] font-medium text-vexia-text">
+                    {person.name}
+                  </p>
                 </div>
               ))}
             </div>
           </section>
+        ) : null}
+
+        {/* ─── Continuar assistindo ─── */}
+        {resume ? (
+          <section className="space-y-3">
+            <SectionHeading>CONTINUAR ASSISTINDO</SectionHeading>
+            <div className="max-w-2xl space-y-3 rounded-2xl border border-vexia-purple/30 bg-vexia-card/70 p-4">
+              <div className="flex items-center justify-between text-[11px] font-semibold">
+                <span className="truncate text-vexia-text">{resume.label ?? item.title}</span>
+                <span className="text-vexia-cyan">{Math.round(resume.percent)}%</span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-vexia-purple shadow-[0_0_12px_rgba(123,47,190,0.9)]"
+                  style={{ width: `${resume.percent}%` }}
+                />
+              </div>
+              <button
+                type="button"
+                data-nav-row={2}
+                tabIndex={0}
+                className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold tracking-wide text-vexia-text"
+              >
+                <Play className="h-4 w-4 fill-current" aria-hidden /> CONTINUAR
+              </button>
+            </div>
+          </section>
+        ) : null}
+
+        {/* ─── Temporadas e episódios ─── */}
+        {isSeries && seasons.length > 0 ? (
+          <section id="temporadas" className="space-y-4">
+            <SectionHeading>TEMPORADAS</SectionHeading>
+            {seasons.map((season, si) => (
+              <div key={season.number} className="space-y-2">
+                <h3 className="text-xs font-black tracking-[0.14em] text-vexia-purple-soft">
+                  TEMPORADA {season.number}
+                </h3>
+                <ul className="space-y-2">
+                  {season.episodes.map((ep) => {
+                    const entry = entryFor(`${item.id}::${ep.id}`);
+                    const watched = isWatched(entry);
+                    return (
+                      <li key={ep.id}>
+                        <button
+                          type="button"
+                          data-nav-row={3 + si}
+                          tabIndex={0}
+                          onClick={() =>
+                            saveProgress(`${item.id}::${ep.id}`, {
+                              percent: 4,
+                              positionSec: 40,
+                              durationSec: 1000,
+                              label: `${item.title} • T${season.number}E${ep.number}`,
+                            })
+                          }
+                          className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-3 text-left"
+                        >
+                          {watched ? (
+                            <CheckCircle2
+                              className="h-4 w-4 shrink-0 text-vexia-purple-soft"
+                              aria-hidden
+                            />
+                          ) : (
+                            <Circle className="h-4 w-4 shrink-0 text-vexia-muted" aria-hidden />
+                          )}
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-bold text-vexia-text">
+                              Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
+                            </span>
+                            {entry && !watched ? (
+                              <span className="mt-1.5 block h-1 w-full max-w-[220px] overflow-hidden rounded-full bg-white/10">
+                                <span
+                                  className="block h-full rounded-full bg-vexia-purple"
+                                  style={{ width: `${entry.percent}%` }}
+                                />
+                              </span>
+                            ) : null}
+                          </span>
+                          <span className="shrink-0 text-[11px] font-semibold text-vexia-cyan">
+                            {entry?.durationSec
+                              ? `${Math.round(entry.durationSec / 60)} min`
+                              : "▶"}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </section>
+        ) : null}
+
+        {/* ─── Recomendações ─── */}
+        {recommendations.length > 0 ? (
+          <section className="space-y-3">
+            <SectionHeading>RECOMENDAÇÕES</SectionHeading>
+            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+              {recommendations.map((rec) => (
+                <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
+                  <PosterCard
+                    item={rec}
+                    navRow={20}
+                    kind={"episodesList" in rec ? "series" : "movie"}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {addedAt ? (
+          <p className="text-xs font-medium text-vexia-cyan">
+            Data Adicionada: {addedAt.toLocaleDateString("pt-BR")}
+          </p>
         ) : null}
       </div>
     </main>
