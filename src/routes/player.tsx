@@ -78,6 +78,7 @@ function PlayerPage() {
   const shellRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastTap = useRef(0);
+  const watchMetaRef = useRef<{ kind: WatchKind; name: string } | null>(null);
 
   const [showControls, setShowControls] = useState(true);
   const [playing, setPlaying] = useState(false);
@@ -291,6 +292,7 @@ function PlayerPage() {
 
   /* ── Salvar progresso + histórico (a cada 10s) ── */
   useEffect(() => {
+    watchMetaRef.current = { kind: watchMeta.kind, name: watchMeta.name };
     if (!watchMeta.name) return;
     const snapshot = (force = false) => {
       const video = videoRef.current;
