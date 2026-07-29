@@ -180,8 +180,9 @@ function HomePage() {
   };
 
   return (
-    <main
-      className="relative flex min-h-screen w-full flex-col bg-vexia-bg text-vexia-text"
+    <main className="relative bg-vexia-bg text-vexia-text">
+    <section
+      className="relative flex h-screen w-full flex-col overflow-hidden"
       onKeyDown={(e) => {
         if (e.key === "ArrowRight") {
           e.preventDefault();
@@ -413,6 +414,10 @@ function HomePage() {
       </footer>
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+    </section>
+
+      {/* Carrosséis premium de descoberta (M3U + TMDB) */}
+      <DiscoverRows />
     </main>
   );
 }
