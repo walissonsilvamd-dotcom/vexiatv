@@ -2,13 +2,12 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
-  
-  Gamepad2,
   ListVideo,
   Menu,
   Move,
   PlayCircle,
   Settings,
+  SlidersHorizontal,
   Star,
   Tv,
   type LucideIcon,
