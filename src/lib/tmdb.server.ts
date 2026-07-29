@@ -156,7 +156,54 @@ function pickBestMatch(results: TmdbSearchResult[], title: string, year?: number
   return best && best.score > 5 ? best.item : null;
 }
 
+/** Cache em memória do runtime (TTL 12h) + dedupe de requisições concorrentes. */
+const SERVER_TTL = 1000 * 60 * 60 * 12;
+const SERVER_MISS_TTL = 1000 * 60 * 30;
+const SERVER_MAX = 800;
+const serverCache = new Map<string, { value: Partial<MediaItem> | null; at: number }>();
+const serverInflight = new Map<string, Promise<Partial<MediaItem> | null>>();
+
+function cacheKey(title: string, year: number | undefined, kind: TmdbKind, language: string) {
+  return `${kind}|${language}|${slug(title)}|${year || ""}`;
+}
+
 export async function searchTmdb(
+  credential: string,
+  title: string,
+  year: number | undefined,
+  kind: TmdbKind,
+  language: string,
+): Promise<Partial<MediaItem> | null> {
+  const key = cacheKey(title, year, kind, language);
+  const cached = serverCache.get(key);
+  if (cached) {
+    const ttl = cached.value ? SERVER_TTL : SERVER_MISS_TTL;
+    if (Date.now() - cached.at < ttl) return cached.value;
+    serverCache.delete(key);
+  }
+
+  const running = serverInflight.get(key);
+  if (running) return running;
+
+  const promise = (async () => {
+    try {
+      const value = await fetchTmdb(credential, title, year, kind, language);
+      if (serverCache.size >= SERVER_MAX) {
+        const oldest = serverCache.keys().next().value;
+        if (oldest) serverCache.delete(oldest);
+      }
+      serverCache.set(key, { value, at: Date.now() });
+      return value;
+    } finally {
+      serverInflight.delete(key);
+    }
+  })();
+
+  serverInflight.set(key, promise);
+  return promise;
+}
+
+async function fetchTmdb(
   credential: string,
   title: string,
   year: number | undefined,
@@ -188,3 +235,4 @@ export async function searchTmdb(
   const details = (await detailsRes.json()) as TmdbMovieDetails | TmdbTvDetails;
   return normalizeTmdb(details, kind);
 }
+
