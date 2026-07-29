@@ -569,13 +569,7 @@ function PlayerPage() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                clearProgress(progressKey);
-                const meta = watchMetaRef.current;
-                if (meta?.name) removeWatch(historyKey(meta.kind, meta.name));
-                if (videoRef.current) videoRef.current.currentTime = 0;
-                setResumeAsk(false);
-              }}
+              onClick={() => setConfirmForget(true)}
               className="vexia-focus mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-vexia-text/60 transition-colors hover:text-red-400"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden /> REMOVER DO HISTÓRICO
