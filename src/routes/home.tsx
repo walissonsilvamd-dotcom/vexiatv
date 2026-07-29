@@ -18,6 +18,7 @@ import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { usePlaylist } from "../lib/playlist-store";
+import { useSettings } from "../lib/settings-store";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
