@@ -1,13 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Play, Star } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { AppHeader } from "../components/vexia/AppHeader";
-import { BottomTabs } from "../components/vexia/BottomTabs";
-import { Chips } from "../components/vexia/Chips";
-import { LoadMore, PosterCard, PosterGrid, SectionTitle } from "../components/vexia/PosterGrid";
-import { useSpatialNav } from "../hooks/use-spatial-nav";
-import { featured } from "../data/vexia";
-import { allMovies, continueWatching, movieCategories, SLOGAN } from "../data/vexia-catalog";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import {
+  Clapperboard,
+  Clock,
+  Film,
+  Gamepad2,
+  ListVideo,
+  Menu,
+  Move,
+  PlayCircle,
+  RefreshCw,
+  Settings,
+  Star,
+  Tv,
+  type LucideIcon,
+} from "lucide-react";
+import { useRef, useState } from "react";
+import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
+import { VexiaLogo } from "../components/vexia/VexiaLogo";
+import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -16,7 +26,7 @@ export const Route = createFileRoute("/home")({
       {
         name: "description",
         content:
-          "Home do VÉXIA TV: destaque em tela cheia, retomar assistir, filmes e séries por categoria.",
+          "Home do VÉXIA TV: destaque em tela cheia com canais, filmes, séries, jogos, listas e ajustes.",
       },
       { property: "og:title", content: "VÉXIA TV — Home" },
       { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
@@ -27,85 +37,164 @@ export const Route = createFileRoute("/home")({
   component: HomePage,
 });
 
+const HERO = {
+  title: "A ODISSEIA",
+  year: 2026,
+  release: "2026-07-15 (US GB)",
+  genres: ["AVENTURA", "AÇÃO", "FANTASIA"],
+  runtime: "2H 52M",
+  votes: 8,
+  stars: 8,
+};
+
+type Tile = { label: string; icon: LucideIcon; to?: string; action?: "reload" | "lists" };
+
+const TILES: Tile[] = [
+  { label: "CANAIS", icon: Tv, to: "/canais" },
+  { label: "FILMES", icon: PlayCircle, to: "/filmes" },
+  { label: "SÉRIES", icon: Clapperboard, to: "/series" },
+  { label: "JOGOS", icon: Gamepad2, to: "/filtros" },
+  { label: "LISTAS", icon: ListVideo, action: "lists" },
+  { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
+  { label: "ATUALIZAR", icon: RefreshCw, action: "reload" },
+];
+
 function HomePage() {
-  const scopeRef = useRef<HTMLDivElement>(null);
-  useSpatialNav(scopeRef);
-  const [index, setIndex] = useState(0);
-  const [category, setCategory] = useState<string>("Todos");
+  const navigate = useNavigate();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [listsOpen, setListsOpen] = useState(false);
 
-  useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % featured.length), 7000);
-    return () => clearInterval(id);
-  }, []);
+  const focusTile = (i: number) => {
+    const next = (i + TILES.length) % TILES.length;
+    setActive(next);
+    const el = rowRef.current?.querySelectorAll<HTMLElement>("[data-tile]")[next];
+    el?.focus();
+  };
 
-  const hero = featured[index];
+  const openTile = (tile: Tile) => {
+    if (tile.action === "reload") window.location.reload();
+    else if (tile.action === "lists") setListsOpen(true);
+    else if (tile.to) navigate({ to: tile.to });
+  };
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
-      <section className="relative h-[62vh] min-h-[360px] w-full overflow-hidden">
-        {featured.map((item, i) => (
-          <img
-            key={item.id}
-            src={item.backdrop}
-            alt={item.title}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-              i === index ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/60 to-black/50" />
+    <main
+      className="relative h-screen w-full overflow-hidden bg-vexia-bg text-vexia-text"
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight") {
+          e.preventDefault();
+          focusTile(active + 1);
+        } else if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          focusTile(active - 1);
+        }
+      }}
+    >
+      <img
+        src={heroAsset.url}
+        alt="A Odisseia (2026)"
+        width={1920}
+        height={1088}
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
 
-        <div className="relative z-10">
-          <AppHeader />
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 md:px-10">
-          <h1 className="max-w-3xl text-3xl font-black tracking-tight md:text-5xl">{hero.title}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
-            <span className="flex items-center gap-1 text-vexia-gold">
-              <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
-              {hero.rating.toFixed(1)}
-            </span>
-            <span className="text-vexia-purple-soft">{hero.year}</span>
-            <span className="text-vexia-purple-soft">{hero.genres.join(" • ")}</span>
-            <span className="text-vexia-cyan">{hero.runtime}</span>
-          </div>
-          <p className="mt-3 max-w-2xl text-sm text-vexia-muted">{hero.overview}</p>
-          <Link
-            to="/detalhes/$id"
-            params={{ id: hero.id }}
-            data-nav-row={1}
-            tabIndex={0}
-            className="vexia-focus mt-5 inline-flex items-center gap-2 rounded-full bg-vexia-purple px-7 py-2.5 text-xs font-bold tracking-wide"
-          >
-            <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
-          </Link>
-        </div>
-      </section>
-
-      <div className="space-y-8 px-5 pt-8 md:px-10">
-        <section className="space-y-3">
-          <SectionTitle>RETOMAR ASSISTIR</SectionTitle>
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
-            {continueWatching.map(({ item, progress }) => (
-              <div key={item.id} className="w-[110px] shrink-0 md:w-[140px]">
-                <PosterCard item={item} navRow={2} progress={progress} />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-3">
-          <SectionTitle>CATÁLOGO</SectionTitle>
-          <Chips options={movieCategories} value={category} onChange={setCategory} navRow={3} />
-          <PosterGrid items={allMovies.slice(0, 12)} navRow={4} />
-          <LoadMore label="CARREGAR MAIS" navRow={5} />
-        </section>
-
-        <p className="pb-4 text-center text-[10px] tracking-[0.3em] text-vexia-cyan/70">{SLOGAN}</p>
+      {/* Logo */}
+      <div className="absolute left-[6%] top-[6%] z-10">
+        <VexiaLogo className="h-[22vh] min-h-[120px]" />
       </div>
 
-      <BottomTabs active="Home" />
+      {/* Título e metadados */}
+      <div className="absolute right-[3%] top-[10%] z-10 max-w-[62%] text-right">
+        <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-none tracking-tight drop-shadow-[0_4px_18px_rgba(0,0,0,0.9)]">
+          {HERO.title} <span className="font-black">({HERO.year})</span>
+        </h1>
+
+        <div className="mt-3 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[clamp(0.65rem,1.1vw,1rem)] font-semibold tracking-wide">
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-vexia-gold" aria-hidden />
+            {HERO.release}
+          </span>
+          <span className="text-vexia-muted">|</span>
+          {HERO.genres.map((g) => (
+            <span key={g} className="flex items-center gap-1.5">
+              <Film className="h-4 w-4 text-vexia-cyan" aria-hidden />
+              {g}
+            </span>
+          ))}
+          <span className="text-vexia-muted">|</span>
+          <span className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            {HERO.runtime}
+          </span>
+        </div>
+
+        <div className="mt-2 flex items-center justify-end gap-1">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <Star
+              key={i}
+              className={`h-[clamp(1rem,2vw,1.9rem)] w-[clamp(1rem,2vw,1.9rem)] ${
+                i < HERO.stars ? "fill-vexia-gold text-vexia-gold" : "fill-vexia-muted/60 text-vexia-muted/60"
+              }`}
+              aria-hidden
+            />
+          ))}
+          <span className="ml-1 text-[clamp(0.9rem,1.8vw,1.7rem)] font-bold">({HERO.votes})</span>
+        </div>
+      </div>
+
+      {/* Menu de blocos */}
+      <div
+        ref={rowRef}
+        className="absolute bottom-[12%] left-[6%] right-[6%] z-10 flex flex-wrap items-end gap-[1.4vw]"
+      >
+        {TILES.map((tile, i) => {
+          const Icon = tile.icon;
+          const isActive = i === active;
+          return (
+            <button
+              key={tile.label}
+              data-tile
+              type="button"
+              tabIndex={0}
+              onFocus={() => setActive(i)}
+              onMouseEnter={() => setActive(i)}
+              onClick={() => openTile(tile)}
+              className={`flex h-[13vh] min-h-[110px] w-[10.5vw] min-w-[110px] flex-col items-center justify-center gap-[1.4vh] rounded-2xl outline-none transition-all duration-200 ${
+                isActive
+                  ? "scale-[1.04] bg-vexia-purple/85 ring-2 ring-vexia-purple-soft shadow-[0_0_38px_-4px_var(--vexia-purple)]"
+                  : "bg-[#241A6B]/85 hover:bg-[#2c208a]/90"
+              }`}
+            >
+              <Icon className="h-[4.4vh] min-h-9 w-auto stroke-[1.6]" aria-hidden />
+              <span className="text-[clamp(0.65rem,1vw,1rem)] font-semibold tracking-wide">
+                {tile.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Rodapé de ajuda */}
+      <div className="absolute inset-x-0 bottom-[4%] z-10 flex items-center justify-center gap-8 text-[clamp(0.7rem,1vw,1rem)] text-vexia-text/90">
+        <span className="flex items-center gap-2">
+          <Move className="h-4 w-4" aria-hidden /> Navegar
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="rounded-full border border-current px-2 py-0.5 text-[0.7em] font-bold">OK</span>
+          Selecionar
+        </span>
+        <Link
+          to="/configuracoes"
+          className="flex items-center gap-2 outline-none focus-visible:text-vexia-cyan"
+        >
+          <Menu className="h-4 w-4" aria-hidden /> Menu
+        </Link>
+      </div>
+
+      <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
     </main>
   );
 }
