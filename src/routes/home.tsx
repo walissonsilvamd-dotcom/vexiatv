@@ -65,6 +65,32 @@ function HomePage() {
   const rowRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
+  const { movies, series, channels, hasContent } = usePlaylist();
+
+  // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
+  const slides = useMemo(() => {
+    const pool = [...movies, ...series].filter((m) => !!m.backdrop).slice(0, 40);
+    const picked = pool.filter((_, i) => i % Math.max(1, Math.floor(pool.length / 8)) === 0).slice(0, 8);
+    return (picked.length ? picked : pool.slice(0, 8)).map((m) => ({
+      title: m.title.toUpperCase(),
+      year: m.year,
+      release: m.genres[0] ?? "LISTA M3U",
+      genres: m.genres.slice(0, 3).map((g) => g.toUpperCase()),
+      runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
+      votes: m.rating,
+      stars: Math.round(m.rating),
+      image: m.backdrop,
+    }));
+  }, [movies, series]);
+
+  const [slide, setSlide] = useState(0);
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const id = setInterval(() => setSlide((s) => (s + 1) % slides.length), 8000);
+    return () => clearInterval(id);
+  }, [slides.length]);
+
+  const HERO = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
 
   const focusTile = (i: number) => {
     const next = (i + TILES.length) % TILES.length;
@@ -93,11 +119,11 @@ function HomePage() {
       }}
     >
       <img
-        src={heroAsset.url}
-        alt="A Odisseia (2026)"
-        width={1920}
-        height={1088}
-        className="absolute inset-0 h-full w-full object-cover"
+        key={HERO.image}
+        src={HERO.image}
+        alt={HERO.title}
+        className="absolute inset-0 h-full w-full object-cover animate-[vexia-fade-in_700ms_ease-out]"
+      />
       />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
