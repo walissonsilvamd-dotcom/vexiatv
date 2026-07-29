@@ -7,6 +7,10 @@ export type M3UEntry = {
   group: string;
   url: string;
   tvgId: string;
+  /** Duração declarada no #EXTINF (segundos). 0/-1 quando ao vivo ou ausente. */
+  durationSec: number;
+  /** Sinopse trazida pela própria lista (Xtream costuma enviar em plot/description). */
+  description: string;
 };
 
 export type PlaylistEpisode = {
@@ -16,6 +20,10 @@ export type PlaylistEpisode = {
   title: string;
   url: string;
   thumb: string;
+  /** Duração vinda da lista (minutos), usada quando o TMDB não responde. */
+  runtimeMin: number;
+  /** Sinopse vinda da lista, usada quando o TMDB não responde. */
+  overview: string;
 };
 
 export type PlaylistSeries = MediaItem & {
@@ -99,11 +107,15 @@ export function parseM3U(text: string): M3UEntry[] {
       let m: RegExpExecArray | null;
       while ((m = ATTR_RE.exec(line)) !== null) attrs[m[1].toLowerCase()] = m[2];
       const name = line.slice(line.lastIndexOf(",") + 1).trim();
+      const durationRaw = Number.parseFloat(line.slice(line.indexOf(":") + 1));
       pending = {
         name: name || attrs["tvg-name"] || "Sem título",
-        logo: attrs["tvg-logo"] ?? "",
+        logo: attrs["tvg-logo"] || attrs["tvg-thumb"] || attrs["logo"] || "",
         group: attrs["group-title"] ?? "Sem categoria",
         tvgId: attrs["tvg-id"] ?? "",
+        durationSec: Number.isFinite(durationRaw) && durationRaw > 0 ? durationRaw : 0,
+        description:
+          attrs["plot"] || attrs["description"] || attrs["tvg-description"] || attrs["overview"] || "",
       };
       continue;
     }
@@ -206,6 +218,8 @@ export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
         title: entry.name,
         url: entry.url,
         thumb: entry.logo || serie.poster,
+        runtimeMin: entry.durationSec ? Math.round(entry.durationSec / 60) : 0,
+        overview: entry.description || "",
       });
       return;
     }
