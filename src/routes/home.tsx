@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
-  Film,
+  
   Gamepad2,
   ListVideo,
   Menu,
