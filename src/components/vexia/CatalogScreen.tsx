@@ -7,14 +7,8 @@ import { useSpatialNav } from "../../hooks/use-spatial-nav";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
 import { QrPlaylistDialog } from "./QrPlaylistDialog";
+import { TopNav } from "./TopNav";
 import { VexiaLogo } from "./VexiaLogo";
-
-const TABS = [
-  { label: "Home", to: "/home" as const },
-  { label: "Canais", to: "/canais" as const },
-  { label: "Filmes", to: "/filmes" as const },
-  { label: "Séries", to: "/series" as const },
-];
 
 const PAGE = 24;
 
@@ -72,26 +66,7 @@ export function CatalogScreen({
     >
       {/* Barra superior */}
       <header className="flex items-center gap-4 px-6 py-4 md:px-10">
-        <nav className="flex items-center gap-1 rounded-2xl border border-white/10 bg-black/60 p-1.5 backdrop-blur-xl">
-          {TABS.map((tab) => {
-            const active = tab.label === activeTab;
-            return (
-              <Link
-                key={tab.label}
-                to={tab.to}
-                data-nav-row={0}
-                tabIndex={0}
-                className={`vexia-focus rounded-xl px-5 py-2 text-sm font-bold transition-all ${
-                  active
-                    ? "bg-gradient-to-b from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_20px_rgba(123,47,190,0.6)]"
-                    : "text-vexia-text/85 hover:bg-white/5"
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <TopNav active={activeTab} />
 
         <label className="relative flex-1 max-w-xl">
           <Search
