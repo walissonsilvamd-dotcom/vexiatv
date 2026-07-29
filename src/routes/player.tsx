@@ -412,7 +412,7 @@ function PlayerPage() {
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
-      {(buffering || reconnecting) && (
+      {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="flex flex-col items-center gap-2">
             <Loader2
@@ -420,8 +420,11 @@ function PlayerPage() {
               aria-hidden
             />
             {reconnecting ? (
-              <span className="text-xs font-semibold text-vexia-cyan">Reconectando…</span>
+              <span className="text-xs font-semibold text-vexia-cyan">
+                Reconectando… ({attempt}/{MAX_RETRIES})
+              </span>
             ) : null}
+
           </div>
         </div>
       )}
