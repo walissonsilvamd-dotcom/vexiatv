@@ -185,3 +185,11 @@
       0 0 28px -2px color-mix(in oklab, var(--vexia-purple) 75%, transparent);
   }
 }
+
+@theme {
+  --font-sans: "Exo 2", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  font-family: "Exo 2", ui-sans-serif, system-ui, sans-serif;
+}

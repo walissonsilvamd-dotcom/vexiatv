@@ -9,9 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TvAoVivoRouteImport } from './routes/tv-ao-vivo'
 import { Route as SeriesRouteImport } from './routes/series'
-import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FiltrosRouteImport } from './routes/filtros'
@@ -22,19 +20,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SerieIdRouteImport } from './routes/serie.$id'
 import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 
-const TvAoVivoRoute = TvAoVivoRouteImport.update({
-  id: '/tv-ao-vivo',
-  path: '/tv-ao-vivo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SeriesRoute = SeriesRouteImport.update({
   id: '/series',
   path: '/series',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlaylistRoute = PlaylistRouteImport.update({
-  id: '/playlist',
-  path: '/playlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -91,9 +79,7 @@ export interface FileRoutesByFullPath {
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
 }
@@ -105,9 +91,7 @@ export interface FileRoutesByTo {
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
 }
@@ -120,9 +104,7 @@ export interface FileRoutesById {
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
   '/login': typeof LoginRoute
-  '/playlist': typeof PlaylistRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
 }
@@ -136,9 +118,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/home'
     | '/login'
-    | '/playlist'
     | '/series'
-    | '/tv-ao-vivo'
     | '/detalhes/$id'
     | '/serie/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -150,9 +130,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/home'
     | '/login'
-    | '/playlist'
     | '/series'
-    | '/tv-ao-vivo'
     | '/detalhes/$id'
     | '/serie/$id'
   id:
@@ -164,9 +142,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/home'
     | '/login'
-    | '/playlist'
     | '/series'
-    | '/tv-ao-vivo'
     | '/detalhes/$id'
     | '/serie/$id'
   fileRoutesById: FileRoutesById
@@ -179,34 +155,18 @@ export interface RootRouteChildren {
   FiltrosRoute: typeof FiltrosRoute
   HomeRoute: typeof HomeRoute
   LoginRoute: typeof LoginRoute
-  PlaylistRoute: typeof PlaylistRoute
   SeriesRoute: typeof SeriesRoute
-  TvAoVivoRoute: typeof TvAoVivoRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
   SerieIdRoute: typeof SerieIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tv-ao-vivo': {
-      id: '/tv-ao-vivo'
-      path: '/tv-ao-vivo'
-      fullPath: '/tv-ao-vivo'
-      preLoaderRoute: typeof TvAoVivoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/series': {
       id: '/series'
       path: '/series'
       fullPath: '/series'
       preLoaderRoute: typeof SeriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/playlist': {
-      id: '/playlist'
-      path: '/playlist'
-      fullPath: '/playlist'
-      preLoaderRoute: typeof PlaylistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -283,9 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiltrosRoute: FiltrosRoute,
   HomeRoute: HomeRoute,
   LoginRoute: LoginRoute,
-  PlaylistRoute: PlaylistRoute,
   SeriesRoute: SeriesRoute,
-  TvAoVivoRoute: TvAoVivoRoute,
   DetalhesIdRoute: DetalhesIdRoute,
   SerieIdRoute: SerieIdRoute,
 }
