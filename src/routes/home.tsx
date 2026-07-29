@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
+  History as HistoryIcon,
   ListVideo,
   Menu,
   Move,
@@ -21,6 +22,8 @@ import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
+import { useContinueWatching } from "../lib/history-store";
+import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -78,6 +81,7 @@ const TILES: Tile[] = [
   { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "FAVORITOS", icon: Heart, to: "/favoritos" },
+  { label: "HISTÓRICO", icon: HistoryIcon, to: "/historico" },
   { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
   { label: "LISTAS", icon: ListVideo, action: "lists" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
@@ -90,6 +94,13 @@ function HomePage() {
   const [listsOpen, setListsOpen] = useState(false);
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
+
+  // Continuar assistindo: histórico local reconciliado com a lista atual.
+  const continueEntries = useContinueWatching(15);
+  const continueList = useResolvedHistory(continueEntries);
+  const openWatch = useOpenWatch();
+
+
 
   // Blocos visíveis respeitando "Ocultar VOD" e "Ocultar Séries" dos Ajustes.
   const tiles = useMemo(
@@ -287,6 +298,27 @@ function HomePage() {
           </p>
         ) : null}
       </section>
+
+      {/* Continuar assistindo (histórico local) */}
+      {continueList.length > 0 ? (
+        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+          <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
+            Continuar assistindo
+          </h2>
+          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {continueList.map((entry) => (
+              <WatchCard
+                key={entry.key}
+                entry={entry}
+                compact
+                onOpen={() => openWatch(entry)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+
 
 
       {/* Menu de blocos */}

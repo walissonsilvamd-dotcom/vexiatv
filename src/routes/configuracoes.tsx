@@ -14,10 +14,11 @@ import {
   Trash2,
   EyeOff,
   ArrowUpDown,
+  History,
   Wifi,
   type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import {
@@ -29,6 +30,13 @@ import {
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { useSettings } from "../lib/settings-store";
 import { usePlaylist } from "../lib/playlist-store";
+import {
+  clearCompleted,
+  clearWatchHistory,
+  isHistoryEnabled,
+  setHistoryEnabled,
+  useWatchHistory,
+} from "../lib/history-store";
 
 type Dialog =
   | null
@@ -43,7 +51,9 @@ type Dialog =
   | "quality"
   | "player"
   | "timeFormat"
-  | "captions";
+  | "captions"
+  | "clearWatched"
+  | "historyOff";
 
 type Item =
   | { kind: "toggle"; icon: LucideIcon; label: string; sub: (v: string) => string; key: "hideCategories" | "hideVod" | "hideSeries" | "autoUpdate" }
@@ -93,6 +103,9 @@ const QUALITIES = [
 function SettingsPage() {
   const navigate = useNavigate();
   const { settings, set, toggle, history, clearHistory, formatTime } = useSettings();
+  const { history: watchHistory } = useWatchHistory();
+  const [historyOn, setHistoryOn] = useState(true);
+  useEffect(() => setHistoryOn(isHistoryEnabled()), []);
   const { reload } = usePlaylist();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [pin, setPin] = useState("");
@@ -153,19 +166,33 @@ function SettingsPage() {
     { kind: "toggle", icon: EyeOff, label: "Ocultar Categorias", sub: (v) => v, key: "hideCategories" },
     { kind: "toggle", icon: EyeOff, label: "Ocultar VOD", sub: (v) => v, key: "hideVod" },
     { kind: "toggle", icon: EyeOff, label: "Ocultar Séries", sub: (v) => v, key: "hideSeries" },
-    { kind: "action", icon: Trash2, label: "Limpar Histórico", sub: `${history.length} itens salvos`, dialog: "clearAll" },
+    { kind: "action", icon: Trash2, label: "Limpar Histórico", sub: `${watchHistory.length} itens salvos`, dialog: "clearAll" },
+    {
+      kind: "action",
+      icon: Eraser,
+      label: "Limpar Itens Assistidos",
+      sub: `${watchHistory.filter((h) => h.completed).length} concluídos`,
+      dialog: "clearWatched",
+    },
+    {
+      kind: "action",
+      icon: History,
+      label: "Histórico de Reprodução",
+      sub: historyOn ? "Ativo — salvando progresso" : "Desativado",
+      dialog: "historyOff",
+    },
     {
       kind: "action",
       icon: Trash2,
       label: "Limpar Filmes",
-      sub: `${history.filter((h) => h.kind === "movie").length} filmes`,
+      sub: `${watchHistory.filter((h) => h.kind === "movie").length} filmes`,
       dialog: "clearMovies",
     },
     {
       kind: "action",
       icon: Eraser,
       label: "Limpar Séries",
-      sub: `${history.filter((h) => h.kind === "series").length} séries`,
+      sub: `${watchHistory.filter((h) => h.kind === "series").length} séries`,
       dialog: "clearSeries",
     },
     {
@@ -442,9 +469,10 @@ function SettingsPage() {
           <ModalButton
             variant="danger"
             onClick={() => {
-              clearHistory(
-                dialog === "clearMovies" ? "movie" : dialog === "clearSeries" ? "series" : undefined,
-              );
+              const kind =
+                dialog === "clearMovies" ? "movie" : dialog === "clearSeries" ? "series" : undefined;
+              clearHistory(kind);
+              clearWatchHistory(kind);
               close();
               notify("Histórico limpo com sucesso");
             }}
@@ -452,6 +480,50 @@ function SettingsPage() {
             Limpar
           </ModalButton>
         </div>
+      </SettingsModal>
+
+      {/* ---------- LIMPAR ITENS ASSISTIDOS ---------- */}
+      <SettingsModal
+        open={dialog === "clearWatched"}
+        title="Limpar itens assistidos?"
+        subtitle="Remove do histórico somente o que já foi assistido até o fim."
+        onClose={close}
+      >
+        <div className="flex gap-3">
+          <ModalButton variant="ghost" onClick={close}>
+            Cancelar
+          </ModalButton>
+          <ModalButton
+            variant="danger"
+            onClick={() => {
+              clearCompleted();
+              close();
+              notify("Itens assistidos removidos");
+            }}
+          >
+            Limpar
+          </ModalButton>
+        </div>
+      </SettingsModal>
+
+      {/* ---------- DESATIVAR HISTÓRICO ---------- */}
+      <SettingsModal
+        open={dialog === "historyOff"}
+        title="Histórico de Reprodução"
+        subtitle="Controle se o VÉXIA TV deve salvar o progresso do que você assiste."
+        onClose={close}
+      >
+        <SwitchRow
+          label="Salvar histórico"
+          hint="Alimenta o Continuar Assistindo e a tela Histórico"
+          active={historyOn}
+          onToggle={() => {
+            const next = !historyOn;
+            setHistoryOn(next);
+            setHistoryEnabled(next);
+            notify(next ? "Histórico ativado" : "Histórico desativado");
+          }}
+        />
       </SettingsModal>
 
       {/* ---------- CLASSIFICAÇÃO ---------- */}
