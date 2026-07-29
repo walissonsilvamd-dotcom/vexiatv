@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
-  Film,
+  
   Gamepad2,
   ListVideo,
   Menu,
@@ -171,108 +171,100 @@ function HomePage() {
           className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
         />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-black/25" />
-      <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/92 via-black/25 to-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/15 to-black/35" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/45" />
 
-      {/* Topo: logo + relógio */}
-      <header className="relative z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-[5vw] pt-[3vh]">
-        <VexiaLogo className="h-[13vh] max-h-[150px] min-h-[74px] w-auto" />
-        <div className="flex shrink-0 items-center gap-3 rounded-full border border-white/15 bg-black/45 px-4 py-1.5 backdrop-blur-md">
-          <Clock className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden />
-          <span className="text-[clamp(0.75rem,1.1vw,1.05rem)] font-bold tabular-nums tracking-wide">
-            {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-          </span>
-          <span className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase text-vexia-muted">
-            {now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-          </span>
-        </div>
-      </header>
+      {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
+      <header className="relative z-10 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-[3vw] px-[5vw] pt-[3vh]">
+        <VexiaLogo className="h-[11vh] max-h-[120px] min-h-[64px] w-auto" />
 
-      {/* Meio: metadados do destaque */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-center justify-end px-[5vw] py-[2vh]">
         <div
           key={`meta-${HERO.title}`}
-          className="w-full max-w-[54ch] animate-[vexia-hero-in_500ms_ease-out] rounded-3xl border border-white/10 bg-black/40 p-[clamp(1rem,1.6vw,1.8rem)] text-right shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-xl"
+          className="animate-[vexia-hero-in_400ms_ease-out] text-right"
         >
-          <h1 className="text-[clamp(1.5rem,3.4vw,3.2rem)] font-black leading-[1] tracking-tight drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)]">
-            {HERO.title} <span className="font-light text-vexia-muted">({HERO.year})</span>
+          <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
+            <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
+            <span className="tabular-nums">
+              {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+            <span>{now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
+          </div>
+
+          <h1 className="mt-[0.8vh] text-[clamp(1.1rem,2.4vw,2.3rem)] font-black leading-[1.05] tracking-tight [text-shadow:0_3px_16px_rgba(0,0,0,0.95)]">
+            {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
           </h1>
 
-          <div className="mt-[1.6vh] flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[clamp(0.62rem,0.95vw,0.95rem)] font-semibold uppercase tracking-[0.08em] text-white/85">
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 shrink-0 text-vexia-gold" aria-hidden />
-              {HERO.release}
-            </span>
-            <span className="text-vexia-muted/60">|</span>
+          <div className="mt-[0.6vh] flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+            <span>{HERO.release}</span>
             {HERO.genres.map((g) => (
-              <span key={g} className="flex items-center gap-1.5">
-                <Film className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden />
+              <span key={g} className="flex items-center gap-2">
+                <span className="text-white/25">•</span>
                 {g}
               </span>
             ))}
-            <span className="text-vexia-muted/60">|</span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden />
-              {HERO.runtime}
-            </span>
+            <span className="text-white/25">•</span>
+            <span>{HERO.runtime}</span>
           </div>
 
-          <div className="mt-[1.4vh] flex items-center justify-end gap-1">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-[clamp(0.85rem,1.5vw,1.4rem)] w-[clamp(0.85rem,1.5vw,1.4rem)] shrink-0 ${
-                  i < HERO.stars
-                    ? "fill-vexia-gold text-vexia-gold drop-shadow-[0_0_8px_rgba(255,200,60,0.45)]"
-                    : "fill-white/15 text-white/15"
-                }`}
-                aria-hidden
-              />
-            ))}
-            <span className="ml-1 text-[clamp(0.8rem,1.4vw,1.3rem)] font-bold tabular-nums">
-              ({HERO.votes})
-            </span>
-          </div>
+          {HERO.stars > 0 ? (
+            <div className="mt-[0.6vh] flex items-center justify-end gap-[3px]">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={`h-[clamp(0.6rem,1vw,0.95rem)] w-[clamp(0.6rem,1vw,0.95rem)] shrink-0 ${
+                    i < HERO.stars
+                      ? "fill-vexia-gold text-vexia-gold"
+                      : "fill-white/15 text-white/15"
+                  }`}
+                  aria-hidden
+                />
+              ))}
+              <span className="ml-1.5 text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold tabular-nums text-white/75">
+                {HERO.votes}
+              </span>
+            </div>
+          ) : null}
 
           {HERO.overview ? (
-            <p className="mt-[1.6vh] line-clamp-2 text-[clamp(0.7rem,0.95vw,1rem)] font-medium leading-snug text-white/80">
+            <p className="ml-auto mt-[0.9vh] line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
               {HERO.overview}
             </p>
           ) : null}
-
-          <p className="mt-[1.4vh] text-[clamp(0.58rem,0.82vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-vexia-cyan">
-            {hasContent
-              ? `${channels.length} canais · ${movies.length} filmes · ${series.length} séries na sua lista`
-              : "Abra LISTAS e carregue sua lista M3U para preencher o app"}
-          </p>
-
-          {slides.length > 1 ? (
-            <div className="mt-[1.8vh] flex items-center justify-end gap-2">
-              {slides.map((s, i) => (
-                <button
-                  key={s.title + i}
-                  type="button"
-                  aria-label={`Destaque ${i + 1}`}
-                  onClick={() => setSlide(i)}
-                  className={`h-[5px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
-                    i === slide
-                      ? "w-10 bg-white/25"
-                      : "w-4 bg-white/25 hover:bg-white/45 focus-visible:bg-vexia-cyan"
-                  }`}
-                >
-                  {i === slide ? (
-                    <span
-                      key={`p-${slide}`}
-                      className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-vexia-cyan shadow-[0_0_10px_var(--vexia-cyan)]"
-                    />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-          ) : null}
         </div>
+      </header>
+
+      {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
+      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-end px-[5vw] pb-[1.5vh]">
+        {slides.length > 1 ? (
+          <div className="flex items-center gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.title + i}
+                type="button"
+                aria-label={`Destaque ${i + 1}`}
+                onClick={() => setSlide(i)}
+                className={`h-[4px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
+                  i === slide
+                    ? "w-9 bg-white/25"
+                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-vexia-cyan"
+                }`}
+              >
+                {i === slide ? (
+                  <span
+                    key={`p-${slide}`}
+                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-vexia-cyan shadow-[0_0_10px_var(--vexia-cyan)]"
+                  />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        ) : !hasContent ? (
+          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-vexia-cyan/80">
+            Abra LISTAS e carregue sua lista M3U
+          </p>
+        ) : null}
       </section>
+
 
       {/* Menu de blocos */}
       <nav
