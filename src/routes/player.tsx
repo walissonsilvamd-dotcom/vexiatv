@@ -454,11 +454,16 @@ function PlayerPage() {
     ? "opacity-100"
     : "pointer-events-none opacity-0";
 
+  const showEpisodes = type === "series" && episodes.length > 1;
+
   return (
     <main
-      ref={shellRef}
-      className="relative h-screen w-screen overflow-hidden bg-vexia-bg font-sans text-white"
+      className={`min-h-screen w-full bg-vexia-bg font-sans text-white ${showEpisodes ? "overflow-y-auto" : "h-screen overflow-hidden"}`}
     >
+      <div
+        ref={shellRef}
+        className={`relative w-full overflow-hidden bg-black ${showEpisodes ? "h-[62vh] min-h-[320px]" : "h-screen"}`}
+      >
       {/* ── Superfície do vídeo ── */}
       <video
         ref={videoRef}
@@ -468,6 +473,7 @@ function PlayerPage() {
         muted={muted}
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
+
 
       {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
