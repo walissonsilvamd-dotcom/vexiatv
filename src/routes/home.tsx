@@ -1,20 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { TopMenu, type MenuAction } from "../components/vexia/TopMenu";
-import { HeroCarousel } from "../components/vexia/HeroCarousel";
-import { MediaRow } from "../components/vexia/MediaRow";
-import { ChannelRow } from "../components/vexia/ChannelRow";
-import { ExitDialog, ReloadOverlay } from "../components/vexia/Overlays";
-import { VexiaLogo } from "../components/vexia/VexiaLogo";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Play, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AppHeader } from "../components/vexia/AppHeader";
+import { BottomTabs } from "../components/vexia/BottomTabs";
+import { Chips } from "../components/vexia/Chips";
+import { LoadMore, PosterCard, PosterGrid, SectionTitle } from "../components/vexia/PosterGrid";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
-import {
-  channels,
-  featured,
-  featuredMovies,
-  featuredSeries,
-  recentMovies,
-  recentSeries,
-} from "../data/vexia";
+import { featured } from "../data/vexia";
+import { allMovies, continueWatching, movieCategories, SLOGAN } from "../data/vexia-catalog";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -23,13 +16,10 @@ export const Route = createFileRoute("/home")({
       {
         name: "description",
         content:
-          "Protótipo da Home do VÉXIA TV: carrossel cinematográfico, canais ao vivo, filmes e séries com navegação por foco.",
+          "Home do VÉXIA TV: destaque em tela cheia, retomar assistir, filmes e séries por categoria.",
       },
       { property: "og:title", content: "VÉXIA TV — Home" },
-      {
-        property: "og:description",
-        content: "Protótipo visual da Home do VÉXIA TV para Android TV e Smart TV.",
-      },
+      { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -40,56 +30,82 @@ export const Route = createFileRoute("/home")({
 function HomePage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
+  const [index, setIndex] = useState(0);
+  const [category, setCategory] = useState<string>("Todos");
 
-  const [reload, setReload] = useState<"idle" | "loading" | "done">("idle");
-  const [exiting, setExiting] = useState(false);
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % featured.length), 7000);
+    return () => clearInterval(id);
+  }, []);
 
-  const handleAction = (action: MenuAction) => {
-    if (action === "exit") {
-      setExiting(true);
-      return;
-    }
-    setReload("loading");
-    setTimeout(() => setReload("done"), 2200);
-    setTimeout(() => setReload("idle"), 4000);
-  };
+  const hero = featured[index];
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg text-vexia-text">
-      <div
-        className="pointer-events-none fixed inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(65% 55% at 12% -5%, color-mix(in oklab, var(--vexia-purple) 40%, transparent), transparent 70%), radial-gradient(60% 50% at 92% 5%, color-mix(in oklab, var(--vexia-cyan) 24%, transparent), transparent 70%)",
-        }}
-      />
+    <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+      <section className="relative h-[62vh] min-h-[360px] w-full overflow-hidden">
+        {featured.map((item, i) => (
+          <img
+            key={item.id}
+            src={item.backdrop}
+            alt={item.title}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
+              i === index ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/60 to-black/50" />
 
-      <div className="relative mx-auto max-w-[1600px] px-6 py-6 md:px-12">
-        <header className="flex flex-wrap items-center justify-between gap-6 py-3">
-          <VexiaLogo className="h-20" />
-          <TopMenu navRow={0} onAction={handleAction} />
-        </header>
-
-        <div className="mt-6">
-          <HeroCarousel items={featured} navRow={1} />
+        <div className="relative z-10">
+          <AppHeader />
         </div>
 
-        <div className="mt-8 space-y-6 pb-16">
-          <ChannelRow title="TV AO VIVO" channels={channels} navRow={2} />
-          <MediaRow title="FILMES EM DESTAQUE" items={featuredMovies} navRow={3} />
-          <MediaRow title="FILMES RECENTES" items={recentMovies} navRow={4} />
-          <MediaRow title="SÉRIES EM DESTAQUE" items={featuredSeries} navRow={5} />
-          <MediaRow title="SÉRIES RECENTES" items={recentSeries} navRow={6} />
+        <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-8 md:px-10">
+          <h1 className="max-w-3xl text-3xl font-black tracking-tight md:text-5xl">{hero.title}</h1>
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold">
+            <span className="flex items-center gap-1 text-vexia-gold">
+              <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
+              {hero.rating.toFixed(1)}
+            </span>
+            <span className="text-vexia-purple-soft">{hero.year}</span>
+            <span className="text-vexia-purple-soft">{hero.genres.join(" • ")}</span>
+            <span className="text-vexia-cyan">{hero.runtime}</span>
+          </div>
+          <p className="mt-3 max-w-2xl text-sm text-vexia-muted">{hero.overview}</p>
+          <Link
+            to="/detalhes/$id"
+            params={{ id: hero.id }}
+            data-nav-row={1}
+            tabIndex={0}
+            className="vexia-focus mt-5 inline-flex items-center gap-2 rounded-full bg-vexia-purple px-7 py-2.5 text-xs font-bold tracking-wide"
+          >
+            <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
+          </Link>
         </div>
+      </section>
 
-        <p className="pb-8 text-center text-[11px] text-vexia-muted">
-          Protótipo visual — dados de exemplo. No APK, o conteúdo vem da playlist e o TMDB
-          complementa informações ausentes.
-        </p>
+      <div className="space-y-8 px-5 pt-8 md:px-10">
+        <section className="space-y-3">
+          <SectionTitle>RETOMAR ASSISTIR</SectionTitle>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {continueWatching.map(({ item, progress }) => (
+              <div key={item.id} className="w-[110px] shrink-0 md:w-[140px]">
+                <PosterCard item={item} navRow={2} progress={progress} />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <SectionTitle>CATÁLOGO</SectionTitle>
+          <Chips options={movieCategories} value={category} onChange={setCategory} navRow={3} />
+          <PosterGrid items={allMovies.slice(0, 12)} navRow={4} />
+          <LoadMore label="CARREGAR MAIS" navRow={5} />
+        </section>
+
+        <p className="pb-4 text-center text-[10px] tracking-[0.3em] text-vexia-cyan/70">{SLOGAN}</p>
       </div>
 
-      {reload !== "idle" ? <ReloadOverlay done={reload === "done"} /> : null}
-      {exiting ? <ExitDialog onCancel={() => setExiting(false)} /> : null}
+      <BottomTabs active="Home" />
     </main>
   );
 }

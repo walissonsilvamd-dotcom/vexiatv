@@ -9,32 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TvAoVivoRouteImport } from './routes/tv-ao-vivo'
 import { Route as SeriesRouteImport } from './routes/series'
-import { Route as PlaylistRouteImport } from './routes/playlist'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as FiltrosRouteImport } from './routes/filtros'
 import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SerieIdRouteImport } from './routes/serie.$id'
+import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 
-const TvAoVivoRoute = TvAoVivoRouteImport.update({
-  id: '/tv-ao-vivo',
-  path: '/tv-ao-vivo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SeriesRoute = SeriesRouteImport.update({
   id: '/series',
   path: '/series',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlaylistRoute = PlaylistRouteImport.update({
-  id: '/playlist',
-  path: '/playlist',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FiltrosRoute = FiltrosRouteImport.update({
+  id: '/filtros',
+  path: '/filtros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FilmesRoute = FilmesRouteImport.update({
@@ -47,89 +50,118 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   path: '/configuracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CanaisRoute = CanaisRouteImport.update({
+  id: '/canais',
+  path: '/canais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SerieIdRoute = SerieIdRouteImport.update({
+  id: '/serie/$id',
+  path: '/serie/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DetalhesIdRoute = DetalhesIdRouteImport.update({
+  id: '/detalhes/$id',
+  path: '/detalhes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
-  '/playlist': typeof PlaylistRoute
+  '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
-  '/playlist': typeof PlaylistRoute
+  '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/canais': typeof CanaisRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
+  '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
-  '/playlist': typeof PlaylistRoute
+  '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
-  '/tv-ao-vivo': typeof TvAoVivoRoute
+  '/detalhes/$id': typeof DetalhesIdRoute
+  '/serie/$id': typeof SerieIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
-    | '/playlist'
+    | '/login'
     | '/series'
-    | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
-    | '/playlist'
+    | '/login'
     | '/series'
-    | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   id:
     | '__root__'
     | '/'
+    | '/canais'
     | '/configuracoes'
     | '/filmes'
+    | '/filtros'
     | '/home'
-    | '/playlist'
+    | '/login'
     | '/series'
-    | '/tv-ao-vivo'
+    | '/detalhes/$id'
+    | '/serie/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CanaisRoute: typeof CanaisRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FilmesRoute: typeof FilmesRoute
+  FiltrosRoute: typeof FiltrosRoute
   HomeRoute: typeof HomeRoute
-  PlaylistRoute: typeof PlaylistRoute
+  LoginRoute: typeof LoginRoute
   SeriesRoute: typeof SeriesRoute
-  TvAoVivoRoute: typeof TvAoVivoRoute
+  DetalhesIdRoute: typeof DetalhesIdRoute
+  SerieIdRoute: typeof SerieIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tv-ao-vivo': {
-      id: '/tv-ao-vivo'
-      path: '/tv-ao-vivo'
-      fullPath: '/tv-ao-vivo'
-      preLoaderRoute: typeof TvAoVivoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/series': {
       id: '/series'
       path: '/series'
@@ -137,11 +169,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeriesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/playlist': {
-      id: '/playlist'
-      path: '/playlist'
-      fullPath: '/playlist'
-      preLoaderRoute: typeof PlaylistRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -149,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/filtros': {
+      id: '/filtros'
+      path: '/filtros'
+      fullPath: '/filtros'
+      preLoaderRoute: typeof FiltrosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/filmes': {
@@ -165,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfiguracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/canais': {
+      id: '/canais'
+      path: '/canais'
+      fullPath: '/canais'
+      preLoaderRoute: typeof CanaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -172,17 +218,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/serie/$id': {
+      id: '/serie/$id'
+      path: '/serie/$id'
+      fullPath: '/serie/$id'
+      preLoaderRoute: typeof SerieIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/detalhes/$id': {
+      id: '/detalhes/$id'
+      path: '/detalhes/$id'
+      fullPath: '/detalhes/$id'
+      preLoaderRoute: typeof DetalhesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CanaisRoute: CanaisRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   FilmesRoute: FilmesRoute,
+  FiltrosRoute: FiltrosRoute,
   HomeRoute: HomeRoute,
-  PlaylistRoute: PlaylistRoute,
+  LoginRoute: LoginRoute,
   SeriesRoute: SeriesRoute,
-  TvAoVivoRoute: TvAoVivoRoute,
+  DetalhesIdRoute: DetalhesIdRoute,
+  SerieIdRoute: SerieIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
