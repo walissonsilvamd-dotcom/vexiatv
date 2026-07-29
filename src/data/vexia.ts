@@ -19,6 +19,7 @@ export type MediaItem = {
   seasons?: number;
   episodes?: number;
   cast?: string[];
+  castList?: { name: string; character?: string; photo: string }[];
   director?: string;
   backdrop: string;
   poster: string;

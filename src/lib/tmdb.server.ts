@@ -22,7 +22,7 @@ type TmdbSearchResult = {
 type TmdbGenre = { id: number; name: string };
 
 type TmdbCrew = { id: number; name: string; job: string };
-type TmdbCast = { id: number; name: string };
+type TmdbCast = { id: number; name: string; character?: string; profile_path?: string | null };
 
 type TmdbMovieDetails = {
   id: number;
