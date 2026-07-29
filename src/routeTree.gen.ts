@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TvAoVivoRouteImport } from './routes/tv-ao-vivo'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as FilmesRouteImport } from './routes/filmes'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TvAoVivoRoute = TvAoVivoRouteImport.update({
@@ -23,6 +24,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FilmesRoute = FilmesRouteImport.update({
+  id: '/filmes',
+  path: '/filmes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/tv-ao-vivo': typeof TvAoVivoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/home' | '/tv-ao-vivo'
+  fullPaths: '/' | '/filmes' | '/home' | '/tv-ao-vivo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/home' | '/tv-ao-vivo'
-  id: '__root__' | '/' | '/home' | '/tv-ao-vivo'
+  to: '/' | '/filmes' | '/home' | '/tv-ao-vivo'
+  id: '__root__' | '/' | '/filmes' | '/home' | '/tv-ao-vivo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FilmesRoute: typeof FilmesRoute
   HomeRoute: typeof HomeRoute
   TvAoVivoRoute: typeof TvAoVivoRoute
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/filmes': {
+      id: '/filmes'
+      path: '/filmes'
+      fullPath: '/filmes'
+      preLoaderRoute: typeof FilmesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FilmesRoute: FilmesRoute,
   HomeRoute: HomeRoute,
   TvAoVivoRoute: TvAoVivoRoute,
 }
