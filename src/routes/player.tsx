@@ -65,6 +65,7 @@ function fmt(sec: number) {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
+const MAX_RETRIES = 3;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
