@@ -101,6 +101,7 @@ export function normalizeTmdb(
     seasons,
     episodes,
     cast,
+    castList,
     director,
     backdrop: tmdbImageUrl(details.backdrop_path, "w1280"),
     poster: tmdbImageUrl(details.poster_path, "w500"),
