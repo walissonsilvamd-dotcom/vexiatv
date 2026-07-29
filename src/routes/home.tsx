@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
+  History as HistoryIcon,
   ListVideo,
   Menu,
   Move,
