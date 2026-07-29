@@ -22,7 +22,7 @@ export function BottomTabs({ active, navRow = 90 }: { active: string; navRow?: n
     >
       <ul className="mx-auto flex max-w-[1600px] items-stretch justify-around px-2">
 
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.label;
           return (
