@@ -62,12 +62,18 @@ const FALLBACK_HERO: Hero = {
     "Adicione sua lista M3U pelo menu LISTAS para preencher canais, filmes e séries com capas, sinopses e destaques automáticos.",
 };
 
-type Tile = { label: string; icon: LucideIcon; to?: string; action?: "lists" };
+type Tile = {
+  label: string;
+  icon: LucideIcon;
+  to?: string;
+  action?: "lists";
+  hideKey?: "hideVod" | "hideSeries";
+};
 
 const TILES: Tile[] = [
   { label: "CANAIS", icon: Tv, to: "/canais" },
-  { label: "FILMES", icon: PlayCircle, to: "/filmes" },
-  { label: "SÉRIES", icon: Clapperboard, to: "/series" },
+  { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
+  { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "JOGOS", icon: Gamepad2, to: "/filtros" },
   { label: "LISTAS", icon: ListVideo, action: "lists" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
@@ -79,6 +85,14 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
   const { movies, series, channels, hasContent } = usePlaylist();
+  const { settings, formatTime } = useSettings();
+
+  // Blocos visíveis respeitando "Ocultar VOD" e "Ocultar Séries" dos Ajustes.
+  const tiles = useMemo(
+    () => TILES.filter((t) => !t.hideKey || !settings[t.hideKey]),
+    [settings],
+  );
+
 
   // Carrossel do destaque: montado a partir dos títulos da lista M3U carregada.
   const slides = useMemo<Hero[]>(() => {
