@@ -174,8 +174,11 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       try {
-        onEvent?.({ stage: 0 });
-        const { text } = await fetchPlaylist({ data: { url } });
+        onEvent?.({ stage: 0, ratio: 0 });
+        const text = await downloadPlaylist(url, (ev) => {
+          if (ev.type === "attempt") onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
+          else onEvent?.({ stage: 0, ratio: ev.ratio });
+        });
         const data = await parseInWorker(text, onEvent);
         if (data.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
