@@ -30,10 +30,8 @@ function SplashScreen() {
   return (
     <div className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
       <div className="flex flex-col items-center gap-6">
-        <h1 className="text-6xl font-black tracking-tight md:text-8xl">
-          <span className="text-vexia-purple">VEXIA</span>
-          <span className="text-vexia-cyan"> TV</span>
-        </h1>
+        <h1 className="sr-only">VÉXIA TV</h1>
+        <VexiaLogo className="h-48 md:h-64" />
 
         <div
           className="h-12 w-12 rounded-full animate-[splash-spin_1s_linear_infinite]"
