@@ -181,6 +181,12 @@ function HomePage() {
           ))}
           <span className="ml-1 text-[clamp(0.9rem,1.8vw,1.7rem)] font-bold">({HERO.votes})</span>
         </div>
+
+        <p className="mt-3 text-[clamp(0.6rem,0.9vw,0.9rem)] font-semibold tracking-wide text-vexia-cyan">
+          {hasContent
+            ? `${channels.length} canais · ${movies.length} filmes · ${series.length} séries na sua lista`
+            : "Abra LISTAS e carregue sua lista M3U para preencher o app"}
+        </p>
       </div>
 
       {/* Menu de blocos */}
