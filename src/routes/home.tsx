@@ -21,6 +21,8 @@ import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
+import { useContinueWatching } from "../lib/history-store";
+import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
