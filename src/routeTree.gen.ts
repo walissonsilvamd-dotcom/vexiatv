@@ -14,6 +14,7 @@ import { Route as SeriesRouteImport } from './routes/series'
 import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FilmesRouteImport } from './routes/filmes'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
 
 const TvAoVivoRoute = TvAoVivoRouteImport.update({
@@ -41,6 +42,11 @@ const FilmesRoute = FilmesRouteImport.update({
   path: '/filmes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/playlist': typeof PlaylistRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/playlist': typeof PlaylistRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/filmes': typeof FilmesRoute
   '/home': typeof HomeRoute
   '/playlist': typeof PlaylistRoute
@@ -74,12 +83,27 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/filmes' | '/home' | '/playlist' | '/series' | '/tv-ao-vivo'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/filmes'
+    | '/home'
+    | '/playlist'
+    | '/series'
+    | '/tv-ao-vivo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/filmes' | '/home' | '/playlist' | '/series' | '/tv-ao-vivo'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/filmes'
+    | '/home'
+    | '/playlist'
+    | '/series'
+    | '/tv-ao-vivo'
   id:
     | '__root__'
     | '/'
+    | '/configuracoes'
     | '/filmes'
     | '/home'
     | '/playlist'
@@ -89,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   FilmesRoute: typeof FilmesRoute
   HomeRoute: typeof HomeRoute
   PlaylistRoute: typeof PlaylistRoute
@@ -133,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilmesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -145,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   FilmesRoute: FilmesRoute,
   HomeRoute: HomeRoute,
   PlaylistRoute: PlaylistRoute,

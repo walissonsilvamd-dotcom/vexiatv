@@ -18,6 +18,13 @@ export const Route = createFileRoute("/")({
 });
 
 function SplashScreen() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const id = setTimeout(() => navigate({ to: "/home" }), 3200);
+    return () => clearTimeout(id);
+  }, [navigate]);
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-black">
       <img
