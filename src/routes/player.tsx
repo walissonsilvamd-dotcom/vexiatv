@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
+import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
@@ -84,6 +85,7 @@ function PlayerPage() {
   const { movies, series, channels } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastTap = useRef(0);
   const watchMetaRef = useRef<{ kind: WatchKind; name: string } | null>(null);
@@ -96,6 +98,7 @@ function PlayerPage() {
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
+  const menuOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [subtitle, setSubtitle] = useState("Desligada");
@@ -408,7 +411,15 @@ function PlayerPage() {
           setMenu((m) => (m ? null : "quality"));
           break;
         case "ArrowDown":
-          setMenu(null);
+          if (menuOpenRef.current) {
+            setMenu(null);
+            break;
+          }
+          if (carouselRef.current) {
+            e.preventDefault();
+            carouselRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+            carouselRef.current.querySelector<HTMLButtonElement>('button[aria-current="true"]')?.focus();
+          }
           break;
         case "Backspace":
         case "Escape":
@@ -421,6 +432,10 @@ function PlayerPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
+
+  useEffect(() => {
+    menuOpenRef.current = menu !== null;
+  }, [menu]);
 
   const applySpeed = (value: number) => {
     setSpeed(value);
