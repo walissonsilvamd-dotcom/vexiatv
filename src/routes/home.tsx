@@ -74,7 +74,7 @@ const TILES: Tile[] = [
   { label: "CANAIS", icon: Tv, to: "/canais" },
   { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
-  { label: "JOGOS", icon: Gamepad2, to: "/filtros" },
+  { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
   { label: "LISTAS", icon: ListVideo, action: "lists" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
