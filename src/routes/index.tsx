@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import splashAsset from "../assets/splash.jpeg.asset.json";
+import splashAsset from "../assets/splash-clean.jpeg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,24 +26,22 @@ function SplashScreen() {
         className="absolute inset-0 h-full w-full object-cover"
         draggable={false}
       />
-      {/* Spinner animado sobreposto ao loader estático da imagem */}
+      {/* Spinner segmentado animado, no mesmo lugar do original, acima de "CARREGANDO..." */}
       <div
         className="absolute left-1/2 -translate-x-1/2"
-        style={{ top: "76%" }}
+        style={{ top: "78%" }}
       >
-        <div className="relative h-14 w-14">
-          <div
-            className="absolute inset-0 rounded-full animate-[splash-spin_1.1s_linear_infinite]"
-            style={{
-              background:
-                "conic-gradient(from 0deg, #a855f7, #3b82f6, #22d3ee, #a855f7)",
-              WebkitMask:
-                "radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px))",
-              mask: "radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px))",
-              filter: "drop-shadow(0 0 8px rgba(168,85,247,0.55))",
-            }}
-          />
-        </div>
+        <div
+          className="h-12 w-12 rounded-full animate-[splash-spin_1.1s_linear_infinite]"
+          style={{
+            background:
+              "conic-gradient(from 0deg, #a855f7 0deg, #7c3aed 60deg, #4f46e5 130deg, #3b82f6 200deg, #22d3ee 280deg, transparent 320deg, transparent 360deg)",
+            WebkitMask:
+              "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
+            mask: "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
+            filter: "drop-shadow(0 0 10px rgba(168,85,247,0.6))",
+          }}
+        />
       </div>
       <style>{`
         @keyframes splash-spin {
