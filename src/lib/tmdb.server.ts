@@ -108,6 +108,39 @@ export function normalizeTmdb(
   };
 }
 
+function slug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Matching por nome + ano; evita títulos homônimos de outros anos. */
+function pickBestMatch(results: TmdbSearchResult[], title: string, year?: number) {
+  if (results.length === 0) return null;
+  const target = slug(title);
+  let best: { item: TmdbSearchResult; score: number } | null = null;
+
+  for (const item of results) {
+    const name = slug(item.title ?? item.name ?? "");
+    const original = slug(item.original_title ?? item.original_name ?? "");
+    const itemYear = Number((item.release_date ?? item.first_air_date ?? "").slice(0, 4)) || 0;
+
+    let score = 0;
+    if (name === target || original === target) score += 60;
+    else if (name.includes(target) || target.includes(name)) score += 30;
+    if (year && itemYear) score += itemYear === year ? 30 : Math.abs(itemYear - year) <= 1 ? 12 : -25;
+    score += Math.min((item.vote_average ?? 0) / 2, 5);
+
+    if (!best || score > best.score) best = { item, score };
+  }
+
+  // Sem nenhuma semelhança de nome nem de ano, é melhor manter os dados da lista.
+  return best && best.score > 5 ? best.item : null;
+}
+
 export async function searchTmdb(
   credential: string,
   title: string,
