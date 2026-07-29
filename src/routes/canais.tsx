@@ -188,10 +188,8 @@ function ChannelsPage() {
               onClick={() => setLimit((l) => l + PAGE)}
             />
           ) : null}
-        </section>
-      </div>
-
-      <BottomTabs active="Canais" />
-    </main>
+    </section>
+  </div>
+</main>
   );
 }
