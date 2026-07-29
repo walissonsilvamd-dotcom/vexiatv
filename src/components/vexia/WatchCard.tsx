@@ -131,7 +131,7 @@ export function WatchCard({
           type="button"
           onClick={onRemove}
           aria-label={`Remover ${entry.name} do histórico`}
-          className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-black/70 opacity-0 backdrop-blur-md transition-all hover:scale-105 hover:border-vexia-purple focus-visible:opacity-100 group-hover:opacity-100"
+          className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full border border-white/15 bg-black/70 opacity-0 backdrop-blur-md transition-all hover:scale-105 hover:border-vexia-purple focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100"
         >
           <X className="h-3.5 w-3.5 text-white" aria-hidden />
         </button>
