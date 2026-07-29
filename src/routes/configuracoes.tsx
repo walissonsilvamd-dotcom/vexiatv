@@ -596,6 +596,13 @@ function SettingsPage() {
           onToggle={() => toggle("autoPlay")}
         />
         <SwitchRow
+          label="Troca imediata de episódio"
+          hint="Sem confirmação ao escolher outro episódio no carrossel"
+          active={settings.episodeQuickSwitch}
+          onToggle={() => toggle("episodeQuickSwitch")}
+        />
+
+        <SwitchRow
           label="Legendas por padrão"
           hint="Ativa legendas ao abrir o player"
           active={settings.subtitlesEnabled}
