@@ -206,76 +206,110 @@ function ListsPage() {
         </p>
       </div>
 
-      {/* Formulário de cadastro */}
+      {/* Tela de cadastro (QR + acesso) */}
       {form ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4 backdrop-blur-sm">
-          <div className="w-[min(94vw,520px)] rounded-2xl border border-vexia-purple/50 bg-vexia-card p-6 shadow-[0_0_60px_-20px_var(--vexia-purple)]">
-            <h2 className="text-center text-base font-black tracking-[0.18em]">ADICIONAR LISTA</h2>
-            <p className="mt-1 text-center text-xs text-white/65">
-              Informe o link M3U ou os dados do servidor Xtream
-            </p>
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-vexia-bg">
+          <img
+            src={nebulaAsset.url}
+            alt=""
+            aria-hidden
+            className="pointer-events-none fixed inset-0 h-full w-full object-cover opacity-80"
+          />
+          <div className="pointer-events-none fixed inset-0 bg-black/55" />
 
-            <div className="mt-5 space-y-3">
-              {[
-                { label: "Nome da lista", value: name, set: setName, ph: "Minha Lista IPTV" },
-                { label: "URL M3U", value: url, set: setUrl, ph: "http://servidor/get.php?...type=m3u_plus" },
-                { label: "Servidor", value: server, set: setServer, ph: "http://servidor:8080" },
-                { label: "Usuário", value: user, set: setUser, ph: "usuario" },
-              ].map((f) => (
-                <label key={f.label} className="block">
-                  <span className="text-[10px] font-bold tracking-[0.16em] text-white/60">
-                    {f.label.toUpperCase()}
-                  </span>
-                  <input
-                    value={f.value}
-                    onChange={(e) => f.set(e.target.value)}
-                    placeholder={f.ph}
-                    className="mt-1 w-full rounded-lg border border-vexia-purple/60 bg-black px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none"
-                  />
-                </label>
-              ))}
-              <label className="block">
-                <span className="text-[10px] font-bold tracking-[0.16em] text-white/60">SENHA</span>
-                <input
-                  type="password"
-                  value={pass}
-                  onChange={(e) => setPass(e.target.value)}
-                  placeholder="senha"
-                  className="mt-1 w-full rounded-lg border border-vexia-purple/60 bg-black px-4 py-2.5 text-sm text-white placeholder:text-white/35 focus:outline-none"
-                />
-              </label>
-            </div>
-
-            {loading ? (
-              <p className="mt-4 flex items-center justify-center gap-2 text-xs text-vexia-cyan">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-                Conectando ao servidor...
-              </p>
-            ) : null}
-            {done ? (
-              <p className="mt-4 flex items-center justify-center gap-2 text-xs text-vexia-cyan">
-                <Check className="h-3.5 w-3.5" aria-hidden />
-                Lista carregada com sucesso
-              </p>
-            ) : null}
-            {error ? <p className="mt-4 text-center text-xs text-vexia-gold">{error}</p> : null}
-
-            <div className="mt-5 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => void submit()}
-                disabled={loading}
-                className="vexia-focus rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-[0.16em] disabled:opacity-60"
-              >
-                CARREGAR LISTA
-              </button>
+          <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1200px] flex-col px-[4vw] py-5">
+            <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
               <button
                 type="button"
                 onClick={() => setForm(false)}
-                className="vexia-focus rounded-full border border-vexia-cyan/50 px-6 py-2.5 text-xs font-bold tracking-[0.16em] text-vexia-cyan"
+                aria-label="Voltar"
+                className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-full border border-vexia-purple/50 bg-black/50"
               >
-                CANCELAR
+                <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
               </button>
+              <div className="grid place-items-center">
+                <VexiaLogo className="h-24 md:h-32" />
+              </div>
+              <span className="w-11" />
+            </div>
+
+            <div className="mt-2 grid flex-1 items-start gap-8 md:grid-cols-2 md:divide-x md:divide-vexia-cyan/40">
+              {/* QR CODE */}
+              <section className="flex flex-col items-center md:pr-8">
+                <h2 className="text-xl font-bold tracking-[0.06em] md:text-2xl">
+                  ACESSE POR QR CODE
+                </h2>
+                <div className="mt-5 rounded-sm bg-white p-4">
+                  <QRCodeSVG value={qrValue} size={340} level="M" className="h-auto w-full max-w-[340px]" />
+                </div>
+              </section>
+
+              {/* ACESSO */}
+              <section className="flex flex-col md:pl-8">
+                <h2 className="text-center text-xl font-bold tracking-[0.06em] md:text-2xl">
+                  DIGITE SEU ACESSO
+                </h2>
+
+                <div className="mt-5 space-y-4">
+                  <input
+                    value={user}
+                    onChange={(e) => setUser(e.target.value)}
+                    placeholder="Usuário"
+                    aria-label="Usuário"
+                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                  />
+                  <input
+                    type="password"
+                    value={pass}
+                    onChange={(e) => setPass(e.target.value)}
+                    placeholder="Senha"
+                    aria-label="Senha"
+                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void submit()}
+                    disabled={loading}
+                    className="vexia-focus w-full rounded-full bg-vexia-purple px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
+                  >
+                    ENTRAR
+                  </button>
+                </div>
+
+                <div className="mt-10">
+                  <p className="text-base text-white/90">Campo de URL (M3U/HLS)</p>
+                  <input
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="Cole o link aqui"
+                    aria-label="Campo de URL M3U ou HLS"
+                    className="mt-2 w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                  />
+                </div>
+
+                <p className="mt-5 text-center text-lg font-medium text-vexia-cyan">
+                  MAC: {DEVICE_MAC}
+                </p>
+                <p className="mt-1 text-center text-lg text-white/90">
+                  Seu Mundo Virtual Começa aqui!
+                </p>
+
+                {loading ? (
+                  <p className="mt-4 flex items-center justify-center gap-2 text-sm text-vexia-cyan">
+                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                    Conectando ao servidor...
+                  </p>
+                ) : null}
+                {done ? (
+                  <p className="mt-4 flex items-center justify-center gap-2 text-sm text-vexia-cyan">
+                    <Check className="h-4 w-4" aria-hidden />
+                    Lista carregada com sucesso
+                  </p>
+                ) : null}
+                {error ? (
+                  <p className="mt-4 text-center text-sm text-vexia-gold">{error}</p>
+                ) : null}
+              </section>
             </div>
           </div>
         </div>
