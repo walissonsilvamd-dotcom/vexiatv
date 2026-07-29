@@ -162,3 +162,26 @@
     color: var(--color-foreground);
   }
 }
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility vexia-focus {
+  outline: none;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  &:focus-visible,
+  &:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 0 0 2px var(--vexia-purple-soft),
+      0 0 28px -2px color-mix(in oklab, var(--vexia-purple) 75%, transparent);
+  }
+}
