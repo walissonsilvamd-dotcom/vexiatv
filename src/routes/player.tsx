@@ -14,8 +14,10 @@ import {
   Settings,
   SkipBack,
   SkipForward,
+  RotateCcw,
   Volume2,
   VolumeX,
+  WifiOff,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
