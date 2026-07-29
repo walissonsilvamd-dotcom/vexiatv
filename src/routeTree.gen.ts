@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ListasRouteImport } from './routes/listas'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FiltrosRouteImport } from './routes/filtros'
 import { Route as FilmesRouteImport } from './routes/filmes'
@@ -28,6 +29,11 @@ const SeriesRoute = SeriesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListasRoute = ListasRouteImport.update({
+  id: '/listas',
+  path: '/listas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/filmes': typeof FilmesRoute
   '/filtros': typeof FiltrosRoute
   '/home': typeof HomeRoute
+  '/listas': typeof ListasRoute
   '/login': typeof LoginRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/filmes'
     | '/filtros'
     | '/home'
+    | '/listas'
     | '/login'
     | '/series'
     | '/detalhes/$id'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/filmes'
     | '/filtros'
     | '/home'
+    | '/listas'
     | '/login'
     | '/series'
     | '/detalhes/$id'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/filmes'
     | '/filtros'
     | '/home'
+    | '/listas'
     | '/login'
     | '/series'
     | '/detalhes/$id'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   FilmesRoute: typeof FilmesRoute
   FiltrosRoute: typeof FiltrosRoute
   HomeRoute: typeof HomeRoute
+  ListasRoute: typeof ListasRoute
   LoginRoute: typeof LoginRoute
   SeriesRoute: typeof SeriesRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
@@ -174,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listas': {
+      id: '/listas'
+      path: '/listas'
+      fullPath: '/listas'
+      preLoaderRoute: typeof ListasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   FilmesRoute: FilmesRoute,
   FiltrosRoute: FiltrosRoute,
   HomeRoute: HomeRoute,
+  ListasRoute: ListasRoute,
   LoginRoute: LoginRoute,
   SeriesRoute: SeriesRoute,
   DetalhesIdRoute: DetalhesIdRoute,
