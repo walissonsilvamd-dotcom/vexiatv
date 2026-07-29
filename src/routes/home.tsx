@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Clapperboard,
   Clock,
-  History as HistoryIcon,
   ListVideo,
   Menu,
   Move,
@@ -11,7 +10,6 @@ import {
   SlidersHorizontal,
   Star,
   Tv,
-  Heart,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
