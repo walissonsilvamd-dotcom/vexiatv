@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Clapperboard, ImageOff, Radio, Tv, X } from "lucide-react";
+import { Clapperboard, Film, ImageOff, Tv, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { usePlaylist } from "../../lib/playlist-store";
 import { formatDuration, matchWatch, type WatchEntry } from "../../lib/history-store";
@@ -75,7 +75,7 @@ export function WatchCard({
   const [broken, setBroken] = useState(false);
   const isLive = entry.kind === "channel";
   const image = entry.livePoster || entry.poster;
-  const Icon = isLive ? Tv : entry.kind === "series" ? Clapperboard : Radio;
+  const Icon = isLive ? Tv : entry.kind === "series" ? Clapperboard : Film;
 
   const subtitle = isLive
     ? entry.category || "Canal ao vivo"
