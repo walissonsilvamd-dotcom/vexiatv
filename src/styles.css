@@ -19,6 +19,16 @@
  */
 
 @theme inline {
+  --color-vexia-bg: var(--vexia-bg);
+  --color-vexia-surface: var(--vexia-surface);
+  --color-vexia-card: var(--vexia-card);
+  --color-vexia-purple: var(--vexia-purple);
+  --color-vexia-purple-soft: var(--vexia-purple-soft);
+  --color-vexia-cyan: var(--vexia-cyan);
+  --color-vexia-gold: var(--vexia-gold);
+  --color-vexia-text: var(--vexia-text);
+  --color-vexia-muted: var(--vexia-muted);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
