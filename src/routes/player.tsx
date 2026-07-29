@@ -416,7 +416,7 @@ function PlayerPage() {
       )}
 
       {!src ? (
-        <div className="absolute inset-0 grid place-items-center bg-black/80 text-center">
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
           <div>
             <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
             <button
@@ -429,6 +429,44 @@ function PlayerPage() {
           </div>
         </div>
       ) : null}
+
+      {/* ── Erro fatal / recuperação ── */}
+      {src && fatalError ? (
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/90 px-6">
+          <div className="w-full max-w-md rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f]/95 p-6 text-center shadow-[0_0_40px_rgba(123,47,190,0.35)]">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-[#FF1744]/60 bg-[#FF1744]/10">
+              <WifiOff className="h-7 w-7 text-[#FF1744]" aria-hidden />
+            </div>
+            <p className="mt-4 text-base font-bold text-white">Falha na reprodução</p>
+            <p className="mt-1 text-sm text-white/70">{fatalError.message}</p>
+            <p className="mt-2 text-[11px] text-vexia-cyan/80">
+              {attempt > 0 ? `${attempt} tentativa(s) automática(s) realizada(s). ` : ""}
+              Verifique sua conexão ou tente novamente.
+            </p>
+            {fatalError.detail ? (
+              <p className="mt-1 truncate text-[10px] text-white/35">{fatalError.detail}</p>
+            ) : null}
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                autoFocus
+                onClick={retryStream}
+                className="vexia-focus flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold text-white"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden /> TENTAR NOVAMENTE
+              </button>
+              <button
+                type="button"
+                onClick={goBack}
+                className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/60 px-6 py-2 text-xs font-bold text-vexia-cyan"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden /> VOLTAR
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
 
       {/* ── Retomar reprodução ── */}
       {resumeAsk && savedEntry ? (
