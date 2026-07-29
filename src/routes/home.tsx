@@ -47,6 +47,7 @@ type Hero = {
   votes: number;
   stars: number;
   image: string;
+  overview: string;
 };
 
 const FALLBACK_HERO: Hero = {
@@ -58,7 +59,10 @@ const FALLBACK_HERO: Hero = {
   votes: 0,
   stars: 0,
   image: heroAsset.url,
+  overview:
+    "Adicione sua lista M3U pelo menu LISTAS para preencher canais, filmes e séries com capas, sinopses e destaques automáticos.",
 };
+
 
 type Tile = { label: string; icon: LucideIcon; to?: string; action?: "reload" | "lists" };
 
@@ -96,6 +100,7 @@ function HomePage() {
       votes: m.rating,
       stars: Math.round(m.rating),
       image: image as string,
+      overview: m.overview ?? "",
     }));
   }, [movies, series]);
 
@@ -108,12 +113,35 @@ function HomePage() {
 
   const HERO = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
 
+  // Pré-carrega a próxima imagem para evitar "piscada" na troca de slide.
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const next = slides[(slide + 1) % slides.length];
+    if (next?.image) {
+      const img = new Image();
+      img.src = next.image;
+    }
+  }, [slide, slides]);
+
+  // Relógio da barra superior.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 20000);
+    return () => clearInterval(id);
+  }, []);
+
   const focusTile = (i: number) => {
     const next = (i + TILES.length) % TILES.length;
     setActive(next);
     const el = rowRef.current?.querySelectorAll<HTMLElement>("[data-tile]")[next];
     el?.focus();
   };
+
+  // Foco inicial no primeiro bloco (D-pad pronto ao abrir).
+  useEffect(() => {
+    const el = rowRef.current?.querySelector<HTMLElement>("[data-tile]");
+    el?.focus();
+  }, []);
 
   const openTile = (tile: Tile) => {
     if (tile.action === "reload") window.location.reload();
@@ -131,42 +159,64 @@ function HomePage() {
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
           focusTile(active - 1);
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          if (slides.length > 1) setSlide((s) => (s - 1 + slides.length) % slides.length);
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          if (slides.length > 1) setSlide((s) => (s + 1) % slides.length);
         }
       }}
     >
-      <img
-        key={HERO.image}
-        src={HERO.image}
-        alt={HERO.title}
-        className="absolute inset-0 h-full w-full object-cover animate-[vexia-fade-in_700ms_ease-out]"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40" />
+      <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
+        <img
+          src={HERO.image}
+          alt={HERO.title}
+          className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/50 to-black/25" />
+      <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/55" />
 
-      {/* Logo */}
+      {/* Logo + relógio */}
       <div className="absolute left-[6%] top-[6%] z-10">
         <VexiaLogo className="h-[22vh] min-h-[120px]" />
       </div>
 
+      <div className="absolute right-[3%] top-[4%] z-20 flex items-center gap-3 rounded-full border border-white/15 bg-black/45 px-4 py-1.5 backdrop-blur-md">
+        <Clock className="h-4 w-4 text-vexia-cyan" aria-hidden />
+        <span className="text-[clamp(0.75rem,1.1vw,1.05rem)] font-bold tabular-nums tracking-wide">
+          {now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+        </span>
+        <span className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase text-vexia-muted">
+          {now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+        </span>
+      </div>
+
       {/* Título e metadados */}
-      <div className="absolute right-[3%] top-[10%] z-10 max-w-[62%] text-right">
-        <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-none tracking-tight drop-shadow-[0_4px_18px_rgba(0,0,0,0.9)]">
-          {HERO.title} <span className="font-black">({HERO.year})</span>
+      <div
+        key={`meta-${HERO.title}`}
+        className="absolute right-[3%] top-[13%] z-10 max-w-[58%] animate-[vexia-hero-in_500ms_ease-out] rounded-3xl border border-white/10 bg-black/40 p-[clamp(1rem,1.8vw,2rem)] text-right shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-xl"
+      >
+        <h1 className="text-[clamp(2rem,5vw,4.5rem)] font-black leading-[0.95] tracking-tight drop-shadow-[0_4px_18px_rgba(0,0,0,0.95)]">
+          {HERO.title}{" "}
+          <span className="font-light text-vexia-muted">({HERO.year})</span>
         </h1>
 
-        <div className="mt-3 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[clamp(0.65rem,1.1vw,1rem)] font-semibold tracking-wide">
+        <div className="mt-3 flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-[clamp(0.65rem,1.1vw,1rem)] font-semibold uppercase tracking-[0.08em] text-white/85">
           <span className="flex items-center gap-1.5">
             <Clock className="h-4 w-4 text-vexia-gold" aria-hidden />
             {HERO.release}
           </span>
-          <span className="text-vexia-muted">|</span>
+          <span className="text-vexia-muted/60">|</span>
           {HERO.genres.map((g) => (
             <span key={g} className="flex items-center gap-1.5">
               <Film className="h-4 w-4 text-vexia-cyan" aria-hidden />
               {g}
             </span>
           ))}
-          <span className="text-vexia-muted">|</span>
+          <span className="text-vexia-muted/60">|</span>
           <span className="flex items-center gap-1.5">
             <Clock className="h-4 w-4 text-vexia-cyan" aria-hidden />
             {HERO.runtime}
@@ -178,20 +228,57 @@ function HomePage() {
             <Star
               key={i}
               className={`h-[clamp(1rem,2vw,1.9rem)] w-[clamp(1rem,2vw,1.9rem)] ${
-                i < HERO.stars ? "fill-vexia-gold text-vexia-gold" : "fill-vexia-muted/60 text-vexia-muted/60"
+                i < HERO.stars
+                  ? "fill-vexia-gold text-vexia-gold drop-shadow-[0_0_8px_rgba(255,200,60,0.45)]"
+                  : "fill-white/15 text-white/15"
               }`}
               aria-hidden
             />
           ))}
-          <span className="ml-1 text-[clamp(0.9rem,1.8vw,1.7rem)] font-bold">({HERO.votes})</span>
+          <span className="ml-1 text-[clamp(0.9rem,1.8vw,1.7rem)] font-bold tabular-nums">
+            ({HERO.votes})
+          </span>
         </div>
 
-        <p className="mt-3 text-[clamp(0.6rem,0.9vw,0.9rem)] font-semibold tracking-wide text-vexia-cyan">
+        {HERO.overview ? (
+          <p className="mt-3 line-clamp-2 text-[clamp(0.72rem,1vw,1.05rem)] font-medium leading-snug text-white/80">
+            {HERO.overview}
+          </p>
+        ) : null}
+
+        <p className="mt-3 text-[clamp(0.6rem,0.9vw,0.9rem)] font-semibold uppercase tracking-[0.12em] text-vexia-cyan">
           {hasContent
             ? `${channels.length} canais · ${movies.length} filmes · ${series.length} séries na sua lista`
             : "Abra LISTAS e carregue sua lista M3U para preencher o app"}
         </p>
+
+        {/* Indicadores do carrossel */}
+        {slides.length > 1 ? (
+          <div className="mt-4 flex items-center justify-end gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.title + i}
+                type="button"
+                aria-label={`Destaque ${i + 1}`}
+                onClick={() => setSlide(i)}
+                className={`h-[5px] overflow-hidden rounded-full transition-all duration-300 outline-none ${
+                  i === slide
+                    ? "w-10 bg-white/25"
+                    : "w-4 bg-white/25 hover:bg-white/45 focus-visible:bg-vexia-cyan"
+                }`}
+              >
+                {i === slide ? (
+                  <span
+                    key={`p-${slide}`}
+                    className="block h-full rounded-full bg-vexia-cyan shadow-[0_0_10px_var(--vexia-cyan)] animate-[vexia-slide-progress_8s_linear_forwards]"
+                  />
+                ) : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
+
 
       {/* Menu de blocos */}
       <div
@@ -260,9 +347,15 @@ function HomePage() {
       </div>
 
       {/* Rodapé de ajuda */}
-      <div className="absolute inset-x-0 bottom-[4%] z-10 flex items-center justify-center gap-8 text-[clamp(0.7rem,1vw,1rem)] text-vexia-text/90">
+      <div className="absolute inset-x-0 bottom-[4%] z-10 flex flex-wrap items-center justify-center gap-x-7 gap-y-2 text-[clamp(0.7rem,1vw,1rem)] font-semibold text-white/85">
         <span className="flex items-center gap-2">
-          <Move className="h-4 w-4" aria-hidden /> Navegar
+          <Move className="h-4 w-4 text-vexia-cyan" aria-hidden /> Navegar
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="rounded-full border border-current px-2 py-0.5 text-[0.7em] font-bold">
+            ↑ ↓
+          </span>
+          Trocar destaque
         </span>
         <span className="flex items-center gap-2">
           <span className="rounded-full border border-current px-2 py-0.5 text-[0.7em] font-bold">OK</span>
@@ -275,6 +368,7 @@ function HomePage() {
           <Menu className="h-4 w-4" aria-hidden /> Menu
         </Link>
       </div>
+
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
     </main>
