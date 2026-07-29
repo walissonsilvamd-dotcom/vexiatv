@@ -26,6 +26,16 @@ export type MediaItem = {
   posterPosition?: string;
   /** URL do stream vinda da lista M3U/HLS (ausente nos dados de exemplo). */
   streamUrl?: string;
+  /** Categoria original da lista (group-title). */
+  category?: string;
+  /** Países de origem (códigos ISO, ex.: BR, US) — vem do TMDB. */
+  countries?: string[];
+  /** Áudio detectado na lista (Português, Inglês, Espanhol, Legendado). */
+  audio?: "Português" | "Inglês" | "Espanhol" | "Legendado";
+  /** Duração em minutos (TMDB). */
+  runtimeMin?: number;
+  /** Data de lançamento AAAA-MM-DD (TMDB). */
+  releaseDate?: string;
 };
 
 export type Channel = {
