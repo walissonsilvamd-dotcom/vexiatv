@@ -4,6 +4,8 @@ import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 
+import { TopNav } from "../components/vexia/TopNav";
+
 export const Route = createFileRoute("/serie/$id")({
   head: () => ({
     meta: [
@@ -53,6 +55,9 @@ function EpisodesPage() {
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+      <div className="px-5 pt-4 md:px-10">
+        <TopNav active="Séries" className="w-fit" />
+      </div>
       <div className="flex items-center gap-3 px-5 py-4 md:px-10">
         <Link
           to="/series"

@@ -4,6 +4,8 @@ import { Chip } from "../components/vexia/Chips";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { filterGroups } from "../data/vexia-catalog";
 
+import { TopNav } from "../components/vexia/TopNav";
+
 export const Route = createFileRoute("/filtros")({
   head: () => ({
     meta: [
@@ -33,7 +35,8 @@ function FiltersPage() {
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-32 text-vexia-text">
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-4 bg-vexia-bg/95 px-5 py-4 backdrop-blur md:px-10">
+      <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4 bg-vexia-bg/95 px-5 py-4 backdrop-blur md:px-10">
+        <TopNav className="w-fit" />
         <h1 className="text-xl font-black tracking-wide text-vexia-purple-soft">FILTROS</h1>
         <div className="flex items-center gap-2">
           <button

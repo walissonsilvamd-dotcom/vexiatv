@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Tv } from "lucide-react";
 import { AppHeader } from "../components/vexia/AppHeader";
+import { TopNav } from "../components/vexia/TopNav";
 import { BottomTabs } from "../components/vexia/BottomTabs";
 import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
 import { LoadMore } from "../components/vexia/PosterGrid";
@@ -55,6 +56,9 @@ function ChannelsPage() {
     return (
       <main className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
         <AppHeader />
+      <div className="px-5 pb-2 md:px-10">
+        <TopNav active="Canais" className="w-fit" />
+      </div>
         <div className="px-5 md:px-10">
           <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
         </div>
@@ -67,6 +71,9 @@ function ChannelsPage() {
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
       <AppHeader />
+      <div className="px-5 pb-2 md:px-10">
+        <TopNav active="Canais" className="w-fit" />
+      </div>
 
       <div className="grid gap-5 px-5 md:grid-cols-[220px_1fr] md:px-10">
         <aside className="space-y-2">

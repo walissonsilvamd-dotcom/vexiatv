@@ -5,6 +5,8 @@ import { PosterCard, SectionTitle } from "../components/vexia/PosterGrid";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 
+import { TopNav } from "../components/vexia/TopNav";
+
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
     meta: [
@@ -52,6 +54,9 @@ function DetailsPage() {
 
   return (
     <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+      <div className="px-5 pt-4 md:px-10">
+        <TopNav active="Filmes" className="w-fit" />
+      </div>
       <section className="relative h-[58vh] min-h-[340px] w-full overflow-hidden">
         {item.backdrop ? (
           <img src={item.backdrop} alt={item.title} className="h-full w-full object-cover" />
