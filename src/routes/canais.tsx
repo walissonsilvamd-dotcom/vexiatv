@@ -95,20 +95,21 @@ function ChannelsPage() {
         </aside>
 
         <section className="space-y-4">
-          <div className="rounded-xl border-2 border-vexia-purple bg-black p-4">
-            <div className="grid aspect-video w-full place-items-center overflow-hidden rounded-lg bg-black/60 text-xs tracking-[0.3em] text-vexia-muted">
+          <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/40 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] p-4 shadow-[0_16px_40px_-16px_rgba(123,47,190,0.6)]">
+            <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-vexia-cyan/40 to-transparent" />
+            <div className="grid aspect-video w-full place-items-center overflow-hidden rounded-xl border border-white/5 bg-black/70 text-xs tracking-[0.3em] text-vexia-muted">
               {selected?.logo ? (
                 <img
                   src={selected.logo}
                   alt={selected.name}
-                  className="max-h-[60%] max-w-[50%] object-contain"
+                  className="max-h-[60%] max-w-[50%] object-contain drop-shadow-[0_0_18px_rgba(0,200,255,0.25)]"
                 />
               ) : (
                 "PRÉVIA AO VIVO"
               )}
             </div>
-            <p className="mt-3 text-base font-bold text-vexia-text">{selected?.name}</p>
-            <p className="text-xs text-vexia-cyan">
+            <p className="mt-3 text-base font-extrabold text-vexia-text">{selected?.name}</p>
+            <p className="text-xs font-medium text-vexia-cyan/80">
               {selected?.group} • {selected?.schedule}
             </p>
             <button
@@ -116,7 +117,7 @@ function ChannelsPage() {
               data-nav-row={2}
               tabIndex={0}
               onClick={() => selected && toggleFav(selected.id)}
-              className="vexia-focus mt-4 rounded-full bg-vexia-purple px-6 py-2 text-[11px] font-bold tracking-wide"
+              className="vexia-focus mt-4 rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-7 py-2.5 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5"
             >
               {selected && favs.includes(selected.id)
                 ? "REMOVER DOS FAVORITOS"
@@ -124,7 +125,8 @@ function ChannelsPage() {
             </button>
           </div>
 
-          <ul className="grid gap-2 md:grid-cols-2">
+          <ul className="grid gap-2.5 md:grid-cols-2">
+
             {list.slice(0, limit).map((ch) => (
               <li key={ch.id} className="relative">
                 <button
