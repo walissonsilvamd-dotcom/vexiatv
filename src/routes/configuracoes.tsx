@@ -516,8 +516,8 @@ function SettingsPage() {
         <SwitchRow
           label="Salvar histórico"
           hint="Alimenta o Continuar Assistindo e a tela Histórico"
-          checked={historyOn}
-          onChange={() => {
+          active={historyOn}
+          onToggle={() => {
             const next = !historyOn;
             setHistoryOn(next);
             setHistoryEnabled(next);
