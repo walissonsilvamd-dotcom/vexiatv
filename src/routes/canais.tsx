@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Heart, Play, Search, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
@@ -40,6 +40,7 @@ function qualityOf(name: string) {
 function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
+  const navigate = useNavigate();
   const { channels, data, hasContent } = usePlaylist();
 
   const [category, setCategory] = useState("Todos");
