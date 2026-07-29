@@ -109,7 +109,7 @@ function PlayerPage() {
   const nextEpisode = episodes[epIndex + 1];
   const prevEpisode = episodes[epIndex - 1];
 
-  const src = channel?.url ?? movie?.url ?? episode?.url ?? "";
+  const src = channel?.url ?? movie?.streamUrl ?? episode?.url ?? "";
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
@@ -130,6 +130,7 @@ function PlayerPage() {
     const nativeHls = video.canPlayType("application/vnd.apple.mpegurl") !== "";
 
     async function attach() {
+      if (!video) return;
       if (isHls && !nativeHls) {
         const { default: Hls } = await import("hls.js");
         if (destroyed || !video) return;
