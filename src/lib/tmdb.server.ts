@@ -22,7 +22,7 @@ type TmdbSearchResult = {
 type TmdbGenre = { id: number; name: string };
 
 type TmdbCrew = { id: number; name: string; job: string };
-type TmdbCast = { id: number; name: string };
+type TmdbCast = { id: number; name: string; character?: string; profile_path?: string | null };
 
 type TmdbMovieDetails = {
   id: number;
@@ -82,7 +82,12 @@ export function normalizeTmdb(
   const seasons = isMovie ? undefined : tv.number_of_seasons;
   const episodes = isMovie ? undefined : tv.number_of_episodes;
 
-  const cast = details.credits?.cast?.slice(0, 5).map((c) => c.name);
+  const cast = details.credits?.cast?.slice(0, 10).map((c) => c.name);
+  const castList = details.credits?.cast?.slice(0, 10).map((c) => ({
+    name: c.name,
+    character: c.character,
+    photo: tmdbImageUrl(c.profile_path, "w185"),
+  }));
   const director = details.credits?.crew?.find((c) => c.job === "Director")?.name;
 
   return {
@@ -96,10 +101,44 @@ export function normalizeTmdb(
     seasons,
     episodes,
     cast,
+    castList,
     director,
     backdrop: tmdbImageUrl(details.backdrop_path, "w1280"),
     poster: tmdbImageUrl(details.poster_path, "w500"),
   };
+}
+
+function slug(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** Matching por nome + ano; evita títulos homônimos de outros anos. */
+function pickBestMatch(results: TmdbSearchResult[], title: string, year?: number) {
+  if (results.length === 0) return null;
+  const target = slug(title);
+  let best: { item: TmdbSearchResult; score: number } | null = null;
+
+  for (const item of results) {
+    const name = slug(item.title ?? item.name ?? "");
+    const original = slug(item.original_title ?? item.original_name ?? "");
+    const itemYear = Number((item.release_date ?? item.first_air_date ?? "").slice(0, 4)) || 0;
+
+    let score = 0;
+    if (name === target || original === target) score += 60;
+    else if (name.includes(target) || target.includes(name)) score += 30;
+    if (year && itemYear) score += itemYear === year ? 30 : Math.abs(itemYear - year) <= 1 ? 12 : -25;
+    score += Math.min((item.vote_average ?? 0) / 2, 5);
+
+    if (!best || score > best.score) best = { item, score };
+  }
+
+  // Sem nenhuma semelhança de nome nem de ano, é melhor manter os dados da lista.
+  return best && best.score > 5 ? best.item : null;
 }
 
 export async function searchTmdb(
@@ -124,7 +163,7 @@ export async function searchTmdb(
   if (!response.ok) return null;
 
   const json = (await response.json()) as { results?: TmdbSearchResult[] };
-  const result = json.results?.[0];
+  const result = pickBestMatch(json.results ?? [], title, year);
   if (!result) return null;
 
   const detailsUrl = `${TMDB_BASE}/${kind}/${result.id}?${auth}language=${language}&append_to_response=credits`;
