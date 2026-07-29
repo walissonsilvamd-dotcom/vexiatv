@@ -24,6 +24,7 @@ import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
 import { useContinueWatching } from "../lib/history-store";
 import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
+import { DiscoverRows } from "../components/vexia/DiscoverRows";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -180,7 +181,7 @@ function HomePage() {
 
   return (
     <main
-      className="relative flex h-screen w-full flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="relative flex min-h-screen w-full flex-col bg-vexia-bg text-vexia-text"
       onKeyDown={(e) => {
         if (e.key === "ArrowRight") {
           e.preventDefault();
