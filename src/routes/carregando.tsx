@@ -49,6 +49,8 @@ function CarregandoPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [counts, setCounts] = useState<PlaylistCounts>({ channels: 0, movies: 0, series: 0 });
   const [attempt, setAttempt] = useState(0);
+  const [stageRatio, setStageRatio] = useState(0);
+  const [tryCount, setTryCount] = useState<{ n: number; total: number } | null>(null);
   const running = useRef(false);
 
   const start = useCallback(async () => {
@@ -63,9 +65,13 @@ function CarregandoPage() {
     setErrorMsg(null);
     setStage(0);
     setCounts({ channels: 0, movies: 0, series: 0 });
+    setStageRatio(0);
+    setTryCount(null);
 
     const ok = await loadFromUrl(url, name, (event) => {
       setStage(event.stage);
+      if (event.ratio != null) setStageRatio(event.ratio);
+      if (event.attempt) setTryCount({ n: event.attempt, total: event.attempts ?? 3 });
       if (event.counts) setCounts((c) => ({ ...c, ...event.counts }));
     });
     running.current = false;
@@ -73,7 +79,7 @@ function CarregandoPage() {
     if (ok) {
       setStage(PLAYLIST_STAGES.length);
       setPhase("success");
-      window.setTimeout(() => void navigate({ to: "/home" }), 1800);
+      window.setTimeout(() => void navigate({ to: "/home" }), 600);
     } else {
       setPhase("error");
       setErrorMsg("Não foi possível carregar sua lista.");
@@ -108,8 +114,11 @@ function CarregandoPage() {
   }, [phase, navigate, goBack]);
 
   const total = PLAYLIST_STAGES.length;
+  // Progresso real: etapa concluída + fração medida da etapa atual.
   const progress =
-    phase === "success" ? 100 : Math.min(97, Math.round(((stage + 0.5) / total) * 100));
+    phase === "success"
+      ? 100
+      : Math.min(99, Math.round(((stage + Math.min(1, stageRatio)) / total) * 100));
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white">
@@ -144,14 +153,18 @@ function CarregandoPage() {
             <p className="mt-1.5 text-center text-sm font-medium text-vexia-cyan">
               {phase === "success"
                 ? "Preparando sua experiência VÉXIA..."
-                : `${PLAYLIST_STAGES[stage] ?? PLAYLIST_STAGES[0]}...`}
+                : `${PLAYLIST_STAGES[stage] ?? PLAYLIST_STAGES[0]}... ${progress}%${
+                    tryCount && tryCount.n > 1
+                      ? ` • Tentando conectar (tentativa ${tryCount.n}/${tryCount.total})`
+                      : ""
+                  }`}
             </p>
 
             {/* Barra de progresso */}
             <div className="mt-7 flex w-full max-w-md items-center gap-3">
               <div className="h-3 flex-1 overflow-hidden rounded-full bg-vexia-popup ring-1 ring-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_18px_-2px_var(--vexia-purple)] transition-[width] duration-700 ease-out"
+                  className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_18px_-2px_var(--vexia-purple)] transition-[width] duration-200 ease-out"
                   style={{ width: `${progress}%` }}
                   role="progressbar"
                   aria-valuenow={progress}

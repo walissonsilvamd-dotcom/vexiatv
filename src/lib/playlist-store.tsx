@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { parsePlaylistText, type ParsedPlaylist, type PlaylistChannel, type PlaylistSeries } from "./m3u";
-import { fetchPlaylist } from "./playlist.functions";
+import { downloadPlaylist } from "../services/playlist.service";
 import {
   clearPlaylist,
   dropLegacyText,
@@ -32,6 +32,11 @@ export type PlaylistCounts = { channels: number; movies: number; series: number 
 export type PlaylistLoadEvent = {
   /** Índice da etapa em andamento (0-based) em PLAYLIST_STAGES. */
   stage: number;
+  /** Progresso real dentro da etapa (0..1), quando disponível. */
+  ratio?: number;
+  /** Tentativa de download em andamento (1..3). */
+  attempt?: number;
+  attempts?: number;
   counts?: Partial<PlaylistCounts>;
 };
 
@@ -78,6 +83,8 @@ function parseInWorker(
       const msg = event.data;
       if (msg.type === "stage") {
         onEvent?.({ stage: msg.stage, counts: msg.counts });
+      } else if (msg.type === "progress") {
+        onEvent?.({ stage: msg.stage, ratio: msg.ratio });
       } else if (msg.type === "done") {
         worker.terminate();
         resolve(msg.data);
@@ -170,8 +177,11 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       setError(null);
       try {
-        onEvent?.({ stage: 0 });
-        const { text } = await fetchPlaylist({ data: { url } });
+        onEvent?.({ stage: 0, ratio: 0 });
+        const text = await downloadPlaylist(url, (ev) => {
+          if (ev.type === "attempt") onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
+          else onEvent?.({ stage: 0, ratio: ev.ratio });
+        });
         const data = await parseInWorker(text, onEvent);
         if (data.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");

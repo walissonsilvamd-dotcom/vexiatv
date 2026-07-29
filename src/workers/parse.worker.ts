@@ -4,6 +4,8 @@ import { buildPlaylist, parseM3U } from "../lib/m3u";
 export type ParseWorkerRequest = { text: string };
 export type ParseWorkerResponse =
   | { type: "stage"; stage: number; counts?: { channels?: number; movies?: number; series?: number } }
+  /** Progresso real dentro da etapa atual (0..1). */
+  | { type: "progress"; stage: number; ratio: number }
   | { type: "done"; data: ReturnType<typeof buildPlaylist> }
   | { type: "error"; message: string };
 
@@ -12,9 +14,11 @@ const post = (message: ParseWorkerResponse) => (self as unknown as Worker).postM
 self.onmessage = (event: MessageEvent<ParseWorkerRequest>) => {
   try {
     post({ type: "stage", stage: 1 });
-    const entries = parseM3U(event.data.text);
+    const entries = parseM3U(event.data.text, (ratio) =>
+      post({ type: "progress", stage: 1, ratio }),
+    );
     post({ type: "stage", stage: 2 });
-    const data = buildPlaylist(entries);
+    const data = buildPlaylist(entries, (ratio) => post({ type: "progress", stage: 2, ratio }));
     post({ type: "stage", stage: 3 });
     post({ type: "stage", stage: 4, counts: { channels: data.channels.length } });
     post({ type: "stage", stage: 5, counts: { movies: data.movies.length } });

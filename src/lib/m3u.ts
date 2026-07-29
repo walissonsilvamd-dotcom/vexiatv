@@ -93,12 +93,15 @@ function cleanTitle(name: string) {
 }
 
 /** Converte o texto bruto de uma lista M3U em entradas estruturadas. */
-export function parseM3U(text: string): M3UEntry[] {
+export function parseM3U(text: string, onProgress?: (ratio: number) => void): M3UEntry[] {
   const lines = text.split(/\r?\n/);
   const entries: M3UEntry[] = [];
   let pending: Omit<M3UEntry, "url"> | null = null;
+  const total = lines.length || 1;
 
-  for (const raw of lines) {
+  for (let index = 0; index < lines.length; index++) {
+    if (onProgress && (index & 2047) === 0) onProgress(index / total);
+    const raw = lines[index];
     const line = raw.trim();
     if (!line) continue;
 
@@ -181,12 +184,17 @@ function uniqueCats(values: string[]) {
 }
 
 /** Organiza as entradas da lista em filmes, séries (com episódios) e canais ao vivo. */
-export function buildPlaylist(entries: M3UEntry[]): ParsedPlaylist {
+export function buildPlaylist(
+  entries: M3UEntry[],
+  onProgress?: (ratio: number) => void,
+): ParsedPlaylist {
   const movies: MediaItem[] = [];
   const channels: PlaylistChannel[] = [];
   const seriesMap = new Map<string, PlaylistSeries>();
+  const totalEntries = entries.length || 1;
 
-  entries.forEach((entry) => {
+  entries.forEach((entry, entryIndex) => {
+    if (onProgress && (entryIndex & 1023) === 0) onProgress(entryIndex / totalEntries);
     const kind = classify(entry);
 
     if (kind === "movie") {
