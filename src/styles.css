@@ -72,7 +72,17 @@
 }
 
 :root {
+  --vexia-bg: oklch(0.09 0.012 285);
+  --vexia-surface: oklch(0.15 0.025 288);
+  --vexia-card: oklch(0.19 0.028 288);
+  --vexia-purple: oklch(0.52 0.24 305);
+  --vexia-purple-soft: oklch(0.66 0.19 300);
+  --vexia-cyan: oklch(0.79 0.16 220);
+  --vexia-gold: oklch(0.88 0.17 92);
+  --vexia-text: oklch(1 0 0);
+  --vexia-muted: oklch(0.75 0.012 285);
   --radius: 0.625rem;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
