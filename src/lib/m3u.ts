@@ -120,10 +120,28 @@ export function parseM3U(text: string): M3UEntry[] {
 
 type Kind = "movie" | "series" | "channel";
 
+function normalize(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+const LIVE_RE = /\b(canais|canal|ao vivo|live|tv|esporte|abertos|noticias|24h|ppv)\b/;
+const SERIES_GROUP_RE = /\b(series?|serie|seriados?|temporadas?|season|novelas?|animes?|doramas?|tv ?shows?)\b/;
+const MOVIE_GROUP_RE = /\b(filmes?|movies?|vod|cinema|lancamentos?|colecao|colecoes|4k)\b/;
+
 function classify(entry: M3UEntry): Kind {
-  const group = entry.group.toLowerCase();
-  if (SERIES_RE.test(entry.name) || /serie|season|temporada|s[ée]ries/.test(group)) return "series";
-  if (/filme|movie|vod|cinema/.test(group) || VOD_EXT_RE.test(entry.url)) return "movie";
+  const group = normalize(entry.group);
+  const name = normalize(entry.name);
+
+  // Episódio identificado pelo padrão SxxEyy sempre é série
+  if (SERIES_RE.test(entry.name)) return "series";
+  if (SERIES_GROUP_RE.test(group)) return "series";
+  if (MOVIE_GROUP_RE.test(group)) return "movie";
+  if (LIVE_RE.test(group)) return "channel";
+  // Arquivo de vídeo sob demanda sem categoria clara
+  if (VOD_EXT_RE.test(entry.url)) return SERIES_RE.test(name) ? "series" : "movie";
   return "channel";
 }
 
