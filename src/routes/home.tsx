@@ -18,6 +18,7 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
+import { useTmdbHeroes } from "../lib/use-tmdb";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
