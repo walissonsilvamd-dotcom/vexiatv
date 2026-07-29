@@ -92,17 +92,33 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   );
 
   const loadFromUrl = useCallback(
-    async (url: string, name?: string) => {
+    async (url: string, name?: string, onEvent?: (event: PlaylistLoadEvent) => void) => {
       setLoading(true);
       setError(null);
+      const beat = () => new Promise((r) => setTimeout(r, 260));
       try {
+        onEvent?.({ stage: 0 });
         const { text } = await fetchPlaylist({ data: { url } });
+        onEvent?.({ stage: 1 });
+        await beat();
+        onEvent?.({ stage: 2 });
+        await beat();
         const parsed = parsePlaylistText(text);
         if (parsed.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
           return false;
         }
+        onEvent?.({ stage: 3 });
+        await beat();
+        onEvent?.({ stage: 4, counts: { channels: parsed.channels.length } });
+        await beat();
+        onEvent?.({ stage: 5, counts: { movies: parsed.movies.length } });
+        await beat();
+        onEvent?.({ stage: 6, counts: { series: parsed.series.length } });
+        await beat();
+        onEvent?.({ stage: 7 });
         persist({ url, name: name || new URL(url).hostname, text, loadedAt: Date.now() });
+        await beat();
         return true;
       } catch (e) {
         setError(e instanceof Error ? e.message : "Falha ao carregar a lista.");
