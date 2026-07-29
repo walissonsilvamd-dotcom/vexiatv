@@ -22,9 +22,12 @@ import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
-import { useContinueWatching } from "../lib/history-store";
+import { removeWatch, useContinueWatching } from "../lib/history-store";
+import { clearProgress } from "../lib/progress-store";
 import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
+import type { ResolvedWatch } from "../components/vexia/WatchCard";
+import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -93,6 +96,7 @@ function HomePage() {
   const rowRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
 
@@ -314,6 +318,7 @@ function HomePage() {
                 entry={entry}
                 compact
                 onOpen={() => openWatch(entry)}
+                onRemove={() => setPendingRemove(entry)}
               />
             ))}
           </div>
@@ -414,6 +419,25 @@ function HomePage() {
       </footer>
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Remover de Continuar assistindo?"
+        message={
+          pendingRemove
+            ? `"${pendingRemove.name}" sairá da lista e o progresso salvo será apagado.`
+            : undefined
+        }
+        onConfirm={() => {
+          const entry = pendingRemove;
+          if (!entry) return;
+          removeWatch(entry.key);
+          clearProgress(entry.liveId ?? entry.id);
+          if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
+          setPendingRemove(null);
+        }}
+        onCancel={() => setPendingRemove(null)}
+      />
     </section>
 
       {/* Carrosséis premium de descoberta (M3U + TMDB) */}

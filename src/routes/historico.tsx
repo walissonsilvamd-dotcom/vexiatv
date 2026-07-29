@@ -8,7 +8,9 @@ import {
   useOpenWatch,
   useResolvedHistory,
   WatchCard,
+  type ResolvedWatch,
 } from "../components/vexia/WatchCard";
+import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { clearCompleted, useWatchHistory, type WatchKind } from "../lib/history-store";
 import { clearProgress } from "../lib/progress-store";
@@ -51,6 +53,16 @@ function HistoryPage() {
   const [filter, setFilter] = useState<WatchKind | "all">("all");
   const [query, setQuery] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
+
+  const confirmRemove = () => {
+    const entry = pendingRemove;
+    if (!entry) return;
+    remove(entry.key);
+    clearProgress(entry.liveId ?? entry.id);
+    if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
+    setPendingRemove(null);
+  };
 
   const counts = useMemo(
     () => ({
@@ -178,11 +190,7 @@ function HistoryPage() {
                   entry={entry}
                   navRow={2}
                   onOpen={() => open(entry)}
-                  onRemove={() => {
-                    remove(entry.key);
-                    clearProgress(entry.liveId ?? entry.id);
-                    if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
-                  }}
+                  onRemove={() => setPendingRemove(entry)}
                 />
               ))}
             </div>
@@ -219,6 +227,18 @@ function HistoryPage() {
           </div>
         </div>
       ) : null}
+
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        title="Remover do histórico?"
+        message={
+          pendingRemove
+            ? `"${pendingRemove.name}" sairá do histórico e o progresso salvo será apagado.`
+            : undefined
+        }
+        onConfirm={confirmRemove}
+        onCancel={() => setPendingRemove(null)}
+      />
     </main>
   );
 }
