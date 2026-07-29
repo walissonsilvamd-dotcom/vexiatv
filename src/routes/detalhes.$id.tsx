@@ -1,3 +1,4 @@
+import { matchesLegacyId } from "../utils/hash";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -57,7 +58,11 @@ function DetailsPage() {
   const { has, toggle } = useFavorites();
   const { movies, series, source } = usePlaylist();
 
-  const raw = movies.find((m) => m.id === id) ?? series.find((s) => s.id === id);
+  const raw =
+    movies.find((m) => m.id === id) ??
+    series.find((s) => s.id === id) ??
+    movies.find((m) => matchesLegacyId(id, m.title)) ??
+    series.find((s) => matchesLegacyId(id, s.title));
   const isSeries = !!raw && "episodesList" in raw;
   const fav = has(isSeries ? "series" : "movie", raw?.title ?? "");
   const kind: "movie" | "series" = isSeries ? "series" : "movie";

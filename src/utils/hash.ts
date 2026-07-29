@@ -30,3 +30,13 @@ export function legacySlug(value: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 }
+
+/**
+ * Compatibilidade retroativa: IDs antigos eram `m3u-<tipo>-<slug>[-<index>]`.
+ * Permite reencontrar o item por slug do título quando o hash não bate.
+ */
+export function matchesLegacyId(legacyId: string, title: string) {
+  if (!legacyId.startsWith("m3u-")) return false;
+  const body = legacyId.replace(/^m3u-(mv|sr|ch)-/, "").replace(/-\d+$/, "");
+  return !!body && body === legacySlug(title);
+}

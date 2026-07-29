@@ -12,6 +12,7 @@ import {
 } from "../db/playlist";
 import type { ParseWorkerResponse } from "../workers/parse.worker";
 import { StorageErrorDialog } from "../components/StorageErrorDialog";
+import { matchesLegacyId } from "../utils/hash";
 import type { MediaItem } from "../data/vexia";
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
@@ -251,5 +252,11 @@ export function usePlaylist() {
 
 export function findPlaylistMedia(data: ParsedPlaylist | null, id: string) {
   if (!data) return undefined;
-  return data.movies.find((m) => m.id === id) ?? data.series.find((s) => s.id === id);
+  return (
+    data.movies.find((m) => m.id === id) ??
+    data.series.find((s) => s.id === id) ??
+    // IDs antigos (slug + índice) continuam válidos para favoritos/histórico.
+    data.movies.find((m) => matchesLegacyId(id, m.title)) ??
+    data.series.find((s) => matchesLegacyId(id, s.title))
+  );
 }

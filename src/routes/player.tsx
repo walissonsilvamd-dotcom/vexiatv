@@ -1,3 +1,4 @@
+import { matchesLegacyId } from "../utils/hash";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -109,9 +110,18 @@ function PlayerPage() {
   const [attempt, setAttempt] = useState(0);
   const [retryNonce, setRetryNonce] = useState(0);
 
-  const channel = type === "live" ? channels.find((c) => c.id === id) : undefined;
-  const movie = type === "movie" ? movies.find((m) => m.id === id) : undefined;
-  const serie = type === "series" ? series.find((s) => s.id === id) : undefined;
+  const channel =
+    type === "live"
+      ? (channels.find((c) => c.id === id) ?? channels.find((c) => matchesLegacyId(id, c.name)))
+      : undefined;
+  const movie =
+    type === "movie"
+      ? (movies.find((m) => m.id === id) ?? movies.find((m) => matchesLegacyId(id, m.title)))
+      : undefined;
+  const serie =
+    type === "series"
+      ? (series.find((s) => s.id === id) ?? series.find((s) => matchesLegacyId(id, s.title)))
+      : undefined;
 
   const episodes = useMemo(
     () =>
