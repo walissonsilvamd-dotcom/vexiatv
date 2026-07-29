@@ -12,7 +12,7 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 function openDb(): Promise<IDBDatabase> {
   if (typeof indexedDB === "undefined") return Promise.reject(new Error("IndexedDB indisponível"));
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
+    const p = new Promise<IDBDatabase>((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onupgradeneeded = () => {
         const db = req.result;
@@ -20,10 +20,12 @@ function openDb(): Promise<IDBDatabase> {
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error ?? new Error("Falha ao abrir IndexedDB"));
-    }).catch((err) => {
+    }).catch((err: unknown) => {
       dbPromise = null;
       throw err;
     });
+    dbPromise = p;
+    return p;
   }
   return dbPromise;
 }
