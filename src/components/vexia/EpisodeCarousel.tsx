@@ -244,39 +244,42 @@ export function EpisodeCarousel({
         </div>
       ) : null}
 
-      {/* Confirmação de troca */}
-      {pending ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 px-6">
-          <div className="w-full max-w-sm rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f] p-5 text-center">
-            <p className="text-sm font-bold text-white">Reproduzir episódio?</p>
-            <p className="mt-1 text-xs text-vexia-cyan">
-              T{pending.season} • EP {String(pending.number).padStart(2, "0")} —{" "}
-              {byNumber.get(pending.number)?.name || pending.title}
-            </p>
-            <div className="mt-4 flex justify-center gap-3">
-              <button
-                type="button"
-                autoFocus
-                onClick={() => {
-                  const target = pending;
-                  setPending(null);
-                  onSelect(target);
-                }}
-                className="vexia-focus rounded-full bg-vexia-purple px-5 py-2 text-xs font-bold text-white"
-              >
-                REPRODUZIR
-              </button>
-              <button
-                type="button"
-                onClick={() => setPending(null)}
-                className="vexia-focus rounded-full border border-white/20 px-5 py-2 text-xs font-bold text-white"
-              >
-                CANCELAR
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Confirmação de troca de episódio */}
+      <ConfirmDialog
+        open={!!pending}
+        title="Trocar de episódio?"
+        message={
+          pending
+            ? `T${pending.season} • EP ${String(pending.number).padStart(2, "0")} — ${
+                byNumber.get(pending.number)?.name || pending.title
+              }`
+            : undefined
+        }
+        confirmLabel="REPRODUZIR"
+        onConfirm={confirmPending}
+        onCancel={() => setPending(null)}
+      >
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={dontAsk}
+          onClick={() => setDontAsk((v) => !v)}
+          className="vexia-focus mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-[11px] font-semibold text-[#B0B0B0]"
+        >
+          <span
+            className={`grid h-4 w-4 place-items-center rounded border text-[10px] ${
+              dontAsk
+                ? "border-vexia-purple bg-vexia-purple text-white"
+                : "border-white/25 text-transparent"
+            }`}
+            aria-hidden
+          >
+            ✓
+          </span>
+          Não perguntar novamente (troca imediata)
+        </button>
+      </ConfirmDialog>
+
     </section>
   );
 }
