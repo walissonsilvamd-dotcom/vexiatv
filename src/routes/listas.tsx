@@ -36,29 +36,54 @@ function ListsPage() {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [server, setServer] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [qrDialog, setQrDialog] = useState(false);
 
   const qrValue = url.trim() || source?.url || `https://vexia.tv/pair?mac=${DEVICE_MAC}&key=${DEVICE_KEY}`;
 
   const openForm = () => {
     setName(source?.name ?? "");
     setUrl(source?.url ?? "");
+    setFormError(null);
     setDone(false);
     setForm(true);
   };
 
+  /** Cola inteligente: aceita URL completa, host|user|senha, user:senha etc. */
+  const applyPaste = (raw: string, field: "server" | "user" | "pass" | "url") => {
+    const parsed = parsePastedAccess(raw);
+    const rich =
+      parsed.url !== undefined || parsed.server !== undefined || parsed.username !== undefined;
+    if (!rich) return false;
+    // Colou só um texto simples no próprio campo: deixa o comportamento normal.
+    if (field === "pass" && !parsed.url && !parsed.server && !parsed.username) return false;
+    if (parsed.url) setUrl(parsed.url);
+    if (parsed.server) setServer(parsed.server);
+    if (parsed.username) setUser(parsed.username);
+    if (parsed.password !== undefined) setPass(parsed.password);
+    setFormError(null);
+    return true;
+  };
+
   const buildUrl = () => {
-    if (url.trim()) return url.trim();
-    if (server.trim() && user.trim()) {
-      const base = server.trim().replace(/\/$/, "");
-      const host = /^https?:\/\//.test(base) ? base : `http://${base}`;
-      return `${host}/get.php?username=${encodeURIComponent(user)}&password=${encodeURIComponent(pass)}&type=m3u_plus&output=ts`;
-    }
-    return "";
+    const typed = url.trim();
+    if (typed) return typed;
+    return buildXtreamUrl(server, user, pass);
   };
 
   const submit = () => {
     const finalUrl = buildUrl();
-    if (!finalUrl) return;
+    if (!finalUrl) {
+      setFormError(
+        "Informe usuário, senha e servidor — ou cole o link M3U/HLS no campo de URL.",
+      );
+      return;
+    }
+    if (!isLikelyPlaylistUrl(finalUrl)) {
+      setFormError("O link precisa começar com http:// ou https://");
+      return;
+    }
+    setFormError(null);
     setForm(false);
     void navigate({
       to: "/carregando",
