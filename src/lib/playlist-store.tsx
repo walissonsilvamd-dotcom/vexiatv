@@ -64,6 +64,8 @@ type PlaylistContextValue = {
   ) => Promise<boolean>;
   loadFromText: (text: string, name?: string) => Promise<boolean>;
   reload: () => Promise<boolean>;
+  /** Última mensagem de erro, disponível imediatamente após a falha. */
+  getLastError: () => string | null;
   /** Reconsulta a validade no servidor do provedor. */
   refreshAccount: () => Promise<PlaylistAccount | null>;
   clear: () => void;
@@ -72,55 +74,92 @@ type PlaylistContextValue = {
 
 const PlaylistContext = createContext<PlaylistContextValue | null>(null);
 
-/** Processa a lista em um Web Worker (fora da thread de UI). Cai para a main thread se indisponível. */
+/** Cria (quando possível) o worker de parse. */
+function spawnParseWorker(): Worker | null {
+  if (typeof Worker === "undefined") return null;
+  try {
+    return new Worker(new URL("../workers/parse.worker.ts", import.meta.url), { type: "module" });
+  } catch (err) {
+    console.error("[vexia] Web Worker indisponível, processando na thread principal", err);
+    return null;
+  }
+}
+
+type ParseSession = {
+  /** Envia um pedaço da lista para o worker (streaming). */
+  push: (text: string) => void;
+  /** Finaliza e devolve a lista organizada. */
+  end: () => Promise<ParsedPlaylist>;
+};
+
+/**
+ * Sessão de processamento em streaming: os pedaços do download vão direto para
+ * o worker, então a thread principal nunca guarda a lista inteira (listas de
+ * 100 MB+ estouravam a memória de Smart TVs e o app parecia "não carregar").
+ */
+function createParseSession(onEvent?: (event: PlaylistLoadEvent) => void): ParseSession {
+  const worker = spawnParseWorker();
+
+  if (!worker) {
+    const buffer: string[] = [];
+    return {
+      push: (text) => buffer.push(text),
+      end: async () => parsePlaylistText(buffer.join("")),
+    };
+  }
+
+  let settle: ((result: { data?: ParsedPlaylist; error?: string }) => void) | null = null;
+  const finished = new Promise<{ data?: ParsedPlaylist; error?: string }>((resolve) => {
+    settle = resolve;
+  });
+
+  worker.onmessage = (event: MessageEvent<ParseWorkerResponse>) => {
+    const msg = event.data;
+    if (msg.type === "stage") onEvent?.({ stage: msg.stage, counts: msg.counts });
+    else if (msg.type === "progress") onEvent?.({ stage: msg.stage, ratio: msg.ratio });
+    else if (msg.type === "done") settle?.({ data: msg.data });
+    else settle?.({ error: msg.message });
+  };
+  worker.onerror = (err) => {
+    console.error("[vexia] erro no worker de parse", err);
+    settle?.({ error: "Falha ao processar a lista nesta TV. Tente uma lista menor." });
+  };
+
+  return {
+    push: (text) => worker.postMessage({ type: "chunk", text }),
+    end: async () => {
+      worker.postMessage({ type: "end" });
+      const result = await finished;
+      worker.terminate();
+      if (result.data) return result.data;
+      throw new Error(result.error || "Falha ao processar a lista.");
+    },
+  };
+}
+
+/** Processa uma lista já em memória (arquivo local / link HLS único). */
 function parseInWorker(
   text: string,
   onEvent?: (event: PlaylistLoadEvent) => void,
 ): Promise<ParsedPlaylist> {
-  if (typeof Worker === "undefined") {
-    return Promise.resolve(parsePlaylistText(text));
-  }
-  return new Promise((resolve, reject) => {
-    let worker: Worker;
-    try {
-      worker = new Worker(new URL("../workers/parse.worker.ts", import.meta.url), { type: "module" });
-    } catch (err) {
-      console.error("[vexia] Web Worker indisponível, processando na thread principal", err);
-      resolve(parsePlaylistText(text));
-      return;
-    }
-    worker.onmessage = (event: MessageEvent<ParseWorkerResponse>) => {
-      const msg = event.data;
-      if (msg.type === "stage") {
-        onEvent?.({ stage: msg.stage, counts: msg.counts });
-      } else if (msg.type === "progress") {
-        onEvent?.({ stage: msg.stage, ratio: msg.ratio });
-      } else if (msg.type === "done") {
-        worker.terminate();
-        resolve(msg.data);
-      } else {
-        worker.terminate();
-        reject(new Error(msg.message));
-      }
-    };
-    worker.onerror = (err) => {
-      worker.terminate();
-      console.error("[vexia] erro no worker de parse", err);
-      try {
-        resolve(parsePlaylistText(text));
-      } catch (e) {
-        reject(e instanceof Error ? e : new Error("Falha ao processar a lista."));
-      }
-    };
-    worker.postMessage({ text });
-  });
+  const session = createParseSession(onEvent);
+  session.push(text);
+  return session.end();
 }
 
 export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   const [stored, setStored] = useState<StoredPlaylist | null>(null);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setErrorState] = useState<string | null>(null);
+  /* Guarda a última mensagem de forma síncrona: a tela de carregamento precisa
+     dela imediatamente, antes do próximo render do React. */
+  const lastErrorRef = useRef<string | null>(null);
+  const setError = useCallback((message: string | null) => {
+    lastErrorRef.current = message;
+    setErrorState(message);
+  }, []);
+  const getLastError = useCallback(() => lastErrorRef.current, []);
   const [quotaOpen, setQuotaOpen] = useState(false);
   const retryRef = useRef<(() => void) | null>(null);
 
@@ -270,15 +309,25 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!data) {
-          const text = await downloadPlaylist(url, (ev) => {
-            if (ev.type === "attempt") onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
-            else onEvent?.({ stage: 0, ratio: ev.ratio });
-          });
-          data = await parseInWorker(text, onEvent);
+          // Download em streaming direto para o worker (sem cópia gigante aqui).
+          const session = createParseSession(onEvent);
+          await downloadPlaylist(
+            url,
+            (ev) => {
+              if (ev.type === "attempt")
+                onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
+              else onEvent?.({ stage: 0, ratio: ev.ratio });
+            },
+            undefined,
+            (chunk) => session.push(chunk),
+          );
+          data = await session.end();
         }
 
         if (data.total === 0) {
-          setError("Nenhum canal ou título encontrado nessa lista.");
+          setError(
+            "A lista foi baixada, mas não trouxe nenhum canal ou título. Confira o link com o seu provedor.",
+          );
           return false;
         }
         onEvent?.({ stage: 7 });
@@ -293,7 +342,11 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
         await persist(record, () => void loadFromUrl(url, name));
         return true;
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Falha ao carregar a lista.");
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Erro ao carregar lista. Verifique a URL e tente novamente.",
+        );
         return false;
       } finally {
         setLoading(false);
@@ -340,6 +393,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     series: data?.series ?? [],
     channels: data?.channels ?? [],
     loadFromUrl,
+    getLastError,
     loadFromText,
     reload,
     refreshAccount,
