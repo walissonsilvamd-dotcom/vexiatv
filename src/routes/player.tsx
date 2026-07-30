@@ -255,8 +255,11 @@ function PlayerPage() {
       clearTimeout(backoff);
       video.removeEventListener("error", onNativeError);
       hls?.destroy();
+      setHlsApi(null);
+      setMediaReady(false);
     };
   }, [src, type, retryNonce]);
+
 
 
   /* ── Eventos do vídeo ── */
