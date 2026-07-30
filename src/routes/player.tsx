@@ -146,7 +146,9 @@ function PlayerPage() {
   const nextEpisode = episodes[epIndex + 1];
   const prevEpisode = episodes[epIndex - 1];
 
-  const src = channel?.url ?? movie?.streamUrl ?? episode?.url ?? "";
+  // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
+  const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
+
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
