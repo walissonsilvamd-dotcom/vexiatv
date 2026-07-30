@@ -277,6 +277,16 @@ function ListsPage() {
                 <div className="mt-5 rounded-sm bg-white p-4">
                   <QRCodeSVG value={qrValue} size={340} level="M" className="h-auto w-full max-w-[340px]" />
                 </div>
+                <p className="mt-4 max-w-[340px] text-center text-xs text-white/70">
+                  Leia o QR Code no celular, copie o link da sua lista (M3U ou HLS) e cole aqui.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setQrDialog(true)}
+                  className="vexia-focus mt-3 rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-xs font-bold tracking-[0.14em] text-vexia-cyan"
+                >
+                  COLAR LINK DO QR CODE
+                </button>
               </section>
 
               {/* ACESSO */}
@@ -287,8 +297,21 @@ function ListsPage() {
 
                 <div className="mt-5 space-y-4">
                   <input
+                    value={server}
+                    onChange={(e) => setServer(e.target.value)}
+                    onPaste={(e) => {
+                      if (applyPaste(e.clipboardData.getData("text"), "server")) e.preventDefault();
+                    }}
+                    placeholder="Servidor (ex: http://meuservidor.com:8080)"
+                    aria-label="Servidor"
+                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                  />
+                  <input
                     value={user}
                     onChange={(e) => setUser(e.target.value)}
+                    onPaste={(e) => {
+                      if (applyPaste(e.clipboardData.getData("text"), "user")) e.preventDefault();
+                    }}
                     placeholder="Usuário"
                     aria-label="Usuário"
                     className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
@@ -297,13 +320,19 @@ function ListsPage() {
                     type="password"
                     value={pass}
                     onChange={(e) => setPass(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        submit();
+                      }
+                    }}
                     placeholder="Senha"
                     aria-label="Senha"
                     className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
                   />
                   <button
                     type="button"
-                    onClick={() => void submit()}
+                    onClick={() => submit()}
                     disabled={loading}
                     className="vexia-focus w-full rounded-full bg-vexia-purple px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
                   >
@@ -311,15 +340,32 @@ function ListsPage() {
                   </button>
                 </div>
 
-                <div className="mt-10">
+                <div className="mt-8">
                   <p className="text-base text-white/90">Campo de URL (M3U/HLS)</p>
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="Cole o link aqui"
+                    onPaste={(e) => {
+                      if (applyPaste(e.clipboardData.getData("text"), "url")) e.preventDefault();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        submit();
+                      }
+                    }}
+                    placeholder="Cole o link aqui (.m3u, m3u_plus ou .m3u8)"
                     aria-label="Campo de URL M3U ou HLS"
                     className="mt-2 w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
                   />
+                  <button
+                    type="button"
+                    onClick={() => submit()}
+                    disabled={loading}
+                    className="vexia-focus mt-3 w-full rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-sm font-bold tracking-[0.12em] text-vexia-cyan disabled:opacity-60"
+                  >
+                    CARREGAR LINK
+                  </button>
                 </div>
 
                 <p className="mt-5 text-center text-lg font-medium text-vexia-cyan">
@@ -341,6 +387,9 @@ function ListsPage() {
                     Lista carregada com sucesso
                   </p>
                 ) : null}
+                {formError ? (
+                  <p className="mt-4 text-center text-sm text-vexia-gold">{formError}</p>
+                ) : null}
                 {error ? (
                   <p className="mt-4 text-center text-sm text-vexia-gold">{error}</p>
                 ) : null}
@@ -349,6 +398,8 @@ function ListsPage() {
           </div>
         </div>
       ) : null}
+
+      <QrPlaylistDialog open={qrDialog} onClose={() => setQrDialog(false)} />
     </main>
   );
 }
