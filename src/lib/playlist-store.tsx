@@ -49,6 +49,10 @@ type PlaylistContextValue = {
   source: { url: string; name: string; loadedAt: number } | null;
   data: ParsedPlaylist | null;
   hasContent: boolean;
+  /** Validade da assinatura (Xtream), quando disponível. */
+  account: PlaylistAccount | null;
+  /** true somente quando a data de expiração do plano já passou. */
+  expired: boolean;
   movies: MediaItem[];
   series: PlaylistSeries[];
   channels: PlaylistChannel[];
@@ -59,8 +63,11 @@ type PlaylistContextValue = {
   ) => Promise<boolean>;
   loadFromText: (text: string, name?: string) => Promise<boolean>;
   reload: () => Promise<boolean>;
+  /** Reconsulta a validade no servidor do provedor. */
+  refreshAccount: () => Promise<PlaylistAccount | null>;
   clear: () => void;
 };
+
 
 const PlaylistContext = createContext<PlaylistContextValue | null>(null);
 
