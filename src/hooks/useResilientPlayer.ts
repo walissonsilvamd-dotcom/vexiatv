@@ -139,13 +139,40 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       }
     };
 
+    /* ── Cadeia esgotada: reinicia todo o ciclo automaticamente, com backoff ── */
     const failAll = (detail?: string) => {
       if (disposed) return;
       clearAllTimers();
+      // Memoriza a posição para retomar de onde parou (VOD).
+      if (!live) {
+        const current = elementFor(activeSlotLocal).currentTime;
+        if (Number.isFinite(current) && current > 0) resumeAtRef.current = current;
+      }
+      resetSlot("a");
+      resetSlot("b");
+      setHlsApi(null);
+      setStandbyEngine(null);
+      setStandbyReady(false);
+
+      if (cycleRef.current < AUTO_CYCLE_MAX) {
+        const wait = AUTO_CYCLE_BACKOFF_MS[Math.min(cycleRef.current, AUTO_CYCLE_BACKOFF_MS.length - 1)];
+        cycleRef.current += 1;
+        setRecoveryCycle(cycleRef.current);
+        setFatalError(null);
+        setReconnecting(true);
+        setBuffering(true);
+        timers.recovery = setTimeout(() => {
+          if (disposed) return;
+          setGeneration((value) => value + 1);
+        }, wait);
+        return;
+      }
+
       setReconnecting(false);
       setBuffering(false);
       setFatalError({ message: "Nenhum dos motores conseguiu reproduzir este stream", detail });
     };
+
 
     /* ── Reserva quente: segundo motor pré-carregado em paralelo, mudo e pausado ── */
     const startStandby = () => {
