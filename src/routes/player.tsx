@@ -290,7 +290,7 @@ function PlayerPage() {
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("ended", onEnded);
     };
-  }, [type, id, nextEpisode, navigate]);
+  }, [type, id, nextEpisode, navigate, activeSlot]);
 
   /* ── Retomar de onde parou ── */
   useEffect(() => {
