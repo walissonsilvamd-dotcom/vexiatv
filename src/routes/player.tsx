@@ -90,7 +90,7 @@ const MAX_RETRIES = 3;
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
   const navigate = useNavigate();
-  const { movies, series, channels } = usePlaylist();
+  const { movies, series, channels, expired, account } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
