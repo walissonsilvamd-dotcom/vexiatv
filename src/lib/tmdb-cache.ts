@@ -131,6 +131,29 @@ export function tmdbCacheStats() {
   };
 }
 
+/**
+ * Fila de rede com limite de simultaneidade.
+ * Sem isso, uma tela com 60 cards dispara 60 buscas ao mesmo tempo; o navegador
+ * da TV enfileira tudo e as imagens/dados demoram muito mais para aparecer.
+ */
+const MAX_PARALLEL = 4;
+let active = 0;
+const waiting: (() => void)[] = [];
+
+function acquire(): Promise<void> {
+  if (active < MAX_PARALLEL) {
+    active += 1;
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => waiting.push(resolve));
+}
+
+function release() {
+  const next = waiting.shift();
+  if (next) next();
+  else active -= 1;
+}
+
 /** Deduplica chamadas simultâneas para o mesmo título e serve do cache quando possível. */
 export async function resolveTmdb(
   key: string,
@@ -143,11 +166,13 @@ export async function resolveTmdb(
   if (running) return running;
 
   const promise = (async () => {
+    await acquire();
     try {
       const result = await fetcher();
       writeTmdbCache(key, result ?? null);
       return result ?? null;
     } finally {
+      release();
       inflight.delete(key);
     }
   })();
@@ -155,3 +180,4 @@ export async function resolveTmdb(
   inflight.set(key, promise);
   return promise;
 }
+

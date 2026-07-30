@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { MediaItem } from "../data/vexia";
-import { resolveTmdb, tmdbCacheKey } from "./tmdb-cache";
+import { readTmdbCache, resolveTmdb, tmdbCacheKey } from "./tmdb-cache";
 import { tmdbSearch } from "./tmdb.functions";
 
 const STALE_TIME = 1000 * 60 * 60 * 24 * 7;
@@ -9,6 +9,11 @@ const GC_TIME = 1000 * 60 * 60;
 
 function needsEnrichment(item: MediaItem) {
   return item.rating === 0 || !item.overview || !item.poster || !item.backdrop;
+}
+
+/** No card só interessa capa + nota — evita buscas desnecessárias na grade. */
+function needsCardEnrichment(item: MediaItem) {
+  return !item.poster || item.rating === 0;
 }
 
 function mergeEnriched<T extends MediaItem>(item: T, enriched: Partial<MediaItem> | null | undefined): T {
@@ -26,8 +31,14 @@ function mergeEnriched<T extends MediaItem>(item: T, enriched: Partial<MediaItem
 
 type SearchFn = ReturnType<typeof useServerFn<typeof tmdbSearch>>;
 
-function buildQuery<T extends MediaItem>(item: T, kind: "movie" | "series", search: SearchFn) {
+function buildQuery<T extends MediaItem>(
+  item: T,
+  kind: "movie" | "series",
+  search: SearchFn,
+  mode: "full" | "card" = "full",
+) {
   const key = tmdbCacheKey(item.title, item.year || undefined, kind);
+  const cached = readTmdbCache(key);
   return {
     // Chave normalizada: itens duplicados na lista compartilham o mesmo cache.
     queryKey: ["tmdb", key] as const,
@@ -43,7 +54,9 @@ function buildQuery<T extends MediaItem>(item: T, kind: "movie" | "series", sear
       );
       return result ?? null;
     },
-    enabled: needsEnrichment(item),
+    // Cache local já resolvido: renderiza na hora, sem request nenhum.
+    initialData: cached ? cached.value : undefined,
+    enabled: mode === "card" ? needsCardEnrichment(item) : needsEnrichment(item),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     retry: 1,
@@ -56,10 +69,11 @@ function buildQuery<T extends MediaItem>(item: T, kind: "movie" | "series", sear
 export function useTmdbItem<T extends MediaItem>(
   item: T | null | undefined,
   kind: "movie" | "series",
+  mode: "full" | "card" = "full",
 ): { data: T | undefined; isPending: boolean; isError: boolean } {
   const search = useServerFn(tmdbSearch);
   const base = item
-    ? buildQuery(item, kind, search)
+    ? buildQuery(item, kind, search, mode)
     : { queryKey: ["tmdb", "idle"] as const, queryFn: async () => null, enabled: false };
 
   const { data, isPending, isError } = useQuery({

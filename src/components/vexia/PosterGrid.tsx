@@ -20,7 +20,7 @@ export function PosterCard({
   const { has, toggle } = useFavorites();
   const fav = has(kind, item.title);
   const [broken, setBroken] = useState(false);
-  const { data: display } = useTmdbItem(item, kind);
+  const { data: display } = useTmdbItem(item, kind, "card");
   const active = display ?? item;
   // Se o pôster falhar, tenta o backdrop antes de cair no placeholder
   const image = broken ? active.backdrop : active.poster || active.backdrop;
