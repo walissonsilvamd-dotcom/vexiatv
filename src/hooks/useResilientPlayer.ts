@@ -456,6 +456,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       disposed = true;
       clearAllTimers();
       detachWatchdog?.();
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
       resetSlot("a");
       resetSlot("b");
       setHlsApi(null);
@@ -473,7 +475,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     buffering,
     reconnecting,
     attempt,
+    recoveryCycle,
     fatalError,
+
     mutedByAutoplay,
     retry,
     tryOtherEngine,
