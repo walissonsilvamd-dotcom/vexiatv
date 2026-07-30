@@ -170,6 +170,8 @@ function RootComponent() {
 
   useEffect(() => {
     registerImageCache();
+    // Reaquece o cache com as imagens da última sessão (abertura instantânea).
+    warmStartCache();
   }, []);
 
   return (
