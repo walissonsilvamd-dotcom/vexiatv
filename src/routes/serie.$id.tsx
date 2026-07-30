@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ImageOff, Play } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/serie/$id")({
 
 function EpisodesPage() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { series } = usePlaylist();
