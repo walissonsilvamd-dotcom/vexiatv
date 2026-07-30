@@ -38,8 +38,8 @@ export function PosterCard({
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
             <img
-              src={adaptiveImage(active.poster, "poster")}
-              srcSet={adaptiveSrcSet(active.poster, "poster")}
+              src={adaptiveImage(image, "poster")}
+              srcSet={adaptiveSrcSet(image, "poster")}
               sizes={adaptiveSizes("poster")}
               alt={active.title}
               loading="lazy"
@@ -49,22 +49,31 @@ export function PosterCard({
               style={{ objectPosition: active.posterPosition ?? "center" }}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-vexia-purple/45 via-black to-black p-3 text-center">
               <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
+              <span className="line-clamp-3 text-[11px] font-bold leading-tight text-white/85">
+                {active.title}
+              </span>
             </div>
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-black/20" />
           {/* brilho espelhado */}
           <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-vexia-purple/25 via-transparent to-transparent" />
-          {active.rating > 0 ? (
-            <span className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-2 py-0.5 text-[11px] font-black text-vexia-gold backdrop-blur-md">
-              <Star className="h-3 w-3 fill-current" aria-hidden />
-              {active.rating.toFixed(1)}
-            </span>
-          ) : null}
+          {/* Nota — sempre visível no canto superior direito */}
+          <span
+            className={`absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-black backdrop-blur-md ${
+              active.rating > 0
+                ? "border-vexia-gold/40 bg-black/75 text-vexia-gold shadow-[0_0_12px_rgba(0,0,0,0.7)]"
+                : "border-white/15 bg-black/65 text-white/55"
+            }`}
+          >
+            <Star className="h-3 w-3 fill-current" aria-hidden />
+            {active.rating > 0 ? active.rating.toFixed(1) : "—"}
+          </span>
           {progress != null ? (
             <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
+
               <div
                 className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgba(123,47,190,0.8)]"
                 style={{ width: `${progress}%` }}
