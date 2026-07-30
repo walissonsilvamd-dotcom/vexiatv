@@ -40,7 +40,7 @@ async function attemptDownload(
     const response = await fetch(proxyUrl(url), { signal: controller.signal });
     bumpIdle();
 
-    if (!response.ok) {
+    if (!response.ok || response.headers.get("X-Playlist-Error") === "1") {
       const detail = await response.text().catch(() => "");
       throw new PlaylistDownloadError(
         detail || `O servidor da lista respondeu ${response.status}.`,
