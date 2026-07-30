@@ -163,11 +163,32 @@ function ListsPage() {
                     </p>
                     <h2 className="mt-1 truncate text-base font-black">{source.name}</h2>
                     <div className="mt-3 h-2 w-full rounded-full bg-black/60">
-                      <div className="relative h-2 w-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-purple-soft">
+                      <div
+                        className={`relative h-2 rounded-full ${
+                          expired
+                            ? "w-full bg-gradient-to-r from-red-700 to-red-500"
+                            : "w-full bg-gradient-to-r from-vexia-purple to-vexia-purple-soft"
+                        }`}
+                      >
                         <span className="absolute -right-0.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-vexia-cyan" />
                       </div>
                     </div>
-                    <p className="mt-2 text-center text-xs font-bold text-vexia-cyan">Conectada</p>
+                    <p
+                      className={`mt-2 text-center text-xs font-bold ${
+                        expired ? "text-red-400" : "text-vexia-cyan"
+                      }`}
+                    >
+                      {expired ? "Assinatura vencida" : "Conectada"}
+                    </p>
+                    {account ? (
+                      <p className="mt-1 text-center text-[10px] tracking-[0.1em] text-white/60">
+                        {expired ? "Venceu em" : "Válida até"} {formatExpiry(account)}
+                        {!expired && daysUntilExpiry(account) !== null
+                          ? ` • ${daysUntilExpiry(account)} dia(s)`
+                          : ""}
+                      </p>
+                    ) : null}
+
 
                     <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
                       {[
