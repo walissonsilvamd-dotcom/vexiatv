@@ -86,9 +86,10 @@ function SplashScreen() {
         </p>
       </div>
 
-      <p className="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-1/2 w-full -translate-x-1/2 px-6 text-center text-[clamp(0.6rem,1.3vmin,0.85rem)] tracking-[0.3em] text-vexia-cyan">
+      <p className="absolute bottom-[max(var(--vexia-overscan-y),env(safe-area-inset-bottom))] left-1/2 w-full -translate-x-1/2 px-[var(--vexia-overscan-x)] text-center text-[clamp(0.6rem,1.3vmin,0.85rem)] tracking-[0.3em] text-vexia-cyan">
         {SLOGAN}
       </p>
+
 
 
       <style>{`
