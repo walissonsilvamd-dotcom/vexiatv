@@ -35,7 +35,9 @@ export const Route = createFileRoute("/listas")({
 function ListsPage() {
   const navigate = useNavigate();
   const { source, data, loading, error, loadFromUrl, reload, clear } = usePlaylist();
-  const [form, setForm] = useState(false);
+  // Sem lista salva, a tela de QR Code + acesso abre direto (é o que o usuário
+  // precisa fazer primeiro). Com lista salva, mostra o gerenciador.
+  const [form, setForm] = useState(() => !source);
   const [done, setDone] = useState(false);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
