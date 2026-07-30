@@ -3,6 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Captions,
+  ChevronDown,
+  ChevronUp,
   ChevronsLeftRight,
   Gauge,
   Heart,
@@ -111,6 +113,7 @@ function PlayerPage() {
   const [fav, setFav] = useState(false);
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
   const menuOpenRef = useRef(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
@@ -467,7 +470,13 @@ function PlayerPage() {
         if (e.key === "ArrowUp") {
           e.preventDefault();
           (document.activeElement as HTMLElement).blur();
-          shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          setDrawerOpen(false);
+          return;
+        }
+        if (e.key === "Escape" || e.key === "Backspace") {
+          e.preventDefault();
+          (document.activeElement as HTMLElement).blur();
+          setDrawerOpen(false);
           return;
         }
         if (e.key === "Enter" || e.key === " ") return;
@@ -496,8 +505,12 @@ function PlayerPage() {
           }
           if (carouselRef.current) {
             e.preventDefault();
-            carouselRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-            carouselRef.current.querySelector<HTMLButtonElement>('button[aria-current="true"]')?.focus();
+            setDrawerOpen(true);
+            window.setTimeout(() => {
+              carouselRef.current
+                ?.querySelector<HTMLButtonElement>('button[aria-current="true"]')
+                ?.focus();
+            }, 260);
           }
           break;
         case "Backspace":
@@ -515,6 +528,11 @@ function PlayerPage() {
   useEffect(() => {
     menuOpenRef.current = menu !== null;
   }, [menu]);
+
+  // Troca de episódio recolhe a gaveta para o vídeo ficar em tela cheia.
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [episode?.id]);
 
   const applySpeed = (value: number) => {
     setSpeed(value);
@@ -594,11 +612,11 @@ function PlayerPage() {
 
   return (
     <main
-      className={`min-h-screen w-full bg-vexia-bg font-sans text-white ${showEpisodes ? "overflow-y-auto" : "h-screen overflow-hidden"}`}
+      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white"
     >
       <div
         ref={shellRef}
-        className={`relative w-full overflow-hidden bg-black ${showEpisodes ? "h-[62vh] min-h-[320px]" : "h-screen"}`}
+        className="relative h-screen w-full overflow-hidden bg-black"
       >
       {/* ── Superfície do vídeo ── */}
       <video
@@ -1033,7 +1051,35 @@ function PlayerPage() {
       </div>
 
       {showEpisodes && serie ? (
-        <div ref={carouselRef}>
+        <div
+          className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out ${
+            drawerOpen ? "translate-y-0" : "translate-y-[calc(100%-72px)]"
+          }`}
+        >
+          {/* Aba de "espiada": mostra que o carrossel existe sem cobrir o vídeo. */}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen((v) => !v)}
+            className="vexia-focus mx-auto flex h-[72px] w-full max-w-[520px] flex-col items-center justify-end gap-1 rounded-t-2xl bg-gradient-to-t from-black/95 to-transparent pb-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
+          >
+            <span className="h-1 w-16 rounded-full bg-vexia-purple/80 shadow-[0_0_12px_rgba(123,43,190,0.9)]" />
+            {drawerOpen ? (
+              <>
+                <ChevronUp className="h-4 w-4" aria-hidden />
+                FECHAR EPISÓDIOS
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4" aria-hidden />
+                EPISÓDIOS
+              </>
+            )}
+          </button>
+          <div
+            ref={carouselRef}
+            className="max-h-[60vh] overflow-y-auto border-t border-white/10 bg-vexia-bg/95 backdrop-blur-xl"
+            aria-hidden={!drawerOpen}
+          >
           <EpisodeCarousel
             seriesId={id}
             seriesTitle={serie.title}
@@ -1043,9 +1089,10 @@ function PlayerPage() {
             currentEpisodeId={episode?.id}
             onSelect={(next) => {
               navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
-              shellRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+              setDrawerOpen(false);
             }}
           />
+          </div>
         </div>
       ) : null}
     </main>
