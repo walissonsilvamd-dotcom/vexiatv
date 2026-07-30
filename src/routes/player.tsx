@@ -479,6 +479,48 @@ function PlayerPage() {
     if (videoRef.current) videoRef.current.playbackRate = value;
   };
 
+  /* ── Faixas reais de áudio e legenda (hls.js ou player nativo) ── */
+  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
+  const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
+
+  type MenuOption = { label: string; active: boolean; select: () => void };
+  const menuOptions: MenuOption[] = useMemo(() => {
+    if (menu === "quality") {
+      return QUALITIES.map((q) => ({ label: q, active: q === quality, select: () => setQuality(q) }));
+    }
+    if (menu === "speed") {
+      return SPEEDS.map((s) => ({
+        label: `${s}x`,
+        active: s === speed,
+        select: () => applySpeed(s),
+      }));
+    }
+    if (menu === "audio") {
+      return audio.tracks.map((t) => ({
+        label: t.label,
+        active: t.id === audio.selected,
+        select: () => audio.select(t.id),
+      }));
+    }
+    if (menu === "subs") {
+      return [
+        {
+          label: "Desligada",
+          active: subs.selected === SUBS_OFF,
+          select: () => subs.select(SUBS_OFF),
+        },
+        ...subs.tracks.map((t) => ({
+          label: t.label,
+          active: t.id === subs.selected,
+          select: () => subs.select(t.id),
+        })),
+      ];
+    }
+    return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected]);
+
+
   const toggleFullscreen = () => {
     const el = shellRef.current;
     if (!el) return;
