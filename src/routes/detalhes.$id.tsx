@@ -189,7 +189,7 @@ function DetailsPage() {
               {item.runtime ? <span className="text-vexia-cyan">{item.runtime}</span> : null}
               {isSeries ? (
                 <span className="text-vexia-cyan">
-                  {seasons.length} temporadas • {item.episodes ?? 0} episódios
+                  {seasons.length} temporadas • {epList.length || item.episodes || 0} episódios
                 </span>
               ) : null}
             </div>
