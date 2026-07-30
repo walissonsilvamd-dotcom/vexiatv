@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { PlaylistProvider } from "../lib/playlist-store";
 import { SettingsProvider } from "../lib/settings-store";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { registerImageCache } from "../lib/image-cache";
 
 function NotFoundComponent() {
   return (
