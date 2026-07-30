@@ -102,8 +102,9 @@ function PlayerPage() {
   const menuOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
-  const [subtitle, setSubtitle] = useState("Desligada");
-  const [audioTrack, setAudioTrack] = useState("Original");
+  const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
+  const [mediaReady, setMediaReady] = useState(false);
+
   const [liveDelay, setLiveDelay] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
   const [fatalError, setFatalError] = useState<{ message: string; detail?: string } | null>(null);
