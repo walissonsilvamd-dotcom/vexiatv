@@ -304,6 +304,8 @@ function HomePage() {
             </p>
           ) : null}
         </div>
+        ) : null}
+
       </header>
 
       {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
