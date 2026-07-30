@@ -148,9 +148,21 @@ const LIVE_RE = /\b(canais|canal|ao vivo|live|tv|esporte|abertos|noticias|24h|pp
 const SERIES_GROUP_RE = /\b(series?|serie|seriados?|temporadas?|season|novelas?|animes?|doramas?|tv ?shows?)\b/;
 const MOVIE_GROUP_RE = /\b(filmes?|movies?|vod|cinema|lancamentos?|colecao|colecoes|4k)\b/;
 
+/** Caminho Xtream: /movie/ = VOD, /series/ = episódio, resto = ao vivo. */
+const XTREAM_MOVIE_RE = /\/(movie|movies|vod)\//i;
+const XTREAM_SERIES_RE = /\/series\//i;
+
 function classify(entry: M3UEntry): Kind {
   const group = normalize(entry.group);
   const name = normalize(entry.name);
+
+  // O caminho do stream é o sinal mais confiável em painéis Xtream
+  if (XTREAM_SERIES_RE.test(entry.url)) return "series";
+  if (XTREAM_MOVIE_RE.test(entry.url)) {
+    return SERIES_RE.test(entry.name) ? "series" : "movie";
+  }
+  // Sem caminho VOD e sem extensão de arquivo => canal ao vivo
+  if (!VOD_EXT_RE.test(entry.url)) return "channel";
 
   // Episódio identificado pelo padrão SxxEyy sempre é série
   if (SERIES_RE.test(entry.name)) return "series";
@@ -161,6 +173,7 @@ function classify(entry: M3UEntry): Kind {
   if (VOD_EXT_RE.test(entry.url)) return SERIES_RE.test(name) ? "series" : "movie";
   return "channel";
 }
+
 
 function toMedia(entry: M3UEntry, id: string): MediaItem {
   const title = cleanTitle(entry.name) || entry.name;
