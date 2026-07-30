@@ -1,13 +1,25 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
 import type { HlsLike } from "./useMediaTracks";
+import {
+  attachEngine,
+  engineOrder,
+  playWithAutoplayFallback,
+  type EngineHandles,
+  type PlaybackEngine,
+} from "./player-engines";
 
-export type PlaybackEngine = "hls.js" | "mpegts.js" | "native";
+export type { PlaybackEngine } from "./player-engines";
+
+export type PlayerSlot = "a" | "b";
 
 type PlayerFailure = { message: string; detail?: string };
 
 type Options = {
+  /** Espelho: aponta sempre para o <video> ativo. */
   videoRef: RefObject<HTMLVideoElement | null>;
+  slotARef: RefObject<HTMLVideoElement | null>;
+  slotBRef: RefObject<HTMLVideoElement | null>;
   src: string;
   live: boolean;
 };
@@ -15,33 +27,13 @@ type Options = {
 const ENGINE_RETRIES = 2;
 const STARTUP_TIMEOUT_MS = 18_000;
 const STALL_TIMEOUT_MS = 20_000;
+const STANDBY_WARMUP_MS = 3_500;
 
-function sourceKind(src: string) {
-  const pathname = (() => {
-    try {
-      return new URL(src, window.location.href).pathname.toLowerCase();
-    } catch {
-      return src.toLowerCase().split("?")[0];
-    }
-  })();
-  if (pathname.endsWith(".m3u8") || pathname.endsWith(".m3u")) return "hls";
-  if (pathname.endsWith(".ts") || pathname.endsWith(".m2ts")) return "mpegts";
-  return "progressive";
-}
-
-async function playWithAutoplayFallback(video: HTMLVideoElement) {
-  try {
-    await video.play();
-    return false;
-  } catch {
-    video.muted = true;
-    await video.play();
-    return true;
-  }
-}
-
-export function useResilientPlayer({ videoRef, src, live }: Options) {
+export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
+  const [standbyEngine, setStandbyEngine] = useState<PlaybackEngine | null>(null);
+  const [standbyReady, setStandbyReady] = useState(false);
+  const [activeSlot, setActiveSlot] = useState<PlayerSlot>("a");
   const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
   const [buffering, setBuffering] = useState(Boolean(src));
   const [reconnecting, setReconnecting] = useState(false);
@@ -60,7 +52,8 @@ export function useResilientPlayer({ videoRef, src, live }: Options) {
   }, []);
 
   const tryOtherEngine = useCallback(() => {
-    forceEngineRef.current = engine === "hls.js" ? "mpegts.js" : engine === "mpegts.js" ? "native" : "hls.js";
+    forceEngineRef.current =
+      engine === "hls.js" ? "mpegts.js" : engine === "mpegts.js" ? "native" : "hls.js";
     setFatalError(null);
     setAttempt(0);
     setBuffering(true);
@@ -68,84 +61,209 @@ export function useResilientPlayer({ videoRef, src, live }: Options) {
   }, [engine]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) {
+    const slotA = slotARef.current;
+    const slotB = slotBRef.current;
+    if (!slotA || !slotB || !src) {
       setBuffering(false);
       setEngine(null);
+      setStandbyEngine(null);
+      setStandbyReady(false);
       return;
     }
 
     let disposed = false;
-    let cleanupEngine: (() => void) | undefined;
-    let recoveryTimer: ReturnType<typeof setTimeout> | undefined;
-    let startupTimer: ReturnType<typeof setTimeout> | undefined;
-    let stallTimer: ReturnType<typeof setTimeout> | undefined;
-    let engineIndex = 0;
+    let activeSlotLocal: PlayerSlot = "a";
+    let activeIndex = 0;
+    let standbyIndex = 1;
     let engineRetries = 0;
+    let standbyOk = false;
     let lastProgressAt = Date.now();
     let lastTime = -1;
-
-    const kind = sourceKind(src);
-    const nativeHls = video.canPlayType("application/vnd.apple.mpegurl") !== "";
-    const normalOrder: PlaybackEngine[] =
-      kind === "hls"
-        ? ["hls.js", "native", "mpegts.js"]
-        : kind === "mpegts"
-          ? ["mpegts.js", "native", "hls.js"]
-          : ["native", "mpegts.js", "hls.js"];
-    const forced = forceEngineRef.current;
-    forceEngineRef.current = null;
-    const engines = forced
-      ? [forced, ...normalOrder.filter((candidate) => candidate !== forced)]
-      : normalOrder;
-
-    const clearTimers = () => {
-      clearTimeout(recoveryTimer);
-      clearTimeout(startupTimer);
-      clearInterval(stallTimer);
+    const handles: Record<PlayerSlot, EngineHandles | null> = { a: null, b: null };
+    const timers = {
+      recovery: undefined as ReturnType<typeof setTimeout> | undefined,
+      startup: undefined as ReturnType<typeof setTimeout> | undefined,
+      warmup: undefined as ReturnType<typeof setTimeout> | undefined,
+      stall: undefined as ReturnType<typeof setInterval> | undefined,
     };
 
-    const resetVideo = () => {
-      video.pause();
-      video.removeAttribute("src");
-      video.load();
+    const elementFor = (slot: PlayerSlot) => (slot === "a" ? slotA : slotB);
+    const other = (slot: PlayerSlot): PlayerSlot => (slot === "a" ? "b" : "a");
+
+    const order = (() => {
+      const normal = engineOrder(src);
+      const forced = forceEngineRef.current;
+      forceEngineRef.current = null;
+      return forced ? [forced, ...normal.filter((item) => item !== forced)] : normal;
+    })();
+
+    const clearActiveTimers = () => {
+      clearTimeout(timers.recovery);
+      clearTimeout(timers.startup);
+    };
+    const clearAllTimers = () => {
+      clearActiveTimers();
+      clearTimeout(timers.warmup);
+      clearInterval(timers.stall);
+    };
+
+    const resetSlot = (slot: PlayerSlot) => {
+      const video = elementFor(slot);
+      handles[slot]?.destroy();
+      handles[slot] = null;
+      try {
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+      } catch {
+        /* elemento já desmontado */
+      }
     };
 
     const failAll = (detail?: string) => {
       if (disposed) return;
-      clearTimers();
+      clearAllTimers();
       setReconnecting(false);
       setBuffering(false);
-      setFatalError({
-        message: "Nenhum dos motores conseguiu reproduzir este stream",
-        detail,
-      });
+      setFatalError({ message: "Nenhum dos motores conseguiu reproduzir este stream", detail });
+    };
+
+    /* ── Reserva quente: segundo motor pré-carregado em paralelo, mudo e pausado ── */
+    const startStandby = () => {
+      if (disposed || standbyIndex >= order.length) {
+        setStandbyEngine(null);
+        return;
+      }
+      const slot = other(activeSlotLocal);
+      const selected = order[standbyIndex];
+      standbyOk = false;
+      setStandbyReady(false);
+      setStandbyEngine(selected);
+      resetSlot(slot);
+      const video = elementFor(slot);
+      video.muted = true;
+
+      const markReady = () => {
+        if (disposed) return;
+        standbyOk = true;
+        setStandbyReady(true);
+        // Mantém o buffer, mas sem consumir banda continuamente.
+        try {
+          video.pause();
+        } catch {
+          /* noop */
+        }
+        video.removeEventListener("playing", markReady);
+      };
+      video.addEventListener("playing", markReady);
+
+      void attachEngine(video, selected, {
+        src,
+        live,
+        onReadyToPlay: () => {
+          void video.play().catch(() => undefined);
+        },
+        onFatal: () => {
+          if (disposed) return;
+          video.removeEventListener("playing", markReady);
+          standbyOk = false;
+          setStandbyReady(false);
+          standbyIndex += 1;
+          startStandby();
+        },
+      })
+        .then((instance) => {
+          if (disposed) {
+            instance.destroy();
+            return;
+          }
+          handles[slot] = instance;
+        })
+        .catch(() => {
+          standbyIndex += 1;
+          startStandby();
+        });
+    };
+
+    const scheduleStandby = () => {
+      clearTimeout(timers.warmup);
+      timers.warmup = setTimeout(startStandby, STANDBY_WARMUP_MS);
+    };
+
+    /* ── Troca instantânea para a instância reserva ── */
+    const promoteStandby = () => {
+      if (disposed || !standbyOk) return false;
+      clearActiveTimers();
+      const oldSlot = activeSlotLocal;
+      const newSlot = other(oldSlot);
+      const oldVideo = elementFor(oldSlot);
+      const newVideo = elementFor(newSlot);
+      const position = oldVideo.currentTime;
+      const wasMuted = oldVideo.muted;
+
+      handles[newSlot] && setHlsApi(handles[newSlot]?.hlsApi ?? null);
+      resetSlot(oldSlot);
+
+      activeSlotLocal = newSlot;
+      activeIndex = standbyIndex;
+      standbyIndex = activeIndex + 1;
+      engineRetries = 0;
+      standbyOk = false;
+      lastProgressAt = Date.now();
+      lastTime = -1;
+
+      videoRef.current = newVideo;
+      setActiveSlot(newSlot);
+      setEngine(order[activeIndex]);
+      setStandbyReady(false);
+      setStandbyEngine(null);
+      setFatalError(null);
+      setAttempt(0);
+      setReconnecting(false);
+
+      newVideo.muted = wasMuted;
+      if (!live && position > 0) {
+        try {
+          newVideo.currentTime = position;
+        } catch {
+          /* stream sem seek */
+        }
+      }
+      void playWithAutoplayFallback(newVideo)
+        .then((forcedMute) => {
+          if (!disposed && forcedMute) setMutedByAutoplay(true);
+        })
+        .catch(() => undefined);
+
+      attachWatchdog();
+      scheduleStandby();
+      return true;
     };
 
     const startNext = (reason?: string) => {
       if (disposed) return;
-      clearTimers();
-      cleanupEngine?.();
-      cleanupEngine = undefined;
+      if (promoteStandby()) return;
+      clearActiveTimers();
+      resetSlot(activeSlotLocal);
       setHlsApi(null);
-      resetVideo();
       engineRetries = 0;
-      engineIndex += 1;
-      if (engineIndex >= engines.length) {
+      activeIndex = Math.max(activeIndex + 1, standbyIndex);
+      standbyIndex = activeIndex + 1;
+      if (activeIndex >= order.length) {
         failAll(reason);
         return;
       }
       setReconnecting(true);
-      recoveryTimer = setTimeout(() => void startEngine(), 500);
+      timers.recovery = setTimeout(() => void startActive(), 500);
     };
 
     const recoverOrFallback = (reason: string, recover?: () => void) => {
       if (disposed) return;
-      if (recover && engineRetries < ENGINE_RETRIES) {
+      if (recover && engineRetries < ENGINE_RETRIES && !standbyOk) {
         engineRetries += 1;
         setAttempt(engineRetries);
         setReconnecting(true);
-        recoveryTimer = setTimeout(() => {
+        timers.recovery = setTimeout(() => {
           if (disposed) return;
           recover();
           setReconnecting(false);
@@ -155,150 +273,103 @@ export function useResilientPlayer({ videoRef, src, live }: Options) {
       startNext(reason);
     };
 
-    const markPlaying = () => {
-      lastProgressAt = Date.now();
-      setBuffering(false);
-      setReconnecting(false);
-      setFatalError(null);
-      clearTimeout(startupTimer);
-    };
-
     const startAutoplay = async () => {
+      const video = elementFor(activeSlotLocal);
       try {
         const wasMuted = await playWithAutoplayFallback(video);
         if (!disposed && wasMuted) setMutedByAutoplay(true);
-      } catch (error) {
+      } catch {
         if (!disposed) recoverOrFallback("autoplay", () => video.load());
       }
     };
 
-    const startNative = () => {
-      const onError = () => recoverOrFallback(video.error?.message || "native-error", () => {
-        video.load();
-        void startAutoplay();
-      });
-      const onCanPlay = () => void startAutoplay();
-      video.addEventListener("error", onError);
-      video.addEventListener("canplay", onCanPlay);
-      video.src = src;
-      video.load();
-      cleanupEngine = () => {
-        video.removeEventListener("error", onError);
-        video.removeEventListener("canplay", onCanPlay);
-      };
-    };
-
-    const startHls = async () => {
-      const { default: Hls } = await import("hls.js");
+    async function startActive() {
       if (disposed) return;
-      if (!Hls.isSupported()) {
-        if (nativeHls) startNative();
-        else startNext("hls-not-supported");
-        return;
-      }
-      const instance = new Hls({
-        lowLatencyMode: live,
-        enableWorker: true,
-        backBufferLength: live ? 30 : 60,
-        maxBufferLength: live ? 20 : 45,
-        maxBufferHole: 1,
-        manifestLoadingTimeOut: 12_000,
-        levelLoadingTimeOut: 12_000,
-        fragLoadingTimeOut: 15_000,
-      });
-      instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
-      instance.on(Hls.Events.MANIFEST_PARSED, () => void startAutoplay());
-      instance.on(Hls.Events.ERROR, (_event, data) => {
-        if (!data.fatal) return;
-        const detail = `${data.type}${data.details ? ` • ${data.details}` : ""}`;
-        recoverOrFallback(detail, () => {
-          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
-          else instance.recoverMediaError();
-        });
-      });
-      instance.attachMedia(video);
-      setHlsApi(instance as unknown as HlsLike);
-      cleanupEngine = () => instance.destroy();
-    };
-
-    const startMpegTs = async () => {
-      const module = await import("mpegts.js");
-      if (disposed) return;
-      const mpegts = module.default;
-      if (!mpegts?.isSupported()) {
-        startNext("mpegts-not-supported");
-        return;
-      }
-      const player = mpegts.createPlayer(
-        { type: "mpegts", isLive: live, url: src },
-        { enableWorker: true, enableStashBuffer: !live, lazyLoad: !live, autoCleanupSourceBuffer: true },
-      );
-      const onError = (errorType: unknown, errorDetail: unknown) => {
-        recoverOrFallback(`mpegts • ${String(errorType)} • ${String(errorDetail)}`, () => {
-          player.unload();
-          player.load();
-          void Promise.resolve(player.play()).catch(() => undefined);
-        });
-      };
-      player.on(mpegts.Events.ERROR, onError);
-      player.attachMediaElement(video);
-      player.load();
-      void Promise.resolve(player.play()).catch(() => void startAutoplay());
-      cleanupEngine = () => {
-        player.off(mpegts.Events.ERROR, onError);
-        player.pause();
-        player.unload();
-        player.detachMediaElement();
-        player.destroy();
-      };
-    };
-
-    async function startEngine() {
-      if (disposed) return;
-      const selected = engines[engineIndex];
+      const slot = activeSlotLocal;
+      const selected = order[activeIndex];
+      const video = elementFor(slot);
+      videoRef.current = video;
+      setActiveSlot(slot);
       setEngine(selected);
       setAttempt(0);
       setBuffering(true);
-      setReconnecting(engineIndex > 0);
-      startupTimer = setTimeout(() => startNext(`${selected} • startup-timeout`), STARTUP_TIMEOUT_MS);
+      setReconnecting(activeIndex > 0);
+      timers.startup = setTimeout(
+        () => startNext(`${selected} • startup-timeout`),
+        STARTUP_TIMEOUT_MS,
+      );
       try {
-        if (selected === "hls.js") await startHls();
-        else if (selected === "mpegts.js") await startMpegTs();
-        else startNative();
+        const instance = await attachEngine(video, selected, {
+          src,
+          live,
+          onReadyToPlay: () => void startAutoplay(),
+          onRecoverable: (reason, recover) => recoverOrFallback(reason, recover),
+          onFatal: (reason) => startNext(reason),
+        });
+        if (disposed) {
+          instance.destroy();
+          return;
+        }
+        handles[slot] = instance;
+        setHlsApi(instance.hlsApi);
+        scheduleStandby();
       } catch (error) {
         startNext(`${selected} • ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
-    const onPlaying = () => markPlaying();
-    const onTimeUpdate = () => {
-      if (video.currentTime !== lastTime) {
-        lastTime = video.currentTime;
+    /* ── Watchdog: congelamento do stream ativo dispara o failover ── */
+    let detachWatchdog: (() => void) | undefined;
+    function attachWatchdog() {
+      detachWatchdog?.();
+      const video = elementFor(activeSlotLocal);
+      const onPlaying = () => {
         lastProgressAt = Date.now();
-      }
-    };
-    video.addEventListener("playing", onPlaying);
-    video.addEventListener("timeupdate", onTimeUpdate);
-    stallTimer = setInterval(() => {
+        setBuffering(false);
+        setReconnecting(false);
+        setFatalError(null);
+        clearTimeout(timers.startup);
+      };
+      const onTimeUpdate = () => {
+        if (video.currentTime !== lastTime) {
+          lastTime = video.currentTime;
+          lastProgressAt = Date.now();
+        }
+      };
+      video.addEventListener("playing", onPlaying);
+      video.addEventListener("timeupdate", onTimeUpdate);
+      detachWatchdog = () => {
+        video.removeEventListener("playing", onPlaying);
+        video.removeEventListener("timeupdate", onTimeUpdate);
+      };
+    }
+
+    attachWatchdog();
+    timers.stall = setInterval(() => {
+      const video = elementFor(activeSlotLocal);
       if (!video.paused && !video.ended && Date.now() - lastProgressAt > STALL_TIMEOUT_MS) {
-        startNext(`${engines[engineIndex]} • stream-stalled`);
+        startNext(`${order[activeIndex]} • stream-stalled`);
       }
     }, 4_000);
 
-    void startEngine();
+    void startActive();
     return () => {
       disposed = true;
-      clearTimers();
-      cleanupEngine?.();
-      video.removeEventListener("playing", onPlaying);
-      video.removeEventListener("timeupdate", onTimeUpdate);
-      resetVideo();
+      clearAllTimers();
+      detachWatchdog?.();
+      resetSlot("a");
+      resetSlot("b");
       setHlsApi(null);
+      setStandbyReady(false);
+      setStandbyEngine(null);
     };
-  }, [generation, live, src, videoRef]);
+  }, [generation, live, src, slotARef, slotBRef, videoRef]);
 
   return {
     engine,
+    standbyEngine,
+    standbyReady,
+    activeSlot,
     hlsApi,
     buffering,
     reconnecting,
