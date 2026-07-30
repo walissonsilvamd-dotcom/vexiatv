@@ -110,7 +110,7 @@ function DetailsPage() {
   // usamos gênero -> categoria -> mesmo tipo como camadas de fallback.
   const sameKindPool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
   const otherPool = (isSeries ? movies : series).filter((m) => m.id !== item.id);
-  const score = (m: MediaItem) => {
+  const score = (m: (typeof sameKindPool)[number]) => {
     const genreHit = m.genres?.some((g) => item.genres?.includes(g)) ? 2 : 0;
     const catHit = m.category && item.category && m.category === item.category ? 1 : 0;
     return genreHit + catHit;
