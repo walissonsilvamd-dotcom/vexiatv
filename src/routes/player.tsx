@@ -46,6 +46,8 @@ import {
 
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
+import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+
 export const Route = createFileRoute("/player")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): PlayerSearch => ({
@@ -133,12 +135,10 @@ function PlayerPage() {
       ? (series.find((s) => s.id === id) ?? series.find((s) => matchesLegacyId(id, s.title)))
       : undefined;
 
+  const { episodes: serieEpisodes } = useSeriesEpisodes(serie);
   const episodes = useMemo(
-    () =>
-      serie
-        ? [...serie.episodesList].sort((a, b) => a.season - b.season || a.number - b.number)
-        : [],
-    [serie],
+    () => [...serieEpisodes].sort((a, b) => a.season - b.season || a.number - b.number),
+    [serieEpisodes],
   );
   const epIndex = Math.max(
     0,

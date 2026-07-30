@@ -29,6 +29,8 @@ export type PlaylistEpisode = {
 
 export type PlaylistSeries = MediaItem & {
   episodesList: PlaylistEpisode[];
+  /** ID da série no painel Xtream — permite buscar os episódios sob demanda. */
+  seriesId?: number;
 };
 
 export type PlaylistChannel = {

@@ -7,6 +7,8 @@ import { useTmdbItem } from "../lib/use-tmdb";
 
 import { TopNav } from "../components/vexia/TopNav";
 
+import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+
 export const Route = createFileRoute("/serie/$id")({
   head: () => ({
     meta: [
@@ -32,11 +34,12 @@ function EpisodesPage() {
   const raw = series.find((s) => s.id === id);
   const { data: enriched } = useTmdbItem(raw ?? null, "series");
   const serie = enriched ?? raw;
+  const { episodes: epList, loading: epLoading } = useSeriesEpisodes(raw);
 
   const seasons = useMemo(() => {
     if (!serie) return [];
-    const map = new Map<number, typeof serie.episodesList>();
-    for (const ep of serie.episodesList) {
+    const map = new Map<number, typeof epList>();
+    for (const ep of epList) {
       const arr = map.get(ep.season) ?? [];
       arr.push(ep);
       map.set(ep.season, arr);
@@ -44,7 +47,7 @@ function EpisodesPage() {
     return Array.from(map.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([number, episodes]) => ({ number, episodes }));
-  }, [serie]);
+  }, [serie, epList]);
 
   if (!serie) {
     return (
@@ -76,7 +79,7 @@ function EpisodesPage() {
             {serie.title}
           </h1>
           <p className="text-xs text-vexia-cyan">
-            {seasons.length} temporadas • {serie.episodesList.length} episódios
+            {epLoading ? "Carregando episódios…" : `${seasons.length} temporadas • ${epList.length} episódios`}
           </p>
         </div>
       </div>

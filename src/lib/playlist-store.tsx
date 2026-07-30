@@ -14,6 +14,7 @@ import type { ParseWorkerResponse } from "../workers/parse.worker";
 import { StorageErrorDialog } from "../components/StorageErrorDialog";
 import { matchesLegacyId } from "../utils/hash";
 import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
+import { fetchXtreamCatalog, xtreamCreds } from "./xtream-catalog";
 import type { MediaItem } from "../data/vexia";
 
 
@@ -246,11 +247,36 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       try {
         onEvent?.({ stage: 0, ratio: 0 });
-        const text = await downloadPlaylist(url, (ev) => {
-          if (ev.type === "attempt") onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
-          else onEvent?.({ stage: 0, ratio: ev.ratio });
-        });
-        const data = await parseInWorker(text, onEvent);
+        let data: ParsedPlaylist | null = null;
+
+        /*
+         * Caminho rápido: painéis Xtream entregam o catálogo em JSON pela
+         * player_api (canais/filmes/séries ~23MB) em vez do M3U completo
+         * (134MB na lista do usuário). Cai para o M3U se a API não responder.
+         */
+        if (xtreamCreds(url)) {
+          try {
+            const fast = await fetchXtreamCatalog(url, (done: number, total: number) => {
+              onEvent?.({ stage: done < 3 ? 0 : 3, ratio: done / total });
+            });
+            onEvent?.({ stage: 4, counts: { channels: fast.channels.length } });
+            onEvent?.({ stage: 5, counts: { movies: fast.movies.length } });
+            onEvent?.({ stage: 6, counts: { series: fast.series.length } });
+            data = fast;
+          } catch (err) {
+            console.warn("[vexia] API do painel indisponível, usando o M3U completo", err);
+            data = null;
+          }
+        }
+
+        if (!data) {
+          const text = await downloadPlaylist(url, (ev) => {
+            if (ev.type === "attempt") onEvent?.({ stage: 0, ratio: 0, attempt: ev.attempt, attempts: ev.total });
+            else onEvent?.({ stage: 0, ratio: ev.ratio });
+          });
+          data = await parseInWorker(text, onEvent);
+        }
+
         if (data.total === 0) {
           setError("Nenhum canal ou título encontrado nessa lista.");
           return false;
@@ -275,6 +301,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     },
     [persist],
   );
+
 
   const reload = useCallback(async () => {
     if (!stored?.url) return false;

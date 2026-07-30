@@ -21,6 +21,8 @@ import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
 
+import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
     meta: [
@@ -65,6 +67,7 @@ function DetailsPage() {
     movies.find((m) => matchesLegacyId(id, m.title)) ??
     series.find((s) => matchesLegacyId(id, s.title));
   const isSeries = !!raw && "episodesList" in raw;
+  const { episodes: epList } = useSeriesEpisodes(isSeries ? (raw as PlaylistSeries) : null);
   const fav = has(isSeries ? "series" : "movie", raw?.title ?? "");
   const kind: "movie" | "series" = isSeries ? "series" : "movie";
   const { data: enriched } = useTmdbItem(raw ?? null, kind);
@@ -72,8 +75,8 @@ function DetailsPage() {
   const { entryFor, resume } = useProgress(item?.id);
 
   const seasons = useMemo(() => {
-    const list = (raw as PlaylistSeries | undefined)?.episodesList;
-    if (!list) return [];
+    const list = epList;
+    if (!list.length) return [];
     const map = new Map<number, PlaylistEpisode[]>();
     for (const ep of list) {
       const arr = map.get(ep.season) ?? [];
@@ -83,7 +86,7 @@ function DetailsPage() {
     return Array.from(map.entries())
       .sort((a, b) => a[0] - b[0])
       .map(([number, episodes]) => ({ number, episodes }));
-  }, [raw]);
+  }, [epList]);
 
   if (!item) {
     return (
@@ -186,7 +189,7 @@ function DetailsPage() {
               {item.runtime ? <span className="text-vexia-cyan">{item.runtime}</span> : null}
               {isSeries ? (
                 <span className="text-vexia-cyan">
-                  {seasons.length} temporadas • {item.episodes ?? 0} episódios
+                  {seasons.length} temporadas • {epList.length || item.episodes || 0} episódios
                 </span>
               ) : null}
             </div>
