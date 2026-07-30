@@ -1,4 +1,5 @@
 import type { ParsedPlaylist } from "../lib/m3u";
+import type { PlaylistAccount } from "../lib/xtream";
 import { idbAvailable, idbDel, idbGet, idbSet, isQuotaError, STORE_PLAYLIST } from "./indexeddb";
 
 /** Playlist já processada (canais, filmes, séries) — nunca o texto bruto. */
@@ -7,7 +8,10 @@ export type StoredPlaylist = {
   name: string;
   loadedAt: number;
   data: ParsedPlaylist;
+  /** Validade da assinatura, quando o servidor informa (Xtream). */
+  account?: PlaylistAccount | null;
 };
+
 
 const KEY = "current";
 /** Chave antiga (texto bruto em localStorage) usada para migração. */

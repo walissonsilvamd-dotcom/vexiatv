@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
@@ -12,6 +12,8 @@ import {
   parsePastedAccess,
 } from "../lib/playlist-input";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { daysUntilExpiry, formatExpiry } from "../lib/xtream";
+
 
 import { TopNav } from "../components/vexia/TopNav";
 
@@ -34,10 +36,17 @@ export const Route = createFileRoute("/listas")({
 
 function ListsPage() {
   const navigate = useNavigate();
-  const { source, data, loading, error, loadFromUrl, reload, clear } = usePlaylist();
+  const { ready, source, data, loading, error, loadFromUrl, reload, clear, account, expired } =
+    usePlaylist();
+
   // Sem lista salva, a tela de QR Code + acesso abre direto (é o que o usuário
-  // precisa fazer primeiro). Com lista salva, mostra o gerenciador.
-  const [form, setForm] = useState(() => !source);
+  // precisa fazer primeiro). Com lista salva, mostra o gerenciador — por isso
+  // só decidimos depois que o armazenamento local terminou de ser lido.
+  const [form, setForm] = useState(false);
+  useEffect(() => {
+    if (ready && !source) setForm(true);
+  }, [ready, source]);
+
   const [done, setDone] = useState(false);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
@@ -161,11 +170,32 @@ function ListsPage() {
                     </p>
                     <h2 className="mt-1 truncate text-base font-black">{source.name}</h2>
                     <div className="mt-3 h-2 w-full rounded-full bg-black/60">
-                      <div className="relative h-2 w-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-purple-soft">
+                      <div
+                        className={`relative h-2 rounded-full ${
+                          expired
+                            ? "w-full bg-gradient-to-r from-red-700 to-red-500"
+                            : "w-full bg-gradient-to-r from-vexia-purple to-vexia-purple-soft"
+                        }`}
+                      >
                         <span className="absolute -right-0.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-vexia-cyan" />
                       </div>
                     </div>
-                    <p className="mt-2 text-center text-xs font-bold text-vexia-cyan">Conectada</p>
+                    <p
+                      className={`mt-2 text-center text-xs font-bold ${
+                        expired ? "text-red-400" : "text-vexia-cyan"
+                      }`}
+                    >
+                      {expired ? "Assinatura vencida" : "Conectada"}
+                    </p>
+                    {account ? (
+                      <p className="mt-1 text-center text-[10px] tracking-[0.1em] text-white/60">
+                        {expired ? "Venceu em" : "Válida até"} {formatExpiry(account)}
+                        {!expired && daysUntilExpiry(account) !== null
+                          ? ` • ${daysUntilExpiry(account)} dia(s)`
+                          : ""}
+                      </p>
+                    ) : null}
+
 
                     <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
                       {[

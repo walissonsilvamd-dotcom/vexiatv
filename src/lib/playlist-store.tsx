@@ -13,7 +13,9 @@ import {
 import type { ParseWorkerResponse } from "../workers/parse.worker";
 import { StorageErrorDialog } from "../components/StorageErrorDialog";
 import { matchesLegacyId } from "../utils/hash";
+import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
 import type { MediaItem } from "../data/vexia";
+
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
 export const PLAYLIST_STAGES = [
@@ -47,6 +49,10 @@ type PlaylistContextValue = {
   source: { url: string; name: string; loadedAt: number } | null;
   data: ParsedPlaylist | null;
   hasContent: boolean;
+  /** Validade da assinatura (Xtream), quando disponível. */
+  account: PlaylistAccount | null;
+  /** true somente quando a data de expiração do plano já passou. */
+  expired: boolean;
   movies: MediaItem[];
   series: PlaylistSeries[];
   channels: PlaylistChannel[];
@@ -57,8 +63,11 @@ type PlaylistContextValue = {
   ) => Promise<boolean>;
   loadFromText: (text: string, name?: string) => Promise<boolean>;
   reload: () => Promise<boolean>;
+  /** Reconsulta a validade no servidor do provedor. */
+  refreshAccount: () => Promise<PlaylistAccount | null>;
   clear: () => void;
 };
+
 
 const PlaylistContext = createContext<PlaylistContextValue | null>(null);
 
@@ -136,11 +145,21 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       if (!alive) return;
       if (record) setStored(record);
       setReady(true);
+
+      // Revalida a assinatura em segundo plano: a lista continua salva e
+      // utilizável; só é bloqueada se o provedor informar que expirou.
+      if (record?.url) {
+        const account = await fetchPlaylistAccount(record.url);
+        if (!alive || !account) return;
+        setStored((prev) => (prev ? { ...prev, account } : prev));
+        void savePlaylist({ ...record, account }).catch(() => undefined);
+      }
     })();
     return () => {
       alive = false;
     };
   }, []);
+
 
   const persist = useCallback(async (record: StoredPlaylist, retry: () => void) => {
     setStored(record);
@@ -188,11 +207,13 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
           return false;
         }
         onEvent?.({ stage: 7 });
+        const account = await fetchPlaylistAccount(url);
         const record: StoredPlaylist = {
           url,
           name: name || new URL(url).hostname,
           loadedAt: Date.now(),
           data,
+          account,
         };
         await persist(record, () => void loadFromUrl(url, name));
         return true;
@@ -211,6 +232,16 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     return loadFromUrl(stored.url, stored.name);
   }, [stored, loadFromUrl]);
 
+  const refreshAccount = useCallback(async () => {
+    if (!stored?.url) return null;
+    const account = await fetchPlaylistAccount(stored.url);
+    if (!account) return stored.account ?? null;
+    const next = { ...stored, account };
+    setStored(next);
+    void savePlaylist(next).catch(() => undefined);
+    return account;
+  }, [stored]);
+
   const clear = useCallback(() => {
     setError(null);
     setStored(null);
@@ -218,6 +249,7 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const data = stored?.data ?? null;
+  const account = stored?.account ?? null;
 
   const value: PlaylistContextValue = {
     ready,
@@ -226,14 +258,18 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     source: stored ? { url: stored.url, name: stored.name, loadedAt: stored.loadedAt } : null,
     data,
     hasContent: !!data && data.total > 0,
+    account,
+    expired: isAccountExpired(account),
     movies: data?.movies ?? [],
     series: data?.series ?? [],
     channels: data?.channels ?? [],
     loadFromUrl,
     loadFromText,
     reload,
+    refreshAccount,
     clear,
   };
+
 
   return (
     <PlaylistContext.Provider value={value}>

@@ -33,6 +33,8 @@ import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
+import { formatExpiry } from "../lib/xtream";
+
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
 import {
   completeWatch,
@@ -90,7 +92,7 @@ const MAX_RETRIES = 3;
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
   const navigate = useNavigate();
-  const { movies, series, channels } = usePlaylist();
+  const { movies, series, channels, expired, account } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -146,7 +148,9 @@ function PlayerPage() {
   const nextEpisode = episodes[epIndex + 1];
   const prevEpisode = episodes[epIndex - 1];
 
-  const src = channel?.url ?? movie?.streamUrl ?? episode?.url ?? "";
+  // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
+  const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
+
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
@@ -585,6 +589,30 @@ function PlayerPage() {
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
+      {/* ── Assinatura vencida: conteúdo bloqueado até a renovação ── */}
+      {expired ? (
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/92 px-6 text-center">
+          <div className="max-w-md">
+            <h2 className="text-2xl font-black tracking-[0.12em] text-vexia-gold">
+              ASSINATURA VENCIDA
+            </h2>
+            <p className="mt-3 text-sm text-white/75">
+              Sua lista expirou em {formatExpiry(account)}. Renove com seu provedor para voltar a
+              assistir — sua lista continua salva no aparelho.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/listas" })}
+              className="vexia-focus mt-6 rounded-full bg-vexia-purple px-8 py-3 text-xs font-bold tracking-[0.16em]"
+            >
+              GERENCIAR LISTAS
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+
+
 
       {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -603,7 +631,7 @@ function PlayerPage() {
         </div>
       )}
 
-      {!src ? (
+      {!src && !expired ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
           <div>
             <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
