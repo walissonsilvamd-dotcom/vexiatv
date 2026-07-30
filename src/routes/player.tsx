@@ -171,6 +171,8 @@ function PlayerPage() {
     reconnecting,
     fatalError,
     attempt,
+    recoveryCycle,
+
     retry: retryStream,
     tryOtherEngine,
   } = resilientPlayer;
