@@ -6,6 +6,12 @@ import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { usePlaylist } from "../lib/playlist-store";
+import {
+  buildXtreamUrl,
+  isLikelyPlaylistUrl,
+  parsePastedAccess,
+} from "../lib/playlist-input";
+import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 
 import { TopNav } from "../components/vexia/TopNav";
 
