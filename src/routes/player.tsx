@@ -628,7 +628,6 @@ function PlayerPage() {
       className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white focus:outline-none"
     >
       <div
-        ref={shellRef}
         className="relative h-screen w-full overflow-hidden bg-black"
       >
       {/* ── Superfície do vídeo ── */}
