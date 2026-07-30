@@ -533,6 +533,10 @@ function PlayerPage() {
     menuOpenRef.current = menu !== null;
   }, [menu]);
 
+  useEffect(() => {
+    drawerOpenRef.current = drawerOpen;
+  }, [drawerOpen]);
+
   // Troca de episódio recolhe a gaveta para o vídeo ficar em tela cheia.
   useEffect(() => {
     setDrawerOpen(false);
@@ -542,6 +546,12 @@ function PlayerPage() {
   useEffect(() => {
     shellRef.current?.focus({ preventScroll: true });
   }, []);
+
+  // Reflete no handler global a disponibilidade real de episódios (evita closure stale).
+  useEffect(() => {
+    showEpisodesRef.current = type === "series" && episodes.length > 1;
+  }, [type, episodes]);
+
 
   const applySpeed = (value: number) => {
     setSpeed(value);
