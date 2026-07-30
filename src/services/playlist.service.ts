@@ -70,7 +70,7 @@ async function attemptDownload(
         const ratio = totalBytes
           ? Math.min(0.99, received / totalBytes)
           : // Sem content-length: curva assintótica sobre os bytes recebidos (base 4 MB).
-            1 - Math.exp(-received / 4_000_000);
+            1 - Math.exp(-received / 30_000_000);
         onEvent({ type: "progress", ratio });
       }
     }

@@ -126,11 +126,18 @@ function CarregandoPage() {
   }, [phase, navigate, goBack]);
 
   const total = PLAYLIST_STAGES.length;
-  // Progresso real: etapa concluída + fração medida da etapa atual.
+  /*
+   * Progresso real e sem travadas: o download (etapa 0) ocupa os primeiros 45%
+   * — é a parte mais longa em listas grandes — e as etapas de organização
+   * dividem os 55% restantes. Assim a barra sempre avança de forma contínua.
+   */
+  const ratio = Math.min(1, stageRatio);
   const progress =
     phase === "success"
       ? 100
-      : Math.min(99, Math.round(((stage + Math.min(1, stageRatio)) / total) * 100));
+      : stage === 0
+        ? Math.max(2, Math.round(Math.min(0.99, ratio) * 45))
+        : Math.min(99, 45 + Math.round(((stage - 1 + ratio) / (total - 1)) * 55));
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white">
