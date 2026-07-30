@@ -43,6 +43,8 @@ function CarregandoPage() {
   const { url, name } = Route.useSearch();
   const navigate = useNavigate();
   const { loadFromUrl, error: playlistError } = usePlaylist();
+  const errorRef = useRef<string | null>(null);
+  errorRef.current = playlistError;
 
   const [stage, setStage] = useState(0);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -82,7 +84,7 @@ function CarregandoPage() {
       window.setTimeout(() => void navigate({ to: "/home" }), 600);
     } else {
       setPhase("error");
-      setErrorMsg(playlistError || "Não foi possível carregar sua lista.");
+      setErrorMsg(errorRef.current || "Não foi possível carregar sua lista.");
     }
   }, [url, name, loadFromUrl, navigate]);
 
