@@ -321,6 +321,14 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
 
     const startAutoplay = async () => {
       const video = elementFor(activeSlotLocal);
+      // Retoma de onde parou após um ciclo completo de recuperação (VOD).
+      if (!live && resumeAtRef.current > 0 && video.currentTime < resumeAtRef.current - 1) {
+        try {
+          video.currentTime = resumeAtRef.current;
+        } catch {
+          /* stream sem seek */
+        }
+      }
       try {
         const wasMuted = await playWithAutoplayFallback(video);
         if (!disposed && wasMuted) setMutedByAutoplay(true);
@@ -339,7 +347,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       setEngine(selected);
       setAttempt(0);
       setBuffering(true);
-      setReconnecting(activeIndex > 0);
+      setReconnecting(activeIndex > 0 || cycleRef.current > 0);
+      attachWatchdog();
       timers.startup = setTimeout(
         () => startNext(`${selected} • startup-timeout`),
         STARTUP_TIMEOUT_MS,
@@ -364,7 +373,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       }
     }
 
-    /* ── Watchdog: congelamento do stream ativo dispara o failover ── */
+    /* ── Watchdog: erro de mídia ou congelamento dispara recuperação/failover ── */
     let detachWatchdog: (() => void) | undefined;
     function attachWatchdog() {
       detachWatchdog?.();
@@ -375,20 +384,63 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         setReconnecting(false);
         setFatalError(null);
         clearTimeout(timers.startup);
+        // Reprodução saudável: zera contadores de recuperação.
+        engineRetries = 0;
+        if (cycleRef.current !== 0) {
+          cycleRef.current = 0;
+          setRecoveryCycle(0);
+        }
+        setAttempt(0);
       };
       const onTimeUpdate = () => {
         if (video.currentTime !== lastTime) {
           lastTime = video.currentTime;
           lastProgressAt = Date.now();
+          if (!live && video.currentTime > 0) resumeAtRef.current = video.currentTime;
         }
+      };
+      const onWaiting = () => setBuffering(true);
+      const onMediaError = () => {
+        const code = video.error?.code;
+        recoverOrFallback(`media-error${code ? ` • code ${code}` : ""}`, () => {
+          try {
+            video.load();
+            void video.play().catch(() => undefined);
+          } catch {
+            /* elemento indisponível */
+          }
+        });
       };
       video.addEventListener("playing", onPlaying);
       video.addEventListener("timeupdate", onTimeUpdate);
+      video.addEventListener("waiting", onWaiting);
+      video.addEventListener("error", onMediaError);
       detachWatchdog = () => {
         video.removeEventListener("playing", onPlaying);
         video.removeEventListener("timeupdate", onTimeUpdate);
+        video.removeEventListener("waiting", onWaiting);
+        video.removeEventListener("error", onMediaError);
       };
     }
+
+    /* ── Rede de volta / app em foco: acelera a retomada sem recarregar a página ── */
+    const kickRecovery = (reason: string) => {
+      if (disposed) return;
+      const video = elementFor(activeSlotLocal);
+      if (video.paused && !video.ended) {
+        void video.play().catch(() => undefined);
+      }
+      if (Date.now() - lastProgressAt > 6_000) {
+        lastProgressAt = Date.now();
+        startNext(reason);
+      }
+    };
+    const onOnline = () => kickRecovery("network-restored");
+    const onVisible = () => {
+      if (document.visibilityState === "visible") kickRecovery("tab-visible");
+    };
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
 
     attachWatchdog();
     timers.stall = setInterval(() => {
@@ -397,6 +449,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         startNext(`${order[activeIndex]} • stream-stalled`);
       }
     }, 4_000);
+
 
     void startActive();
     return () => {
