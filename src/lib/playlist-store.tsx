@@ -14,6 +14,7 @@ import type { ParseWorkerResponse } from "../workers/parse.worker";
 import { StorageErrorDialog } from "../components/StorageErrorDialog";
 import { matchesLegacyId } from "../utils/hash";
 import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
+import { fetchXtreamCatalog, xtreamCreds } from "./xtream-catalog";
 import type { MediaItem } from "../data/vexia";
 
 
