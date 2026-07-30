@@ -342,14 +342,14 @@ function DetailsPage() {
         ) : null}
 
         {/* ─── Temporadas e episódios ─── */}
-        {isSeries && seasons.length > 0 ? (
+        {isSeries && activeSeason ? (
           <section id="temporadas" className="space-y-4">
-            <SectionHeading>TEMPORADAS</SectionHeading>
-            {seasons.map((season, si) => (
+            <SectionHeading>
+              TEMPORADA {String(activeSeason.number).padStart(2, "0")}
+            </SectionHeading>
+            {[activeSeason].map((season, si) => (
               <div key={season.number} className="space-y-2">
-                <h3 className="text-xs font-black tracking-[0.14em] text-vexia-purple-soft">
-                  TEMPORADA {season.number}
-                </h3>
+
                 <ul className="space-y-2">
                   {season.episodes.map((ep) => {
                     const entry = entryFor(`${item.id}::${ep.id}`);
