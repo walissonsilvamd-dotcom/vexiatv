@@ -3,6 +3,11 @@ import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DEVICE_MAC } from "../../data/vexia-catalog";
 import { usePlaylist } from "../../lib/playlist-store";
+import {
+  buildXtreamUrl,
+  isLikelyPlaylistUrl,
+  parsePastedAccess,
+} from "../../lib/playlist-input";
 
 const LOADING_MESSAGES = [
   "Validando link...",
