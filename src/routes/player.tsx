@@ -179,6 +179,64 @@ function PlayerPage() {
     if (resilientPlayer.mutedByAutoplay) setMuted(true);
   }, [resilientPlayer.mutedByAutoplay]);
 
+  /* ── Tela cheia automática ao abrir o player (e a cada troca de episódio) ── */
+  useEffect(() => {
+    if (!src) return;
+    let cancelled = false;
+    const enter = async () => {
+      const el = shellRef.current as (HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void> | void;
+        msRequestFullscreen?: () => Promise<void> | void;
+      }) | null;
+      const video = videoRef.current as (HTMLVideoElement & {
+        webkitEnterFullscreen?: () => void;
+      }) | null;
+      if (cancelled || document.fullscreenElement) return;
+      try {
+        if (el?.requestFullscreen) await el.requestFullscreen();
+        else if (el?.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+        else if (el?.msRequestFullscreen) await el.msRequestFullscreen();
+        else video?.webkitEnterFullscreen?.();
+      } catch {
+        /* Sem gesto do usuário o navegador bloqueia: seguimos em tela cheia simulada. */
+      }
+    };
+    const id = setTimeout(() => void enter(), 60);
+    return () => {
+      cancelled = true;
+      clearTimeout(id);
+    };
+  }, [src]);
+
+  /* ── Sai da tela cheia ao deixar o player ── */
+  useEffect(() => {
+    return () => {
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    };
+  }, []);
+
+  /* ── Se o autoplay entrou mudo, religa o som no primeiro gesto ── */
+  useEffect(() => {
+    if (!resilientPlayer.mutedByAutoplay) return;
+    const unmute = () => {
+      const video = videoRef.current;
+      if (!video) return;
+      video.muted = false;
+      setMuted(false);
+      void video.play().catch(() => undefined);
+      cleanup();
+    };
+    const cleanup = () => {
+      window.removeEventListener("pointerdown", unmute);
+      window.removeEventListener("keydown", unmute);
+    };
+    window.addEventListener("pointerdown", unmute, { once: true });
+    window.addEventListener("keydown", unmute, { once: true });
+    return cleanup;
+  }, [resilientPlayer.mutedByAutoplay]);
+
+
+
 
   /* ── Eventos do vídeo ── */
   useEffect(() => {
