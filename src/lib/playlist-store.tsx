@@ -255,12 +255,13 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
          */
         if (xtreamCreds(url)) {
           try {
-            data = await fetchXtreamCatalog(url, (done, total) => {
+            const fast = await fetchXtreamCatalog(url, (done: number, total: number) => {
               onEvent?.({ stage: done < 3 ? 0 : 3, ratio: done / total });
             });
-            onEvent?.({ stage: 4, counts: { channels: data.channels.length } });
-            onEvent?.({ stage: 5, counts: { movies: data.movies.length } });
-            onEvent?.({ stage: 6, counts: { series: data.series.length } });
+            onEvent?.({ stage: 4, counts: { channels: fast.channels.length } });
+            onEvent?.({ stage: 5, counts: { movies: fast.movies.length } });
+            onEvent?.({ stage: 6, counts: { series: fast.series.length } });
+            data = fast;
           } catch (err) {
             console.warn("[vexia] API do painel indisponível, usando o M3U completo", err);
             data = null;
