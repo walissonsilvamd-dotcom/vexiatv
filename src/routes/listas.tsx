@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
