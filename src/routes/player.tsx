@@ -98,7 +98,7 @@ function PlayerPage() {
   const navigate = useNavigate();
   const { movies, series, channels, expired, account } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const shellRef = useRef<HTMLDivElement>(null);
+  const shellRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastTap = useRef(0);
@@ -114,10 +114,14 @@ function PlayerPage() {
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
   const [mediaReady, setMediaReady] = useState(false);
+
+  const showEpisodesRef = useRef(false);
+
 
   const [liveDelay, setLiveDelay] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
@@ -503,7 +507,7 @@ function PlayerPage() {
             setMenu(null);
             break;
           }
-          if (carouselRef.current) {
+          if (showEpisodesRef.current) {
             e.preventDefault();
             setDrawerOpen(true);
             window.setTimeout(() => {
@@ -513,6 +517,7 @@ function PlayerPage() {
             }, 260);
           }
           break;
+
         case "Backspace":
         case "Escape":
           goBack();
@@ -529,10 +534,25 @@ function PlayerPage() {
     menuOpenRef.current = menu !== null;
   }, [menu]);
 
+  useEffect(() => {
+    drawerOpenRef.current = drawerOpen;
+  }, [drawerOpen]);
+
   // Troca de episódio recolhe a gaveta para o vídeo ficar em tela cheia.
   useEffect(() => {
     setDrawerOpen(false);
   }, [episode?.id]);
+
+  // Mantém o container do player focável para capturar ArrowDown em WebViews/TV.
+  useEffect(() => {
+    shellRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  // Reflete no handler global a disponibilidade real de episódios (evita closure stale).
+  useEffect(() => {
+    showEpisodesRef.current = type === "series" && episodes.length > 1;
+  }, [type, episodes]);
+
 
   const applySpeed = (value: number) => {
     setSpeed(value);
@@ -612,10 +632,22 @@ function PlayerPage() {
 
   return (
     <main
-      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white"
+      ref={shellRef}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        if (showEpisodes && (e.key === "ArrowDown" || e.key === "Down")) {
+          e.preventDefault();
+          setDrawerOpen(true);
+          window.setTimeout(() => {
+            carouselRef.current
+              ?.querySelector<HTMLButtonElement>('button[aria-current="true"]')
+              ?.focus();
+          }, 260);
+        }
+      }}
+      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white focus:outline-none"
     >
       <div
-        ref={shellRef}
         className="relative h-screen w-full overflow-hidden bg-black"
       >
       {/* ── Superfície do vídeo ── */}
