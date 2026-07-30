@@ -24,7 +24,9 @@ export function PosterCard({
   const { data: display } = useTmdbItem(item, kind, "card", broken);
   const active = display ?? item;
   // Se o pôster falhar, tenta o backdrop antes de cair no placeholder
-  const image = broken ? active.backdrop : active.poster || active.backdrop;
+  // Capa da lista quebrada → usa a do TMDB (quando chegar) ou o backdrop.
+  const tmdbPoster = display && display.poster !== item.poster ? display.poster : undefined;
+  const image = broken ? tmdbPoster || active.backdrop : active.poster || active.backdrop;
   const showPoster = !!image;
 
   return (
@@ -43,6 +45,8 @@ export function PosterCard({
               role="poster"
               alt={active.title}
               objectPosition={active.posterPosition ?? "center"}
+              key={image}
+              onFail={() => setBroken(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               fallback={<span className="hidden" />}
             />
