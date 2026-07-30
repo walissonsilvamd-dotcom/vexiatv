@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Clapperboard, Library, RotateCcw, Tv } from "lucide-r
 import { useCallback, useEffect, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
+import { isDirectHls, singleChannelPlaylist } from "../lib/playlist-input";
 import {
   PLAYLIST_STAGES,
   usePlaylist,
