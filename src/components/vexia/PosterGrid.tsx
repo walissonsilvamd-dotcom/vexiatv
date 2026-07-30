@@ -22,7 +22,9 @@ export function PosterCard({
   const [broken, setBroken] = useState(false);
   const { data: display } = useTmdbItem(item, kind);
   const active = display ?? item;
-  const showPoster = !!active.poster && !broken;
+  // Se o pôster falhar, tenta o backdrop antes de cair no placeholder
+  const image = broken ? active.backdrop : active.poster || active.backdrop;
+  const showPoster = !!image;
 
   return (
     <div className="group relative">
