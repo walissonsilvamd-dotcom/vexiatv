@@ -22,6 +22,13 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  SUBS_OFF,
+  useAudioTracks,
+  useSubtitleTracks,
+  type HlsLike,
+} from "../hooks/useMediaTracks";
+
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -102,8 +109,9 @@ function PlayerPage() {
   const menuOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
-  const [subtitle, setSubtitle] = useState("Desligada");
-  const [audioTrack, setAudioTrack] = useState("Original");
+  const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
+  const [mediaReady, setMediaReady] = useState(false);
+
   const [liveDelay, setLiveDelay] = useState(0);
   const [reconnecting, setReconnecting] = useState(false);
   const [fatalError, setFatalError] = useState<{ message: string; detail?: string } | null>(null);
@@ -209,13 +217,16 @@ function PlayerPage() {
             );
           });
           hls = instance;
+          setHlsApi(instance as unknown as HlsLike);
           return;
         }
         fail("Este dispositivo não suporta a reprodução deste formato");
         return;
       }
+      setHlsApi(null);
       video.src = src;
       video.load();
+
     }
 
     const onNativeError = () => {
@@ -244,8 +255,11 @@ function PlayerPage() {
       clearTimeout(backoff);
       video.removeEventListener("error", onNativeError);
       hls?.destroy();
+      setHlsApi(null);
+      setMediaReady(false);
     };
   }, [src, type, retryNonce]);
+
 
 
   /* ── Eventos do vídeo ── */
@@ -258,7 +272,11 @@ function PlayerPage() {
         setLiveDelay(Math.max(0, video.seekable.end(0) - video.currentTime));
       }
     };
-    const onMeta = () => setDuration(video.duration);
+    const onMeta = () => {
+      setDuration(video.duration);
+      setMediaReady(true);
+    };
+
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onWaiting = () => setBuffering(true);
@@ -477,6 +495,48 @@ function PlayerPage() {
     setSpeed(value);
     if (videoRef.current) videoRef.current.playbackRate = value;
   };
+
+  /* ── Faixas reais de áudio e legenda (hls.js ou player nativo) ── */
+  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
+  const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
+
+  type MenuOption = { label: string; active: boolean; select: () => void };
+  const menuOptions: MenuOption[] = useMemo(() => {
+    if (menu === "quality") {
+      return QUALITIES.map((q) => ({ label: q, active: q === quality, select: () => setQuality(q) }));
+    }
+    if (menu === "speed") {
+      return SPEEDS.map((s) => ({
+        label: `${s}x`,
+        active: s === speed,
+        select: () => applySpeed(s),
+      }));
+    }
+    if (menu === "audio") {
+      return audio.tracks.map((t) => ({
+        label: t.label,
+        active: t.id === audio.selected,
+        select: () => audio.select(t.id),
+      }));
+    }
+    if (menu === "subs") {
+      return [
+        {
+          label: "Desligada",
+          active: subs.selected === SUBS_OFF,
+          select: () => subs.select(SUBS_OFF),
+        },
+        ...subs.tracks.map((t) => ({
+          label: t.label,
+          active: t.id === subs.selected,
+          select: () => subs.select(t.id),
+        })),
+      ];
+    }
+    return [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected]);
+
 
   const toggleFullscreen = () => {
     const el = shellRef.current;
@@ -855,8 +915,8 @@ function PlayerPage() {
           {(
             [
               { key: "quality", icon: ChevronsLeftRight, label: quality },
-              { key: "audio", icon: Volume2, label: audioTrack },
-              { key: "subs", icon: Captions, label: subtitle },
+              { key: "audio", icon: Volume2, label: audio.currentLabel },
+              { key: "subs", icon: Captions, label: subs.currentLabel },
               { key: "speed", icon: Gauge, label: `${speed}x` },
             ] as const
           ).map((opt) => (
@@ -886,42 +946,33 @@ function PlayerPage() {
 
         {menu ? (
           <div className="flex flex-wrap gap-2 rounded-2xl border border-vexia-purple/40 bg-black/80 p-3">
-            {(menu === "quality"
-              ? QUALITIES
-              : menu === "speed"
-                ? SPEEDS.map((s) => `${s}x`)
-                : menu === "audio"
-                  ? ["Original", "Português", "Inglês", "Espanhol"]
-                  : ["Desligada", "Português", "Inglês", "Espanhol"]
-            ).map((opt) => {
-              const active =
-                (menu === "quality" && opt === quality) ||
-                (menu === "speed" && opt === `${speed}x`) ||
-                (menu === "audio" && opt === audioTrack) ||
-                (menu === "subs" && opt === subtitle);
-              return (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => {
-                    if (menu === "quality") setQuality(opt);
-                    else if (menu === "speed") applySpeed(Number.parseFloat(opt));
-                    else if (menu === "audio") setAudioTrack(opt);
-                    else setSubtitle(opt);
-                    ping();
-                  }}
-                  className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold ${
-                    active
-                      ? "border-vexia-purple text-vexia-cyan"
-                      : "border-white/15 text-white"
-                  }`}
-                >
-                  {opt}
-                </button>
-              );
-            })}
+            {menuOptions.length === 0 ? (
+              <p className="px-2 py-1 text-[11px] font-medium text-white/70">
+                {menu === "audio"
+                  ? "Este stream não oferece faixas de áudio alternativas."
+                  : "Este stream não oferece legendas."}
+              </p>
+            ) : null}
+            {menuOptions.map((opt) => (
+              <button
+                key={`${menu}-${opt.label}`}
+                type="button"
+                onClick={() => {
+                  opt.select();
+                  ping();
+                }}
+                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold ${
+                  opt.active
+                    ? "border-vexia-purple text-vexia-cyan"
+                    : "border-white/15 text-white"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         ) : null}
+
       </section>
       </div>
 

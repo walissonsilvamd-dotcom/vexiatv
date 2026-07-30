@@ -12,6 +12,10 @@ import type { PlaylistChannel } from "../lib/m3u";
 import { channelFavorite, useFavorites } from "../lib/favorites-store";
 import { matchesChannel, sortChannels, useFilters, useSort } from "../lib/filters-store";
 import { SortControl } from "../components/vexia/SortControl";
+import { useDebounce } from "../hooks/useDebounce";
+import { buildSearchIndex, queryIndex } from "../utils/search-index";
+import { VirtualizedList } from "../components/VirtualizedGrid";
+
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
@@ -73,20 +77,29 @@ function ChannelsPage() {
   const { filters, active: activeFilters } = useFilters();
   const { sort } = useSort();
 
+  const index = useMemo(
+    () =>
+      buildSearchIndex(channels, {
+        id: (c) => c.id,
+        name: (c) => c.name,
+        category: (c) => c.category,
+        genre: (c) => c.group,
+      }),
+    [channels],
+  );
+  const debouncedQuery = useDebounce(query, 250);
+
   const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const base = channels.filter(
+    const searched = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : channels;
+    const base = searched.filter(
       (c) =>
         (category === "Todos" ||
           (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
-        (!q ||
-          c.name.toLowerCase().includes(q) ||
-          c.category.toLowerCase().includes(q) ||
-          c.group.toLowerCase().includes(q)) &&
         matchesChannel(c.name, c.category, filters),
     );
     return sortChannels(base, sort);
-  }, [channels, category, query, favs, filters, sort]);
+  }, [channels, index, debouncedQuery, category, favs, filters, sort]);
+
 
   useEffect(() => {
     setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
@@ -158,6 +171,71 @@ function ChannelsPage() {
   }
 
   const visible = list.slice(0, limit);
+  /* Listas grandes: apenas as linhas visíveis são montadas. */
+  const useVirtual = list.length > 120;
+
+  const renderChannel = (ch: PlaylistChannel, i: number) => {
+    const isActive = selected?.id === ch.id;
+    const quality = qualityOf(ch.name);
+    return (
+      <div className="group relative mb-1.5">
+        <button
+          type="button"
+          data-nav-row={2}
+          tabIndex={0}
+          onClick={() => setSelected(ch)}
+          className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
+            isActive
+              ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
+              : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
+          }`}
+        >
+          <span
+            className={`w-7 shrink-0 text-right text-xs font-bold ${isActive ? "text-white" : "text-vexia-muted"}`}
+          >
+            {i + 1}
+          </span>
+          <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
+            {ch.logo ? (
+              <img
+                src={ch.logo}
+                alt=""
+                loading="lazy"
+                className="h-full w-full object-contain p-0.5"
+              />
+            ) : (
+              <Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            )}
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+            <span
+              className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
+            >
+              {ch.group}
+              {quality ? ` • ${quality}` : ""}
+            </span>
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleFav(ch)}
+          aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
+            favs.includes(ch.id)
+              ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+              : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
+          }`}
+        >
+          <Heart
+            className={`h-3.5 w-3.5 ${favs.includes(ch.id) ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
+            aria-hidden
+          />
+        </button>
+      </div>
+    );
+  };
+
 
   return shell(
     <div className="grid gap-4 px-4 pb-10 md:grid-cols-[240px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-8">
@@ -194,87 +272,42 @@ function ChannelsPage() {
       </aside>
 
       {/* Coluna 2 — lista de canais */}
-      <section className="no-scrollbar max-h-[78vh] space-y-1.5 overflow-y-auto border-x border-white/5 px-2">
-        {visible.map((ch, i) => {
-          const isActive = selected?.id === ch.id;
-          const quality = qualityOf(ch.name);
-          return (
-            <div key={ch.id} className="group relative">
-              <button
-                type="button"
-                data-nav-row={2}
-                tabIndex={0}
-                onClick={() => setSelected(ch)}
-                className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
-                  isActive
-                    ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
-                    : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
-                }`}
-              >
-                <span
-                  className={`w-7 shrink-0 text-right text-xs font-bold ${isActive ? "text-white" : "text-vexia-muted"}`}
-                >
-                  {i + 1}
-                </span>
-                <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
-                  {ch.logo ? (
-                    <img
-                      src={ch.logo}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-contain p-0.5"
-                    />
-                  ) : (
-                    <Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />
-                  )}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-vexia-text">
-                    {ch.name}
-                  </span>
-                  <span
-                    className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
-                  >
-                    {ch.group}
-                    {quality ? ` • ${quality}` : ""}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => toggleFav(ch)}
-                aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
-                  favs.includes(ch.id)
-                    ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
-                    : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
-                }`}
-              >
-                <Heart
-                  className={`h-3.5 w-3.5 ${favs.includes(ch.id) ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
-                  aria-hidden
-                />
-              </button>
-            </div>
-          );
-        })}
+      <section
+        className={`border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar max-h-[78vh] overflow-y-auto"}`}
+      >
+        {useVirtual ? (
+          <VirtualizedList
+            items={list}
+            height="78vh"
+            className="no-scrollbar"
+            keyFor={(ch) => ch.id}
+            renderItem={(ch, i) => renderChannel(ch, i)}
+          />
+        ) : (
+          <>
+            {visible.map((ch, i) => (
+              <div key={ch.id}>{renderChannel(ch, i)}</div>
+            ))}
 
-        {limit < list.length ? (
-          <button
-            type="button"
-            data-nav-row={3}
-            tabIndex={0}
-            onClick={() => setLimit((l) => l + PAGE)}
-            className="vexia-focus mt-2 w-full rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
-          >
-            Carregar mais canais
-          </button>
-        ) : null}
+            {limit < list.length ? (
+              <button
+                type="button"
+                data-nav-row={3}
+                tabIndex={0}
+                onClick={() => setLimit((l) => l + PAGE)}
+                className="vexia-focus mt-2 w-full rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
+              >
+                Carregar mais canais
+              </button>
+            ) : null}
+          </>
+        )}
 
         {list.length === 0 ? (
           <p className="px-3 py-6 text-sm text-vexia-muted">Nenhum canal encontrado.</p>
         ) : null}
       </section>
+
 
       {/* Coluna 3 — prévia do canal */}
       <section className="space-y-4">

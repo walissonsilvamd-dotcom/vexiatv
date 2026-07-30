@@ -4,6 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
+import { useDebounce } from "../../hooks/useDebounce";
+import { buildSearchIndex, queryIndex } from "../../utils/search-index";
+import { VirtualizedGrid } from "../VirtualizedGrid";
 import { matchesFilters, sortMedia, useFilters, useSort } from "../../lib/filters-store";
 import { SortControl } from "./SortControl";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
@@ -14,6 +17,10 @@ import { TopNav } from "./TopNav";
 import { VexiaLogo } from "./VexiaLogo";
 
 const PAGE = 24;
+/** Acima deste total a grade passa a ser virtualizada (só o visível é montado). */
+const VIRTUALIZE_FROM = 60;
+const GRID_CLASS = "grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6";
+
 
 export function CatalogScreen({
   kind,
@@ -46,14 +53,25 @@ export function CatalogScreen({
     return map;
   }, [items]);
 
+  /* Índice de busca criado uma vez por lista — suporta 20.000+ títulos. */
+  const index = useMemo(
+    () =>
+      buildSearchIndex(items, {
+        id: (item) => item.id,
+        name: (item) => item.title,
+        category: (item) => item.category ?? "",
+        genre: (item) => item.genres.join(" "),
+        year: (item) => item.year,
+      }),
+    [items],
+  );
+
+  const debouncedQuery = useDebounce(query, 250);
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return items.filter(
-      (item) =>
-        (category === "Todos" || item.genres[0] === category) &&
-        (!q || item.title.toLowerCase().includes(q)),
-    );
-  }, [items, category, query]);
+    const base = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : items;
+    return category === "Todos" ? base : base.filter((item) => item.genres[0] === category);
+  }, [index, items, debouncedQuery, category]);
 
   // Filtros inteligentes: enriquece a página atual com TMDB antes de aplicar.
   const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
@@ -65,7 +83,14 @@ export function CatalogScreen({
         : enriched.filter((item) => matchesFilters(item, kind, filters));
     return sortMedia(base, sort);
   }, [activeFilters, page, enriched, filters, kind, sort]);
+  /* Sem filtros TMDB ativos, a lista inteira é exibida virtualizada. */
+  const virtualItems = useMemo(
+    () => (activeFilters === 0 ? sortMedia(filtered, sort) : []),
+    [activeFilters, filtered, sort],
+  );
+  const useVirtual = activeFilters === 0 && virtualItems.length > VIRTUALIZE_FROM;
   const hasContent = items.length > 0;
+
 
   return (
     <main
@@ -207,8 +232,15 @@ export function CatalogScreen({
               </span>
             </div>
 
-            {visible.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6">
+            {useVirtual ? (
+              <VirtualizedGrid
+                items={virtualItems}
+                gridClassName={GRID_CLASS}
+                keyFor={(item) => item.id}
+                renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
+              />
+            ) : visible.length > 0 ? (
+              <div className={GRID_CLASS}>
                 {visible.map((item) => (
                   <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
                 ))}
@@ -219,7 +251,7 @@ export function CatalogScreen({
               </p>
             )}
 
-            {limit < filtered.length ? (
+            {!useVirtual && limit < filtered.length ? (
               <div className="flex justify-center pt-4">
                 <button
                   type="button"
@@ -232,6 +264,7 @@ export function CatalogScreen({
                 </button>
               </div>
             ) : null}
+
           </section>
         </div>
       ) : (
