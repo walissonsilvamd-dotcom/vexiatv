@@ -145,11 +145,21 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
       if (!alive) return;
       if (record) setStored(record);
       setReady(true);
+
+      // Revalida a assinatura em segundo plano: a lista continua salva e
+      // utilizável; só é bloqueada se o provedor informar que expirou.
+      if (record?.url) {
+        const account = await fetchPlaylistAccount(record.url);
+        if (!alive || !account) return;
+        setStored((prev) => (prev ? { ...prev, account } : prev));
+        void savePlaylist({ ...record, account }).catch(() => undefined);
+      }
     })();
     return () => {
       alive = false;
     };
   }, []);
+
 
   const persist = useCallback(async (record: StoredPlaylist, retry: () => void) => {
     setStored(record);
