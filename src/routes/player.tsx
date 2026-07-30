@@ -37,6 +37,7 @@ import { usePlaylist } from "../lib/playlist-store";
 import { formatExpiry } from "../lib/xtream";
 
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
+import { saveLastSession } from "../lib/last-session";
 import {
   completeWatch,
   historyKey,
@@ -377,6 +378,15 @@ function PlayerPage() {
       if (!video) return;
       if (type === "live") {
         recordWatch({ ...watchMeta, positionSec: 0, durationSec: 0, percent: 0, completed: false });
+        saveLastSession({
+          type,
+          id,
+          title: watchMeta.name,
+          poster: watchMeta.poster,
+          positionSec: 0,
+          durationSec: 0,
+          percent: 0,
+        });
         return;
       }
       if (!video.duration || (!force && video.paused)) return;
@@ -389,6 +399,20 @@ function PlayerPage() {
       });
       recordWatch({
         ...watchMeta,
+        positionSec: video.currentTime,
+        durationSec: video.duration,
+        percent,
+      });
+      // Última sessão: permite restaurar o episódio ao reabrir o app.
+      saveLastSession({
+        type,
+        id,
+        ep: episode?.id,
+        title: watchMeta.name,
+        episodeLabel: episode
+          ? `T${episode.season}E${episode.number}${episode.title ? ` • ${episode.title}` : ""}`
+          : undefined,
+        poster: watchMeta.poster,
         positionSec: video.currentTime,
         durationSec: video.duration,
         percent,
