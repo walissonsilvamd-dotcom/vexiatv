@@ -164,7 +164,13 @@ export function SmartImage({
         ref={imgRef}
         src={full}
         srcSet={upgraded ? undefined : adaptiveSrcSet(src, role)}
-        sizes={upgraded ? undefined : (sizes ?? adaptiveSizes(role))}
+        sizes={
+          upgraded
+            ? undefined
+            : measured
+              ? exactSizes(measured)
+              : (sizes ?? adaptiveSizes(role))
+        }
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
