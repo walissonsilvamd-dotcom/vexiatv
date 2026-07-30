@@ -73,20 +73,29 @@ function ChannelsPage() {
   const { filters, active: activeFilters } = useFilters();
   const { sort } = useSort();
 
+  const index = useMemo(
+    () =>
+      buildSearchIndex(channels, {
+        id: (c) => c.id,
+        name: (c) => c.name,
+        category: (c) => c.category,
+        genre: (c) => c.group,
+      }),
+    [channels],
+  );
+  const debouncedQuery = useDebounce(query, 250);
+
   const list = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const base = channels.filter(
+    const searched = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : channels;
+    const base = searched.filter(
       (c) =>
         (category === "Todos" ||
           (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
-        (!q ||
-          c.name.toLowerCase().includes(q) ||
-          c.category.toLowerCase().includes(q) ||
-          c.group.toLowerCase().includes(q)) &&
         matchesChannel(c.name, c.category, filters),
     );
     return sortChannels(base, sort);
-  }, [channels, category, query, favs, filters, sort]);
+  }, [channels, index, debouncedQuery, category, favs, filters, sort]);
+
 
   useEffect(() => {
     setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
