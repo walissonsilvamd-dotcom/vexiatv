@@ -534,6 +534,11 @@ function PlayerPage() {
     setDrawerOpen(false);
   }, [episode?.id]);
 
+  // Mantém o container do player focável para capturar ArrowDown em WebViews/TV.
+  useEffect(() => {
+    shellRef.current?.focus({ preventScroll: true });
+  }, []);
+
   const applySpeed = (value: number) => {
     setSpeed(value);
     if (videoRef.current) videoRef.current.playbackRate = value;
