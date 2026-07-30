@@ -22,14 +22,25 @@ export const Route = createFileRoute("/")({
 
 function SplashScreen() {
   const navigate = useNavigate();
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const id = setTimeout(() => navigate({ to: "/home" }), 2000);
-    return () => clearTimeout(id);
+    const exitTimer = setTimeout(() => setExiting(true), 1800);
+    const navigateTimer = setTimeout(() => navigate({ to: "/home" }), 2700);
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(navigateTimer);
+    };
   }, [navigate]);
 
   return (
-    <div className="vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
+    <div
+      className={[
+        "vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg",
+        "animate-[vexia-fade_700ms_ease-out]",
+        exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
+      ].join(" ")}
+    >
       {/* Luzes ambiente: halo roxo respirando + aurora ciano girando lentamente. */}
       <div
         aria-hidden
