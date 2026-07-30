@@ -98,6 +98,8 @@ function PlayerPage() {
   const navigate = useNavigate();
   const { movies, series, channels, expired, account } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const slotARef = useRef<HTMLVideoElement>(null);
+  const slotBRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
