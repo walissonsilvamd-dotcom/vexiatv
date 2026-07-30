@@ -95,7 +95,7 @@ export function CatalogScreen({
   return (
     <main
       ref={scopeRef}
-      className="relative min-h-screen bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
         backgroundSize: "cover",
@@ -104,10 +104,10 @@ export function CatalogScreen({
       }}
     >
       {/* Barra superior */}
-      <header className="flex items-center gap-4 px-6 py-4 md:px-10">
+      <header className="flex flex-wrap items-center gap-3 px-6 py-4 md:px-10">
         <TopNav active={activeTab} />
 
-        <label className="relative flex-1 max-w-xl">
+        <label className="relative min-w-[200px] flex-1 max-w-xl">
           <Search
             className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden

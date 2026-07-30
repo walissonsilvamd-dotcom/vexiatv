@@ -34,7 +34,7 @@ function LoginPage() {
     "w-full rounded-lg border border-vexia-purple bg-vexia-card px-4 py-2.5 text-sm text-vexia-text placeholder:text-vexia-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft";
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg px-5 py-10 text-vexia-text">
+    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg px-5 py-10 text-vexia-text">
       <div className="mx-auto w-full max-w-md space-y-6 text-center">
         <VexiaLogo className="mx-auto h-20" />
         <h1 className="text-lg font-bold tracking-wide">DIGITE SEU ACESSO</h1>

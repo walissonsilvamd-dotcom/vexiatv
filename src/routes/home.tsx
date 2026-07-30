@@ -26,6 +26,7 @@ import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
 import type { ResolvedWatch } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
+import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -151,7 +152,7 @@ function HomePage() {
     const next = slides[(slide + 1) % slides.length];
     if (next?.image) {
       const img = new Image();
-      img.src = next.image;
+      img.src = adaptiveImage(next.image, "backdrop") ?? next.image;
     }
   }, [slide, slides]);
 
@@ -202,8 +203,12 @@ function HomePage() {
       {/* Fundo */}
       <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
         <img
-          src={HERO.image}
+          src={adaptiveImage(HERO.image, "backdrop")}
+          srcSet={adaptiveSrcSet(HERO.image, "backdrop")}
+          sizes="100vw"
           alt={HERO.title}
+          decoding="async"
+          fetchPriority="high"
           className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
         />
       </div>
@@ -307,7 +312,7 @@ function HomePage() {
           <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
             Continuar assistindo
           </h2>
-          <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {continueList.map((entry) => (
               <WatchCard
                 key={entry.key}

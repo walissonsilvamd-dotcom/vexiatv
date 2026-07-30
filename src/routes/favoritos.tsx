@@ -7,6 +7,7 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import { matchFavorite, useFavorites, type Favorite, type FavoriteKind } from "../lib/favorites-store";
+import { adaptiveImage, adaptiveSizes, adaptiveSrcSet } from "../lib/image";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({
@@ -65,9 +66,12 @@ function FavoriteCard({
         >
           {logo && !broken ? (
             <img
-              src={logo}
+              src={adaptiveImage(logo, isChannel ? "logo" : "poster")}
+              srcSet={adaptiveSrcSet(logo, isChannel ? "logo" : "poster")}
+              sizes={adaptiveSizes("poster")}
               alt={fav.name}
               loading="lazy"
+              decoding="async"
               onError={() => setBroken(true)}
               className={`h-full w-full ${isChannel ? "object-contain p-4" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
             />
@@ -170,7 +174,7 @@ function FavoritesPage() {
   return (
     <main
       ref={scopeRef}
-      className="relative min-h-screen bg-vexia-bg pb-14 text-vexia-text"
+      className="vexia-safe relative min-h-screen bg-vexia-bg pb-14 text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.88), rgba(5,5,5,0.95)), url(${nebula.url})`,
         backgroundSize: "cover",

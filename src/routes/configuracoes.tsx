@@ -228,7 +228,7 @@ function SettingsPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+    <main className="vexia-safe min-h-screen bg-vexia-bg pb-28 text-vexia-text">
       <div className="px-[4vw] pt-5">
         <TopNav active="Ajustes" className="w-fit" />
       </div>

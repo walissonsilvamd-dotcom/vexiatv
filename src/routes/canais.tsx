@@ -15,6 +15,7 @@ import { SortControl } from "../components/vexia/SortControl";
 import { useDebounce } from "../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
 import { VirtualizedList } from "../components/VirtualizedGrid";
+import { adaptiveImage } from "../lib/image";
 
 
 export const Route = createFileRoute("/canais")({
@@ -108,7 +109,7 @@ function ChannelsPage() {
   const shell = (children: React.ReactNode) => (
     <main
       ref={scopeRef}
-      className="relative min-h-screen bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
         backgroundSize: "cover",
@@ -116,7 +117,7 @@ function ChannelsPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex items-center gap-4 px-6 py-4 md:px-10">
+      <header className="flex flex-wrap items-center gap-3 px-6 py-4 md:px-10">
         <TopNav active="Canais" />
         <label className="relative max-w-xl flex-1">
           <Search
@@ -198,9 +199,10 @@ function ChannelsPage() {
           <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
             {ch.logo ? (
               <img
-                src={ch.logo}
+                src={adaptiveImage(ch.logo, "logo")}
                 alt=""
                 loading="lazy"
+                decoding="async"
                 className="h-full w-full object-contain p-0.5"
               />
             ) : (
@@ -315,8 +317,9 @@ function ChannelsPage() {
           <div className="grid aspect-video w-full place-items-center bg-black">
             {selected?.logo ? (
               <img
-                src={selected.logo}
+                src={adaptiveImage(selected.logo, "logo")}
                 alt={selected.name}
+                decoding="async"
                 className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
               />
             ) : (

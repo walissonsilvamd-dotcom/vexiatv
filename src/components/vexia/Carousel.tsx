@@ -56,7 +56,7 @@ export function Carousel({
       {items.length > 0 ? (
         <div
           ref={railRef}
-          className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {items.map((item) => (
             <div key={item.id} className="w-[120px] shrink-0 md:w-[150px]">

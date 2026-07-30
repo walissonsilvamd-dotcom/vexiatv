@@ -19,6 +19,7 @@ import { usePlaylist } from "../lib/playlist-store";
 import { mediaFavorite, useFavorites } from "../lib/favorites-store";
 import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
+import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
 
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
@@ -106,7 +107,7 @@ function DetailsPage() {
   const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-16 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
         <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
       </div>
@@ -115,8 +116,12 @@ function DetailsPage() {
       <section className="relative mt-3 min-h-[360px] w-full overflow-hidden md:h-[60vh]">
         {item.backdrop ? (
           <img
-            src={item.backdrop}
+            src={adaptiveImage(item.backdrop, "backdrop")}
+            srcSet={adaptiveSrcSet(item.backdrop, "backdrop")}
+            sizes="100vw"
             alt={item.title}
+            decoding="async"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
@@ -233,7 +238,7 @@ function DetailsPage() {
         {cast && cast.length > 0 ? (
           <section className="space-y-3">
             <SectionHeading>ELENCO</SectionHeading>
-            <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-2">
               {cast.map((person) => (
                 <div key={person.name} className="w-[76px] shrink-0 text-center">
                   {person.photo ? (
@@ -361,7 +366,7 @@ function DetailsPage() {
         {recommendations.length > 0 ? (
           <section className="space-y-3">
             <SectionHeading>RECOMENDAÇÕES</SectionHeading>
-            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-2">
               {recommendations.map((rec) => (
                 <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
                   <PosterCard
