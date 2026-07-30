@@ -123,6 +123,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    registerImageCache();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
