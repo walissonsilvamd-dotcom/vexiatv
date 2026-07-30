@@ -21,28 +21,102 @@ const ORIGINAL_WIDTH = 2000;
 
 const TMDB_HOST = "image.tmdb.org";
 
-/** Densidade/largura da tela em px CSS (SSR usa TV HD como padrão seguro). */
+/* ────────────────────────────────────────────────────────────────
+ * Detecção de resolução / densidade da tela (DPI)
+ * ──────────────────────────────────────────────────────────────── */
+
+export type DisplayTier = "mobile" | "hd" | "fhd" | "uhd";
+
+export type DisplayProfile = {
+  /** Largura da janela em px CSS. */
+  cssWidth: number;
+  /** Densidade de pixels reais por px CSS (limitada a 3 para não exagerar). */
+  dpr: number;
+  /** Largura em pixels FÍSICOS — é o que define a nitidez real. */
+  deviceWidth: number;
+  tier: DisplayTier;
+};
+
+/** Perfil padrão usado no servidor (TV Full HD: escolha segura e nítida). */
+const SSR_PROFILE: DisplayProfile = { cssWidth: 1280, dpr: 1, deviceWidth: 1280, tier: "fhd" };
+
+function measureDisplay(): DisplayProfile {
+  if (typeof window === "undefined") return SSR_PROFILE;
+  const cssWidth = window.innerWidth || 1280;
+  const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 1), 3);
+  const deviceWidth = Math.round(cssWidth * dpr);
+  const tier: DisplayTier =
+    deviceWidth >= 2400 ? "uhd" : deviceWidth >= 1700 ? "fhd" : deviceWidth >= 1100 ? "hd" : "mobile";
+  return { cssWidth, dpr, deviceWidth, tier };
+}
+
+let profile: DisplayProfile = measureDisplay();
+const displayListeners = new Set<(p: DisplayProfile) => void>();
+
+function refreshDisplay() {
+  const next = measureDisplay();
+  if (
+    next.cssWidth === profile.cssWidth &&
+    next.dpr === profile.dpr &&
+    next.tier === profile.tier
+  )
+    return;
+  profile = next;
+  displayListeners.forEach((listener) => listener(profile));
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("resize", refreshDisplay, { passive: true });
+  window.addEventListener("orientationchange", refreshDisplay, { passive: true });
+  // Mudança de densidade (troca de monitor / zoom / TV alternando 1080p↔4K).
+  const dprQuery = window.matchMedia?.(`(resolution: ${window.devicePixelRatio || 1}dppx)`);
+  dprQuery?.addEventListener?.("change", refreshDisplay);
+}
+
+/** Perfil atual da tela (resolução + densidade). */
+export function getDisplayProfile(): DisplayProfile {
+  return profile;
+}
+
+/** Avisa quando a resolução/densidade muda; devolve a função para cancelar. */
+export function subscribeDisplay(listener: (p: DisplayProfile) => void): () => void {
+  displayListeners.add(listener);
+  return () => displayListeners.delete(listener);
+}
+
+/** Densidade/largura da tela em px físicos (SSR usa TV HD como padrão seguro). */
 function screenWidth(): number {
-  if (typeof window === "undefined") return 1280;
-  return Math.round(window.innerWidth * Math.min(window.devicePixelRatio || 1, 2));
+  return profile.deviceWidth;
+}
+
+/**
+ * Escolhe o menor tamanho TMDB que ainda cobre a largura pedida em pixels
+ * FÍSICOS. Como nunca escolhemos um arquivo menor que o espaço desenhado, a
+ * imagem nunca é ampliada — ou seja, nunca borra.
+ */
+export function sizeForWidth(neededPhysicalWidth: number, role: ImageRole = "poster"): string {
+  const sizes: readonly string[] = role === "backdrop" ? BACKDROP_SIZES : POSTER_SIZES;
+  for (const size of sizes) {
+    const width = size === "original" ? ORIGINAL_WIDTH : Number(size.slice(1));
+    if (width >= neededPhysicalWidth) return size;
+  }
+  return "original";
 }
 
 function pickPosterSize(width = screenWidth()): string {
-  if (width >= 2400) return "original";
-  if (width >= 900) return "w780";
-  return "w500";
+  // Um pôster ocupa ~1/5 da largura da tela nos grids da TV.
+  return sizeForWidth(Math.max(500, Math.round(width / 5)), "poster");
 }
 
 function pickBackdropSize(width = screenWidth()): string {
-  if (width >= 1900) return "original";
-  if (width >= 1200) return "w1280";
-  return "w780";
+  return sizeForWidth(width, "backdrop");
 }
 
 /** Logos e miniaturas de cena: nítidas mesmo em telas grandes. */
 function pickSmallSize(width = screenWidth()): string {
   return width >= 1500 ? "w780" : "w500";
 }
+
 
 
 /** É uma URL de imagem do TMDB (podemos trocar o tamanho livremente)? */
