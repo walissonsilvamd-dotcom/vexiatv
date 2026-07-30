@@ -122,8 +122,20 @@ export function PosterGrid({
   progressMap?: Record<string, number>;
   kind?: "movie" | "series";
 }) {
+  // Pré-carrega as capas desta página no cache persistente: rolar fica
+  // instantâneo e a qualidade continua sendo a máxima da tela.
+  useEffect(() => {
+    if (!items.length) return;
+    const id = setTimeout(
+      () => preloadImages(items.map((item) => item.poster || item.backdrop), "poster"),
+      400,
+    );
+    return () => clearTimeout(id);
+  }, [items]);
+
   return (
     <div className="grid grid-cols-3 gap-3 md:grid-cols-6 lg:grid-cols-8">
+
       {items.map((item) => (
         <PosterCard
           key={item.id}
