@@ -93,9 +93,29 @@ export function daysUntilExpiry(account: PlaylistAccount | null | undefined): nu
 export function formatExpiry(account: PlaylistAccount | null | undefined): string {
   if (!account) return "Sem informação de validade";
   if (!account.expiresAt) return "Sem data de expiração";
-  return new Date(account.expiresAt).toLocaleDateString("pt-BR", {
+  return new Date(account.expiresAt).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
+}
+
+/**
+ * Tempo restante em texto curto. Funciona para planos de horas (teste de 1h,
+ * 3h) e de dias/meses: "42 min", "2 h 15 min", "30 dia(s)".
+ */
+export function formatRemaining(account: PlaylistAccount | null | undefined): string | null {
+  if (!account?.expiresAt) return null;
+  const ms = account.expiresAt - Date.now();
+  if (ms <= 0) return null;
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 60) return `${Math.max(1, minutes)} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    const rest = minutes % 60;
+    return rest ? `${hours} h ${rest} min` : `${hours} h`;
+  }
+  return `${Math.ceil(hours / 24)} dia(s)`;
 }

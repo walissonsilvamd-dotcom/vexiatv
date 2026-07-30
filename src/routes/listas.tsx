@@ -12,7 +12,7 @@ import {
   parsePastedAccess,
 } from "../lib/playlist-input";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
-import { daysUntilExpiry, formatExpiry } from "../lib/xtream";
+import { formatExpiry, formatRemaining } from "../lib/xtream";
 
 
 import { TopNav } from "../components/vexia/TopNav";
@@ -190,8 +190,8 @@ function ListsPage() {
                     {account ? (
                       <p className="mt-1 text-center text-[10px] tracking-[0.1em] text-white/60">
                         {expired ? "Venceu em" : "Válida até"} {formatExpiry(account)}
-                        {!expired && daysUntilExpiry(account) !== null
-                          ? ` • ${daysUntilExpiry(account)} dia(s)`
+                        {!expired && formatRemaining(account)
+                          ? ` • resta ${formatRemaining(account)}`
                           : ""}
                       </p>
                     ) : null}
