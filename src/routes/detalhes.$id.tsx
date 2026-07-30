@@ -88,6 +88,10 @@ function DetailsPage() {
       .map(([number, episodes]) => ({ number, episodes }));
   }, [epList]);
 
+  const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
+  const activeSeason = seasons.find((s) => s.number === selectedSeason) ?? null;
+
+
   if (!item) {
     return (
       <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
