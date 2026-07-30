@@ -13,7 +13,9 @@ import {
 import type { ParseWorkerResponse } from "../workers/parse.worker";
 import { StorageErrorDialog } from "../components/StorageErrorDialog";
 import { matchesLegacyId } from "../utils/hash";
+import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
 import type { MediaItem } from "../data/vexia";
+
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
 export const PLAYLIST_STAGES = [
