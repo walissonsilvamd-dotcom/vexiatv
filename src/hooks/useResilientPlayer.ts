@@ -237,13 +237,13 @@ export function useResilientPlayer({ videoRef, src, live }: Options) {
         recoverOrFallback(`mpegts • ${String(errorType)} • ${String(errorDetail)}`, () => {
           player.unload();
           player.load();
-          void player.play().catch(() => undefined);
+          void Promise.resolve(player.play()).catch(() => undefined);
         });
       };
       player.on(mpegts.Events.ERROR, onError);
       player.attachMediaElement(video);
       player.load();
-      void player.play().catch(() => void startAutoplay());
+      void Promise.resolve(player.play()).catch(() => void startAutoplay());
       cleanupEngine = () => {
         player.off(mpegts.Events.ERROR, onError);
         player.pause();

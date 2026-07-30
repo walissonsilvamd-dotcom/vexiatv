@@ -28,7 +28,6 @@ import {
   SUBS_OFF,
   useAudioTracks,
   useSubtitleTracks,
-  type HlsLike,
 } from "../hooks/useMediaTracks";
 
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
