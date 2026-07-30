@@ -147,7 +147,7 @@ export function EpisodeCarousel({
 
         <div
           ref={trackRef}
-          className="vexia-fade-edges vexia-smooth-scroll flex snap-x gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="vexia-fade-edges vexia-smooth-scroll flex snap-x gap-3 overflow-x-auto pb-3 vexia-scroll"
         >
           {seasonEpisodes.map((episode) => {
             const meta = byNumber.get(episode.number);

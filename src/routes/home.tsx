@@ -312,7 +312,7 @@ function HomePage() {
           <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
             Continuar assistindo
           </h2>
-          <div className="vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1 vexia-scroll">
             {continueList.map((entry) => (
               <WatchCard
                 key={entry.key}
