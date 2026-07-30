@@ -22,6 +22,19 @@ export const Route = createFileRoute("/api/public/playlist")({
           return new Response("Apenas links http/https são aceitos.", { status: 400 });
         }
 
+        // Falhas do servidor remoto são respondidas com 200 + header de erro:
+        // o proxy funcionou, o problema é a lista do usuário. Assim o app trata
+        // a mensagem na tela em vez de disparar erro global de rota.
+        const upstreamError = (message: string) =>
+          new Response(message, {
+            status: 200,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+              "Cache-Control": "no-store",
+              "X-Playlist-Error": "1",
+            },
+          });
+
         let upstream: Response;
         try {
           upstream = await fetch(parsed.toString(), {
@@ -29,14 +42,13 @@ export const Route = createFileRoute("/api/public/playlist")({
             redirect: "follow",
           });
         } catch (err) {
-          return new Response(
+          return upstreamError(
             `Não foi possível contactar o servidor da lista. ${err instanceof Error ? err.message : ""}`.trim(),
-            { status: 502 },
           );
         }
 
         if (!upstream.ok || !upstream.body) {
-          return new Response(`O servidor da lista respondeu ${upstream.status}.`, { status: 502 });
+          return upstreamError(`O servidor da lista respondeu ${upstream.status}.`);
         }
 
         const headers = new Headers({
