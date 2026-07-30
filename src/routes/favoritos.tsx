@@ -170,7 +170,7 @@ function FavoritesPage() {
   return (
     <main
       ref={scopeRef}
-      className="relative min-h-screen bg-vexia-bg pb-14 text-vexia-text"
+      className="vexia-safe relative min-h-screen bg-vexia-bg pb-14 text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.88), rgba(5,5,5,0.95)), url(${nebula.url})`,
         backgroundSize: "cover",

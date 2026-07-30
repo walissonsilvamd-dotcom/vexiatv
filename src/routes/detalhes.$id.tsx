@@ -106,7 +106,7 @@ function DetailsPage() {
   const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
 
   return (
-    <main ref={scopeRef} className="min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-16 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
         <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
       </div>

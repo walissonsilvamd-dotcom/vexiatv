@@ -95,7 +95,7 @@ export function CatalogScreen({
   return (
     <main
       ref={scopeRef}
-      className="relative min-h-screen bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
         backgroundSize: "cover",

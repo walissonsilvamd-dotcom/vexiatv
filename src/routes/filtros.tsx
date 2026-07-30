@@ -87,7 +87,7 @@ function FiltersPage() {
   return (
     <main
       ref={scopeRef}
-      className="min-h-screen bg-vexia-bg pb-36 text-vexia-text"
+      className="vexia-safe min-h-screen bg-vexia-bg pb-36 text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.9), rgba(5,5,5,0.96)), url(${nebula.url})`,
         backgroundSize: "cover",
