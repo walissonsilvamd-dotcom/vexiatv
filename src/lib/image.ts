@@ -315,3 +315,12 @@ export function enhanceLevel(naturalWidth: number, renderedWidth: number): Enhan
   if (ratio >= 0.55) return "medium";
   return "strong";
 }
+
+/** Ranking numérico do tamanho TMDB de uma URL (maior = mais nítido). */
+export function sizeRank(url?: string | null): number {
+  if (!url || !isTmdbImage(url)) return 0;
+  const size = /\/t\/p\/([^/]+)\//.exec(url)?.[1];
+  if (!size) return 0;
+  if (size === "original") return ORIGINAL_WIDTH;
+  return Number(size.slice(1)) || 0;
+}
