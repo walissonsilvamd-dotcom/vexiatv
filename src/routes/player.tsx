@@ -272,7 +272,11 @@ function PlayerPage() {
         setLiveDelay(Math.max(0, video.seekable.end(0) - video.currentTime));
       }
     };
-    const onMeta = () => setDuration(video.duration);
+    const onMeta = () => {
+      setDuration(video.duration);
+      setMediaReady(true);
+    };
+
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onWaiting = () => setBuffering(true);
