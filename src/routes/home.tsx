@@ -21,6 +21,7 @@ import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
 import type { MediaItem } from "../data/vexia";
 import { removeWatch, useContinueWatching } from "../lib/history-store";
+import { clearLastSession, useLastSession } from "../lib/last-session";
 import { clearProgress } from "../lib/progress-store";
 import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia/WatchCard";
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
@@ -102,6 +103,9 @@ function HomePage() {
   const continueEntries = useContinueWatching(15);
   const continueList = useResolvedHistory(continueEntries);
   const openWatch = useOpenWatch();
+
+  // Última sessão salva: restaura automaticamente o episódio/filme ao reabrir.
+  const lastSession = useLastSession();
 
 
 
@@ -305,6 +309,70 @@ function HomePage() {
           </p>
         ) : null}
       </section>
+
+      {/* Retomada automática da última sessão */}
+      {lastSession ? (
+        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+          <button
+            type="button"
+            onClick={() =>
+              navigate({
+                to: "/player",
+                search: {
+                  type: lastSession.type,
+                  id: lastSession.id,
+                  ...(lastSession.ep ? { ep: lastSession.ep } : {}),
+                },
+              })
+            }
+            className="group flex w-full items-center gap-[1.2vw] rounded-2xl border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
+            style={{ boxShadow: "0 0 26px rgba(123,43,190,0.35)" }}
+          >
+            {lastSession.poster ? (
+              <img
+                src={lastSession.poster}
+                alt={`Capa de ${lastSession.title}`}
+                loading="lazy"
+                className="h-[7vh] w-[5vh] shrink-0 rounded-lg object-cover"
+              />
+            ) : null}
+            <span className="min-w-0 flex-1">
+              <span className="block text-[clamp(0.55rem,0.72vw,0.75rem)] font-black uppercase tracking-[0.22em] text-vexia-purple-soft">
+                Continuar de onde parou
+              </span>
+              <span className="block truncate text-[clamp(0.8rem,1.15vw,1.2rem)] font-bold text-foreground">
+                {lastSession.title}
+                {lastSession.episodeLabel ? ` — ${lastSession.episodeLabel}` : ""}
+              </span>
+              <span className="mt-[0.5vh] block h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+                <span
+                  className="block h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
+                  style={{ width: `${Math.min(100, Math.max(2, lastSession.percent))}%` }}
+                />
+              </span>
+            </span>
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label="Descartar retomada"
+              onClick={(e) => {
+                e.stopPropagation();
+                clearLastSession();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  clearLastSession();
+                }
+              }}
+              className="shrink-0 rounded-full border border-white/15 px-[0.9vw] py-[0.5vh] text-[clamp(0.5rem,0.65vw,0.7rem)] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Dispensar
+            </span>
+          </button>
+        </section>
+      ) : null}
 
       {/* Continuar assistindo (histórico local) */}
       {continueList.length > 0 ? (
