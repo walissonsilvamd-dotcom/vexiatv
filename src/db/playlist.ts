@@ -10,7 +10,12 @@ export type StoredPlaylist = {
   data: ParsedPlaylist;
   /** Validade da assinatura, quando o servidor informa (Xtream). */
   account?: PlaylistAccount | null;
+  /** Versão do formato do cache; registros antigos são descartados. */
+  version?: number;
 };
+
+/** Suba este número quando a organização da lista (parser) mudar. */
+export const PLAYLIST_CACHE_VERSION = 1;
 
 
 const KEY = "current";
@@ -25,7 +30,8 @@ export class StorageQuotaError extends Error {
   }
 }
 
-export async function savePlaylist(record: StoredPlaylist): Promise<void> {
+export async function savePlaylist(input: StoredPlaylist): Promise<void> {
+  const record: StoredPlaylist = { ...input, version: PLAYLIST_CACHE_VERSION };
   if (idbAvailable()) {
     try {
       await idbSet(STORE_PLAYLIST, KEY, record);
@@ -49,14 +55,27 @@ export async function loadPlaylist(): Promise<StoredPlaylist | null> {
   if (idbAvailable()) {
     try {
       const record = await idbGet<StoredPlaylist>(STORE_PLAYLIST, KEY);
-      if (record?.data) return record;
+      if (record?.data) {
+        if (record.version !== PLAYLIST_CACHE_VERSION) {
+          await clearPlaylist();
+          return null;
+        }
+        return record;
+      }
     } catch (err) {
       console.error("[vexia] falha ao ler a lista no IndexedDB", err);
     }
   }
   try {
     const raw = window.localStorage.getItem(FALLBACK_KEY);
-    if (raw) return JSON.parse(raw) as StoredPlaylist;
+    if (raw) {
+      const record = JSON.parse(raw) as StoredPlaylist;
+      if (record.version !== PLAYLIST_CACHE_VERSION) {
+        await clearPlaylist();
+        return null;
+      }
+      return record;
+    }
   } catch (err) {
     console.error("[vexia] lista inválida no armazenamento local", err);
   }
