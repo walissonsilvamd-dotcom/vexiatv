@@ -26,10 +26,10 @@ function screenWidth(): number {
 }
 
 function pickPosterSize(width = screenWidth()): string {
-  if (width >= 2400) return "w500";
-  if (width >= 1500) return "w342";
-  if (width >= 900) return "w342";
-  return "w185";
+  if (width >= 2400) return "w780";
+  if (width >= 1500) return "w500";
+  if (width >= 900) return "w500";
+  return "w342";
 }
 
 function pickBackdropSize(width = screenWidth()): string {
