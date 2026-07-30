@@ -162,7 +162,7 @@ function FavoritesPage() {
       return;
     }
     void navigate({
-      to: fav.kind === "series" ? "/serie/$id" : "/detalhes/$id",
+      to: "/detalhes/$id",
       params: { id },
     });
   };
