@@ -181,7 +181,10 @@ function PlayerPage() {
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
-  const [resumeAsk, setResumeAsk] = useState(false);
+  const [resumeNotice, setResumeNotice] = useState<number | null>(null);
+  /** Posição pendente a aplicar assim que o vídeo tiver metadados. */
+  const pendingResumeRef = useRef<number | null>(null);
+
   const [confirmForget, setConfirmForget] = useState(false);
 
   const title =
