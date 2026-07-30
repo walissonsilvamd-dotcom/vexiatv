@@ -30,11 +30,19 @@ function SplashScreen() {
   }, [navigate]);
 
   return (
-    <div className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
-      {/* Aura de energia que respira atrás da logo. */}
+    <div
+      className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
+      {/* Aura de energia que respira atrás da logo — centralizada de forma absoluta. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute h-[70vmin] w-[70vmin] rounded-full animate-[splash-aura_3.6s_ease-in-out_infinite]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full animate-[splash-aura_3.6s_ease-in-out_infinite]"
         style={{
           background:
             "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 40%, transparent) 0%, color-mix(in oklab, var(--vexia-cyan) 12%, transparent) 45%, transparent 70%)",
@@ -42,13 +50,13 @@ function SplashScreen() {
         }}
       />
 
-      <div className="relative flex flex-col items-center gap-6">
+      <div className="relative flex w-full max-w-[92vw] flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
         {/* Logo: entrada com foco, brilho neon pulsante e brilho que atravessa. */}
-        <div className="relative animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
+        <div className="relative mx-auto animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
           <div className="animate-[splash-logo-breathe_3.2s_ease-in-out_infinite]">
-            <VexiaLogo className="h-56 md:h-80" />
+            <VexiaLogo className="mx-auto h-[clamp(9rem,34vmin,24rem)] max-w-[80vw]" />
           </div>
           <span
             aria-hidden
@@ -70,7 +78,7 @@ function SplashScreen() {
         </div>
 
         <div
-          className="h-12 w-12 rounded-full animate-[splash-spin_1s_linear_infinite]"
+          className="h-[clamp(2.25rem,6vmin,3.5rem)] w-[clamp(2.25rem,6vmin,3.5rem)] rounded-full animate-[splash-spin_1s_linear_infinite]"
           style={{
             background:
               "conic-gradient(from 0deg, var(--vexia-purple) 0deg, var(--vexia-purple-soft) 140deg, transparent 300deg)",
@@ -80,10 +88,15 @@ function SplashScreen() {
           }}
         />
 
-        <p className="text-sm font-medium tracking-[0.4em] text-vexia-muted">CARREGANDO</p>
+        <p className="text-[clamp(0.7rem,1.6vmin,1rem)] font-medium tracking-[0.4em] text-vexia-muted">
+          CARREGANDO
+        </p>
       </div>
 
-      <p className="absolute bottom-8 text-xs tracking-[0.3em] text-vexia-cyan">{SLOGAN}</p>
+      <p className="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-1/2 w-full -translate-x-1/2 px-6 text-center text-[clamp(0.6rem,1.3vmin,0.85rem)] tracking-[0.3em] text-vexia-cyan">
+        {SLOGAN}
+      </p>
+
 
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
