@@ -4,6 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
+import { useDebounce } from "../../hooks/useDebounce";
+import { buildSearchIndex, queryIndex } from "../../utils/search-index";
+import { VirtualizedGrid } from "../VirtualizedGrid";
 import { matchesFilters, sortMedia, useFilters, useSort } from "../../lib/filters-store";
 import { SortControl } from "./SortControl";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
@@ -14,6 +17,10 @@ import { TopNav } from "./TopNav";
 import { VexiaLogo } from "./VexiaLogo";
 
 const PAGE = 24;
+/** Acima deste total a grade passa a ser virtualizada (só o visível é montado). */
+const VIRTUALIZE_FROM = 60;
+const GRID_CLASS = "grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6";
+
 
 export function CatalogScreen({
   kind,
