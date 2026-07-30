@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, ImageOff, Star } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { preloadImages } from "../../lib/image";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
