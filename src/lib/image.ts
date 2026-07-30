@@ -1,21 +1,23 @@
 /**
- * Otimização adaptativa de imagens (posters / backdrops).
+ * Qualidade máxima de imagem (posters / backdrops).
  *
- * As imagens do TMDB são servidas em vários tamanhos. Em vez de baixar sempre
- * a maior versão, escolhemos o tamanho de acordo com a tela do aparelho:
+ * Regra do VÉXIA TV: a imagem exibida é SEMPRE a melhor disponível para a tela.
+ * Nunca servimos versões pequenas/pixeladas no conteúdo principal.
  *
- *   TV 4K      -> poster w500  / backdrop w1280
- *   TV HD      -> poster w342  / backdrop w780
- *   Celular    -> poster w185  / backdrop w500
+ *   TV 4K      -> poster w780 / backdrop original
+ *   TV HD/FHD  -> poster w780 / backdrop w1280
+ *   Celular    -> poster w500 / backdrop w780
  *
- * Isso reduz memória, tempo de carregamento e consumo de internet — o que faz
- * o scroll ficar bem mais suave em TVs simples.
+ * A economia continua existindo só onde não é visível: a prévia borrada (LQIP),
+ * que é substituída pela imagem em alta assim que ela termina de baixar.
  */
 
 export type ImageRole = "poster" | "backdrop" | "logo" | "still";
 
-const POSTER_SIZES = ["w154", "w185", "w342", "w500", "w780"] as const;
-const BACKDROP_SIZES = ["w300", "w500", "w780", "w1280"] as const;
+const POSTER_SIZES = ["w342", "w500", "w780", "original"] as const;
+const BACKDROP_SIZES = ["w780", "w1280", "original"] as const;
+/** Largura nominal usada no srcSet para o tamanho "original". */
+const ORIGINAL_WIDTH = 2000;
 
 const TMDB_HOST = "image.tmdb.org";
 
@@ -26,22 +28,20 @@ function screenWidth(): number {
 }
 
 function pickPosterSize(width = screenWidth()): string {
-  if (width >= 2400) return "w780";
-  if (width >= 1500) return "w500";
-  if (width >= 900) return "w500";
-  return "w342";
-}
-
-function pickBackdropSize(width = screenWidth()): string {
-  if (width >= 2400) return "w1280";
-  if (width >= 1500) return "w1280";
+  if (width >= 2400) return "original";
   if (width >= 900) return "w780";
   return "w500";
 }
 
-/** Logos e miniaturas de cena não precisam de tamanho grande. */
+function pickBackdropSize(width = screenWidth()): string {
+  if (width >= 1900) return "original";
+  if (width >= 1200) return "w1280";
+  return "w780";
+}
+
+/** Logos e miniaturas de cena: nítidas mesmo em telas grandes. */
 function pickSmallSize(width = screenWidth()): string {
-  return width >= 1500 ? "w500" : "w300";
+  return width >= 1500 ? "w780" : "w500";
 }
 
 
@@ -75,7 +75,10 @@ export function adaptiveSrcSet(url?: string | null, role: ImageRole = "poster"):
   if (!url || !isTmdbImage(url)) return undefined;
   const sizes = role === "backdrop" ? BACKDROP_SIZES : POSTER_SIZES;
   return sizes
-    .map((size) => `${replaceSize(url, size)} ${Number(size.slice(1))}w`)
+    .map((size) => {
+      const width = size === "original" ? ORIGINAL_WIDTH : Number(size.slice(1));
+      return `${replaceSize(url, size)} ${width}w`;
+    })
     .join(", ");
 }
 
@@ -93,7 +96,7 @@ export function adaptiveSizes(role: ImageRole = "poster"): string {
 /** Miniatura minúscula usada como "prévia borrada" enquanto a real carrega. */
 export function placeholderImage(url?: string | null, role: ImageRole = "poster"): string | undefined {
   if (!url || !isTmdbImage(url)) return undefined;
-  return replaceSize(url, role === "backdrop" ? "w300" : "w92");
+  return replaceSize(url, role === "backdrop" ? "w300" : "w154");
 }
 
 /**
@@ -104,7 +107,8 @@ export function placeholderImage(url?: string | null, role: ImageRole = "poster"
 export function stableImage(url?: string | null, role: ImageRole = "poster"): string | undefined {
   if (!url) return undefined;
   if (!isTmdbImage(url)) return url;
-  const size = role === "backdrop" ? "w1280" : role === "logo" || role === "still" ? "w300" : "w500";
+  // Sempre a melhor versão estável: nada de imagem "de baixo visual".
+  const size = role === "backdrop" ? "w1280" : role === "logo" || role === "still" ? "w780" : "w780";
   return replaceSize(url, size);
 }
 

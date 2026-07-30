@@ -118,8 +118,8 @@ export function normalizeTmdb(
     cast,
     castList,
     director,
-    backdrop: tmdbImageUrl(details.backdrop_path, "w1280"),
-    poster: tmdbImageUrl(details.poster_path, "w500"),
+    backdrop: tmdbImageUrl(details.backdrop_path, "original"),
+    poster: tmdbImageUrl(details.poster_path, "w780"),
   };
 }
 
@@ -357,7 +357,7 @@ export async function fetchSeasonEpisodes(
         number: e.episode_number,
         name: e.name ?? "",
         overview: e.overview ?? "",
-        still: tmdbImageUrl(e.still_path, "w300"),
+        still: tmdbImageUrl(e.still_path, "w780"),
         runtimeMin: e.runtime ?? 0,
         airDate: e.air_date ?? "",
         rating: e.vote_average ?? 0,
