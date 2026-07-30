@@ -3,6 +3,11 @@ import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DEVICE_MAC } from "../../data/vexia-catalog";
 import { usePlaylist } from "../../lib/playlist-store";
+import {
+  buildXtreamUrl,
+  isLikelyPlaylistUrl,
+  parsePastedAccess,
+} from "../../lib/playlist-input";
 
 const LOADING_MESSAGES = [
   "Validando link...",
@@ -53,10 +58,18 @@ export function QrPlaylistDialog({
   if (!open) return null;
 
   const submit = () => {
-    if (!url.trim()) return;
+    const raw = url.trim();
+    // Aceita link M3U, m3u_plus, HLS (.m3u8) ou uma URL de painel com usuário/senha.
+    const parsed = parsePastedAccess(raw);
+    const finalUrl =
+      parsed.url ??
+      (parsed.server && parsed.username
+        ? buildXtreamUrl(parsed.server, parsed.username, parsed.password ?? "")
+        : raw);
+    if (!isLikelyPlaylistUrl(finalUrl)) return;
     const finalName = name.trim() || "Minha Lista IPTV";
     onClose();
-    void navigate({ to: "/carregando", search: { url: url.trim(), name: finalName } });
+    void navigate({ to: "/carregando", search: { url: finalUrl, name: finalName } });
   };
 
   const isLoading = loading || done;

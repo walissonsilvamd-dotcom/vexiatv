@@ -3,6 +3,7 @@ import { ArrowLeft, Check, Clapperboard, Library, RotateCcw, Tv } from "lucide-r
 import { useCallback, useEffect, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
+import { isDirectHls, singleChannelPlaylist } from "../lib/playlist-input";
 import {
   PLAYLIST_STAGES,
   usePlaylist,
@@ -42,7 +43,7 @@ type Phase = "loading" | "success" | "error";
 function CarregandoPage() {
   const { url, name } = Route.useSearch();
   const navigate = useNavigate();
-  const { loadFromUrl, error: playlistError } = usePlaylist();
+  const { loadFromUrl, loadFromText, error: playlistError } = usePlaylist();
   const errorRef = useRef<string | null>(null);
   errorRef.current = playlistError;
 
@@ -70,12 +71,21 @@ function CarregandoPage() {
     setStageRatio(0);
     setTryCount(null);
 
-    const ok = await loadFromUrl(url, name, (event) => {
-      setStage(event.stage);
-      if (event.ratio != null) setStageRatio(event.ratio);
-      if (event.attempt) setTryCount({ n: event.attempt, total: event.attempts ?? 3 });
-      if (event.counts) setCounts((c) => ({ ...c, ...event.counts }));
-    });
+    // Link HLS único (.m3u8): não é uma lista — vira um canal ao vivo.
+    let ok: boolean;
+    if (isDirectHls(url)) {
+      setStage(PLAYLIST_STAGES.length - 1);
+      setStageRatio(1);
+      ok = await loadFromText(singleChannelPlaylist(url, name), name || "Canal ao vivo");
+      if (ok) setCounts({ channels: 1, movies: 0, series: 0 });
+    } else {
+      ok = await loadFromUrl(url, name, (event) => {
+        setStage(event.stage);
+        if (event.ratio != null) setStageRatio(event.ratio);
+        if (event.attempt) setTryCount({ n: event.attempt, total: event.attempts ?? 3 });
+        if (event.counts) setCounts((c) => ({ ...c, ...event.counts }));
+      });
+    }
     running.current = false;
 
     if (ok) {
@@ -86,7 +96,7 @@ function CarregandoPage() {
       setPhase("error");
       setErrorMsg(errorRef.current || "Não foi possível carregar sua lista.");
     }
-  }, [url, name, loadFromUrl, navigate]);
+  }, [url, name, loadFromUrl, loadFromText, navigate]);
 
   useEffect(() => {
     void start();
