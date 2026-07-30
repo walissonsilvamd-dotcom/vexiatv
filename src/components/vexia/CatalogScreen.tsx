@@ -232,8 +232,15 @@ export function CatalogScreen({
               </span>
             </div>
 
-            {visible.length > 0 ? (
-              <div className="grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6">
+            {useVirtual ? (
+              <VirtualizedGrid
+                items={virtualItems}
+                gridClassName={GRID_CLASS}
+                keyFor={(item) => item.id}
+                renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
+              />
+            ) : visible.length > 0 ? (
+              <div className={GRID_CLASS}>
                 {visible.map((item) => (
                   <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
                 ))}
@@ -244,7 +251,7 @@ export function CatalogScreen({
               </p>
             )}
 
-            {limit < filtered.length ? (
+            {!useVirtual && limit < filtered.length ? (
               <div className="flex justify-center pt-4">
                 <button
                   type="button"
@@ -257,6 +264,7 @@ export function CatalogScreen({
                 </button>
               </div>
             ) : null}
+
           </section>
         </div>
       ) : (
