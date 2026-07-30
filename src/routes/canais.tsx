@@ -12,6 +12,10 @@ import type { PlaylistChannel } from "../lib/m3u";
 import { channelFavorite, useFavorites } from "../lib/favorites-store";
 import { matchesChannel, sortChannels, useFilters, useSort } from "../lib/filters-store";
 import { SortControl } from "../components/vexia/SortControl";
+import { useDebounce } from "../hooks/useDebounce";
+import { buildSearchIndex, queryIndex } from "../utils/search-index";
+import { VirtualizedList } from "../components/VirtualizedGrid";
+
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
