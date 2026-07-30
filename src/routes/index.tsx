@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
-import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { SLOGAN } from "../data/vexia-catalog";
 
@@ -45,27 +44,9 @@ function SplashScreen() {
       <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
-        {/* Logo: revelação cinematográfica (foco + assentamento) e um único brilho especular. */}
+        {/* Logo: revelação cinematográfica (foco + assentamento). */}
         <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1500ms_cubic-bezier(0.16,1,0.3,1)_both]">
           <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain" />
-
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 animate-[splash-sheen_2600ms_cubic-bezier(0.4,0,0.2,1)_800ms_both]"
-            style={{
-              background:
-                "linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.38) 50%, transparent 58%)",
-              mixBlendMode: "screen",
-              maskImage: `url(${logoAsset.url})`,
-              WebkitMaskImage: `url(${logoAsset.url})`,
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-            }}
-          />
         </div>
 
         {/* Filete de luz que se abre sob a logo — acabamento sóbrio, sem pulsar. */}
