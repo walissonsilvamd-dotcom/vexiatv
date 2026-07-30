@@ -29,7 +29,7 @@ export function PosterCard({
   return (
     <div className="group relative">
       <Link
-        to={kind === "series" ? "/serie/$id" : "/detalhes/$id"}
+        to="/detalhes/$id"
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
