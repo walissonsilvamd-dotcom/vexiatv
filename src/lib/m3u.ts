@@ -151,6 +151,23 @@ const LIVE_RE = /\b(canais|canal|ao vivo|live|tv|esporte|abertos|noticias|24h|pp
 const SERIES_GROUP_RE = /\b(series?|serie|seriados?|temporadas?|season|novelas?|animes?|doramas?|tv ?shows?)\b/;
 const MOVIE_GROUP_RE = /\b(filmes?|movies?|vod|cinema|lancamentos?|colecao|colecoes|4k)\b/;
 
+/**
+ * Entradas de aviso/propaganda que os painéis IPTV injetam na lista
+ * ("TESTE 4H", "SEU TESTE EXPIRA EM...", "RENOVE COM O SUPORTE"...).
+ * Não são conteúdo e nunca devem virar card de filme/série/canal.
+ */
+const JUNK_RE =
+  /(\bteste?s?\b|\btest\b|expir|vencimento|vence em|renov|aviso|atencao|suporte|whats\s?app|whatsapp|contato|revenda|painel|comprar|assinatura|\bdemo\b|#{3,}|={3,}|-{4,})/;
+
+function isJunkEntry(entry: M3UEntry) {
+  const name = normalize(entry.name || "");
+  const group = normalize(entry.group || "");
+  if (!name.trim()) return true;
+  // "Teste" pode aparecer legitimamente dentro de títulos longos; só descarta
+  // quando o aviso domina o nome ou a categoria inteira.
+  return JUNK_RE.test(name) || JUNK_RE.test(group);
+}
+
 /** Caminho Xtream: /movie/ = VOD, /series/ = episódio, resto = ao vivo. */
 const XTREAM_MOVIE_RE = /\/(movie|movies|vod)\//i;
 const XTREAM_SERIES_RE = /\/series\//i;
