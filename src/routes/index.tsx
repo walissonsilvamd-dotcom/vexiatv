@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { SLOGAN } from "../data/vexia-catalog";
@@ -22,14 +22,25 @@ export const Route = createFileRoute("/")({
 
 function SplashScreen() {
   const navigate = useNavigate();
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const id = setTimeout(() => navigate({ to: "/home" }), 2000);
-    return () => clearTimeout(id);
+    const exitTimer = setTimeout(() => setExiting(true), 1800);
+    const navigateTimer = setTimeout(() => navigate({ to: "/home" }), 2700);
+    return () => {
+      clearTimeout(exitTimer);
+      clearTimeout(navigateTimer);
+    };
   }, [navigate]);
 
   return (
-    <div className="vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
+    <div
+      className={[
+        "vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg",
+        "animate-[vexia-fade_700ms_ease-out]",
+        exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
+      ].join(" ")}
+    >
       {/* Luzes ambiente: halo roxo respirando + aurora ciano girando lentamente. */}
       <div
         aria-hidden
@@ -126,6 +137,11 @@ function SplashScreen() {
         @keyframes splash-rule {
           from { opacity: 0; transform: scaleX(0.2); }
           to   { opacity: 0.85; transform: scaleX(1); }
+        }
+        @keyframes splash-cinematic-exit {
+          0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+          40%  { opacity: 0.75; transform: scale(1.02); filter: blur(2px); }
+          100% { opacity: 0; transform: scale(1.06); filter: blur(8px); }
         }
       `}</style>
     </div>
