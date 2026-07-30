@@ -155,9 +155,18 @@ function PlayerPage() {
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
   const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
 
-  const resilientPlayer = useResilientPlayer({ videoRef, src, live: type === "live" });
+  const resilientPlayer = useResilientPlayer({
+    videoRef,
+    slotARef,
+    slotBRef,
+    src,
+    live: type === "live",
+  });
   const {
     engine,
+    standbyEngine,
+    standbyReady,
+    activeSlot,
     hlsApi,
     reconnecting,
     fatalError,
