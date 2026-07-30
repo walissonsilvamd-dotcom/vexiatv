@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ImageOff, Play } from "lucide-react";
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
@@ -29,6 +29,7 @@ export const Route = createFileRoute("/serie/$id")({
 
 function EpisodesPage() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { series } = usePlaylist();
@@ -98,6 +99,12 @@ function EpisodesPage() {
                     type="button"
                     data-nav-row={si + 1}
                     tabIndex={0}
+                    onClick={() =>
+                      void navigate({
+                        to: "/player",
+                        search: { type: "series", id, ep: ep.id },
+                      })
+                    }
                     className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
                   >
                     {ep.thumb ? (
