@@ -213,28 +213,48 @@ function HomePage() {
         }
       }}
     >
-      {/* Fundo */}
-      <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
-        <SmartImage
-          src={HERO.image}
-          role="backdrop"
-          alt={HERO.title}
-          eager
-          sizes="100vw"
-          className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/15 to-black/35" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/45" />
+      {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
+      {hasContent ? (
+        <>
+          <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
+            <SmartImage
+              src={HERO.image}
+              role="backdrop"
+              alt={HERO.title}
+              eager
+              sizes="100vw"
+              className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/15 to-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/45" />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-black" />
+      )}
 
       {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
-      <header className="relative z-10 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-[3vw] px-[5vw] pt-[3vh]">
-        <VexiaLogo className="h-[19vh] max-h-[250px] min-h-[120px] w-auto" />
+      <header
+        className={`relative z-10 items-start gap-[3vw] px-[5vw] pt-[3vh] ${
+          hasContent
+            ? "grid grid-cols-[auto_minmax(0,1fr)]"
+            : "flex flex-col items-center justify-center"
+        }`}
+      >
+        <VexiaLogo
+          className={
+            hasContent
+              ? "h-[19vh] max-h-[250px] min-h-[120px] w-auto"
+              : "h-[34vh] max-h-[420px] min-h-[190px] w-auto animate-[vexia-fade-in_700ms_ease-out]"
+          }
+        />
 
+        {hasContent ? (
         <div
           key={`meta-${HERO.title}`}
           className="animate-[vexia-hero-in_400ms_ease-out] text-right"
         >
+
           <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
             <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
             <span className="tabular-nums">
@@ -284,6 +304,8 @@ function HomePage() {
             </p>
           ) : null}
         </div>
+        ) : null}
+
       </header>
 
       {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
