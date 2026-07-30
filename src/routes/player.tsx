@@ -855,8 +855,8 @@ function PlayerPage() {
           {(
             [
               { key: "quality", icon: ChevronsLeftRight, label: quality },
-              { key: "audio", icon: Volume2, label: audioTrack },
-              { key: "subs", icon: Captions, label: subtitle },
+              { key: "audio", icon: Volume2, label: audio.currentLabel },
+              { key: "subs", icon: Captions, label: subs.currentLabel },
               { key: "speed", icon: Gauge, label: `${speed}x` },
             ] as const
           ).map((opt) => (
@@ -886,42 +886,33 @@ function PlayerPage() {
 
         {menu ? (
           <div className="flex flex-wrap gap-2 rounded-2xl border border-vexia-purple/40 bg-black/80 p-3">
-            {(menu === "quality"
-              ? QUALITIES
-              : menu === "speed"
-                ? SPEEDS.map((s) => `${s}x`)
-                : menu === "audio"
-                  ? ["Original", "Português", "Inglês", "Espanhol"]
-                  : ["Desligada", "Português", "Inglês", "Espanhol"]
-            ).map((opt) => {
-              const active =
-                (menu === "quality" && opt === quality) ||
-                (menu === "speed" && opt === `${speed}x`) ||
-                (menu === "audio" && opt === audioTrack) ||
-                (menu === "subs" && opt === subtitle);
-              return (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => {
-                    if (menu === "quality") setQuality(opt);
-                    else if (menu === "speed") applySpeed(Number.parseFloat(opt));
-                    else if (menu === "audio") setAudioTrack(opt);
-                    else setSubtitle(opt);
-                    ping();
-                  }}
-                  className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold ${
-                    active
-                      ? "border-vexia-purple text-vexia-cyan"
-                      : "border-white/15 text-white"
-                  }`}
-                >
-                  {opt}
-                </button>
-              );
-            })}
+            {menuOptions.length === 0 ? (
+              <p className="px-2 py-1 text-[11px] font-medium text-white/70">
+                {menu === "audio"
+                  ? "Este stream não oferece faixas de áudio alternativas."
+                  : "Este stream não oferece legendas."}
+              </p>
+            ) : null}
+            {menuOptions.map((opt) => (
+              <button
+                key={`${menu}-${opt.label}`}
+                type="button"
+                onClick={() => {
+                  opt.select();
+                  ping();
+                }}
+                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold ${
+                  opt.active
+                    ? "border-vexia-purple text-vexia-cyan"
+                    : "border-white/15 text-white"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         ) : null}
+
       </section>
       </div>
 
