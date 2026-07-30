@@ -31,32 +31,30 @@ function SplashScreen() {
 
   return (
     <div className="vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
-      {/* Aura de energia que respira atrás da logo — centralizada de forma absoluta. */}
+      {/* Halo estático e discreto atrás da logo — surge uma vez e permanece. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full animate-[splash-aura_3.6s_ease-in-out_infinite]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full animate-[splash-halo-in_1400ms_ease-out_both]"
         style={{
           background:
-            "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 40%, transparent) 0%, color-mix(in oklab, var(--vexia-cyan) 12%, transparent) 45%, transparent 70%)",
-          filter: "blur(30px)",
+            "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 26%, transparent) 0%, color-mix(in oklab, var(--vexia-cyan) 8%, transparent) 45%, transparent 70%)",
+          filter: "blur(40px)",
         }}
       />
 
       <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
-        {/* Logo: entrada com foco, brilho neon pulsante e brilho que atravessa. */}
-        <div className="relative mx-auto max-w-full animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
-          <div className="animate-[splash-logo-breathe_3.2s_ease-in-out_infinite]">
-            <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain" />
-          </div>
+        {/* Logo: revelação cinematográfica (foco + assentamento) e um único brilho especular. */}
+        <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1500ms_cubic-bezier(0.16,1,0.3,1)_both]">
+          <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain" />
 
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-0 animate-[splash-shine_3.2s_ease-in-out_infinite]"
+            className="pointer-events-none absolute inset-0 animate-[splash-sheen_2600ms_cubic-bezier(0.4,0,0.2,1)_800ms_both]"
             style={{
               background:
-                "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.55) 50%, transparent 60%)",
+                "linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.38) 50%, transparent 58%)",
               mixBlendMode: "screen",
               maskImage: `url(${logoAsset.url})`,
               WebkitMaskImage: `url(${logoAsset.url})`,
@@ -69,6 +67,16 @@ function SplashScreen() {
             }}
           />
         </div>
+
+        {/* Filete de luz que se abre sob a logo — acabamento sóbrio, sem pulsar. */}
+        <div
+          aria-hidden
+          className="h-px w-[min(34vmin,60%)] origin-center animate-[splash-rule_1200ms_cubic-bezier(0.16,1,0.3,1)_600ms_both]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, color-mix(in oklab, var(--vexia-purple) 80%, transparent) 35%, color-mix(in oklab, var(--vexia-cyan) 70%, transparent) 65%, transparent)",
+          }}
+        />
 
         <div
           className="h-[clamp(2.25rem,6vmin,3.5rem)] w-[clamp(2.25rem,6vmin,3.5rem)] rounded-full animate-[splash-spin_1s_linear_infinite]"
@@ -95,30 +103,30 @@ function SplashScreen() {
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes splash-logo-in {
-          0%   { opacity: 0; transform: scale(0.86); filter: blur(14px); }
-          60%  { opacity: 1; filter: blur(0); }
-          100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        @keyframes splash-logo-reveal {
+          0%   { opacity: 0; transform: scale(1.06) translateY(6px); filter: blur(10px); }
+          55%  { opacity: 1; filter: blur(0.4px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
-        @keyframes splash-logo-breathe {
-          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-purple) 60%, transparent)); }
-          50%      { transform: scale(1.035); filter: drop-shadow(0 0 46px color-mix(in oklab, var(--vexia-purple) 85%, transparent)) drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-cyan) 45%, transparent)); }
+        @keyframes splash-sheen {
+          0%   { transform: translateX(-115%); opacity: 0; }
+          18%  { opacity: 1; }
+          62%  { transform: translateX(115%); opacity: 0; }
+          100% { transform: translateX(115%); opacity: 0; }
         }
-        @keyframes splash-shine {
-          0%, 25%  { transform: translateX(-120%); opacity: 0; }
-          35%      { opacity: 1; }
-          70%      { transform: translateX(120%); opacity: 0; }
-          100%     { transform: translateX(120%); opacity: 0; }
+        @keyframes splash-halo-in {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+          to   { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
         }
-        @keyframes splash-aura {
-          0%, 100% { opacity: 0.45; transform: scale(0.95); }
-          50%      { opacity: 0.85; transform: scale(1.06); }
+        @keyframes splash-rule {
+          from { opacity: 0; transform: scaleX(0.2); }
+          to   { opacity: 0.85; transform: scaleX(1); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .animate-\\[splash-logo-breathe_3\\.2s_ease-in-out_infinite\\],
-          .animate-\\[splash-aura_3\\.6s_ease-in-out_infinite\\] { animation: none; }
+          .animate-\\[splash-sheen_2600ms_cubic-bezier\\(0\\.4\\,0\\,0\\.2\\,1\\)_800ms_both\\] { animation: none; opacity: 0; }
         }
       `}</style>
+
     </div>
   );
 }
