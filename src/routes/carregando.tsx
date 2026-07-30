@@ -244,10 +244,10 @@ function CarregandoPage() {
 
 function Counter({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-vexia-popup/70 px-3 py-3 text-center">
+    <div className="rounded-2xl border border-white/10 bg-vexia-popup/70 px-3 py-4 text-center">
       <div className="flex items-center justify-center gap-1.5 text-vexia-cyan">{icon}</div>
-      <p className="mt-1 text-lg font-bold text-vexia-cyan">{value.toLocaleString("pt-BR")}</p>
-      <p className="text-[11px] text-vexia-muted">{label}</p>
+      <p className="mt-1 text-[clamp(1.1rem,1.8vw,1.7rem)] font-black tabular-nums text-vexia-cyan">{value.toLocaleString("pt-BR")}</p>
+      <p className="text-[clamp(0.65rem,0.85vw,0.8rem)] uppercase tracking-[0.14em] text-vexia-muted">{label}</p>
     </div>
   );
 }
@@ -262,7 +262,7 @@ function ErrorPanel({
   onBack: () => void;
 }) {
   return (
-    <div className="mt-8 w-full max-w-md rounded-2xl border border-[#FF1744]/40 bg-vexia-popup/90 p-6 text-center">
+    <div className="w-full max-w-xl rounded-2xl border border-[#FF1744]/40 bg-vexia-popup/90 p-6 text-center">
       <p className="text-lg font-black text-white">
         {message ?? "Não foi possível carregar sua lista."}
       </p>
