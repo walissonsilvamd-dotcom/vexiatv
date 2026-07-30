@@ -507,7 +507,7 @@ function PlayerPage() {
             setMenu(null);
             break;
           }
-          if (carouselRef.current) {
+          if (showEpisodesRef.current) {
             e.preventDefault();
             setDrawerOpen(true);
             window.setTimeout(() => {
@@ -517,6 +517,7 @@ function PlayerPage() {
             }, 260);
           }
           break;
+
         case "Backspace":
         case "Escape":
           goBack();
