@@ -79,8 +79,6 @@ function SplashScreen() {
         {SLOGAN}
       </p>
 
-
-
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
@@ -88,12 +86,6 @@ function SplashScreen() {
           0%   { opacity: 0; transform: scale(1.06) translateY(6px); filter: blur(10px); }
           55%  { opacity: 1; filter: blur(0.4px); }
           100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-        }
-        @keyframes splash-sheen {
-          0%   { transform: translateX(-115%); opacity: 0; }
-          18%  { opacity: 1; }
-          62%  { transform: translateX(115%); opacity: 0; }
-          100% { transform: translateX(115%); opacity: 0; }
         }
         @keyframes splash-halo-in {
           from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
@@ -103,12 +95,7 @@ function SplashScreen() {
           from { opacity: 0; transform: scaleX(0.2); }
           to   { opacity: 0.85; transform: scaleX(1); }
         }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-\\[splash-sheen_2600ms_cubic-bezier\\(0\\.4\\,0\\,0\\.2\\,1\\)_800ms_both\\] { animation: none; opacity: 0; }
-        }
       `}</style>
-
     </div>
   );
 }
-
