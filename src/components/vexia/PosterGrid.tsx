@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
-import { adaptiveImage, adaptiveSizes, adaptiveSrcSet } from "../../lib/image";
+import { SmartImage } from "./SmartImage";
 
 export function PosterCard({
   item,
@@ -37,16 +37,13 @@ export function PosterCard({
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
-            <img
-              src={adaptiveImage(image, "poster")}
-              srcSet={adaptiveSrcSet(image, "poster")}
-              sizes={adaptiveSizes("poster")}
+            <SmartImage
+              src={image}
+              role="poster"
               alt={active.title}
-              loading="lazy"
-              decoding="async"
-              onError={() => setBroken(true)}
+              objectPosition={active.posterPosition ?? "center"}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              style={{ objectPosition: active.posterPosition ?? "center" }}
+              fallback={<span className="hidden" />}
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-vexia-purple/45 via-black to-black p-3 text-center">

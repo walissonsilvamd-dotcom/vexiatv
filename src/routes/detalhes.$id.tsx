@@ -19,7 +19,7 @@ import { usePlaylist } from "../lib/playlist-store";
 import { mediaFavorite, useFavorites } from "../lib/favorites-store";
 import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
-import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
+import { SmartImage } from "../components/vexia/SmartImage";
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
@@ -118,13 +118,12 @@ function DetailsPage() {
       {/* ─── Destaque com backdrop ─── */}
       <section className="relative mt-3 min-h-[360px] w-full overflow-hidden md:h-[60vh]">
         {item.backdrop ? (
-          <img
-            src={adaptiveImage(item.backdrop, "backdrop")}
-            srcSet={adaptiveSrcSet(item.backdrop, "backdrop")}
-            sizes="100vw"
+          <SmartImage
+            src={item.backdrop}
+            role="backdrop"
             alt={item.title}
-            decoding="async"
-            fetchPriority="high"
+            eager
+            sizes="100vw"
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
@@ -165,9 +164,13 @@ function DetailsPage() {
 
         <div className="relative flex flex-col gap-6 px-5 pb-8 pt-4 md:flex-row md:items-end md:px-10">
           {item.poster ? (
-            <img
+            <SmartImage
               src={item.poster}
+              role="poster"
               alt={item.title}
+              eager
+              preview={false}
+              sizes="180px"
               className="hidden w-[180px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgba(123,47,190,0.8)] md:block"
             />
           ) : null}
@@ -245,10 +248,12 @@ function DetailsPage() {
               {cast.map((person) => (
                 <div key={person.name} className="w-[76px] shrink-0 text-center">
                   {person.photo ? (
-                    <img
+                    <SmartImage
                       src={person.photo}
+                      role="logo"
                       alt={person.name}
-                      loading="lazy"
+                      preview={false}
+                      sizes="64px"
                       className="mx-auto h-16 w-16 rounded-full border-2 border-vexia-purple object-cover"
                     />
                   ) : (

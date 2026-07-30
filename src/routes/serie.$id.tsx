@@ -8,6 +8,7 @@ import { useTmdbItem } from "../lib/use-tmdb";
 import { TopNav } from "../components/vexia/TopNav";
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+import { SmartImage } from "../components/vexia/SmartImage";
 
 export const Route = createFileRoute("/serie/$id")({
   head: () => ({
@@ -100,10 +101,12 @@ function EpisodesPage() {
                     className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
                   >
                     {ep.thumb ? (
-                      <img
+                      <SmartImage
                         src={ep.thumb}
+                        role="still"
                         alt=""
-                        loading="lazy"
+                        preview={false}
+                        sizes="112px"
                         className="h-16 w-28 shrink-0 rounded-lg object-cover"
                       />
                     ) : (

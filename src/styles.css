@@ -342,10 +342,52 @@ body {
   transition:
     opacity 320ms ease,
     transform 500ms ease;
+  /* mantém a decodificação/composição na GPU: scroll mais suave na TV */
+  backface-visibility: hidden;
+  contain: paint;
 }
 .vexia-img.is-loaded {
   opacity: 1;
 }
+
+/* Esqueleto suave para imagens que não têm prévia (logos de canais, etc.). */
+.vexia-img-skeleton {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in oklab, var(--vexia-purple) 14%, transparent) 20%,
+      color-mix(in oklab, var(--vexia-cyan) 12%, transparent) 45%,
+      color-mix(in oklab, var(--vexia-purple) 14%, transparent) 70%
+    ),
+    #101010;
+  background-size: 220% 100%;
+  animation: vexia-shimmer 1400ms linear infinite;
+}
+
+@keyframes vexia-shimmer {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+/* Prévia borrada (LQIP) exibida enquanto a imagem final é baixada. */
+.vexia-img-preview {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  filter: blur(14px) saturate(1.15);
+  transform: scale(1.06);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
 
 /* ── Foco premium dos cards (zoom + borda neon + brilho) ─────────── */
 @utility vexia-card-focus {

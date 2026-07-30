@@ -15,7 +15,7 @@ import { SortControl } from "../components/vexia/SortControl";
 import { useDebounce } from "../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
 import { VirtualizedList } from "../components/VirtualizedGrid";
-import { adaptiveImage } from "../lib/image";
+import { SmartImage } from "../components/vexia/SmartImage";
 
 
 export const Route = createFileRoute("/canais")({
@@ -198,12 +198,12 @@ function ChannelsPage() {
           </span>
           <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
             {ch.logo ? (
-              <img
-                src={adaptiveImage(ch.logo, "logo")}
+              <SmartImage
+                src={ch.logo}
+                role="logo"
                 alt=""
-                loading="lazy"
-                decoding="async"
                 className="h-full w-full object-contain p-0.5"
+                fallback={<Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />}
               />
             ) : (
               <Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />
@@ -316,11 +316,14 @@ function ChannelsPage() {
         <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
           <div className="grid aspect-video w-full place-items-center bg-black">
             {selected?.logo ? (
-              <img
-                src={adaptiveImage(selected.logo, "logo")}
+              <SmartImage
+                src={selected.logo}
+                role="logo"
                 alt={selected.name}
-                decoding="async"
+                eager
+                preview={false}
                 className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
+                fallback={<span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>}
               />
             ) : (
               <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>

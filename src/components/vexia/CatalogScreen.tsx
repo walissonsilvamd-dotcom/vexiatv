@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Clock, Search, SlidersHorizontal, Undo2 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
@@ -10,6 +10,7 @@ import { VirtualizedGrid } from "../VirtualizedGrid";
 import { matchesFilters, sortMedia, useFilters, useSort } from "../../lib/filters-store";
 import { SortControl } from "./SortControl";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
+import { preloadImages } from "../../lib/image";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
 import { QrPlaylistDialog } from "./QrPlaylistDialog";
@@ -90,6 +91,12 @@ export function CatalogScreen({
   );
   const useVirtual = activeFilters === 0 && virtualItems.length > VIRTUALIZE_FROM;
   const hasContent = items.length > 0;
+
+  // Pré-carrega os primeiros pôsteres para a grade aparecer instantaneamente.
+  useEffect(() => {
+    const first = filtered.slice(0, 12).map((item) => item.poster).filter(Boolean) as string[];
+    if (first.length) preloadImages(first, "poster");
+  }, [filtered]);
 
 
   return (

@@ -3,7 +3,7 @@ import { Clapperboard, Film, ImageOff, Tv, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { usePlaylist } from "../../lib/playlist-store";
 import { formatDuration, matchWatch, type WatchEntry } from "../../lib/history-store";
-import { adaptiveImage, adaptiveSizes, adaptiveSrcSet } from "../../lib/image";
+import { SmartImage } from "./SmartImage";
 
 /** Resolve o item salvo com a lista atual (id → url → nome normalizado). */
 export function useResolvedHistory(entries: WatchEntry[]) {
@@ -95,14 +95,10 @@ export function WatchCard({
       >
         <div className={`relative w-full overflow-hidden ${isLive ? "aspect-video" : "aspect-[2/3]"}`}>
           {image && !broken ? (
-            <img
-              src={adaptiveImage(image, isLive ? "logo" : "poster")}
-              srcSet={adaptiveSrcSet(image, isLive ? "logo" : "poster")}
-              sizes={adaptiveSizes("poster")}
+            <SmartImage
+              src={image}
+              role={isLive ? "logo" : "poster"}
               alt={entry.name}
-              loading="lazy"
-              decoding="async"
-              onError={() => setBroken(true)}
               className={`h-full w-full ${isLive ? "object-contain p-3" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
             />
           ) : (
