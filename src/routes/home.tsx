@@ -26,7 +26,8 @@ import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
 import type { ResolvedWatch } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
-import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
+import { preloadImage } from "../lib/image";
+import { SmartImage } from "../components/vexia/SmartImage";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -150,10 +151,10 @@ function HomePage() {
   useEffect(() => {
     if (slides.length < 2) return;
     const next = slides[(slide + 1) % slides.length];
-    if (next?.image) {
-      const img = new Image();
-      img.src = adaptiveImage(next.image, "backdrop") ?? next.image;
-    }
+    // Pré-carrega os dois próximos slides (decodificados) para a troca ser instantânea.
+    const after = slides[(slide + 2) % slides.length];
+    preloadImage(next?.image, "backdrop");
+    preloadImage(after?.image, "backdrop");
   }, [slide, slides]);
 
   // Relógio da barra superior.
@@ -202,13 +203,12 @@ function HomePage() {
     >
       {/* Fundo */}
       <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
-        <img
-          src={adaptiveImage(HERO.image, "backdrop")}
-          srcSet={adaptiveSrcSet(HERO.image, "backdrop")}
-          sizes="100vw"
+        <SmartImage
+          src={HERO.image}
+          role="backdrop"
           alt={HERO.title}
-          decoding="async"
-          fetchPriority="high"
+          eager
+          sizes="100vw"
           className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
         />
       </div>

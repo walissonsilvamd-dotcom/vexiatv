@@ -39,6 +39,12 @@ function pickBackdropSize(width = screenWidth()): string {
   return "w500";
 }
 
+/** Logos e miniaturas de cena não precisam de tamanho grande. */
+function pickSmallSize(width = screenWidth()): string {
+  return width >= 1500 ? "w500" : "w300";
+}
+
+
 /** É uma URL de imagem do TMDB (podemos trocar o tamanho livremente)? */
 export function isTmdbImage(url?: string | null): boolean {
   return !!url && url.includes(TMDB_HOST);
@@ -55,7 +61,12 @@ function replaceSize(url: string, size: string): string {
 export function adaptiveImage(url?: string | null, role: ImageRole = "poster"): string | undefined {
   if (!url) return undefined;
   if (!isTmdbImage(url)) return url;
-  const size = role === "backdrop" ? pickBackdropSize() : pickPosterSize();
+  const size =
+    role === "backdrop"
+      ? pickBackdropSize()
+      : role === "logo" || role === "still"
+        ? pickSmallSize()
+        : pickPosterSize();
   return replaceSize(url, size);
 }
 
@@ -73,4 +84,36 @@ export function adaptiveSizes(role: ImageRole = "poster"): string {
   return role === "backdrop"
     ? "100vw"
     : "(min-width: 1600px) 16vw, (min-width: 1024px) 20vw, 32vw";
+}
+
+/* ────────────────────────────────────────────────────────────────
+ * Carregamento progressivo (LQIP) e pré-carregamento
+ * ──────────────────────────────────────────────────────────────── */
+
+/** Miniatura minúscula usada como "prévia borrada" enquanto a real carrega. */
+export function placeholderImage(url?: string | null, role: ImageRole = "poster"): string | undefined {
+  if (!url || !isTmdbImage(url)) return undefined;
+  return replaceSize(url, role === "backdrop" ? "w300" : "w92");
+}
+
+const preloaded = new Set<string>();
+
+/**
+ * Baixa (e decodifica) uma imagem em segundo plano, sem bloquear a interface.
+ * Evita a "piscada" e o travamento ao trocar de slide/card na TV.
+ */
+export function preloadImage(url?: string | null, role: ImageRole = "poster"): void {
+  if (typeof window === "undefined") return;
+  const target = adaptiveImage(url, role);
+  if (!target || preloaded.has(target)) return;
+  preloaded.add(target);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = target;
+  void img.decode?.().catch(() => {});
+}
+
+/** Pré-carrega uma lista curta de imagens (ex.: primeiras linhas de um grid). */
+export function preloadImages(urls: (string | null | undefined)[], role: ImageRole = "poster"): void {
+  for (const url of urls.slice(0, 12)) preloadImage(url, role);
 }

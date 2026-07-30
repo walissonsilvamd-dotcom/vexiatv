@@ -5,6 +5,9 @@ export function VexiaLogo({ className = "h-14" }: { className?: string }) {
     <img
       src={logoAsset.url}
       alt="VÉXIA TV"
+      loading="eager"
+      decoding="async"
+      fetchPriority="high"
       className={`${className} w-auto select-none object-contain`}
       style={{ filter: "drop-shadow(0 0 18px color-mix(in oklab, var(--vexia-purple) 65%, transparent))" }}
       draggable={false}

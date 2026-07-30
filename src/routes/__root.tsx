@@ -14,6 +14,7 @@ import { PlaylistProvider } from "../lib/playlist-store";
 import { SettingsProvider } from "../lib/settings-store";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerImageCache } from "../lib/image-cache";
+import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -97,6 +98,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://image.tmdb.org", crossOrigin: "anonymous" },
+      { rel: "preload", as: "image", href: logoAsset.url },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
       { rel: "apple-touch-icon", type: "image/png", sizes: "180x180", href: "/apple-touch-icon.png" },
     ],
