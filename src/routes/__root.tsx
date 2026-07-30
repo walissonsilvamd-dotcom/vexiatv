@@ -117,6 +117,47 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        {/* Filtros de otimização de imagem (unsharp mask real + limpeza de ruído).
+            Precisam existir no documento para que o CSS possa referenciá-los. */}
+        <svg
+          aria-hidden
+          focusable="false"
+          width="0"
+          height="0"
+          style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+        >
+          <defs>
+            {/* Nitidez leve: convolução 3x3 tipo "unsharp mask". */}
+            <filter id="vexia-sharpen-soft" colorInterpolationFilters="sRGB">
+              <feConvolveMatrix
+                order="3"
+                preserveAlpha="true"
+                kernelMatrix="0 -0.18 0 -0.18 1.72 -0.18 0 -0.18 0"
+              />
+            </filter>
+            {/* Nitidez média: micro-desfoque remove ruído/bloco de JPEG antes
+                de reforçar as bordas. */}
+            <filter id="vexia-sharpen-medium" colorInterpolationFilters="sRGB">
+              <feGaussianBlur stdDeviation="0.35" result="clean" />
+              <feConvolveMatrix
+                in="clean"
+                order="3"
+                preserveAlpha="true"
+                kernelMatrix="0 -0.3 0 -0.3 2.2 -0.3 0 -0.3 0"
+              />
+            </filter>
+            {/* Ampliação grande: limpeza mais forte + reforço de borda maior. */}
+            <filter id="vexia-sharpen-strong" colorInterpolationFilters="sRGB">
+              <feGaussianBlur stdDeviation="0.6" result="clean" />
+              <feConvolveMatrix
+                in="clean"
+                order="3"
+                preserveAlpha="true"
+                kernelMatrix="-0.1 -0.4 -0.1 -0.4 3.0 -0.4 -0.1 -0.4 -0.1"
+              />
+            </filter>
+          </defs>
+        </svg>
         {children}
         <Scripts />
       </body>

@@ -474,15 +474,27 @@ body {
   transform: translateZ(0);
 }
 .vexia-img-enhance-soft {
-  filter: contrast(1.03) saturate(1.04) brightness(1.005);
+  filter: url(#vexia-sharpen-soft) contrast(1.03) saturate(1.04) brightness(1.005);
 }
 .vexia-img-enhance-medium {
-  filter: contrast(1.06) saturate(1.07) brightness(1.01) blur(0.15px);
+  filter: url(#vexia-sharpen-medium) contrast(1.05) saturate(1.06) brightness(1.01);
 }
 .vexia-img-enhance-strong {
-  /* Ampliação grande: um micro-desfoque remove o ruído/bloco do JPEG e o
-     contraste local devolve a nitidez — efeito "unsharp mask" barato. */
-  filter: blur(0.35px) contrast(1.1) saturate(1.1) brightness(1.015);
+  /* Ampliação grande: unsharp mask real (SVG) devolve definição e o contraste
+     local reforça o microdetalhe perdido no upscale. */
+  filter: url(#vexia-sharpen-strong) contrast(1.08) saturate(1.08) brightness(1.015);
+}
+/* Aparelhos sem suporte a filtro SVG em imagem caem no realce só de CSS. */
+@supports not (filter: url("#vexia-sharpen-soft")) {
+  .vexia-img-enhance-soft {
+    filter: contrast(1.04) saturate(1.05);
+  }
+  .vexia-img-enhance-medium {
+    filter: contrast(1.07) saturate(1.07) blur(0.15px);
+  }
+  .vexia-img-enhance-strong {
+    filter: blur(0.35px) contrast(1.1) saturate(1.1) brightness(1.015);
+  }
 }
 
 
