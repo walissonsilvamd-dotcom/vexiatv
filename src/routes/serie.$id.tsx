@@ -98,6 +98,12 @@ function EpisodesPage() {
                     type="button"
                     data-nav-row={si + 1}
                     tabIndex={0}
+                    onClick={() =>
+                      void navigate({
+                        to: "/player",
+                        search: { type: "series", id, ep: ep.id },
+                      })
+                    }
                     className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
                   >
                     {ep.thumb ? (
