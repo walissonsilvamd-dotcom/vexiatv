@@ -85,7 +85,8 @@ function yearOf(name: string) {
 function cleanTitle(name: string) {
   return name
     .replace(/\[[^\]]*\]/g, "")
-    .replace(/\((19|20)\d{2}\)/, "")
+    // remove TODAS as marcações de ano entre parênteses (listas repetem: "(2026) (2026)")
+    .replace(/\((19|20)\d{2}\)/g, "")
     .replace(SERIES_RE, "")
     .replace(/\s{2,}/g, " ")
     .replace(/[-–|]\s*$/, "")

@@ -219,14 +219,41 @@ async function fetchTmdb(
   if (isBearer) headers.Authorization = `Bearer ${credential}`;
   const auth = isBearer ? "" : `api_key=${credential}&`;
 
-  const encoded = encodeURIComponent(title);
-  const url = `${TMDB_BASE}/search/${kind}?${auth}query=${encoded}&language=${language}${year ? `&year=${year}` : ""}`;
-  const response = await fetch(url, { headers });
-  if (!response.ok) return null;
+  // Títulos de lista trazem lixo ("(2026)", "[L]", "DUB", "4K"). Tentamos em
+  // etapas: com ano, sem ano e com o título simplificado.
+  const simplified = title
+    .replace(/\((19|20)\d{2}\)/g, "")
+    .replace(/\[[^\]]*\]/g, "")
+    .replace(/\b(4k|hd|fhd|sd|dub|dublado|leg|legendado|uhd|hdr)\b/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 
-  const json = (await response.json()) as { results?: TmdbSearchResult[] };
-  const result = pickBestMatch(json.results ?? [], title, year);
+  const attempts: Array<{ query: string; year?: number }> = [{ query: title, year }];
+  if (year) attempts.push({ query: title });
+  if (simplified && simplified !== title) {
+    attempts.push({ query: simplified, year });
+    if (year) attempts.push({ query: simplified });
+  }
+
+  let result: TmdbSearchResult | null = null;
+  let matchedQuery = title;
+  for (const attempt of attempts) {
+    const url = `${TMDB_BASE}/search/${kind}?${auth}query=${encodeURIComponent(attempt.query)}&language=${language}${
+      attempt.year ? `&year=${attempt.year}` : ""
+    }`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) continue;
+    const json = (await response.json()) as { results?: TmdbSearchResult[] };
+    const found = pickBestMatch(json.results ?? [], attempt.query, attempt.year);
+    if (found) {
+      result = found;
+      matchedQuery = attempt.query;
+      break;
+    }
+  }
   if (!result) return null;
+  void matchedQuery;
+
 
   const detailsUrl = `${TMDB_BASE}/${kind}/${result.id}?${auth}language=${language}&append_to_response=credits`;
   const detailsRes = await fetch(detailsUrl, { headers });
