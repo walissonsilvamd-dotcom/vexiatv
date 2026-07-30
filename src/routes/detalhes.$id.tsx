@@ -105,10 +105,21 @@ function DetailsPage() {
     );
   }
 
-  const pool = [...movies, ...series];
-  const recommendations = pool
-    .filter((m) => m.id !== item.id && m.genres.some((g) => item.genres.includes(g)))
-    .slice(0, 14);
+  // Recomendações: prioriza o MESMO tipo (série -> séries, filme -> filmes).
+  // Muitos itens da lista M3U ainda não têm gênero (só depois do TMDB), então
+  // usamos gênero -> categoria -> mesmo tipo como camadas de fallback.
+  const sameKindPool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
+  const otherPool = (isSeries ? movies : series).filter((m) => m.id !== item.id);
+  const score = (m: MediaItem) => {
+    const genreHit = m.genres?.some((g) => item.genres?.includes(g)) ? 2 : 0;
+    const catHit = m.category && item.category && m.category === item.category ? 1 : 0;
+    return genreHit + catHit;
+  };
+  const ranked = [...sameKindPool]
+    .map((m) => ({ m, s: score(m) }))
+    .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0))
+    .map((x) => x.m);
+  const recommendations = (ranked.length >= 8 ? ranked : [...ranked, ...otherPool]).slice(0, 14);
 
   const addedAt = source?.loadedAt ? new Date(source.loadedAt) : null;
   const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
