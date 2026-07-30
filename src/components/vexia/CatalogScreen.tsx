@@ -53,14 +53,25 @@ export function CatalogScreen({
     return map;
   }, [items]);
 
+  /* Índice de busca criado uma vez por lista — suporta 20.000+ títulos. */
+  const index = useMemo(
+    () =>
+      buildSearchIndex(items, {
+        id: (item) => item.id,
+        name: (item) => item.title,
+        category: (item) => item.category ?? "",
+        genre: (item) => item.genres.join(" "),
+        year: (item) => item.year,
+      }),
+    [items],
+  );
+
+  const debouncedQuery = useDebounce(query, 250);
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return items.filter(
-      (item) =>
-        (category === "Todos" || item.genres[0] === category) &&
-        (!q || item.title.toLowerCase().includes(q)),
-    );
-  }, [items, category, query]);
+    const base = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : items;
+    return category === "Todos" ? base : base.filter((item) => item.genres[0] === category);
+  }, [index, items, debouncedQuery, category]);
 
   // Filtros inteligentes: enriquece a página atual com TMDB antes de aplicar.
   const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
@@ -72,7 +83,14 @@ export function CatalogScreen({
         : enriched.filter((item) => matchesFilters(item, kind, filters));
     return sortMedia(base, sort);
   }, [activeFilters, page, enriched, filters, kind, sort]);
+  /* Sem filtros TMDB ativos, a lista inteira é exibida virtualizada. */
+  const virtualItems = useMemo(
+    () => (activeFilters === 0 ? sortMedia(filtered, sort) : []),
+    [activeFilters, filtered, sort],
+  );
+  const useVirtual = activeFilters === 0 && virtualItems.length > VIRTUALIZE_FROM;
   const hasContent = items.length > 0;
+
 
   return (
     <main
