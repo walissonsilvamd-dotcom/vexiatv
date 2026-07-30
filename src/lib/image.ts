@@ -96,6 +96,18 @@ export function placeholderImage(url?: string | null, role: ImageRole = "poster"
   return replaceSize(url, role === "backdrop" ? "w300" : "w92");
 }
 
+/**
+ * URL "estável" (não depende do tamanho da tela) usada no atributo `src`.
+ * Evita diferença entre servidor e navegador; o `srcSet` continua deixando o
+ * navegador escolher a melhor resolução real.
+ */
+export function stableImage(url?: string | null, role: ImageRole = "poster"): string | undefined {
+  if (!url) return undefined;
+  if (!isTmdbImage(url)) return url;
+  const size = role === "backdrop" ? "w1280" : role === "logo" || role === "still" ? "w300" : "w500";
+  return replaceSize(url, size);
+}
+
 const preloaded = new Set<string>();
 
 /**

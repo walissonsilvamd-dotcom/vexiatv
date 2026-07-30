@@ -5,6 +5,7 @@ import {
   adaptiveSizes,
   adaptiveSrcSet,
   placeholderImage,
+  stableImage,
   type ImageRole,
 } from "../../lib/image";
 
@@ -45,7 +46,7 @@ export function SmartImage({
   const [loaded, setLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const full = adaptiveImage(src, role);
+  const full = stableImage(src, role);
   const preview = usePreview ? placeholderImage(src, role) : undefined;
 
   useEffect(() => {
@@ -73,15 +74,19 @@ export function SmartImage({
 
   return (
     <>
-      {preview && !loaded ? (
-        <img
-          src={preview}
-          alt=""
-          aria-hidden
-          decoding="async"
-          style={shared}
-          className={`vexia-img-preview ${className}`}
-        />
+      {usePreview && !loaded ? (
+        preview ? (
+          <img
+            src={preview}
+            alt=""
+            aria-hidden
+            decoding="async"
+            style={shared}
+            className={`vexia-img-preview ${className}`}
+          />
+        ) : (
+          <span className="vexia-img-skeleton" aria-hidden />
+        )
       ) : null}
       <img
         ref={imgRef}
