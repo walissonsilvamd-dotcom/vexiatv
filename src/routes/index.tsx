@@ -48,7 +48,7 @@ function SplashScreen() {
         {/* Logo: entrada com foco, brilho neon pulsante e brilho que atravessa. */}
         <div className="relative mx-auto max-w-full animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
           <div className="animate-[splash-logo-breathe_3.2s_ease-in-out_infinite]">
-            <VexiaLogo className="mx-auto h-auto w-[min(52vmin,100%)] max-h-[46vh] object-contain" />
+            <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-full object-contain" />
           </div>
 
           <span
