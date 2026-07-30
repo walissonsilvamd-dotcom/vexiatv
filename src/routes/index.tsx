@@ -30,15 +30,7 @@ function SplashScreen() {
   }, [navigate]);
 
   return (
-    <div
-      className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]"
-      style={{
-        paddingTop: "env(safe-area-inset-top)",
-        paddingBottom: "env(safe-area-inset-bottom)",
-        paddingLeft: "env(safe-area-inset-left)",
-        paddingRight: "env(safe-area-inset-right)",
-      }}
-    >
+    <div className="vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
       {/* Aura de energia que respira atrás da logo — centralizada de forma absoluta. */}
       <div
         aria-hidden
@@ -50,14 +42,15 @@ function SplashScreen() {
         }}
       />
 
-      <div className="relative flex w-full max-w-[92vw] flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
+      <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
         {/* Logo: entrada com foco, brilho neon pulsante e brilho que atravessa. */}
-        <div className="relative mx-auto animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
+        <div className="relative mx-auto max-w-full animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
           <div className="animate-[splash-logo-breathe_3.2s_ease-in-out_infinite]">
-            <VexiaLogo className="mx-auto h-[clamp(9rem,34vmin,24rem)] max-w-[80vw]" />
+            <VexiaLogo className="mx-auto h-auto w-[min(52vmin,100%)] max-h-[46vh] object-contain" />
           </div>
+
           <span
             aria-hidden
             className="pointer-events-none absolute inset-0 animate-[splash-shine_3.2s_ease-in-out_infinite]"
