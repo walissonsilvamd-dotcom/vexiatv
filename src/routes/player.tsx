@@ -631,7 +631,7 @@ function PlayerPage() {
         </div>
       )}
 
-      {!src ? (
+      {!src && !expired ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
           <div>
             <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
