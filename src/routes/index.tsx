@@ -107,13 +107,21 @@ function SplashScreen() {
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
         @keyframes splash-logo-reveal {
-          0%   { opacity: 0; transform: scale(1.06) translateY(6px); filter: blur(10px); }
-          55%  { opacity: 1; filter: blur(0.4px); }
+          0%   { opacity: 0; transform: scale(0.86) translateY(20px); filter: blur(12px); }
+          60%  { opacity: 1; transform: scale(1.02) translateY(0); filter: blur(0.4px); }
           100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
-        @keyframes splash-halo-in {
-          from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
-          to   { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+        @keyframes splash-logo-glow {
+          0%, 100% { filter: drop-shadow(0 0 18px color-mix(in oklab, var(--vexia-purple) 55%, transparent)); }
+          50%      { filter: drop-shadow(0 0 34px color-mix(in oklab, var(--vexia-cyan) 55%, transparent)); }
+        }
+        @keyframes splash-breathe {
+          0%, 100% { opacity: 0.55; transform: scale(1); }
+          50%      { opacity: 0.9;  transform: scale(1.08); }
+        }
+        @keyframes splash-aurora {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
         }
         @keyframes splash-rule {
           from { opacity: 0; transform: scaleX(0.2); }
