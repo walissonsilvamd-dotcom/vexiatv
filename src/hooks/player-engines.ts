@@ -90,12 +90,23 @@ export async function attachEngine(
     const instance = new Hls({
       lowLatencyMode: live,
       enableWorker: true,
-      backBufferLength: live ? 30 : 60,
-      maxBufferLength: live ? 20 : 45,
-      maxBufferHole: 1,
-      manifestLoadingTimeOut: 12_000,
-      levelLoadingTimeOut: 12_000,
-      fragLoadingTimeOut: 15_000,
+      startFragPrefetch: true,
+      testBandwidth: true,
+      capLevelToPlayerSize: true,
+      startLevel: -1,
+      backBufferLength: live ? 20 : 90,
+      maxBufferLength: live ? 30 : 60,
+      maxMaxBufferLength: live ? 60 : 120,
+      maxBufferHole: 0.5,
+      highBufferWatchdogPeriod: 1,
+      nudgeOffset: 0.1,
+      nudgeMaxRetry: 2,
+      manifestLoadingTimeOut: 8_000,
+      manifestLoadingMaxRetry: 2,
+      levelLoadingTimeOut: 8_000,
+      levelLoadingMaxRetry: 2,
+      fragLoadingTimeOut: 10_000,
+      fragLoadingMaxRetry: 3,
     });
     instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
     instance.on(Hls.Events.MANIFEST_PARSED, () => onReadyToPlay());
@@ -122,7 +133,21 @@ export async function attachEngine(
   }
   const player = mpegts.createPlayer(
     { type: "mpegts", isLive: live, url: src },
-    { enableWorker: true, enableStashBuffer: !live, lazyLoad: !live, autoCleanupSourceBuffer: true },
+    {
+      enableWorker: true,
+      enableStashBuffer: true,
+      stashInitialSize: live ? 256 * 1024 : 1024 * 1024,
+      lazyLoad: !live,
+      lazyLoadMaxDuration: live ? 30 : 180,
+      lazyLoadRecoverDuration: live ? 10 : 30,
+      liveBufferLatencyChasing: live,
+      liveBufferLatencyMaxLatency: 3,
+      liveBufferLatencyMinRemain: 0.5,
+      autoCleanupSourceBuffer: true,
+      autoCleanupMaxBackwardDuration: live ? 30 : 120,
+      autoCleanupMinBackwardDuration: live ? 15 : 60,
+      fixAudioTimestampGap: true,
+    },
   );
   const onError = (errorType: unknown, errorDetail: unknown) => {
     fail(`mpegts • ${String(errorType)} • ${String(errorDetail)}`, () => {
