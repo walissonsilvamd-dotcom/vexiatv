@@ -188,12 +188,6 @@ export function EpisodeCarousel({
                       <Play className="h-3.5 w-3.5 fill-current text-white" aria-hidden />
                     </span>
                   ) : null}
-                  {meta?.rating ? (
-                    <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-vexia-gold">
-                      <Star className="h-3 w-3 fill-current" aria-hidden />
-                      {meta.rating.toFixed(1)}
-                    </span>
-                  ) : null}
                 </div>
 
                 <div className="space-y-1 p-2.5">
