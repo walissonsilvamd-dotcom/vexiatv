@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
-import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { SLOGAN } from "../data/vexia-catalog";
 
@@ -45,27 +44,9 @@ function SplashScreen() {
       <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
-        {/* Logo: revelação cinematográfica (foco + assentamento) e um único brilho especular. */}
+        {/* Logo: revelação cinematográfica (foco + assentamento). */}
         <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1500ms_cubic-bezier(0.16,1,0.3,1)_both]">
           <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain" />
-
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 animate-[splash-sheen_2600ms_cubic-bezier(0.4,0,0.2,1)_800ms_both]"
-            style={{
-              background:
-                "linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.38) 50%, transparent 58%)",
-              mixBlendMode: "screen",
-              maskImage: `url(${logoAsset.url})`,
-              WebkitMaskImage: `url(${logoAsset.url})`,
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-            }}
-          />
         </div>
 
         {/* Filete de luz que se abre sob a logo — acabamento sóbrio, sem pulsar. */}
@@ -98,8 +79,6 @@ function SplashScreen() {
         {SLOGAN}
       </p>
 
-
-
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
@@ -107,12 +86,6 @@ function SplashScreen() {
           0%   { opacity: 0; transform: scale(1.06) translateY(6px); filter: blur(10px); }
           55%  { opacity: 1; filter: blur(0.4px); }
           100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-        }
-        @keyframes splash-sheen {
-          0%   { transform: translateX(-115%); opacity: 0; }
-          18%  { opacity: 1; }
-          62%  { transform: translateX(115%); opacity: 0; }
-          100% { transform: translateX(115%); opacity: 0; }
         }
         @keyframes splash-halo-in {
           from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
@@ -122,12 +95,7 @@ function SplashScreen() {
           from { opacity: 0; transform: scaleX(0.2); }
           to   { opacity: 0.85; transform: scaleX(1); }
         }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-\\[splash-sheen_2600ms_cubic-bezier\\(0\\.4\\,0\\,0\\.2\\,1\\)_800ms_both\\] { animation: none; opacity: 0; }
-        }
       `}</style>
-
     </div>
   );
 }
-
