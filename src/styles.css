@@ -442,6 +442,29 @@ body {
   pointer-events: none;
 }
 
+/* ── Otimização automática: upscale suave + nitidez + limpeza de ruído ──
+   Aplicada só quando a imagem está sendo ampliada além da resolução real.
+   `image-rendering: auto` mantém a interpolação suave (sem serrilhado) e o
+   filtro devolve microcontraste/definição perdidos na ampliação. */
+.vexia-img-enhance-soft,
+.vexia-img-enhance-medium,
+.vexia-img-enhance-strong {
+  image-rendering: auto;
+  transform: translateZ(0);
+}
+.vexia-img-enhance-soft {
+  filter: contrast(1.03) saturate(1.04) brightness(1.005);
+}
+.vexia-img-enhance-medium {
+  filter: contrast(1.06) saturate(1.07) brightness(1.01) blur(0.15px);
+}
+.vexia-img-enhance-strong {
+  /* Ampliação grande: um micro-desfoque remove o ruído/bloco do JPEG e o
+     contraste local devolve a nitidez — efeito "unsharp mask" barato. */
+  filter: blur(0.35px) contrast(1.1) saturate(1.1) brightness(1.015);
+}
+
+
 
 /* ── Foco premium dos cards (zoom + borda neon + brilho) ─────────── */
 @utility vexia-card-focus {

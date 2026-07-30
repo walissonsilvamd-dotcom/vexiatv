@@ -3,8 +3,11 @@ import { ImageOff } from "lucide-react";
 import {
   adaptiveSizes,
   adaptiveSrcSet,
+  enhanceLevel,
   placeholderImage,
   stableImage,
+  upgradeTmdbSize,
+  type EnhanceLevel,
   type ImageRole,
 } from "../../lib/image";
 
@@ -46,20 +49,56 @@ export function SmartImage({
 }) {
   const [broken, setBroken] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [enhance, setEnhance] = useState<EnhanceLevel>("none");
+  /** Fonte melhorada (upscale inteligente) quando a original é pequena demais. */
+  const [upgraded, setUpgraded] = useState<string | undefined>(undefined);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const full = stableImage(src, role);
+  const base = stableImage(src, role);
+  const full = upgraded ?? base;
   const preview = usePreview ? placeholderImage(src, role) : undefined;
 
   useEffect(() => {
     setBroken(false);
     setLoaded(false);
-  }, [full]);
+    setEnhance("none");
+    setUpgraded(undefined);
+  }, [base]);
+
+  /**
+   * Otimização automática: compara a resolução real do arquivo com o tamanho
+   * desenhado na tela. Se estiver sendo ampliada, primeiro tenta buscar uma
+   * versão maior no TMDB (upscale inteligente por fonte); se já for a maior
+   * disponível, aplica o realce (nitidez + redução de ruído) proporcional.
+   */
+  const optimize = (el: HTMLImageElement) => {
+    const rendered = Math.round(
+      (el.getBoundingClientRect().width || el.clientWidth) *
+        Math.min(window.devicePixelRatio || 1, 2),
+    );
+    const level = enhanceLevel(el.naturalWidth, rendered);
+    if (level === "none") {
+      setEnhance("none");
+      return;
+    }
+    if (!upgraded) {
+      const better = upgradeTmdbSize(el.currentSrc || full, role);
+      if (better) {
+        setUpgraded(better);
+        return;
+      }
+    }
+    setEnhance(level);
+  };
 
   // Se a imagem já estava em cache (SW / navegador), o onLoad pode não disparar.
   useEffect(() => {
     const el = imgRef.current;
-    if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+    if (el?.complete && el.naturalWidth > 0) {
+      setLoaded(true);
+      optimize(el);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [full]);
 
   if (!src || broken) {
@@ -93,8 +132,8 @@ export function SmartImage({
       <img
         ref={imgRef}
         src={full}
-        srcSet={adaptiveSrcSet(src, role)}
-        sizes={sizes ?? adaptiveSizes(role)}
+        srcSet={upgraded ? undefined : adaptiveSrcSet(src, role)}
+        sizes={upgraded ? undefined : (sizes ?? adaptiveSizes(role))}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
@@ -102,16 +141,27 @@ export function SmartImage({
         onLoad={(event) => {
           const el = event.currentTarget;
           // Decodifica antes de exibir: mantém o scroll da TV fluido.
-          const done = () => setLoaded(true);
+          const done = () => {
+            setLoaded(true);
+            optimize(el);
+          };
           if (el.decode) el.decode().then(done, done);
           else done();
         }}
         onError={() => {
+          if (upgraded) {
+            // A versão maior não existe: volta para a original e realça.
+            setUpgraded(undefined);
+            setEnhance("medium");
+            return;
+          }
           setBroken(true);
           onFail?.();
         }}
         style={shared}
-        className={`vexia-img ${loaded ? "is-loaded" : ""} ${className}`}
+        className={`vexia-img ${loaded ? "is-loaded" : ""} ${
+          enhance !== "none" ? `vexia-img-enhance-${enhance}` : ""
+        } ${className}`}
       />
     </>
   );
