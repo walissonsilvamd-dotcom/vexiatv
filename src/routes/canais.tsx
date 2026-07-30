@@ -117,7 +117,7 @@ function ChannelsPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex items-center gap-4 px-6 py-4 md:px-10">
+      <header className="flex flex-wrap items-center gap-3 px-6 py-4 md:px-10">
         <TopNav active="Canais" />
         <label className="relative max-w-xl flex-1">
           <Search
