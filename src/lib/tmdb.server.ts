@@ -228,11 +228,21 @@ async function fetchTmdb(
     .replace(/\s{2,}/g, " ")
     .trim();
 
+  // Remove prefixos de país/categoria ("BR | ", "LEG: ") e sufixos após " - ".
+  const stripped = simplified
+    .replace(/^[a-z]{2,4}\s*[|:\-]\s*/i, "")
+    .replace(/\s+-\s+.*$/, "")
+    .trim();
+
   const attempts: Array<{ query: string; year?: number }> = [{ query: title, year }];
   if (year) attempts.push({ query: title });
   if (simplified && simplified !== title) {
     attempts.push({ query: simplified, year });
     if (year) attempts.push({ query: simplified });
+  }
+  if (stripped && stripped !== simplified && stripped.length > 2) {
+    attempts.push({ query: stripped, year });
+    attempts.push({ query: stripped });
   }
 
   let result: TmdbSearchResult | null = null;
@@ -251,7 +261,28 @@ async function fetchTmdb(
       break;
     }
   }
-  if (!result) return null;
+  // Última tentativa: o provedor pode ter classificado errado (filme x série).
+  if (!result) {
+    const other: TmdbKind = kind === "movie" ? "tv" : "movie";
+    for (const attempt of [{ query: simplified || title }, { query: stripped }]) {
+      if (!attempt.query) continue;
+      const url = `${TMDB_BASE}/search/${other}?${auth}query=${encodeURIComponent(attempt.query)}&language=${language}`;
+      const response = await fetch(url, { headers });
+      if (!response.ok) continue;
+      const json = (await response.json()) as { results?: TmdbSearchResult[] };
+      const found = pickBestMatch(json.results ?? [], attempt.query, undefined);
+      if (found) {
+        const detailsRes = await fetch(
+          `${TMDB_BASE}/${other}/${found.id}?${auth}language=${language}&append_to_response=credits`,
+          { headers },
+        );
+        if (!detailsRes.ok) return null;
+        const details = (await detailsRes.json()) as TmdbMovieDetails | TmdbTvDetails;
+        return normalizeTmdb(details, other);
+      }
+    }
+    return null;
+  }
   void matchedQuery;
 
 
