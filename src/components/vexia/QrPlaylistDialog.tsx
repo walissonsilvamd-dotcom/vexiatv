@@ -53,10 +53,18 @@ export function QrPlaylistDialog({
   if (!open) return null;
 
   const submit = () => {
-    if (!url.trim()) return;
+    const raw = url.trim();
+    // Aceita link M3U, m3u_plus, HLS (.m3u8) ou uma URL de painel com usuário/senha.
+    const parsed = parsePastedAccess(raw);
+    const finalUrl =
+      parsed.url ??
+      (parsed.server && parsed.username
+        ? buildXtreamUrl(parsed.server, parsed.username, parsed.password ?? "")
+        : raw);
+    if (!isLikelyPlaylistUrl(finalUrl)) return;
     const finalName = name.trim() || "Minha Lista IPTV";
     onClose();
-    void navigate({ to: "/carregando", search: { url: url.trim(), name: finalName } });
+    void navigate({ to: "/carregando", search: { url: finalUrl, name: finalName } });
   };
 
   const isLoading = loading || done;
