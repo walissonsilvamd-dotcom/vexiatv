@@ -612,7 +612,20 @@ function PlayerPage() {
 
   return (
     <main
-      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white"
+      ref={shellRef}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        if (showEpisodes && (e.key === "ArrowDown" || e.key === "Down")) {
+          e.preventDefault();
+          setDrawerOpen(true);
+          window.setTimeout(() => {
+            carouselRef.current
+              ?.querySelector<HTMLButtonElement>('button[aria-current="true"]')
+              ?.focus();
+          }, 260);
+        }
+      }}
+      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white focus:outline-none"
     >
       <div
         ref={shellRef}
