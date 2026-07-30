@@ -197,36 +197,66 @@ function DetailsPage() {
               ) : null}
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                data-nav-row={1}
-                tabIndex={0}
-                onClick={() =>
-                  navigate({
-                    to: "/player",
-                    search: {
-                      type: isSeries ? "series" : "movie",
-                      id: item.id,
-                      ep: isSeries ? (resume?.key.split("::")[1] ?? seasons[0]?.episodes[0]?.id) : undefined,
-                    },
-                  })
-                }
-                className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
-              >
-                <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
-              </button>
-              {isSeries ? (
-                <a
-                  href="#temporadas"
+            {isSeries && seasons.length > 0 ? (
+              <div className="mt-5 space-y-2">
+                <p className="text-[11px] font-black tracking-[0.14em] text-vexia-purple-soft">
+                  ESCOLHA A TEMPORADA
+                </p>
+                <div className="flex flex-wrap gap-2.5">
+                  {seasons.map((season) => {
+                    const active = season.number === selectedSeason;
+                    return (
+                      <button
+                        key={season.number}
+                        type="button"
+                        data-nav-row={1}
+                        tabIndex={0}
+                        aria-pressed={active}
+                        onClick={() => {
+                          setSelectedSeason(season.number);
+                          document
+                            .getElementById("temporadas")
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className={`vexia-focus inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold tracking-wide transition ${
+                          active
+                            ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
+                            : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
+                        }`}
+                      >
+                        <ListVideo className="h-4 w-4" aria-hidden /> TEMPORADA{" "}
+                        {String(season.number).padStart(2, "0")}
+                        <span className="text-[10px] font-semibold text-vexia-cyan">
+                          {season.episodes.length} ep
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button
+                  type="button"
                   data-nav-row={1}
                   tabIndex={0}
-                  className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-wide text-vexia-text"
+                  onClick={() =>
+                    navigate({
+                      to: "/player",
+                      search: {
+                        type: isSeries ? "series" : "movie",
+                        id: item.id,
+                        ep: isSeries ? resume?.key.split("::")[1] : undefined,
+                      },
+                    })
+                  }
+                  className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
                 >
-                  <ListVideo className="h-4 w-4" aria-hidden /> TEMPORADAS
-                </a>
-              ) : null}
-            </div>
+                  <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
       </section>
