@@ -785,42 +785,31 @@ function PlayerPage() {
       ) : null}
 
 
-      {/* ── Retomar reprodução ── */}
-      {resumeAsk && savedEntry ? (
-        <div className="absolute inset-0 z-30 grid place-items-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f] p-5 text-center">
-            <p className="text-sm font-bold">Continuar de onde parou?</p>
-            <p className="mt-1 text-xs text-vexia-cyan">
-              {fmt(savedEntry.positionSec)} de {fmt(savedEntry.durationSec)}
-            </p>
-            <div className="mt-4 flex justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (videoRef.current) videoRef.current.currentTime = savedEntry.positionSec;
-                  setResumeAsk(false);
-                }}
-                className="vexia-focus rounded-full bg-vexia-purple px-5 py-2 text-xs font-bold"
-              >
-                CONTINUAR
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (videoRef.current) videoRef.current.currentTime = 0;
-                  setResumeAsk(false);
-                }}
-                className="vexia-focus rounded-full border border-white/20 px-5 py-2 text-xs font-bold"
-              >
-                DO INÍCIO
-              </button>
-            </div>
+      {/* ── Aviso de retomada automática ── */}
+      {resumeNotice != null ? (
+        <div className="absolute bottom-28 left-1/2 z-30 -translate-x-1/2 px-4">
+          <div className="flex items-center gap-3 rounded-full border border-vexia-purple/50 bg-[#0b0b0f]/95 px-4 py-2 shadow-[0_0_24px_rgba(123,47,190,0.45)]">
+            <span className="text-[11px] font-bold text-vexia-cyan">
+              Retomando de {fmt(resumeNotice)}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                pendingResumeRef.current = null;
+                if (videoRef.current) videoRef.current.currentTime = 0;
+                setResumeNotice(null);
+              }}
+              className="vexia-focus rounded-full bg-vexia-purple px-3 py-1 text-[10px] font-bold text-white"
+            >
+              DO INÍCIO
+            </button>
             <button
               type="button"
               onClick={() => setConfirmForget(true)}
-              className="vexia-focus mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-vexia-text/60 transition-colors hover:text-red-400"
+              className="vexia-focus rounded-full px-2 py-1 text-vexia-text/60 transition-colors hover:text-red-400"
+              aria-label="Remover do histórico"
             >
-              <Trash2 className="h-3.5 w-3.5" aria-hidden /> REMOVER DO HISTÓRICO
+              <Trash2 className="h-3.5 w-3.5" aria-hidden />
             </button>
           </div>
         </div>
@@ -834,10 +823,12 @@ function PlayerPage() {
           clearProgress(progressKey);
           const meta = watchMetaRef.current;
           if (meta?.name) removeWatch(historyKey(meta.kind, meta.name));
+          pendingResumeRef.current = null;
           if (videoRef.current) videoRef.current.currentTime = 0;
           setConfirmForget(false);
-          setResumeAsk(false);
+          setResumeNotice(null);
         }}
+
         onCancel={() => setConfirmForget(false)}
       />
 
