@@ -43,9 +43,7 @@ type Phase = "loading" | "success" | "error";
 function CarregandoPage() {
   const { url, name } = Route.useSearch();
   const navigate = useNavigate();
-  const { loadFromUrl, loadFromText, error: playlistError } = usePlaylist();
-  const errorRef = useRef<string | null>(null);
-  errorRef.current = playlistError;
+  const { loadFromUrl, loadFromText, getLastError } = usePlaylist();
 
   const [stage, setStage] = useState(0);
   const [phase, setPhase] = useState<Phase>("loading");
@@ -94,9 +92,11 @@ function CarregandoPage() {
       window.setTimeout(() => void navigate({ to: "/home" }), 600);
     } else {
       setPhase("error");
-      setErrorMsg(errorRef.current || "Não foi possível carregar sua lista.");
+      setErrorMsg(
+        getLastError() || "Erro ao carregar lista. Verifique a URL e tente novamente.",
+      );
     }
-  }, [url, name, loadFromUrl, loadFromText, navigate]);
+  }, [url, name, loadFromUrl, loadFromText, getLastError, navigate]);
 
   useEffect(() => {
     void start();
