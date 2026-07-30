@@ -27,7 +27,7 @@ import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
 import type { ResolvedWatch } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
-import { preloadImage } from "../lib/image";
+import { preloadImage, preloadImages } from "../lib/image";
 import { SmartImage } from "../components/vexia/SmartImage";
 
 export const Route = createFileRoute("/home")({
@@ -157,9 +157,17 @@ function HomePage() {
     const next = slides[(slide + 1) % slides.length];
     // Pré-carrega os dois próximos slides (decodificados) para a troca ser instantânea.
     const after = slides[(slide + 2) % slides.length];
-    preloadImage(next?.image, "backdrop");
-    preloadImage(after?.image, "backdrop");
+    preloadImage(next?.image, "backdrop", 0);
+    preloadImage(after?.image, "backdrop", 1);
   }, [slide, slides]);
+
+  // Guarda todos os backdrops do carrossel no cache persistente (2ª abertura instantânea).
+  useEffect(() => {
+    if (!slides.length) return;
+    const id = setTimeout(() => preloadImages(slides.map((s) => s.image), "backdrop"), 1500);
+    return () => clearTimeout(id);
+  }, [slides]);
+
 
   // Relógio da barra superior.
   const [now, setNow] = useState(() => new Date());
