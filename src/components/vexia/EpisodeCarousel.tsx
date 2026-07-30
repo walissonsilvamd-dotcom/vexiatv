@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Play } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PlaylistEpisode } from "../../lib/m3u";
 import { useProgress } from "../../lib/progress-store";
@@ -186,12 +186,6 @@ export function EpisodeCarousel({
                   {active ? (
                     <span className="absolute left-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-vexia-purple shadow-[0_0_14px_rgba(0,200,255,0.8)]">
                       <Play className="h-3.5 w-3.5 fill-current text-white" aria-hidden />
-                    </span>
-                  ) : null}
-                  {meta?.rating ? (
-                    <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/75 px-2 py-0.5 text-[10px] font-bold text-vexia-gold">
-                      <Star className="h-3 w-3 fill-current" aria-hidden />
-                      {meta.rating.toFixed(1)}
                     </span>
                   ) : null}
                 </div>
