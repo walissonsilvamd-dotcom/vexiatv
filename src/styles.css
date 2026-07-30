@@ -277,3 +277,127 @@ body {
 .vexia-loader-logo {
   animation: vexia-logo-pulse 2.6s ease-in-out infinite;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   VÉXIA TV — POLIMENTO FINAL (safe area, tipografia TV, animações)
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Área segura contra overscan: TVs antigas cortam as bordas da tela. */
+  --vexia-safe-x: clamp(0px, 1.8vw, 40px);
+  --vexia-safe-y: clamp(0px, 1.2vh, 26px);
+}
+
+/* Margem de proteção aplicada às telas do app. */
+@utility vexia-safe {
+  padding-left: max(var(--vexia-safe-x), env(safe-area-inset-left));
+  padding-right: max(var(--vexia-safe-x), env(safe-area-inset-right));
+  padding-top: max(var(--vexia-safe-y), env(safe-area-inset-top));
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Elementos fixos (menus, controles) também respeitam a área segura. */
+@utility vexia-safe-inset {
+  margin-left: max(var(--vexia-safe-x), env(safe-area-inset-left));
+  margin-right: max(var(--vexia-safe-x), env(safe-area-inset-right));
+  margin-bottom: max(var(--vexia-safe-y), env(safe-area-inset-bottom));
+}
+
+/* ── Tipografia para distância de TV (leitura a 3 metros) ────────── */
+@media (min-width: 1100px) {
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[11px\] {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.35;
+  }
+  .text-\[12px\],
+  .text-\[13px\],
+  .text-xs {
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.4;
+  }
+  .text-sm {
+    font-size: 1rem; /* 16px */
+  }
+}
+
+@media (min-width: 1800px) {
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[11px\],
+  .text-\[12px\],
+  .text-\[13px\],
+  .text-xs {
+    font-size: 1rem; /* 16px */
+  }
+  .text-sm {
+    font-size: 1.0625rem;
+  }
+}
+
+/* ── Imagens: carregamento progressivo com fade ──────────────────── */
+.vexia-img {
+  opacity: 0;
+  transition:
+    opacity 320ms ease,
+    transform 500ms ease;
+}
+.vexia-img.is-loaded {
+  opacity: 1;
+}
+
+/* ── Foco premium dos cards (zoom + borda neon + brilho) ─────────── */
+@utility vexia-card-focus {
+  outline: none;
+  will-change: transform;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  &:focus-visible,
+  &:hover {
+    transform: scale(1.06) translateZ(0);
+    border-color: color-mix(in oklab, var(--vexia-purple-soft) 90%, transparent);
+    box-shadow:
+      0 0 0 2px var(--vexia-purple-soft),
+      0 0 26px -4px color-mix(in oklab, var(--vexia-cyan) 60%, transparent),
+      0 18px 40px -18px rgba(0, 0, 0, 0.9);
+  }
+}
+
+/* ── Carrosséis: fade suave nas laterais ─────────────────────────── */
+@utility vexia-fade-edges {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 3.5%,
+    black 96.5%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 3.5%,
+    black 96.5%,
+    transparent 100%
+  );
+}
+
+@utility vexia-smooth-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;
+}
+
+/* Respeita usuários/TVs que pedem menos animação. */
+@media (prefers-reduced-motion: reduce) {
+  .vexia-img,
+  .vexia-loader-ring,
+  .vexia-loader-ring-2,
+  .vexia-loader-logo {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}
