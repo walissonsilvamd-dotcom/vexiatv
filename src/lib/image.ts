@@ -163,6 +163,28 @@ export function adaptiveSizes(role: ImageRole = "poster"): string {
     : "(min-width: 1600px) 16vw, (min-width: 1024px) 20vw, 32vw";
 }
 
+/**
+ * Tamanho ideal para um elemento já medido na tela.
+ * Recebe a largura em px CSS e converte para pixels físicos usando o DPI real,
+ * garantindo o arquivo mais leve que ainda fica 100% nítido.
+ */
+export function exactImage(
+  url: string | null | undefined,
+  role: ImageRole,
+  renderedCssWidth: number,
+): string | undefined {
+  if (!url) return undefined;
+  if (!isTmdbImage(url) || !renderedCssWidth) return url ?? undefined;
+  const needed = Math.round(renderedCssWidth * profile.dpr);
+  return replaceSize(url, sizeForWidth(needed, role));
+}
+
+/** `sizes` exato em px para um elemento medido — evita o navegador "chutar". */
+export function exactSizes(renderedCssWidth: number): string {
+  return `${Math.max(1, Math.round(renderedCssWidth))}px`;
+}
+
+
 /* ────────────────────────────────────────────────────────────────
  * Carregamento progressivo (LQIP) e pré-carregamento
  * ──────────────────────────────────────────────────────────────── */
