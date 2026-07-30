@@ -114,7 +114,6 @@ function PlayerPage() {
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const drawerOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
@@ -529,10 +528,6 @@ function PlayerPage() {
   useEffect(() => {
     menuOpenRef.current = menu !== null;
   }, [menu]);
-
-  useEffect(() => {
-    drawerOpenRef.current = drawerOpen;
-  }, [drawerOpen]);
 
   // Troca de episódio recolhe a gaveta para o vídeo ficar em tela cheia.
   useEffect(() => {
