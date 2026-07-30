@@ -650,13 +650,16 @@ function PlayerPage() {
             />
             {reconnecting ? (
               <span className="text-xs font-semibold text-vexia-cyan">
-                Trocando motor… {engine ? `(${engine})` : ""} {attempt ? `• tentativa ${attempt}/${MAX_RETRIES}` : ""}
+                {recoveryCycle > 0
+                  ? `Recuperando automaticamente… (ciclo ${recoveryCycle})`
+                  : `Trocando motor… ${engine ? `(${engine})` : ""} ${attempt ? `• tentativa ${attempt}/${MAX_RETRIES}` : ""}`}
               </span>
             ) : standbyReady && standbyEngine ? (
               <span className="text-[11px] font-semibold text-white/50">
                 Reserva pronta ({standbyEngine})
               </span>
             ) : null}
+
 
 
 
