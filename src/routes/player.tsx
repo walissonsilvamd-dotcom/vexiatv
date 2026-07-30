@@ -22,6 +22,13 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  SUBS_OFF,
+  useAudioTracks,
+  useSubtitleTracks,
+  type HlsLike,
+} from "../hooks/useMediaTracks";
+
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
