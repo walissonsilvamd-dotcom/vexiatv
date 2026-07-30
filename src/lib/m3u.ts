@@ -229,6 +229,7 @@ export function buildPlaylist(
 
   entries.forEach((entry, entryIndex) => {
     if (onProgress && (entryIndex & 1023) === 0) onProgress(entryIndex / totalEntries);
+    if (isJunkEntry(entry)) return;
     const kind = classify(entry);
 
     if (kind === "movie") {
