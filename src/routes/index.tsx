@@ -30,9 +30,43 @@ function SplashScreen() {
 
   return (
     <div className="fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
-      <div className="flex flex-col items-center gap-6">
+      {/* Aura de energia que respira atrás da logo. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute h-[70vmin] w-[70vmin] rounded-full animate-[splash-aura_3.6s_ease-in-out_infinite]"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 40%, transparent) 0%, color-mix(in oklab, var(--vexia-cyan) 12%, transparent) 45%, transparent 70%)",
+          filter: "blur(30px)",
+        }}
+      />
+
+      <div className="relative flex flex-col items-center gap-6">
         <h1 className="sr-only">VÉXIA TV</h1>
-        <VexiaLogo className="h-56 md:h-80" />
+
+        {/* Logo: entrada com foco, brilho neon pulsante e brilho que atravessa. */}
+        <div className="relative animate-[splash-logo-in_1100ms_cubic-bezier(0.22,1,0.36,1)_both]">
+          <div className="animate-[splash-logo-breathe_3.2s_ease-in-out_infinite]">
+            <VexiaLogo className="h-56 md:h-80" />
+          </div>
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 animate-[splash-shine_3.2s_ease-in-out_infinite]"
+            style={{
+              background:
+                "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.55) 50%, transparent 60%)",
+              mixBlendMode: "screen",
+              maskImage: `url(${logoAsset.url})`,
+              WebkitMaskImage: `url(${logoAsset.url})`,
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "center",
+              WebkitMaskPosition: "center",
+            }}
+          />
+        </div>
 
         <div
           className="h-12 w-12 rounded-full animate-[splash-spin_1s_linear_infinite]"
@@ -53,7 +87,31 @@ function SplashScreen() {
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes splash-logo-in {
+          0%   { opacity: 0; transform: scale(0.86); filter: blur(14px); }
+          60%  { opacity: 1; filter: blur(0); }
+          100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes splash-logo-breathe {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-purple) 60%, transparent)); }
+          50%      { transform: scale(1.035); filter: drop-shadow(0 0 46px color-mix(in oklab, var(--vexia-purple) 85%, transparent)) drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-cyan) 45%, transparent)); }
+        }
+        @keyframes splash-shine {
+          0%, 25%  { transform: translateX(-120%); opacity: 0; }
+          35%      { opacity: 1; }
+          70%      { transform: translateX(120%); opacity: 0; }
+          100%     { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes splash-aura {
+          0%, 100% { opacity: 0.45; transform: scale(0.95); }
+          50%      { opacity: 0.85; transform: scale(1.06); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-\\[splash-logo-breathe_3\\.2s_ease-in-out_infinite\\],
+          .animate-\\[splash-aura_3\\.6s_ease-in-out_infinite\\] { animation: none; }
+        }
       `}</style>
     </div>
   );
 }
+
