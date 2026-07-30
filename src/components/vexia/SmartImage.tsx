@@ -29,6 +29,7 @@ export function SmartImage({
   sizes,
   fallback,
   preview: usePreview = true,
+  onFail,
 }: {
   src?: string | null;
   alt: string;
@@ -40,6 +41,8 @@ export function SmartImage({
   fallback?: React.ReactNode;
   /** Desativa a prévia borrada quando a imagem não está num container relativo. */
   preview?: boolean;
+  /** Chamado quando a imagem falha (permite buscar outra fonte, ex.: TMDB). */
+  onFail?: () => void;
 }) {
   const [broken, setBroken] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -103,7 +106,10 @@ export function SmartImage({
           if (el.decode) el.decode().then(done, done);
           else done();
         }}
-        onError={() => setBroken(true)}
+        onError={() => {
+          setBroken(true);
+          onFail?.();
+        }}
         style={shared}
         className={`vexia-img ${loaded ? "is-loaded" : ""} ${className}`}
       />

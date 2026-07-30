@@ -36,6 +36,7 @@ function buildQuery<T extends MediaItem>(
   kind: "movie" | "series",
   search: SearchFn,
   mode: "full" | "card" = "full",
+  force = false,
 ) {
   const key = tmdbCacheKey(item.title, item.year || undefined, kind);
   const cached = readTmdbCache(key);
@@ -56,7 +57,7 @@ function buildQuery<T extends MediaItem>(
     },
     // Cache local já resolvido: renderiza na hora, sem request nenhum.
     initialData: cached ? cached.value : undefined,
-    enabled: mode === "card" ? needsCardEnrichment(item) : needsEnrichment(item),
+    enabled: force || (mode === "card" ? needsCardEnrichment(item) : needsEnrichment(item)),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     retry: 1,
@@ -70,10 +71,12 @@ export function useTmdbItem<T extends MediaItem>(
   item: T | null | undefined,
   kind: "movie" | "series",
   mode: "full" | "card" = "full",
+  /** Força a busca no TMDB (ex.: a capa da lista quebrou). */
+  force = false,
 ): { data: T | undefined; isPending: boolean; isError: boolean } {
   const search = useServerFn(tmdbSearch);
   const base = item
-    ? buildQuery(item, kind, search, mode)
+    ? buildQuery(item, kind, search, mode, force)
     : { queryKey: ["tmdb", "idle"] as const, queryFn: async () => null, enabled: false };
 
   const { data, isPending, isError } = useQuery({

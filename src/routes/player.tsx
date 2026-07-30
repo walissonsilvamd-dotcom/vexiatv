@@ -135,7 +135,7 @@ function PlayerPage() {
       ? (series.find((s) => s.id === id) ?? series.find((s) => matchesLegacyId(id, s.title)))
       : undefined;
 
-  const { episodes: serieEpisodes } = useSeriesEpisodes(serie);
+  const { episodes: serieEpisodes, loading: episodesLoading } = useSeriesEpisodes(serie);
   const episodes = useMemo(
     () => [...serieEpisodes].sort((a, b) => a.season - b.season || a.number - b.number),
     [serieEpisodes],
@@ -264,6 +264,27 @@ function PlayerPage() {
     };
   }, [src, type, retryNonce]);
 
+  /* ── Início automático: alguns navegadores/TVs bloqueiam autoplay com som ── */
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !src) return;
+    let cancelled = false;
+    const start = () => {
+      if (cancelled) return;
+      void video.play().catch(() => {
+        // Bloqueado por política de autoplay: começa sem som e o usuário reativa.
+        video.muted = true;
+        setMuted(true);
+        void video.play().catch(() => undefined);
+      });
+    };
+    video.addEventListener("canplay", start);
+    if (video.readyState >= 3) start();
+    return () => {
+      cancelled = true;
+      video.removeEventListener("canplay", start);
+    };
+  }, [src, retryNonce]);
 
 
   /* ── Eventos do vídeo ── */
@@ -634,7 +655,14 @@ function PlayerPage() {
       {!src && !expired ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
           <div>
-            <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
+            {type === "series" && episodesLoading ? (
+              <>
+                <Loader2 className="mx-auto h-8 w-8 animate-spin text-vexia-cyan" aria-hidden />
+                <p className="mt-3 text-base font-bold">Carregando episódios…</p>
+              </>
+            ) : (
+              <p className="text-base font-bold">Nenhum stream disponível para este conteúdo</p>
+            )}
             <button
               type="button"
               onClick={goBack}
