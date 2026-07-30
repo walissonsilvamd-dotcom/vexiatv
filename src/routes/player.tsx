@@ -28,7 +28,6 @@ import {
   SUBS_OFF,
   useAudioTracks,
   useSubtitleTracks,
-  type HlsLike,
 } from "../hooks/useMediaTracks";
 
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
@@ -49,6 +48,7 @@ import {
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+import { useResilientPlayer } from "../hooks/useResilientPlayer";
 
 export const Route = createFileRoute("/player")({
   ssr: false,
@@ -91,7 +91,7 @@ function fmt(sec: number) {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 2;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
@@ -106,7 +106,7 @@ function PlayerPage() {
 
   const [showControls, setShowControls] = useState(true);
   const [playing, setPlaying] = useState(false);
-  const [buffering, setBuffering] = useState(true);
+  const [bufferingFromMedia, setBufferingFromMedia] = useState(true);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -117,17 +117,12 @@ function PlayerPage() {
   const drawerOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
-  const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
   const [mediaReady, setMediaReady] = useState(false);
 
   const showEpisodesRef = useRef(false);
 
 
   const [liveDelay, setLiveDelay] = useState(0);
-  const [reconnecting, setReconnecting] = useState(false);
-  const [fatalError, setFatalError] = useState<{ message: string; detail?: string } | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  const [retryNonce, setRetryNonce] = useState(0);
 
   const channel =
     type === "live"
@@ -158,6 +153,18 @@ function PlayerPage() {
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
   const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
 
+  const resilientPlayer = useResilientPlayer({ videoRef, src, live: type === "live" });
+  const {
+    engine,
+    hlsApi,
+    reconnecting,
+    fatalError,
+    attempt,
+    retry: retryStream,
+    tryOtherEngine,
+  } = resilientPlayer;
+  const buffering = resilientPlayer.buffering || bufferingFromMedia;
+
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
   const savedEntry = entryFor(progressKey);
@@ -168,130 +175,9 @@ function PlayerPage() {
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
   const kindLabel = type === "live" ? "AO VIVO" : type === "movie" ? "FILME" : "SÉRIE";
 
-  /* ── Motor de reprodução (HLS / MPEG-TS / progressivo) ── */
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-    let destroyed = false;
-    let hls: { destroy: () => void } | null = null;
-    let retries = 0;
-    let backoff: ReturnType<typeof setTimeout> | undefined;
-
-    const isHls = /\.m3u8(\?|$)/i.test(src) || /\.ts(\?|$)/i.test(src);
-    const nativeHls = video.canPlayType("application/vnd.apple.mpegurl") !== "";
-
-    const fail = (message: string, detail?: string) => {
-      if (destroyed) return;
-      setReconnecting(false);
-      setBuffering(false);
-      setFatalError({ message, detail });
-    };
-
-    async function attach() {
-      if (!video) return;
-      setFatalError(null);
-      setBuffering(true);
-      if (isHls && !nativeHls) {
-        const { default: Hls } = await import("hls.js");
-        if (destroyed || !video) return;
-        if (Hls.isSupported()) {
-          const instance = new Hls({
-            lowLatencyMode: type === "live",
-            backBufferLength: 60,
-            maxBufferLength: 30,
-          });
-          instance.loadSource(src);
-          instance.attachMedia(video);
-          instance.on(Hls.Events.ERROR, (_e, data) => {
-            if (!data.fatal) return;
-            if (retries >= MAX_RETRIES) {
-              instance.destroy();
-              fail(
-                data.type === Hls.ErrorTypes.NETWORK_ERROR
-                  ? "Falha de conexão com o servidor da lista"
-                  : "Não foi possível decodificar este stream",
-                `${data.type}${data.details ? ` • ${data.details}` : ""}`,
-              );
-              return;
-            }
-            retries += 1;
-            setAttempt(retries);
-            setReconnecting(true);
-            backoff = setTimeout(
-              () => {
-                if (destroyed) return;
-                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) instance.startLoad();
-                else instance.recoverMediaError();
-                setReconnecting(false);
-              },
-              Math.min(6000, 1200 * retries),
-            );
-          });
-          hls = instance;
-          setHlsApi(instance as unknown as HlsLike);
-          return;
-        }
-        fail("Este dispositivo não suporta a reprodução deste formato");
-        return;
-      }
-      setHlsApi(null);
-      video.src = src;
-      video.load();
-
-    }
-
-    const onNativeError = () => {
-      if (retries >= MAX_RETRIES) {
-        fail("Não foi possível carregar o stream", video.error?.message || undefined);
-        return;
-      }
-      retries += 1;
-      setAttempt(retries);
-      setReconnecting(true);
-      backoff = setTimeout(
-        () => {
-          if (destroyed || !video) return;
-          video.load();
-          void video.play().catch(() => undefined);
-          setReconnecting(false);
-        },
-        Math.min(6000, 1200 * retries),
-      );
-    };
-    video.addEventListener("error", onNativeError);
-
-    void attach();
-    return () => {
-      destroyed = true;
-      clearTimeout(backoff);
-      video.removeEventListener("error", onNativeError);
-      hls?.destroy();
-      setHlsApi(null);
-      setMediaReady(false);
-    };
-  }, [src, type, retryNonce]);
-
-  /* ── Início automático: alguns navegadores/TVs bloqueiam autoplay com som ── */
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !src) return;
-    let cancelled = false;
-    const start = () => {
-      if (cancelled) return;
-      void video.play().catch(() => {
-        // Bloqueado por política de autoplay: começa sem som e o usuário reativa.
-        video.muted = true;
-        setMuted(true);
-        void video.play().catch(() => undefined);
-      });
-    };
-    video.addEventListener("canplay", start);
-    if (video.readyState >= 3) start();
-    return () => {
-      cancelled = true;
-      video.removeEventListener("canplay", start);
-    };
-  }, [src, retryNonce]);
+    if (resilientPlayer.mutedByAutoplay) setMuted(true);
+  }, [resilientPlayer.mutedByAutoplay]);
 
 
   /* ── Eventos do vídeo ── */
@@ -311,8 +197,8 @@ function PlayerPage() {
 
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
-    const onWaiting = () => setBuffering(true);
-    const onPlaying = () => setBuffering(false);
+    const onWaiting = () => setBufferingFromMedia(true);
+    const onPlaying = () => setBufferingFromMedia(false);
     const onEnded = () => {
       if (watchMetaRef.current?.name && type !== "live") {
         completeWatch(watchMetaRef.current.kind, watchMetaRef.current.name);
@@ -435,15 +321,6 @@ function PlayerPage() {
     if (type === "live") return void navigate({ to: "/canais" });
     navigate({ to: "/detalhes/$id", params: { id } });
   }, [menu, navigate, type, id]);
-
-  const retryStream = useCallback(() => {
-    setFatalError(null);
-    setAttempt(0);
-    setBuffering(true);
-    setRetryNonce((n) => n + 1);
-  }, []);
-
-
 
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
@@ -694,7 +571,7 @@ function PlayerPage() {
             />
             {reconnecting ? (
               <span className="text-xs font-semibold text-vexia-cyan">
-                Reconectando… ({attempt}/{MAX_RETRIES})
+                Trocando motor… {engine ? `(${engine})` : ""} {attempt ? `• tentativa ${attempt}/${MAX_RETRIES}` : ""}
               </span>
             ) : null}
 
@@ -735,7 +612,7 @@ function PlayerPage() {
             <p className="mt-1 text-sm text-white/70">{fatalError.message}</p>
             <p className="mt-2 text-[11px] text-vexia-cyan/80">
               {attempt > 0 ? `${attempt} tentativa(s) automática(s) realizada(s). ` : ""}
-              Verifique sua conexão ou tente novamente.
+              Os motores HLS, MPEG-TS e nativo já foram testados automaticamente.
             </p>
             {fatalError.detail ? (
               <p className="mt-1 truncate text-[10px] text-white/35">{fatalError.detail}</p>
@@ -755,6 +632,13 @@ function PlayerPage() {
                 className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/60 px-6 py-2 text-xs font-bold text-vexia-cyan"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden /> VOLTAR
+              </button>
+              <button
+                type="button"
+                onClick={tryOtherEngine}
+                className="vexia-focus flex items-center gap-2 rounded-full border border-white/25 px-6 py-2 text-xs font-bold text-white"
+              >
+                TROCAR PLAYER
               </button>
             </div>
           </div>
