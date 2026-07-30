@@ -36,19 +36,19 @@ function SplashScreen() {
         className="pointer-events-none absolute left-1/2 top-1/2 h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2"
       >
         <div
-          className="absolute inset-0 rounded-full animate-[splash-breathe_6s_ease-in-out_infinite]"
+          className="absolute inset-0 rounded-full animate-[splash-breathe_9s_ease-in-out_infinite]"
           style={{
             background:
-              "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 30%, transparent) 0%, transparent 68%)",
-            filter: "blur(80px)",
+              "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 22%, transparent) 0%, transparent 68%)",
+            filter: "blur(60px)",
           }}
         />
         <div
-          className="absolute inset-0 rounded-full mix-blend-screen animate-[splash-aurora_16s_linear_infinite]"
+          className="absolute inset-0 rounded-full mix-blend-screen animate-[splash-aurora_26s_linear_infinite]"
           style={{
             background:
-              "conic-gradient(from 0deg, color-mix(in oklab, var(--vexia-purple) 45%, transparent), color-mix(in oklab, var(--vexia-cyan) 35%, transparent), color-mix(in oklab, var(--vexia-purple) 45%, transparent))",
-            filter: "blur(90px)",
+              "conic-gradient(from 0deg, color-mix(in oklab, var(--vexia-purple) 22%, transparent), color-mix(in oklab, var(--vexia-cyan) 16%, transparent), color-mix(in oklab, var(--vexia-purple) 22%, transparent))",
+            filter: "blur(110px)",
           }}
         />
       </div>
@@ -112,12 +112,12 @@ function SplashScreen() {
           100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
         }
         @keyframes splash-logo-glow {
-          0%, 100% { filter: drop-shadow(0 0 18px color-mix(in oklab, var(--vexia-purple) 55%, transparent)); }
-          50%      { filter: drop-shadow(0 0 34px color-mix(in oklab, var(--vexia-cyan) 55%, transparent)); }
+          0%, 100% { filter: drop-shadow(0 0 12px color-mix(in oklab, var(--vexia-purple) 42%, transparent)); }
+          50%      { filter: drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-cyan) 38%, transparent)); }
         }
         @keyframes splash-breathe {
-          0%, 100% { opacity: 0.55; transform: scale(1); }
-          50%      { opacity: 0.9;  transform: scale(1.08); }
+          0%, 100% { opacity: 0.28; transform: scale(1); }
+          50%      { opacity: 0.48; transform: scale(1.05); }
         }
         @keyframes splash-aurora {
           from { transform: rotate(0deg); }
