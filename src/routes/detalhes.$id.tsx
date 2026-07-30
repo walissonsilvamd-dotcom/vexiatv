@@ -238,7 +238,7 @@ function DetailsPage() {
         {cast && cast.length > 0 ? (
           <section className="space-y-3">
             <SectionHeading>ELENCO</SectionHeading>
-            <div className="no-scrollbar flex gap-4 overflow-x-auto pb-2">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-2">
               {cast.map((person) => (
                 <div key={person.name} className="w-[76px] shrink-0 text-center">
                   {person.photo ? (
@@ -366,7 +366,7 @@ function DetailsPage() {
         {recommendations.length > 0 ? (
           <section className="space-y-3">
             <SectionHeading>RECOMENDAÇÕES</SectionHeading>
-            <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-2">
               {recommendations.map((rec) => (
                 <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
                   <PosterCard

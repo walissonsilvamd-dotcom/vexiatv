@@ -7,6 +7,7 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import { matchFavorite, useFavorites, type Favorite, type FavoriteKind } from "../lib/favorites-store";
+import { adaptiveImage, adaptiveSizes, adaptiveSrcSet } from "../lib/image";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({
@@ -65,9 +66,12 @@ function FavoriteCard({
         >
           {logo && !broken ? (
             <img
-              src={logo}
+              src={adaptiveImage(logo, isChannel ? "logo" : "poster")}
+              srcSet={adaptiveSrcSet(logo, isChannel ? "logo" : "poster")}
+              sizes={adaptiveSizes("poster")}
               alt={fav.name}
               loading="lazy"
+              decoding="async"
               onError={() => setBroken(true)}
               className={`h-full w-full ${isChannel ? "object-contain p-4" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
             />
