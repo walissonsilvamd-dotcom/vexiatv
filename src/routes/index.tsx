@@ -138,6 +138,11 @@ function SplashScreen() {
           from { opacity: 0; transform: scaleX(0.2); }
           to   { opacity: 0.85; transform: scaleX(1); }
         }
+        @keyframes splash-cinematic-exit {
+          0%   { opacity: 1; transform: scale(1); filter: blur(0); }
+          40%  { opacity: 0.75; transform: scale(1.02); filter: blur(2px); }
+          100% { opacity: 0; transform: scale(1.06); filter: blur(8px); }
+        }
       `}</style>
     </div>
   );
