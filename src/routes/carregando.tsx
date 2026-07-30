@@ -42,7 +42,7 @@ type Phase = "loading" | "success" | "error";
 function CarregandoPage() {
   const { url, name } = Route.useSearch();
   const navigate = useNavigate();
-  const { loadFromUrl, error: playlistError } = usePlaylist();
+  const { loadFromUrl, loadFromText, error: playlistError } = usePlaylist();
   const errorRef = useRef<string | null>(null);
   errorRef.current = playlistError;
 
