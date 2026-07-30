@@ -84,7 +84,7 @@ const TILES: Tile[] = [
   { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
-  { label: "LISTAS", icon: ListVideo, action: "lists" },
+  { label: "LISTAS", icon: ListVideo, to: "/listas" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
 
