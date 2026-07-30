@@ -27,7 +27,7 @@ import { useOpenWatch, useResolvedHistory, WatchCard } from "../components/vexia
 import { DiscoverRows } from "../components/vexia/DiscoverRows";
 import type { ResolvedWatch } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
-import { preloadImage } from "../lib/image";
+import { preloadImage, preloadImages } from "../lib/image";
 import { SmartImage } from "../components/vexia/SmartImage";
 
 export const Route = createFileRoute("/home")({
