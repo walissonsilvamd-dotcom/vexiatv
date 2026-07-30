@@ -161,8 +161,9 @@ function classify(entry: M3UEntry): Kind {
   if (XTREAM_MOVIE_RE.test(entry.url)) {
     return SERIES_RE.test(entry.name) ? "series" : "movie";
   }
-  // Sem caminho VOD e sem extensão de arquivo => canal ao vivo
-  if (!VOD_EXT_RE.test(entry.url)) return "channel";
+  // Sem caminho VOD e sem extensão de arquivo => canal ao vivo (a menos que o
+  // nome traga SxxEyy, típico de episódio)
+  if (!VOD_EXT_RE.test(entry.url) && !SERIES_RE.test(entry.name)) return "channel";
 
   // Episódio identificado pelo padrão SxxEyy sempre é série
   if (SERIES_RE.test(entry.name)) return "series";
