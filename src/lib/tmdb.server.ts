@@ -98,7 +98,7 @@ export function normalizeTmdb(
   const castList = details.credits?.cast?.slice(0, 10).map((c) => ({
     name: c.name,
     character: c.character,
-    photo: tmdbImageUrl(c.profile_path, "w185"),
+    photo: tmdbImageUrl(c.profile_path, "w342"),
   }));
   const director = details.credits?.crew?.find((c) => c.job === "Director")?.name;
 
