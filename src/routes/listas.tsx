@@ -258,7 +258,7 @@ function ListsPage() {
             <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
               <button
                 type="button"
-                onClick={() => setForm(false)}
+                onClick={() => (source ? setForm(false) : void navigate({ to: "/home" }))}
                 aria-label="Voltar"
                 className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-full border border-vexia-purple/50 bg-black/50"
               >
