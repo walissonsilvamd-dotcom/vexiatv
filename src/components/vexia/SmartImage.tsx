@@ -8,6 +8,7 @@ import {
   exactSizes,
   placeholderImage,
   stableImage,
+  sizeRank,
   subscribeDisplay,
   upgradeTmdbSize,
   type EnhanceLevel,
