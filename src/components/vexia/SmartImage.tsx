@@ -56,9 +56,16 @@ export function SmartImage({
   const [enhance, setEnhance] = useState<EnhanceLevel>("none");
   /** Fonte melhorada (upscale inteligente) quando a original é pequena demais. */
   const [upgraded, setUpgraded] = useState<string | undefined>(undefined);
+  /** Largura real desenhada na tela (px CSS), medida no cliente. */
+  const [measured, setMeasured] = useState(0);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const base = stableImage(src, role);
+  const stable = stableImage(src, role);
+  /** Escolha responsiva: tamanho ideal para a largura medida + DPI da tela. */
+  const ideal = measured ? exactImage(src, role, measured) : undefined;
+  // Só troca quando a versão ideal for MAIOR que a estável: nunca borra e não
+  // desperdiça download quando o card já está nítido.
+  const base = ideal && sizeRank(ideal) > sizeRank(stable) ? ideal : stable;
   const full = upgraded ?? base;
   const preview = usePreview ? placeholderImage(src, role) : undefined;
 
@@ -68,6 +75,25 @@ export function SmartImage({
     setEnhance("none");
     setUpgraded(undefined);
   }, [base]);
+
+  /** Mede o elemento e refaz a medição quando a tela/densidade muda. */
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el || typeof window === "undefined") return;
+    const measure = () => {
+      const width = Math.round(el.getBoundingClientRect().width || el.clientWidth);
+      if (width) setMeasured((prev) => (Math.abs(prev - width) > 4 ? width : prev));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    const unsubscribe = subscribeDisplay(measure);
+    return () => {
+      observer.disconnect();
+      unsubscribe();
+    };
+  }, [src]);
+
 
   /**
    * Otimização automática: compara a resolução real do arquivo com o tamanho
