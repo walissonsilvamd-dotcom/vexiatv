@@ -132,8 +132,8 @@ export function SmartImage({
       <img
         ref={imgRef}
         src={full}
-        srcSet={adaptiveSrcSet(src, role)}
-        sizes={sizes ?? adaptiveSizes(role)}
+        srcSet={upgraded ? undefined : adaptiveSrcSet(src, role)}
+        sizes={upgraded ? undefined : (sizes ?? adaptiveSizes(role))}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
@@ -141,16 +141,27 @@ export function SmartImage({
         onLoad={(event) => {
           const el = event.currentTarget;
           // Decodifica antes de exibir: mantém o scroll da TV fluido.
-          const done = () => setLoaded(true);
+          const done = () => {
+            setLoaded(true);
+            optimize(el);
+          };
           if (el.decode) el.decode().then(done, done);
           else done();
         }}
         onError={() => {
+          if (upgraded) {
+            // A versão maior não existe: volta para a original e realça.
+            setUpgraded(undefined);
+            setEnhance("medium");
+            return;
+          }
           setBroken(true);
           onFail?.();
         }}
         style={shared}
-        className={`vexia-img ${loaded ? "is-loaded" : ""} ${className}`}
+        className={`vexia-img ${loaded ? "is-loaded" : ""} ${
+          enhance !== "none" ? `vexia-img-enhance-${enhance}` : ""
+        } ${className}`}
       />
     </>
   );
