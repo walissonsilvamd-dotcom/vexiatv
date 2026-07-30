@@ -587,6 +587,30 @@ function PlayerPage() {
       />
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
+      {/* ── Assinatura vencida: conteúdo bloqueado até a renovação ── */}
+      {expired ? (
+        <div className="absolute inset-0 z-40 grid place-items-center bg-black/92 px-6 text-center">
+          <div className="max-w-md">
+            <h2 className="text-2xl font-black tracking-[0.12em] text-vexia-gold">
+              ASSINATURA VENCIDA
+            </h2>
+            <p className="mt-3 text-sm text-white/75">
+              Sua lista expirou em {formatExpiry(account)}. Renove com seu provedor para voltar a
+              assistir — sua lista continua salva no aparelho.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/listas" })}
+              className="vexia-focus mt-6 rounded-full bg-vexia-purple px-8 py-3 text-xs font-bold tracking-[0.16em]"
+            >
+              GERENCIAR LISTAS
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+
+
 
       {(buffering || reconnecting) && !fatalError && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
