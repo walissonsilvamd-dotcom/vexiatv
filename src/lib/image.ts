@@ -114,25 +114,79 @@ export function stableImage(url?: string | null, role: ImageRole = "poster"): st
 
 const preloaded = new Set<string>();
 
+/** Fila de pré-carregamento: baixa em paralelo controlado, sem travar a TV. */
+const queue: { url: string; priority: number }[] = [];
+let running = 0;
+const MAX_PARALLEL = 4;
+
+function idle(run: () => void) {
+  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: object) => void })
+    .requestIdleCallback;
+  if (ric) ric(run, { timeout: 800 });
+  else setTimeout(run, 32);
+}
+
+function pump() {
+  while (running < MAX_PARALLEL && queue.length) {
+    queue.sort((a, b) => a.priority - b.priority);
+    const next = queue.shift();
+    if (!next) return;
+    running += 1;
+    const img = new Image();
+    img.decoding = "async";
+    img.crossOrigin = "anonymous";
+    const done = () => {
+      running -= 1;
+      if (queue.length) idle(pump);
+    };
+    img.onload = () => {
+      void img.decode?.().catch(() => {});
+      done();
+    };
+    img.onerror = done;
+    img.src = next.url;
+  }
+}
+
 /**
  * Baixa (e decodifica) uma imagem em segundo plano, sem bloquear a interface.
- * Evita a "piscada" e o travamento ao trocar de slide/card na TV.
+ * A cópia fica no cache persistente (service worker), então nas próximas
+ * aberturas ela aparece instantaneamente e sempre em alta qualidade.
  */
-export function preloadImage(url?: string | null, role: ImageRole = "poster"): void {
+export function preloadImage(url?: string | null, role: ImageRole = "poster", priority = 1): void {
   if (typeof window === "undefined") return;
   const target = adaptiveImage(url, role);
   if (!target || preloaded.has(target)) return;
   preloaded.add(target);
-  const img = new Image();
-  img.decoding = "async";
-  img.src = target;
-  void img.decode?.().catch(() => {});
+  queue.push({ url: target, priority });
+  idle(pump);
 }
 
-/** Pré-carrega uma lista curta de imagens (ex.: primeiras linhas de um grid). */
-export function preloadImages(urls: (string | null | undefined)[], role: ImageRole = "poster"): void {
-  for (const url of urls.slice(0, 12)) preloadImage(url, role);
+/**
+ * Pré-carrega uma lista de imagens (ex.: primeiras linhas de um grid).
+ * As primeiras entram pela fila do navegador (uso imediato) e o restante é
+ * entregue ao cache persistente para baixar em segundo plano.
+ */
+export function preloadImages(
+  urls: (string | null | undefined)[],
+  role: ImageRole = "poster",
+): void {
+  if (typeof window === "undefined") return;
+  const list = urls.filter(Boolean) as string[];
+  list.slice(0, 12).forEach((url, index) => preloadImage(url, role, index));
+
+  const background = list
+    .slice(12, 60)
+    .map((url) => adaptiveImage(url, role))
+    .filter((url): url is string => !!url && !preloaded.has(url));
+  if (background.length) {
+    background.forEach((url) => preloaded.add(url));
+    void import("./image-cache").then(({ prefetchThroughCache }) =>
+      prefetchThroughCache(background),
+    );
+  }
 }
+
 
 /* ────────────────────────────────────────────────────────────────
  * Otimização automática (upscale inteligente + nitidez + ruído)
