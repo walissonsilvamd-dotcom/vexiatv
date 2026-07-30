@@ -3,8 +3,11 @@ import { ImageOff } from "lucide-react";
 import {
   adaptiveSizes,
   adaptiveSrcSet,
+  enhanceLevel,
   placeholderImage,
   stableImage,
+  upgradeTmdbSize,
+  type EnhanceLevel,
   type ImageRole,
 } from "../../lib/image";
 
