@@ -297,12 +297,58 @@ function PlayerPage() {
     };
   }, [type, id, nextEpisode, navigate, activeSlot]);
 
-  /* ── Retomar de onde parou ── */
+  /* ── Retomada automática: agenda a posição salva deste conteúdo/episódio ── */
+  useEffect(() => {
+    if (type === "live") {
+      pendingResumeRef.current = null;
+      setResumeNotice(null);
+      return;
+    }
+    const shouldResume =
+      savedEntry && savedEntry.percent > 2 && savedEntry.percent < 95 && savedEntry.positionSec > 5;
+    pendingResumeRef.current = shouldResume ? savedEntry.positionSec : null;
+    setResumeNotice(shouldResume ? savedEntry.positionSec : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressKey, type]);
+
+  /* ── Aplica a retomada assim que o vídeo ativo tiver metadados ── */
   useEffect(() => {
     if (type === "live") return;
-    if (savedEntry && savedEntry.percent > 2 && savedEntry.percent < 95) setResumeAsk(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progressKey]);
+    const video = videoRef.current;
+    if (!video) return;
+
+    const apply = () => {
+      const target = pendingResumeRef.current;
+      if (target == null) return;
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      if (target >= video.duration - 10) {
+        pendingResumeRef.current = null;
+        return;
+      }
+      try {
+        video.currentTime = target;
+        pendingResumeRef.current = null;
+      } catch {
+        /* stream ainda sem seek — tenta no próximo evento */
+      }
+    };
+
+    apply();
+    video.addEventListener("loadedmetadata", apply);
+    video.addEventListener("canplay", apply);
+    return () => {
+      video.removeEventListener("loadedmetadata", apply);
+      video.removeEventListener("canplay", apply);
+    };
+  }, [type, progressKey, activeSlot, src]);
+
+  /* ── Aviso discreto de retomada some sozinho ── */
+  useEffect(() => {
+    if (resumeNotice == null) return;
+    const t = window.setTimeout(() => setResumeNotice(null), 7000);
+    return () => window.clearTimeout(t);
+  }, [resumeNotice]);
+
 
   /* ── Histórico: dados do conteúdo em reprodução ── */
   const watchMeta = useMemo(() => {
