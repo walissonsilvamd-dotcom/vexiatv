@@ -19,6 +19,7 @@ import { usePlaylist } from "../lib/playlist-store";
 import { mediaFavorite, useFavorites } from "../lib/favorites-store";
 import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
+import { adaptiveImage, adaptiveSrcSet } from "../lib/image";
 
 export const Route = createFileRoute("/detalhes/$id")({
   head: () => ({
@@ -115,8 +116,12 @@ function DetailsPage() {
       <section className="relative mt-3 min-h-[360px] w-full overflow-hidden md:h-[60vh]">
         {item.backdrop ? (
           <img
-            src={item.backdrop}
+            src={adaptiveImage(item.backdrop, "backdrop")}
+            srcSet={adaptiveSrcSet(item.backdrop, "backdrop")}
+            sizes="100vw"
             alt={item.title}
+            decoding="async"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (

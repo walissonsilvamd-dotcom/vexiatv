@@ -5,6 +5,7 @@ import { useProgress } from "../../lib/progress-store";
 import { useSettings } from "../../lib/settings-store";
 import { useTmdbSeason } from "../../lib/use-tmdb-season";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { adaptiveImage, adaptiveSrcSet } from "../../lib/image";
 
 type Props = {
   seriesId: string;
@@ -171,9 +172,12 @@ export function EpisodeCarousel({
                 <div className="relative aspect-video w-full bg-black">
                   {thumb ? (
                     <img
-                      src={thumb}
+                      src={adaptiveImage(thumb, "still")}
+                      srcSet={adaptiveSrcSet(thumb, "still")}
+                      sizes="(min-width: 1600px) 22vw, 40vw"
                       alt={`Cena do episódio ${episode.number} — ${name}`}
                       loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                     />
                   ) : (
