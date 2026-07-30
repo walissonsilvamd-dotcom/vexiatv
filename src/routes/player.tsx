@@ -217,13 +217,16 @@ function PlayerPage() {
             );
           });
           hls = instance;
+          setHlsApi(instance as unknown as HlsLike);
           return;
         }
         fail("Este dispositivo não suporta a reprodução deste formato");
         return;
       }
+      setHlsApi(null);
       video.src = src;
       video.load();
+
     }
 
     const onNativeError = () => {
