@@ -141,9 +141,9 @@ export function preloadImages(urls: (string | null | undefined)[], role: ImageRo
 /** Sobe para o próximo tamanho TMDB disponível (ou undefined se já é o maior). */
 export function upgradeTmdbSize(url?: string | null, role: ImageRole = "poster"): string | undefined {
   if (!url || !isTmdbImage(url)) return undefined;
-  const sizes = role === "backdrop" ? BACKDROP_SIZES : POSTER_SIZES;
+  const sizes: readonly string[] = role === "backdrop" ? BACKDROP_SIZES : POSTER_SIZES;
   const current = /\/t\/p\/([^/]+)\//.exec(url)?.[1];
-  const index = sizes.indexOf(current as (typeof sizes)[number]);
+  const index = current ? sizes.indexOf(current) : -1;
   if (index < 0 || index >= sizes.length - 1) return undefined;
   return replaceSize(url, sizes[index + 1]);
 }
