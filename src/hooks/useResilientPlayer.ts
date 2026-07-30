@@ -28,6 +28,9 @@ const ENGINE_RETRIES = 2;
 const STARTUP_TIMEOUT_MS = 18_000;
 const STALL_TIMEOUT_MS = 20_000;
 const STANDBY_WARMUP_MS = 3_500;
+/** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
+const AUTO_CYCLE_MAX = 4;
+const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
 
 export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
@@ -41,10 +44,16 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
   const [mutedByAutoplay, setMutedByAutoplay] = useState(false);
   const [fatalError, setFatalError] = useState<PlayerFailure | null>(null);
   const [generation, setGeneration] = useState(0);
+  const [recoveryCycle, setRecoveryCycle] = useState(0);
   const forceEngineRef = useRef<PlaybackEngine | null>(null);
+  const cycleRef = useRef(0);
+  /** Posição a retomar em VOD depois de um ciclo completo de recuperação. */
+  const resumeAtRef = useRef(0);
 
   const retry = useCallback(() => {
     forceEngineRef.current = null;
+    cycleRef.current = 0;
+    setRecoveryCycle(0);
     setFatalError(null);
     setAttempt(0);
     setBuffering(true);
@@ -54,11 +63,21 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
   const tryOtherEngine = useCallback(() => {
     forceEngineRef.current =
       engine === "hls.js" ? "mpegts.js" : engine === "mpegts.js" ? "native" : "hls.js";
+    cycleRef.current = 0;
+    setRecoveryCycle(0);
     setFatalError(null);
     setAttempt(0);
     setBuffering(true);
     setGeneration((value) => value + 1);
   }, [engine]);
+
+  /* Nova fonte: zera o contador de ciclos e a posição memorizada. */
+  useEffect(() => {
+    cycleRef.current = 0;
+    resumeAtRef.current = 0;
+    setRecoveryCycle(0);
+  }, [src]);
+
 
   useEffect(() => {
     const slotA = slotARef.current;
@@ -120,13 +139,40 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       }
     };
 
+    /* ── Cadeia esgotada: reinicia todo o ciclo automaticamente, com backoff ── */
     const failAll = (detail?: string) => {
       if (disposed) return;
       clearAllTimers();
+      // Memoriza a posição para retomar de onde parou (VOD).
+      if (!live) {
+        const current = elementFor(activeSlotLocal).currentTime;
+        if (Number.isFinite(current) && current > 0) resumeAtRef.current = current;
+      }
+      resetSlot("a");
+      resetSlot("b");
+      setHlsApi(null);
+      setStandbyEngine(null);
+      setStandbyReady(false);
+
+      if (cycleRef.current < AUTO_CYCLE_MAX) {
+        const wait = AUTO_CYCLE_BACKOFF_MS[Math.min(cycleRef.current, AUTO_CYCLE_BACKOFF_MS.length - 1)];
+        cycleRef.current += 1;
+        setRecoveryCycle(cycleRef.current);
+        setFatalError(null);
+        setReconnecting(true);
+        setBuffering(true);
+        timers.recovery = setTimeout(() => {
+          if (disposed) return;
+          setGeneration((value) => value + 1);
+        }, wait);
+        return;
+      }
+
       setReconnecting(false);
       setBuffering(false);
       setFatalError({ message: "Nenhum dos motores conseguiu reproduzir este stream", detail });
     };
+
 
     /* ── Reserva quente: segundo motor pré-carregado em paralelo, mudo e pausado ── */
     const startStandby = () => {
@@ -275,6 +321,14 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
 
     const startAutoplay = async () => {
       const video = elementFor(activeSlotLocal);
+      // Retoma de onde parou após um ciclo completo de recuperação (VOD).
+      if (!live && resumeAtRef.current > 0 && video.currentTime < resumeAtRef.current - 1) {
+        try {
+          video.currentTime = resumeAtRef.current;
+        } catch {
+          /* stream sem seek */
+        }
+      }
       try {
         const wasMuted = await playWithAutoplayFallback(video);
         if (!disposed && wasMuted) setMutedByAutoplay(true);
@@ -293,7 +347,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       setEngine(selected);
       setAttempt(0);
       setBuffering(true);
-      setReconnecting(activeIndex > 0);
+      setReconnecting(activeIndex > 0 || cycleRef.current > 0);
+      attachWatchdog();
       timers.startup = setTimeout(
         () => startNext(`${selected} • startup-timeout`),
         STARTUP_TIMEOUT_MS,
@@ -318,7 +373,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       }
     }
 
-    /* ── Watchdog: congelamento do stream ativo dispara o failover ── */
+    /* ── Watchdog: erro de mídia ou congelamento dispara recuperação/failover ── */
     let detachWatchdog: (() => void) | undefined;
     function attachWatchdog() {
       detachWatchdog?.();
@@ -329,20 +384,63 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         setReconnecting(false);
         setFatalError(null);
         clearTimeout(timers.startup);
+        // Reprodução saudável: zera contadores de recuperação.
+        engineRetries = 0;
+        if (cycleRef.current !== 0) {
+          cycleRef.current = 0;
+          setRecoveryCycle(0);
+        }
+        setAttempt(0);
       };
       const onTimeUpdate = () => {
         if (video.currentTime !== lastTime) {
           lastTime = video.currentTime;
           lastProgressAt = Date.now();
+          if (!live && video.currentTime > 0) resumeAtRef.current = video.currentTime;
         }
+      };
+      const onWaiting = () => setBuffering(true);
+      const onMediaError = () => {
+        const code = video.error?.code;
+        recoverOrFallback(`media-error${code ? ` • code ${code}` : ""}`, () => {
+          try {
+            video.load();
+            void video.play().catch(() => undefined);
+          } catch {
+            /* elemento indisponível */
+          }
+        });
       };
       video.addEventListener("playing", onPlaying);
       video.addEventListener("timeupdate", onTimeUpdate);
+      video.addEventListener("waiting", onWaiting);
+      video.addEventListener("error", onMediaError);
       detachWatchdog = () => {
         video.removeEventListener("playing", onPlaying);
         video.removeEventListener("timeupdate", onTimeUpdate);
+        video.removeEventListener("waiting", onWaiting);
+        video.removeEventListener("error", onMediaError);
       };
     }
+
+    /* ── Rede de volta / app em foco: acelera a retomada sem recarregar a página ── */
+    const kickRecovery = (reason: string) => {
+      if (disposed) return;
+      const video = elementFor(activeSlotLocal);
+      if (video.paused && !video.ended) {
+        void video.play().catch(() => undefined);
+      }
+      if (Date.now() - lastProgressAt > 6_000) {
+        lastProgressAt = Date.now();
+        startNext(reason);
+      }
+    };
+    const onOnline = () => kickRecovery("network-restored");
+    const onVisible = () => {
+      if (document.visibilityState === "visible") kickRecovery("tab-visible");
+    };
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
 
     attachWatchdog();
     timers.stall = setInterval(() => {
@@ -352,11 +450,14 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       }
     }, 4_000);
 
+
     void startActive();
     return () => {
       disposed = true;
       clearAllTimers();
       detachWatchdog?.();
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
       resetSlot("a");
       resetSlot("b");
       setHlsApi(null);
@@ -374,7 +475,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     buffering,
     reconnecting,
     attempt,
+    recoveryCycle,
     fatalError,
+
     mutedByAutoplay,
     retry,
     tryOtherEngine,
