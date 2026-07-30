@@ -126,11 +126,18 @@ function CarregandoPage() {
   }, [phase, navigate, goBack]);
 
   const total = PLAYLIST_STAGES.length;
-  // Progresso real: etapa concluída + fração medida da etapa atual.
+  /*
+   * Progresso real e sem travadas: o download (etapa 0) ocupa os primeiros 45%
+   * — é a parte mais longa em listas grandes — e as etapas de organização
+   * dividem os 55% restantes. Assim a barra sempre avança de forma contínua.
+   */
+  const ratio = Math.min(1, stageRatio);
   const progress =
     phase === "success"
       ? 100
-      : Math.min(99, Math.round(((stage + Math.min(1, stageRatio)) / total) * 100));
+      : stage === 0
+        ? Math.max(2, Math.round(Math.min(0.99, ratio) * 45))
+        : Math.min(99, 45 + Math.round(((stage - 1 + ratio) / (total - 1)) * 55));
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white">
@@ -142,15 +149,40 @@ function CarregandoPage() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/80 to-black/95" />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-10">
-        {/* Logo + anel de energia */}
-        <div className="relative grid h-40 w-40 place-items-center">
-          <span className="vexia-loader-ring absolute inset-0 rounded-full" aria-hidden />
-          <span className="vexia-loader-ring-2 absolute inset-3 rounded-full" aria-hidden />
-          <span className="vexia-loader-pulse absolute inset-6 rounded-full" aria-hidden />
-          <VexiaLogo className="vexia-loader-logo relative h-20" />
+      {/* Layout de TV: círculo + barra à esquerda, informações à direita. */}
+      <div className="relative z-10 mx-auto grid min-h-screen w-full max-w-[1500px] grid-cols-1 items-center gap-10 px-[4vw] py-10 lg:grid-cols-[minmax(0,42%)_minmax(0,1fr)] lg:gap-[6vw]">
+        {/* ─── Coluna esquerda: logo + anel + barra ─── */}
+        <div className="flex min-w-0 flex-col items-center">
+          <div className="relative grid h-[30vh] max-h-[300px] min-h-[180px] w-[30vh] max-w-[300px] min-w-[180px] place-items-center">
+            <span className="vexia-loader-ring absolute inset-0 rounded-full" aria-hidden />
+            <span className="vexia-loader-ring-2 absolute inset-3 rounded-full" aria-hidden />
+            <span className="vexia-loader-pulse absolute inset-6 rounded-full" aria-hidden />
+            <VexiaLogo className="vexia-loader-logo relative h-[15vh] max-h-[150px]" />
+          </div>
+
+          {phase !== "error" ? (
+            <>
+              <div className="mt-9 w-full max-w-lg">
+                <div className="h-4 w-full overflow-hidden rounded-full bg-vexia-popup ring-1 ring-white/10">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_22px_-2px_var(--vexia-purple)] transition-[width] duration-200 ease-out"
+                    style={{ width: `${progress}%` }}
+                    role="progressbar"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Progresso do carregamento da lista"
+                  />
+                </div>
+              </div>
+              <p className="mt-4 text-4xl font-black tabular-nums text-white drop-shadow-[0_0_20px_var(--vexia-purple)]">
+                {progress}%
+              </p>
+            </>
+          ) : null}
         </div>
 
+        {/* ─── Coluna direita: textos, etapas e contadores ─── */}
         {phase === "error" ? (
           <ErrorPanel
             message={errorMsg}
@@ -158,53 +190,37 @@ function CarregandoPage() {
             onBack={goBack}
           />
         ) : (
-          <>
-            <h1 className="mt-7 text-center text-2xl font-black tracking-[0.06em] text-white">
+          <div className="min-w-0 text-center lg:text-left">
+            <h1 className="text-[clamp(1.5rem,2.6vw,2.5rem)] font-black leading-tight tracking-[0.04em] text-white">
               {phase === "success" ? "Lista carregada com sucesso!" : "Carregando sua lista..."}
             </h1>
-            <p className="mt-1.5 text-center text-sm font-medium text-vexia-cyan">
+            <p className="mt-2 text-[clamp(0.9rem,1.3vw,1.15rem)] font-medium text-vexia-cyan">
               {phase === "success"
                 ? "Preparando sua experiência VÉXIA..."
-                : `${PLAYLIST_STAGES[stage] ?? PLAYLIST_STAGES[0]}... ${progress}%${
+                : `${PLAYLIST_STAGES[stage] ?? PLAYLIST_STAGES[0]}...${
                     tryCount && tryCount.n > 1
                       ? ` • Tentando conectar (tentativa ${tryCount.n}/${tryCount.total})`
                       : ""
                   }`}
             </p>
 
-            {/* Barra de progresso */}
-            <div className="mt-7 flex w-full max-w-md items-center gap-3">
-              <div className="h-3 flex-1 overflow-hidden rounded-full bg-vexia-popup ring-1 ring-white/10">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_18px_-2px_var(--vexia-purple)] transition-[width] duration-200 ease-out"
-                  style={{ width: `${progress}%` }}
-                  role="progressbar"
-                  aria-valuenow={progress}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label="Progresso do carregamento da lista"
-                />
-              </div>
-              <span className="w-12 text-right text-sm font-bold text-white">{progress}%</span>
-            </div>
-
             {/* Etapas */}
-            <ul className="mt-8 w-full max-w-md space-y-2">
+            <ul className="mt-7 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
               {PLAYLIST_STAGES.map((label, i) => {
                 const done = phase === "success" || i < stage;
                 const active = phase !== "success" && i === stage;
                 return (
                   <li
                     key={label}
-                    className={`flex items-center gap-3 text-sm ${
+                    className={`flex items-center justify-center gap-3 text-[clamp(0.85rem,1.1vw,1.05rem)] lg:justify-start ${
                       done
                         ? "text-[#00C853]"
                         : active
-                          ? "font-medium text-vexia-purple-soft"
+                          ? "font-semibold text-vexia-purple-soft"
                           : "text-vexia-muted"
                     }`}
                   >
-                    <span className="grid h-5 w-5 place-items-center">
+                    <span className="grid h-5 w-5 shrink-0 place-items-center">
                       {done ? (
                         <Check className="h-4 w-4" aria-hidden />
                       ) : active ? (
@@ -213,31 +229,32 @@ function CarregandoPage() {
                         <span className="h-2.5 w-2.5 rounded-full border border-vexia-muted/70" />
                       )}
                     </span>
-                    {label}
+                    <span className="truncate">{label}</span>
                   </li>
                 );
               })}
             </ul>
 
             {/* Contadores dinâmicos */}
-            <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-3">
-              <Counter icon={<Tv className="h-4 w-4" aria-hidden />} label="Canais" value={counts.channels} />
-              <Counter icon={<Clapperboard className="h-4 w-4" aria-hidden />} label="Filmes" value={counts.movies} />
-              <Counter icon={<Library className="h-4 w-4" aria-hidden />} label="Séries" value={counts.series} />
+            <div className="mt-8 grid grid-cols-3 gap-3 sm:max-w-xl">
+              <Counter icon={<Tv className="h-5 w-5" aria-hidden />} label="Canais" value={counts.channels} />
+              <Counter icon={<Clapperboard className="h-5 w-5" aria-hidden />} label="Filmes" value={counts.movies} />
+              <Counter icon={<Library className="h-5 w-5" aria-hidden />} label="Séries" value={counts.series} />
             </div>
-          </>
+          </div>
         )}
       </div>
+
     </main>
   );
 }
 
 function Counter({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-vexia-popup/70 px-3 py-3 text-center">
+    <div className="rounded-2xl border border-white/10 bg-vexia-popup/70 px-3 py-4 text-center">
       <div className="flex items-center justify-center gap-1.5 text-vexia-cyan">{icon}</div>
-      <p className="mt-1 text-lg font-bold text-vexia-cyan">{value.toLocaleString("pt-BR")}</p>
-      <p className="text-[11px] text-vexia-muted">{label}</p>
+      <p className="mt-1 text-[clamp(1.1rem,1.8vw,1.7rem)] font-black tabular-nums text-vexia-cyan">{value.toLocaleString("pt-BR")}</p>
+      <p className="text-[clamp(0.65rem,0.85vw,0.8rem)] uppercase tracking-[0.14em] text-vexia-muted">{label}</p>
     </div>
   );
 }
@@ -252,7 +269,7 @@ function ErrorPanel({
   onBack: () => void;
 }) {
   return (
-    <div className="mt-8 w-full max-w-md rounded-2xl border border-[#FF1744]/40 bg-vexia-popup/90 p-6 text-center">
+    <div className="w-full max-w-xl rounded-2xl border border-[#FF1744]/40 bg-vexia-popup/90 p-6 text-center">
       <p className="text-lg font-black text-white">
         {message ?? "Não foi possível carregar sua lista."}
       </p>
