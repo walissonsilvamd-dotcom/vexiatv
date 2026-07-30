@@ -3,6 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Captions,
+  ChevronDown,
+  ChevronUp,
   ChevronsLeftRight,
   Gauge,
   Heart,
@@ -111,6 +113,8 @@ function PlayerPage() {
   const [fav, setFav] = useState(false);
   const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
   const menuOpenRef = useRef(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerOpenRef = useRef(false);
   const [quality, setQuality] = useState("Auto");
   const [speed, setSpeed] = useState(1);
   const [hlsApi, setHlsApi] = useState<HlsLike | null>(null);
