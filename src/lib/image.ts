@@ -133,3 +133,35 @@ export function preloadImage(url?: string | null, role: ImageRole = "poster"): v
 export function preloadImages(urls: (string | null | undefined)[], role: ImageRole = "poster"): void {
   for (const url of urls.slice(0, 12)) preloadImage(url, role);
 }
+
+/* ────────────────────────────────────────────────────────────────
+ * Otimização automática (upscale inteligente + nitidez + ruído)
+ * ──────────────────────────────────────────────────────────────── */
+
+/** Sobe para o próximo tamanho TMDB disponível (ou undefined se já é o maior). */
+export function upgradeTmdbSize(url?: string | null, role: ImageRole = "poster"): string | undefined {
+  if (!url || !isTmdbImage(url)) return undefined;
+  const sizes = role === "backdrop" ? BACKDROP_SIZES : POSTER_SIZES;
+  const current = /\/t\/p\/([^/]+)\//.exec(url)?.[1];
+  const index = sizes.indexOf(current as (typeof sizes)[number]);
+  if (index < 0 || index >= sizes.length - 1) return undefined;
+  return replaceSize(url, sizes[index + 1]);
+}
+
+export type EnhanceLevel = "none" | "soft" | "medium" | "strong";
+
+/**
+ * Decide o quanto a imagem precisa ser "melhorada" comparando a resolução real
+ * do arquivo com o tamanho em que ela está sendo desenhada na tela.
+ *
+ *  ratio >= 1   -> imagem sobra em resolução: nada a fazer.
+ *  ratio < 1    -> está sendo ampliada: aplicamos nitidez/limpeza proporcional.
+ */
+export function enhanceLevel(naturalWidth: number, renderedWidth: number): EnhanceLevel {
+  if (!naturalWidth || !renderedWidth) return "none";
+  const ratio = naturalWidth / renderedWidth;
+  if (ratio >= 1.15) return "none";
+  if (ratio >= 0.85) return "soft";
+  if (ratio >= 0.55) return "medium";
+  return "strong";
+}
