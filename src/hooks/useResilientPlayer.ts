@@ -26,7 +26,11 @@ type Options = {
 
 const ENGINE_RETRIES = 2;
 const STARTUP_TIMEOUT_MS = 18_000;
-const STALL_TIMEOUT_MS = 20_000;
+const STALL_TIMEOUT_MS = 14_000;
+/** Congelamento leve: tenta "cutucar" o stream antes de trocar de motor. */
+const SOFT_STALL_MS = 5_000;
+const STALL_CHECK_MS = 1_500;
+const NUDGE_MAX = 3;
 const STANDBY_WARMUP_MS = 3_500;
 /** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
 const AUTO_CYCLE_MAX = 4;
@@ -98,6 +102,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     let standbyOk = false;
     let lastProgressAt = Date.now();
     let lastTime = -1;
+    let nudges = 0;
+    let lastNudgeAt = 0;
+    let standbyStarted = false;
     const handles: Record<PlayerSlot, EngineHandles | null> = { a: null, b: null };
     const timers = {
       recovery: undefined as ReturnType<typeof setTimeout> | undefined,
@@ -233,7 +240,19 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
 
     const scheduleStandby = () => {
       clearTimeout(timers.warmup);
-      timers.warmup = setTimeout(startStandby, STANDBY_WARMUP_MS);
+      standbyStarted = false;
+      timers.warmup = setTimeout(() => {
+        standbyStarted = true;
+        startStandby();
+      }, STANDBY_WARMUP_MS);
+    };
+
+    /** Antecipa a reserva quente assim que aparece o primeiro sinal de travamento. */
+    const prewarmStandby = () => {
+      if (disposed || standbyStarted || standbyOk) return;
+      clearTimeout(timers.warmup);
+      standbyStarted = true;
+      startStandby();
     };
 
     /* ── Troca instantânea para a instância reserva ── */
@@ -255,6 +274,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       standbyIndex = activeIndex + 1;
       engineRetries = 0;
       standbyOk = false;
+      standbyStarted = false;
+      nudges = 0;
       lastProgressAt = Date.now();
       lastTime = -1;
 
@@ -284,6 +305,44 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       attachWatchdog();
       scheduleStandby();
       return true;
+    };
+
+    /* ── Cutucão: destrava buffer preso sem derrubar o motor atual ── */
+    const nudge = () => {
+      if (disposed) return;
+      const video = elementFor(activeSlotLocal);
+      nudges += 1;
+      lastNudgeAt = Date.now();
+      setBuffering(true);
+      setReconnecting(true);
+      // Reserva quente já começa a carregar em segundo plano.
+      prewarmStandby();
+      const api = handles[activeSlotLocal]?.hlsApi as
+        | (HlsLike & { startLoad?: (pos?: number) => void; recoverMediaError?: () => void })
+        | null
+        | undefined;
+      try {
+        if (nudges >= 2) api?.recoverMediaError?.();
+        api?.startLoad?.(-1);
+      } catch {
+        /* motor sem API de recarga */
+      }
+      try {
+        if (live) {
+          // Volta para a borda ao vivo (fim do buffer disponível).
+          const ranges = video.buffered;
+          if (ranges.length > 0) {
+            const edge = ranges.end(ranges.length - 1);
+            if (edge - video.currentTime > 0.5) video.currentTime = Math.max(0, edge - 0.5);
+          }
+        } else {
+          // Micro-seek para forçar o decoder a retomar.
+          video.currentTime = video.currentTime + 0.25;
+        }
+      } catch {
+        /* stream sem seek */
+      }
+      void video.play().catch(() => undefined);
     };
 
     const startNext = (reason?: string) => {
@@ -386,6 +445,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         clearTimeout(timers.startup);
         // Reprodução saudável: zera contadores de recuperação.
         engineRetries = 0;
+        nudges = 0;
         if (cycleRef.current !== 0) {
           cycleRef.current = 0;
           setRecoveryCycle(0);
@@ -400,6 +460,11 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         }
       };
       const onWaiting = () => setBuffering(true);
+      // "stalled"/"suspend": os dados pararam de chegar — prepara a reserva já.
+      const onStalled = () => {
+        setBuffering(true);
+        if (!video.paused && !video.ended) prewarmStandby();
+      };
       const onMediaError = () => {
         const code = video.error?.code;
         recoverOrFallback(`media-error${code ? ` • code ${code}` : ""}`, () => {
@@ -414,11 +479,15 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       video.addEventListener("playing", onPlaying);
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("waiting", onWaiting);
+      video.addEventListener("stalled", onStalled);
+      video.addEventListener("suspend", onStalled);
       video.addEventListener("error", onMediaError);
       detachWatchdog = () => {
         video.removeEventListener("playing", onPlaying);
         video.removeEventListener("timeupdate", onTimeUpdate);
         video.removeEventListener("waiting", onWaiting);
+        video.removeEventListener("stalled", onStalled);
+        video.removeEventListener("suspend", onStalled);
         video.removeEventListener("error", onMediaError);
       };
     }
@@ -443,12 +512,31 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     document.addEventListener("visibilitychange", onVisible);
 
     attachWatchdog();
+    /* ── Vigia de travamento em escala: cutucão → reserva quente → troca de motor ── */
     timers.stall = setInterval(() => {
+      if (disposed) return;
       const video = elementFor(activeSlotLocal);
-      if (!video.paused && !video.ended && Date.now() - lastProgressAt > STALL_TIMEOUT_MS) {
-        startNext(`${order[activeIndex]} • stream-stalled`);
+      if (video.ended) return;
+      const idle = Date.now() - lastProgressAt;
+
+      // Pausa não solicitada (aba, foco, decoder): tenta voltar a tocar sozinho.
+      if (video.paused) {
+        if (idle > SOFT_STALL_MS && video.readyState >= 2) {
+          void video.play().catch(() => undefined);
+        }
+        return;
       }
-    }, 4_000);
+
+      if (idle > STALL_TIMEOUT_MS) {
+        nudges = 0;
+        startNext(`${order[activeIndex]} • stream-stalled`);
+        return;
+      }
+
+      if (idle > SOFT_STALL_MS && nudges < NUDGE_MAX && Date.now() - lastNudgeAt > 2_500) {
+        nudge();
+      }
+    }, STALL_CHECK_MS);
 
 
     void startActive();
