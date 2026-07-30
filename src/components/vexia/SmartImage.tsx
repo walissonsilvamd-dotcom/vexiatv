@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
 import {
-  adaptiveImage,
   adaptiveSizes,
   adaptiveSrcSet,
   placeholderImage,
