@@ -98,6 +98,8 @@ function PlayerPage() {
   const navigate = useNavigate();
   const { movies, series, channels, expired, account } = usePlaylist();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const slotARef = useRef<HTMLVideoElement>(null);
+  const slotBRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -153,9 +155,18 @@ function PlayerPage() {
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
   const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
 
-  const resilientPlayer = useResilientPlayer({ videoRef, src, live: type === "live" });
+  const resilientPlayer = useResilientPlayer({
+    videoRef,
+    slotARef,
+    slotBRef,
+    src,
+    live: type === "live",
+  });
   const {
     engine,
+    standbyEngine,
+    standbyReady,
+    activeSlot,
     hlsApi,
     reconnecting,
     fatalError,
@@ -279,7 +290,7 @@ function PlayerPage() {
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("ended", onEnded);
     };
-  }, [type, id, nextEpisode, navigate]);
+  }, [type, id, nextEpisode, navigate, activeSlot]);
 
   /* ── Retomar de onde parou ── */
   useEffect(() => {
@@ -585,14 +596,24 @@ function PlayerPage() {
       <div
         className="relative h-screen w-full overflow-hidden bg-black"
       >
-      {/* ── Superfície do vídeo ── */}
+      {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
       <video
-        ref={videoRef}
-        className="absolute inset-0 h-full w-full bg-black object-contain"
-        autoPlay
+        ref={slotARef}
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+          activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
         playsInline
-        muted={muted}
+        muted={activeSlot === "a" ? muted : true}
       />
+      <video
+        ref={slotBRef}
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+          activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        playsInline
+        muted={activeSlot === "b" ? muted : true}
+      />
+
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
       {/* ── Assinatura vencida: conteúdo bloqueado até a renovação ── */}
@@ -631,7 +652,13 @@ function PlayerPage() {
               <span className="text-xs font-semibold text-vexia-cyan">
                 Trocando motor… {engine ? `(${engine})` : ""} {attempt ? `• tentativa ${attempt}/${MAX_RETRIES}` : ""}
               </span>
+            ) : standbyReady && standbyEngine ? (
+              <span className="text-[11px] font-semibold text-white/50">
+                Reserva pronta ({standbyEngine})
+              </span>
             ) : null}
+
+
 
           </div>
         </div>
