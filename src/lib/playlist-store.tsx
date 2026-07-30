@@ -161,6 +161,55 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
 
+  /*
+   * Relógio da assinatura. Listas podem valer 1 hora, 3 horas ou 30 dias — o
+   * app precisa bloquear no instante exato da expiração, mesmo se estiver
+   * aberto. Além do tique de 30s, agenda um disparo no momento do vencimento.
+   */
+  const [, tick] = useState(0);
+  const expiresAt = stored?.account?.expiresAt ?? null;
+  useEffect(() => {
+    const bump = () => tick((n) => n + 1);
+    const interval = window.setInterval(bump, 30_000);
+    let exact: number | undefined;
+    if (expiresAt) {
+      const ms = expiresAt - Date.now();
+      if (ms > 0 && ms < 2_000_000_000) exact = window.setTimeout(bump, ms + 1_000);
+    }
+    return () => {
+      window.clearInterval(interval);
+      if (exact !== undefined) window.clearTimeout(exact);
+    };
+  }, [expiresAt]);
+
+  /*
+   * Reconsulta o provedor de tempo em tempo (e ao voltar para o app): o plano
+   * pode ser cortado antes da data prevista, e planos curtos exigem checagem
+   * frequente.
+   */
+  const storedUrl = stored?.url;
+  useEffect(() => {
+    if (!storedUrl) return;
+    let alive = true;
+    const check = async () => {
+      const account = await fetchPlaylistAccount(storedUrl);
+      if (!alive || !account) return;
+      setStored((prev) => (prev && prev.url === storedUrl ? { ...prev, account } : prev));
+      void savePlaylist({ ...(stored as StoredPlaylist), account }).catch(() => undefined);
+    };
+    const interval = window.setInterval(() => void check(), 5 * 60_000);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      alive = false;
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storedUrl]);
+
   const persist = useCallback(async (record: StoredPlaylist, retry: () => void) => {
     setStored(record);
     try {
