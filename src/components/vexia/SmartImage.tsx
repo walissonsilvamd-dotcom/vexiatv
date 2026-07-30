@@ -4,12 +4,16 @@ import {
   adaptiveSizes,
   adaptiveSrcSet,
   enhanceLevel,
+  exactImage,
+  exactSizes,
   placeholderImage,
   stableImage,
+  subscribeDisplay,
   upgradeTmdbSize,
   type EnhanceLevel,
   type ImageRole,
 } from "../../lib/image";
+
 
 /**
  * Imagem VÉXIA com carregamento progressivo.
