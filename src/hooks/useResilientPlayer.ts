@@ -28,6 +28,9 @@ const ENGINE_RETRIES = 2;
 const STARTUP_TIMEOUT_MS = 18_000;
 const STALL_TIMEOUT_MS = 20_000;
 const STANDBY_WARMUP_MS = 3_500;
+/** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
+const AUTO_CYCLE_MAX = 4;
+const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
 
 export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
@@ -41,10 +44,16 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
   const [mutedByAutoplay, setMutedByAutoplay] = useState(false);
   const [fatalError, setFatalError] = useState<PlayerFailure | null>(null);
   const [generation, setGeneration] = useState(0);
+  const [recoveryCycle, setRecoveryCycle] = useState(0);
   const forceEngineRef = useRef<PlaybackEngine | null>(null);
+  const cycleRef = useRef(0);
+  /** Posição a retomar em VOD depois de um ciclo completo de recuperação. */
+  const resumeAtRef = useRef(0);
 
   const retry = useCallback(() => {
     forceEngineRef.current = null;
+    cycleRef.current = 0;
+    setRecoveryCycle(0);
     setFatalError(null);
     setAttempt(0);
     setBuffering(true);
@@ -54,11 +63,21 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
   const tryOtherEngine = useCallback(() => {
     forceEngineRef.current =
       engine === "hls.js" ? "mpegts.js" : engine === "mpegts.js" ? "native" : "hls.js";
+    cycleRef.current = 0;
+    setRecoveryCycle(0);
     setFatalError(null);
     setAttempt(0);
     setBuffering(true);
     setGeneration((value) => value + 1);
   }, [engine]);
+
+  /* Nova fonte: zera o contador de ciclos e a posição memorizada. */
+  useEffect(() => {
+    cycleRef.current = 0;
+    resumeAtRef.current = 0;
+    setRecoveryCycle(0);
+  }, [src]);
+
 
   useEffect(() => {
     const slotA = slotARef.current;
