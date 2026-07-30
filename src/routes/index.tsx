@@ -30,24 +30,48 @@ function SplashScreen() {
 
   return (
     <div className="vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg animate-[vexia-fade_700ms_ease-out]">
-      {/* Halo estático e discreto atrás da logo — surge uma vez e permanece. */}
+      {/* Luzes ambiente: halo roxo respirando + aurora ciano girando lentamente. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full animate-[splash-halo-in_1400ms_ease-out_both]"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2"
+      >
+        <div
+          className="absolute inset-0 rounded-full animate-[splash-breathe_6s_ease-in-out_infinite]"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 30%, transparent) 0%, transparent 68%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-full mix-blend-screen animate-[splash-aurora_16s_linear_infinite]"
+          style={{
+            background:
+              "conic-gradient(from 0deg, color-mix(in oklab, var(--vexia-purple) 45%, transparent), color-mix(in oklab, var(--vexia-cyan) 35%, transparent), color-mix(in oklab, var(--vexia-purple) 45%, transparent))",
+            filter: "blur(90px)",
+          }}
+        />
+      </div>
+
+      {/* Textura sutil de pontos — acabamento premium. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.035]"
         style={{
-          background:
-            "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 26%, transparent) 0%, color-mix(in oklab, var(--vexia-cyan) 8%, transparent) 45%, transparent 70%)",
-          filter: "blur(40px)",
+          backgroundImage:
+            "radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)",
+          backgroundSize: "40px 40px",
         }}
       />
 
       <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
         <h1 className="sr-only">VÉXIA TV</h1>
 
-        {/* Logo: revelação cinematográfica (foco + assentamento). */}
-        <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1500ms_cubic-bezier(0.16,1,0.3,1)_both]">
-          <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain" />
+        {/* Logo: entrada cinematográfica (aproxima, ganha foco e assenta). */}
+        <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1200ms_cubic-bezier(0.22,1,0.36,1)_both]">
+          <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain animate-[splash-logo-glow_5s_ease-in-out_600ms_infinite]" />
         </div>
+
 
         {/* Filete de luz que se abre sob a logo — acabamento sóbrio, sem pulsar. */}
         <div
