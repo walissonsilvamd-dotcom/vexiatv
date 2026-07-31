@@ -23,6 +23,7 @@ import { useTmdbItem } from "../lib/use-tmdb";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
 import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+import { countriesLabel } from "../lib/country";
 
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
@@ -50,8 +51,8 @@ export const Route = createFileRoute("/detalhes/$id")({
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <h2 className="text-sm font-black tracking-[0.14em] text-vexia-text">{children}</h2>
+    <div className="space-y-1">
+      <h2 className="text-[13px] font-black tracking-[0.14em] text-vexia-text">{children}</h2>
       <span className="block h-0.5 w-16 rounded-full bg-vexia-purple shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.8)]" />
     </div>
   );
@@ -158,15 +159,16 @@ function DetailsPage() {
 
   const addedAt = source?.loadedAt ? new Date(source.loadedAt) : null;
   const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
+  const country = countriesLabel(item.countries);
 
   return (
-    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-10 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
         <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
       </div>
 
       {/* ─── Destaque com backdrop ─── */}
-      <section className="relative mt-3 min-h-[360px] w-full overflow-hidden md:h-[60vh]">
+      <section className="relative mt-2 min-h-[260px] w-full overflow-hidden md:h-[44vh]">
         {item.backdrop ? (
           <SmartImage
             src={item.backdrop}
@@ -181,7 +183,7 @@ function DetailsPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/70 to-black/70" />
 
-        <div className="relative flex items-start justify-between px-5 py-4 md:px-10">
+        <div className="relative flex items-start justify-between px-5 py-3 md:px-10">
           <button
             type="button"
             data-nav-row={0}
@@ -210,7 +212,7 @@ function DetailsPage() {
           </button>
         </div>
 
-        <div className="relative flex flex-col gap-6 px-5 pb-8 pt-4 md:flex-row md:items-end md:px-10">
+        <div className="relative flex flex-col gap-4 px-5 pb-5 pt-2 md:flex-row md:items-end md:px-10">
           {item.poster ? (
             <SmartImage
               src={item.poster}
@@ -218,44 +220,61 @@ function DetailsPage() {
               alt={item.title}
               eager
               preview={false}
-              sizes="180px"
-              className="hidden w-[180px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgb(var(--vexia-primary-rgb)/0.8)] md:block"
+              sizes="140px"
+              className="hidden w-[140px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgb(var(--vexia-primary-rgb)/0.8)] md:block"
             />
           ) : null}
           <div className="min-w-0">
-            <h1 className="text-2xl font-black leading-tight md:text-4xl">
+            <h1 className="text-xl font-black leading-tight md:text-3xl">
               {item.title}
               {item.year ? ` (${item.year})` : ""}
             </h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-semibold">
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[12px] font-semibold">
               <AudioTagBadge
                 sources={[raw?.title, item.title, item.category, (raw as { group?: string })?.group]}
                 size="md"
               />
               {item.rating > 0 ? (
-
-                <span className="flex items-center gap-1 text-vexia-gold">
-                  <Star className="h-4 w-4 fill-current" aria-hidden />
+                <span className="inline-flex items-center gap-1 rounded-md bg-black/45 px-2 py-0.5 text-vexia-gold">
+                  <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
                   {item.rating.toFixed(1)}
                 </span>
               ) : null}
-              {item.genres.length ? (
-                <span className="text-vexia-purple-soft">{item.genres.join(" • ")}</span>
+              {country ? (
+                <span className="inline-flex items-center rounded-md bg-black/45 px-2 py-0.5 text-vexia-text">
+                  {country}
+                </span>
               ) : null}
-              {item.runtime ? <span className="text-vexia-cyan">{item.runtime}</span> : null}
+              {item.genres.length ? (
+                <span className="inline-flex items-center rounded-md bg-black/45 px-2 py-0.5 text-vexia-purple-soft">
+                  {item.genres.slice(0, 3).join(" • ")}
+                </span>
+              ) : null}
+              {item.runtime ? (
+                <span className="inline-flex items-center rounded-md bg-black/45 px-2 py-0.5 text-vexia-cyan">
+                  {item.runtime}
+                </span>
+              ) : null}
               {isSeries ? (
-                <span className="text-vexia-cyan">
-                  {seasons.length} temporadas • {epList.length || item.episodes || 0} episódios
+                <span className="inline-flex items-center rounded-md bg-black/45 px-2 py-0.5 text-vexia-cyan">
+                  {seasons.length} temp • {epList.length || item.episodes || 0} ep
                 </span>
               ) : null}
             </div>
 
+            {/* Sinopse já no destaque: menos rolagem para ler o essencial. */}
+            {item.overview ? (
+              <p className="mt-2 line-clamp-3 max-w-3xl text-[12.5px] leading-snug text-vexia-text/90 md:line-clamp-4">
+                {item.overview}
+              </p>
+            ) : null}
+
             {isSeries && seasons.length > 0 ? (
-              <div className="mt-5 space-y-2">
+              <div className="mt-3 space-y-1.5">
                 <p className="text-[11px] font-black tracking-[0.14em] text-vexia-purple-soft">
                   ESCOLHA A TEMPORADA
                 </p>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {seasons.map((season) => {
                     const active = season.number === selectedSeason;
                     return (
@@ -271,7 +290,7 @@ function DetailsPage() {
                             .getElementById("temporadas")
                             ?.scrollIntoView({ behavior: "smooth", block: "start" });
                         }}
-                        className={`vexia-focus inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold tracking-wide transition ${
+                        className={`vexia-focus inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-bold tracking-wide transition ${
                           active
                             ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                             : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
@@ -288,7 +307,7 @@ function DetailsPage() {
                 </div>
               </div>
             ) : (
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-3 flex flex-wrap gap-3">
                 <button
                   type="button"
                   data-nav-row={1}
@@ -314,22 +333,14 @@ function DetailsPage() {
         </div>
       </section>
 
-      <div className="space-y-9 px-5 pt-8 md:px-10">
-        {/* ─── Sinopse ─── */}
-        <section className="space-y-3">
-          <SectionHeading>SINOPSE</SectionHeading>
-          <p className="max-w-4xl text-sm leading-relaxed text-vexia-text">
-            {item.overview || "Sem sinopse disponível para este título."}
-          </p>
-        </section>
-
+      <div className="space-y-5 px-5 pt-5 md:px-10">
         {/* ─── Elenco ─── */}
         {cast && cast.length > 0 ? (
-          <section className="space-y-3">
+          <section className="space-y-2">
             <SectionHeading>ELENCO</SectionHeading>
-            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-2">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1">
               {cast.map((person) => (
-                <div key={person.name} className="w-[76px] shrink-0 text-center">
+                <div key={person.name} className="w-[66px] shrink-0 text-center">
                   {person.photo ? (
                     <SmartImage
                       src={person.photo}
@@ -337,10 +348,10 @@ function DetailsPage() {
                       alt={person.name}
                       preview={false}
                       sizes="64px"
-                      className="mx-auto h-16 w-16 rounded-full border-2 border-vexia-purple object-cover"
+                      className="mx-auto h-14 w-14 rounded-full border-2 border-vexia-purple object-cover"
                     />
                   ) : (
-                    <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-sm font-black text-vexia-cyan">
+                    <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-sm font-black text-vexia-cyan">
                       {person.name.slice(0, 2).toUpperCase()}
                     </span>
                   )}
@@ -419,7 +430,7 @@ function DetailsPage() {
                               search: { type: "series", id: item.id, ep: ep.id },
                             });
                           }}
-                          className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-3 text-left"
+                          className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-2.5 text-left"
                         >
                           {watched ? (
                             <CheckCircle2
@@ -431,7 +442,14 @@ function DetailsPage() {
                           )}
                           <span className="min-w-0 flex-1">
                             <span className="flex min-w-0 items-center gap-2">
-                              <AudioTagBadge sources={[ep.title, item.title, item.category]} />
+                              <AudioTagBadge
+                                sources={[ep.title]}
+                                fallbackSources={[
+                                  raw?.title,
+                                  item.category,
+                                  (raw as { group?: string })?.group,
+                                ]}
+                              />
                               <span className="block truncate text-sm font-bold text-vexia-text">
                                 Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
                               </span>
@@ -467,7 +485,7 @@ function DetailsPage() {
             <SectionHeading>RECOMENDAÇÕES</SectionHeading>
             <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-2">
               {recommendations.map((rec) => (
-                <div key={rec.id} className="w-[120px] shrink-0 md:w-[140px]">
+                <div key={rec.id} className="w-[104px] shrink-0 md:w-[124px]">
                   <PosterCard
                     item={rec}
                     navRow={20}
