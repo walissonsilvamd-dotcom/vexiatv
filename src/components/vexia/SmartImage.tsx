@@ -14,6 +14,11 @@ import {
   type ImageRole,
 } from "../../lib/image";
 
+/** Quantas vezes tentamos a mesma capa antes de mostrar a arte de fallback. */
+const MAX_ATTEMPTS = 2;
+/** Tempo máximo de espera por uma capa antes de retentar (ms). */
+const SLOW_MS = 6000;
+
 
 /**
  * Imagem VÉXIA com carregamento progressivo.
