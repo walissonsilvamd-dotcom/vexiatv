@@ -67,6 +67,9 @@ export type HistoryEntry = { id: string; title: string; kind: HistoryKind; at: n
 
 const SETTINGS_KEY = "vexia:settings";
 const HISTORY_KEY = "vexia:history";
+/** Aviso interno de mudança de preferências (mesma aba). */
+const SETTINGS_EVENT = "vexia:settings-changed";
+
 
 type Ctx = {
   settings: VexiaSettings;
