@@ -68,6 +68,14 @@ type PlaylistContextValue = {
   getLastError: () => string | null;
   /** Reconsulta a validade no servidor do provedor. */
   refreshAccount: () => Promise<PlaylistAccount | null>;
+  /** Resumo da última atualização automática (null quando não houve). */
+  update: PlaylistDiff | null;
+  /** true enquanto a lista é revalidada em segundo plano. */
+  updating: boolean;
+  /** Dispensa o aviso de atualização. */
+  dismissUpdate: () => void;
+  /** Revalida a lista sem travar a navegação. */
+  refreshInBackground: () => Promise<void>;
   clear: () => void;
 };
 
