@@ -5,6 +5,7 @@ import {
   Clock3,
   Globe2,
   LayoutGrid,
+  RotateCcw,
   Shapes,
   Sparkles,
   Star,
@@ -96,42 +97,58 @@ function FiltersPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex flex-wrap items-center gap-2 px-5 py-2 md:px-8">
-        <Link
-          to="/home"
-          data-nav-row={0}
-          tabIndex={0}
-          title="Voltar"
-          aria-label="Voltar"
-          className="vexia-focus inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-1.5 text-white hover:text-vexia-cyan"
-        >
-          <ArrowLeft className="h-3 w-3" />
-        </Link>
-        <TopNav className="w-fit [&>a]:px-3 [&>a]:py-1.5 [&>a]:text-[11px]" />
-        <h1 className="text-sm font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)]">
-          Filtros
-        </h1>
-        <div className="ml-auto flex items-center gap-2">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-5 py-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between md:px-8">
+        <div className="flex min-w-0 items-center gap-2">
+          <Link
+            to="/home"
+            data-nav-row={0}
+            tabIndex={0}
+            title="Voltar"
+            aria-label="Voltar"
+            className="vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-full border border-white/10 bg-white/5 text-white hover:text-vexia-cyan"
+          >
+            <ArrowLeft className="h-3 w-3 shrink-0" />
+          </Link>
+          <TopNav className="w-fit min-w-0 overflow-x-auto [&>a]:px-2.5 [&>a]:py-1 [&>a]:text-[10px] sm:[&>a]:px-3 sm:[&>a]:py-1.5 sm:[&>a]:text-[11px]" />
+          <h1 className="hidden truncate text-sm font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)] sm:block">
+            Filtros
+          </h1>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             data-nav-row={0}
             tabIndex={0}
             onClick={clear}
-            className="vexia-focus rounded-full border border-vexia-cyan/40 px-2.5 py-1 text-[9px] font-bold text-vexia-cyan"
+            className="vexia-focus inline-flex items-center gap-1 rounded-full border border-vexia-cyan/40 px-2.5 py-1 text-[9px] font-bold text-vexia-cyan"
           >
+            <RotateCcw className="h-3 w-3" />
             LIMPAR
           </button>
-          <VexiaLogo className="h-7" />
+          <VexiaLogo className="h-7 shrink-0" />
         </div>
       </header>
 
-      <div className="grid gap-x-6 gap-y-1 px-5 md:px-8 xl:grid-cols-2">
+      <div className="grid gap-x-4 gap-y-1 px-5 md:px-8 xl:grid-cols-2">
+        <div className="col-span-full mb-1 flex items-center justify-between">
+          <button
+            type="button"
+            data-nav-row={1}
+            tabIndex={0}
+            onClick={clear}
+            className="vexia-focus inline-flex items-center gap-1.5 rounded-lg bg-vexia-purple/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-vexia-cyan hover:bg-vexia-purple/30"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Limpar filtros
+          </button>
+          <span className="text-[10px] font-bold text-vexia-text/60">{active} ativos</span>
+        </div>
         {FILTER_GROUPS.map((group, gi) => {
           const Icon = ICONS[group.key];
           return (
             <section
               key={group.key}
-              className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2 py-1"
+              className="grid items-start gap-1 rounded-lg border border-white/5 bg-white/[0.02] px-2 py-1 sm:flex sm:items-center sm:gap-2"
             >
               <h2 className="flex shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-[0.12em] text-vexia-purple-soft">
                 <Icon className="h-3.5 w-3.5 shrink-0 text-vexia-purple" aria-hidden />
@@ -144,7 +161,7 @@ function FiltersPage() {
                     <button
                       key={opt}
                       type="button"
-                      data-nav-row={gi + 1}
+                      data-nav-row={gi + 2}
                       tabIndex={0}
                       onClick={() => set(group.key, opt)}
                       className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
