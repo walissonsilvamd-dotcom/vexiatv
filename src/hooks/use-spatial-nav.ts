@@ -63,6 +63,21 @@ function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
   return best;
 }
 
+function scrollableParent(el: HTMLElement): HTMLElement | null {
+  let node: HTMLElement | null = el.parentElement;
+  while (node) {
+    const style = getComputedStyle(node);
+    if (
+      /(auto|scroll)/.test(style.overflowY) &&
+      node.scrollHeight > node.clientHeight + 4
+    ) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
+
 export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -95,7 +110,8 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
         if (!el) return;
         el.focus({ preventScroll: true });
         // "nearest" mantém o foco sempre visível sem saltos bruscos.
-        el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+        /* "auto" (instantâneo) evita foco fora da tela entre dois toques rápidos do controle. */
+        el.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "auto" });
       };
 
       // Sem foco atual (ou foco fora do escopo): entra no primeiro elemento.
@@ -108,6 +124,29 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
       if (target) {
         focus(target);
         return;
+      }
+
+      // Grade virtualizada: as linhas de baixo ainda não existem no DOM.
+      // Rolamos o container e tentamos de novo no próximo frame.
+      if (dir === "up" || dir === "down") {
+        const box = scrollableParent(active);
+        if (box) {
+          const step = active.getBoundingClientRect().height + 12;
+          const before = box.scrollTop;
+          box.scrollTop += dir === "down" ? step : -step;
+          if (box.scrollTop !== before) {
+            const from = active;
+            requestAnimationFrame(() => {
+              const next = Array.from(
+                (scopeRef?.current ?? document).querySelectorAll<HTMLElement>("[data-nav-row]"),
+              ).filter((el) => el.offsetParent !== null);
+              const t = pick(from, next, dir);
+              if (t) focus(t);
+              else if (!next.includes(from)) focus(next[0]);
+            });
+            return;
+          }
+        }
       }
 
       // Nada exatamente na direção: tenta a linha seguinte (fallback antigo)
