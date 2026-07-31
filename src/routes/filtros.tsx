@@ -16,7 +16,7 @@ import type { LucideIcon } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { PosterCard } from "../components/vexia/PosterGrid";
 import { TopNav } from "../components/vexia/TopNav";
-import { VexiaLogo } from "../components/vexia/VexiaLogo";
+
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import {
   FILTER_GROUPS,
