@@ -69,27 +69,38 @@ export function CatalogScreen({
 
   const debouncedQuery = useDebounce(query, 250);
 
-  const filtered = useMemo(() => {
+  /* 1) Busca + categoria da barra lateral. */
+  const searched = useMemo(() => {
     const base = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : items;
     return category === "Todos" ? base : base.filter((item) => item.genres[0] === category);
   }, [index, items, debouncedQuery, category]);
 
-  // Filtros inteligentes: enriquece a página atual com TMDB antes de aplicar.
-  const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
-  const enriched = useTmdbHeroes(activeFilters > 0 ? page : [], kind);
-  const visible = useMemo(() => {
-    const base =
+  /* 2) Filtros da Home que a lista já responde — aplicados ao catálogo inteiro. */
+  const filtered = useMemo(
+    () =>
       activeFilters === 0
-        ? page
-        : enriched.filter((item) => matchesFilters(item, kind, filters));
-    return sortMedia(base, sort);
-  }, [activeFilters, page, enriched, filters, kind, sort]);
-  /* Sem filtros TMDB ativos, a lista inteira é exibida virtualizada. */
-  const virtualItems = useMemo(
-    () => (activeFilters === 0 ? sortMedia(filtered, sort) : []),
-    [activeFilters, filtered, sort],
+        ? searched
+        : searched.filter((item) => matchesLocalFilters(item, kind, filters)),
+    [searched, activeFilters, filters, kind],
   );
-  const useVirtual = activeFilters === 0 && virtualItems.length > VIRTUALIZE_FROM;
+
+  /* 3) Critérios TMDB (país, nota, duração, lançamento) na página carregada. */
+  const tmdbNeeded = activeFilters > 0 && needsTmdb(filters);
+  const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
+  const enriched = useTmdbHeroes(tmdbNeeded ? page : [], kind);
+  const visible = useMemo(() => {
+    const base = tmdbNeeded
+      ? enriched.filter((item) => matchesFilters(item, kind, filters))
+      : page;
+    return sortMedia(base, sort);
+  }, [tmdbNeeded, page, enriched, filters, kind, sort]);
+  /* Sem critérios TMDB, a lista filtrada inteira é exibida virtualizada. */
+  const virtualItems = useMemo(
+    () => (tmdbNeeded ? [] : sortMedia(filtered, sort)),
+    [tmdbNeeded, filtered, sort],
+  );
+  const useVirtual = !tmdbNeeded && virtualItems.length > VIRTUALIZE_FROM;
+
   const hasContent = items.length > 0;
 
   // Pré-carrega os primeiros pôsteres para a grade aparecer instantaneamente.
