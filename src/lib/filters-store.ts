@@ -375,7 +375,7 @@ export function matchesLocalFilters(item: MediaItem, kind: MediaKind, state: Fil
     matchesType(item, kind, state.tipo) &&
     matchesGenre(item, state.genero) &&
     matchesYear(item, state.ano) &&
-    (state.audio === "Todos" || !item.audio ? true : matchesAudio(item, state.audio))
+    matchesAudio(item, state.audio)
   );
 }
 
