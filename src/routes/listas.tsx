@@ -373,42 +373,61 @@ function ListsPage() {
                 <h2 className="text-center text-xl font-bold tracking-[0.06em] md:text-2xl">
                   DIGITE SEU ACESSO
                 </h2>
+                <p className="mt-1 text-center text-xs text-white/60">
+                  Código (DNS do servidor) + login + senha
+                </p>
 
                 <div className="mt-5 space-y-4">
-                  <input
-                    value={server}
-                    onChange={(e) => setServer(e.target.value)}
-                    onPaste={(e) => {
-                      if (applyPaste(e.clipboardData.getData("text"), "server")) e.preventDefault();
-                    }}
-                    placeholder="Servidor (ex: http://meuservidor.com:8080)"
-                    aria-label="Servidor"
-                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-                  />
-                  <input
-                    value={user}
-                    onChange={(e) => setUser(e.target.value)}
-                    onPaste={(e) => {
-                      if (applyPaste(e.clipboardData.getData("text"), "user")) e.preventDefault();
-                    }}
-                    placeholder="Usuário"
-                    aria-label="Usuário"
-                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-                  />
-                  <input
-                    type="password"
-                    value={pass}
-                    onChange={(e) => setPass(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        submit();
-                      }
-                    }}
-                    placeholder="Senha"
-                    aria-label="Senha"
-                    className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-                  />
+                  <label className="block">
+                    <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
+                      CÓDIGO
+                    </span>
+                    <input
+                      value={server}
+                      onChange={(e) => setServer(e.target.value)}
+                      onPaste={(e) => {
+                        if (applyPaste(e.clipboardData.getData("text"), "server"))
+                          e.preventDefault();
+                      }}
+                      placeholder="ex: meuservidor.com:8080"
+                      aria-label="Código do servidor"
+                      className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
+                      LOGIN
+                    </span>
+                    <input
+                      value={user}
+                      onChange={(e) => setUser(e.target.value)}
+                      onPaste={(e) => {
+                        if (applyPaste(e.clipboardData.getData("text"), "user")) e.preventDefault();
+                      }}
+                      placeholder="Seu login"
+                      aria-label="Login"
+                      className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
+                      SENHA
+                    </span>
+                    <input
+                      type="password"
+                      value={pass}
+                      onChange={(e) => setPass(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          submit();
+                        }
+                      }}
+                      placeholder="Sua senha"
+                      aria-label="Senha"
+                      className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                    />
+                  </label>
                   <button
                     type="button"
                     onClick={() => submit()}
