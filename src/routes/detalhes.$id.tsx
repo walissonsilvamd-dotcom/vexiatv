@@ -170,7 +170,7 @@ function DetailsPage() {
       {/* ─── Destaque com backdrop ─── */}
       {/* Altura MÍNIMA (nunca fixa): o destaque cresce conforme o conteúdo, então
           as temporadas nunca ficam cortadas quando quebram em várias linhas. */}
-      <section className="relative mt-2 w-full overflow-hidden min-h-[260px] md:min-h-[44vh]">
+      <section className="relative mt-2 h-auto w-full overflow-visible min-h-[220px] md:min-h-[38vh]">
         {item.backdrop ? (
           <SmartImage
             src={item.backdrop}
@@ -278,7 +278,7 @@ function DetailsPage() {
                 </p>
                 {/* Todas as temporadas sempre à mostra: quebram em linhas e o
                     destaque acompanha a altura — sem corte e sem rolagem oculta. */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex h-auto max-w-full flex-wrap items-center gap-1.5 overflow-visible md:gap-2">
                   {seasons.map((season) => {
                     const active = season.number === selectedSeason;
                     return (
@@ -294,7 +294,7 @@ function DetailsPage() {
                             .getElementById("temporadas")
                             ?.scrollIntoView({ behavior: "smooth", block: "start" });
                         }}
-                        className={`vexia-focus inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold tracking-wide transition ${
+                        className={`vexia-focus inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold leading-none tracking-wide transition md:px-3 md:py-1.5 ${
                           active
                             ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                             : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
