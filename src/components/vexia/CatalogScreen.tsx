@@ -241,7 +241,9 @@ export function CatalogScreen({
                 </p>
               </div>
               <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
-                {category} ({tmdbNeeded ? visible.length : filtered.length})
+                {category} ({tmdbNeeded
+                  ? `${visible.length} de ${page.length} verificados`
+                  : filtered.length})
                 <span className="h-2 w-2 rounded-full bg-vexia-purple shadow-[0_0_10px_rgba(123,47,190,0.9)]" />
               </span>
             </div>
