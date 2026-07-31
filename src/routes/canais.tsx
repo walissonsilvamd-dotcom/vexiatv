@@ -139,21 +139,6 @@ function ChannelsPage() {
           />
         </label>
         <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
-        <Link
-          to="/filtros"
-          data-nav-row={0}
-          tabIndex={0}
-          aria-label="Abrir filtros"
-          className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-[11px] font-bold text-vexia-cyan backdrop-blur-xl"
-        >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden />
-          FILTROS
-          {activeFilters > 0 ? (
-            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-vexia-purple px-1 text-[10px] font-black text-white">
-              {activeFilters}
-            </span>
-          ) : null}
-        </Link>
         <div className="ml-auto hidden md:block">
           <VexiaLogo className="h-11" />
         </div>
