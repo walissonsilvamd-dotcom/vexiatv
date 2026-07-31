@@ -181,6 +181,7 @@ export async function fetchXtreamCatalog(
       logo: c.stream_icon || "",
       url,
       schedule: "AO VIVO",
+      tvgId: String((c as { epg_channel_id?: string }).epg_channel_id || ""),
     };
   });
 
