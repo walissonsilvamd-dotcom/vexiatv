@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Captions,
+  Timer,
   ChevronDown,
   ChevronUp,
   ChevronsLeftRight,
@@ -35,7 +36,18 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
-import { getSubtitlePref, setSubtitlePref, subtitleItemKey } from "../lib/subtitle-prefs";
+import {
+  getSubtitleOffset,
+  getSubtitlePref,
+  setSubtitleOffset,
+  setSubtitlePref,
+  subtitleItemKey,
+  clampSubtitleOffset,
+  SUBTITLE_OFFSET_MIN,
+  SUBTITLE_OFFSET_MAX,
+  SUBTITLE_OFFSET_STEP,
+} from "../lib/subtitle-prefs";
+import { createSubtitleOffsetController } from "../lib/subtitle-offset";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
 import { formatExpiry } from "../lib/xtream";
@@ -120,7 +132,9 @@ function PlayerPage() {
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
-  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
+  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "subsDelay" | "speed">(
+    null,
+  );
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
@@ -650,8 +664,50 @@ function PlayerPage() {
     if (match && match.id !== subs.selected) subs.select(match.id);
   }, [settings.subtitlesEnabled, settings.language, subs, itemKey, prefKey]);
 
+  /* ── Atraso (sincronia) das legendas, salvo por canal/título ───── */
+  const [subsOffset, setSubsOffset] = useState(0);
+  const offsetCtlRef = useRef<ReturnType<typeof createSubtitleOffsetController> | null>(null);
 
+  // Ao trocar de conteúdo, recupera o atraso salvo daquele canal/título.
+  useEffect(() => {
+    setSubsOffset(getSubtitleOffset(prefKey));
+  }, [prefKey]);
 
+  // Liga o controlador ao vídeo ativo (troca junto no failover).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !mediaReady) return;
+    const ctl = createSubtitleOffsetController(video);
+    offsetCtlRef.current = ctl;
+    ctl.setOffset(subsOffset);
+    return () => {
+      ctl.destroy();
+      if (offsetCtlRef.current === ctl) offsetCtlRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoRef.current, mediaReady]);
+
+  useEffect(() => {
+    offsetCtlRef.current?.setOffset(subsOffset);
+  }, [subsOffset, subs.selected]);
+
+  const applySubsOffset = (value: number) => {
+    const next = clampSubtitleOffset(value);
+    setSubsOffset(next);
+    setSubtitleOffset(prefKey, next);
+  };
+
+  /* Ao voltar pelo histórico (bfcache), reaplica faixa, estilo e atraso. */
+  useEffect(() => {
+    const restore = () => {
+      subsAutoRef.current = "";
+      subsManualRef.current = false;
+      setSubsOffset(getSubtitleOffset(prefKey));
+      offsetCtlRef.current?.refresh();
+    };
+    window.addEventListener("pageshow", restore);
+    return () => window.removeEventListener("pageshow", restore);
+  }, [prefKey]);
 
 
   const subsClass = `vexia-subs vexia-subs-${
@@ -702,10 +758,22 @@ function PlayerPage() {
         })),
       ];
     }
+    if (menu === "subsDelay") {
+      const steps: number[] = [];
+      for (let v = SUBTITLE_OFFSET_MIN; v <= SUBTITLE_OFFSET_MAX + 0.001; v += SUBTITLE_OFFSET_STEP) {
+        steps.push(clampSubtitleOffset(v));
+      }
+      return steps.map((v) => ({
+        label: v === 0 ? "Sincronizada (0s)" : `${v > 0 ? "+" : ""}${v.toFixed(2).replace(/\.?0+$/, "")}s`,
+        active: Math.abs(v - subsOffset) < 0.001,
+        select: () => applySubsOffset(v),
+      }));
+    }
+
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey]);
+  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset]);
 
 
   const toggleFullscreen = () => {
@@ -1158,6 +1226,15 @@ function PlayerPage() {
                 icon: Captions,
                 title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
                 label: subs.currentLabel,
+              },
+              {
+                key: "subsDelay",
+                icon: Timer,
+                title: "Atraso legenda",
+                label:
+                  subsOffset === 0
+                    ? "Sincronizada"
+                    : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`,
               },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
