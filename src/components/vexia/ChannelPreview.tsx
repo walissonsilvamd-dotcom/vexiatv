@@ -101,13 +101,21 @@ export default function ChannelPreview({
           </span>
         ) : null}
 
-        {src && buffering && !fatalError ? (
-          <span className="absolute left-3 top-3 h-5 w-5 animate-spin rounded-full border-2 border-vexia-cyan/30 border-t-vexia-cyan" />
+        {showBuffer ? (
+          <span className="absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
+            <span className="flex flex-col items-center gap-2">
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgba(0,200,255,0.45)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
+                {reconnecting ? "Reconectando" : starting ? "Iniciando prévia" : "Carregando buffer"}
+              </span>
+            </span>
+          </span>
         ) : null}
 
         <span className="absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          {fatalError ? "Sinal indisponível" : "Ao vivo"}
+          {fatalError ? "Sinal indisponível" : starting ? "Aquecendo" : "Ao vivo"}
         </span>
+
       </button>
 
       <button
