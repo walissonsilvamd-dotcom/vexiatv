@@ -24,14 +24,14 @@ type Options = {
   live: boolean;
 };
 
-const ENGINE_RETRIES = 2;
-const STARTUP_TIMEOUT_MS = 18_000;
-const STALL_TIMEOUT_MS = 14_000;
+const ENGINE_RETRIES = 1;
+const STARTUP_TIMEOUT_MS = 9_000;
+const STALL_TIMEOUT_MS = 6_000;
 /** Congelamento leve: tenta "cutucar" o stream antes de trocar de motor. */
-const SOFT_STALL_MS = 5_000;
-const STALL_CHECK_MS = 1_500;
-const NUDGE_MAX = 3;
-const STANDBY_WARMUP_MS = 3_500;
+const SOFT_STALL_MS = 2_000;
+const STALL_CHECK_MS = 500;
+const NUDGE_MAX = 1;
+const STANDBY_WARMUP_MS = 0;
 /** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
 const AUTO_CYCLE_MAX = 4;
 const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
@@ -265,10 +265,10 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       const newVideo = elementFor(newSlot);
       const position = oldVideo.currentTime;
       const wasMuted = oldVideo.muted;
+      const volume = oldVideo.volume;
+      const playbackRate = oldVideo.playbackRate;
 
       handles[newSlot] && setHlsApi(handles[newSlot]?.hlsApi ?? null);
-      resetSlot(oldSlot);
-
       activeSlotLocal = newSlot;
       activeIndex = standbyIndex;
       standbyIndex = activeIndex + 1;
@@ -289,6 +289,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       setReconnecting(false);
 
       newVideo.muted = wasMuted;
+      newVideo.volume = volume;
+      newVideo.playbackRate = playbackRate;
       if (!live && position > 0) {
         try {
           newVideo.currentTime = position;
@@ -301,6 +303,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
           if (!disposed && forcedMute) setMutedByAutoplay(true);
         })
         .catch(() => undefined);
+
+      // Só derruba o motor antigo depois que o reserva já foi promovido.
+      resetSlot(oldSlot);
 
       attachWatchdog();
       scheduleStandby();
@@ -359,7 +364,8 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         return;
       }
       setReconnecting(true);
-      timers.recovery = setTimeout(() => void startActive(), 500);
+      // O próximo motor começa no mesmo ciclo de evento, sem pausa artificial.
+      void startActive();
     };
 
     const recoverOrFallback = (reason: string, recover?: () => void) => {
@@ -372,7 +378,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
           if (disposed) return;
           recover();
           setReconnecting(false);
-        }, 700 * engineRetries);
+        }, 250);
         return;
       }
       startNext(reason);
@@ -426,6 +432,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         }
         handles[slot] = instance;
         setHlsApi(instance.hlsApi);
+        // A reserva começa assim que o motor principal está ligado.
         scheduleStandby();
       } catch (error) {
         startNext(`${selected} • ${error instanceof Error ? error.message : String(error)}`);
@@ -459,7 +466,10 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
           if (!live && video.currentTime > 0) resumeAtRef.current = video.currentTime;
         }
       };
-      const onWaiting = () => setBuffering(true);
+      const onWaiting = () => {
+        setBuffering(true);
+        prewarmStandby();
+      };
       // "stalled"/"suspend": os dados pararam de chegar — prepara a reserva já.
       const onStalled = () => {
         setBuffering(true);
@@ -533,7 +543,12 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         return;
       }
 
-      if (idle > SOFT_STALL_MS && nudges < NUDGE_MAX && Date.now() - lastNudgeAt > 2_500) {
+      if (idle > SOFT_STALL_MS && standbyOk) {
+        promoteStandby();
+        return;
+      }
+
+      if (idle > SOFT_STALL_MS && nudges < NUDGE_MAX && Date.now() - lastNudgeAt > 1_000) {
         nudge();
       }
     }, STALL_CHECK_MS);
