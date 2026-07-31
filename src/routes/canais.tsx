@@ -25,6 +25,7 @@ import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { programProgress } from "../lib/epg";
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
+import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
 
 
 /** Hora no formato 20:30. */
@@ -184,6 +185,26 @@ function ChannelsPage() {
     });
   }, [list, lastChannel]);
 
+
+  /* Callback estável: a prévia memoizada não re-renderiza a cada tique do EPG. */
+  const selectedRef = useRef<PlaylistChannel | null>(null);
+  selectedRef.current = selected;
+  const openSelectedFullscreen = useCallback(() => {
+    const cur = selectedRef.current;
+    if (cur) openFullscreen(cur);
+  }, [openFullscreen]);
+
+  /**
+   * Prefetch do próximo canal da lista: só o manifesto (poucos KB) e apenas se
+   * o cliente parar por um instante — troca instantânea sem gastar banda.
+   */
+  useEffect(() => {
+    if (!selected) return;
+    const idx = list.findIndex((c) => c.id === selected.id);
+    const next = idx >= 0 ? list[idx + 1] : undefined;
+    prefetchChannel(next?.url);
+    return () => cancelChannelPrefetch();
+  }, [selected, list]);
 
   const shell = (children: React.ReactNode) => (
     <main
@@ -412,7 +433,7 @@ function ChannelsPage() {
           src={selected?.url ?? null}
           name={selected?.name ?? "Canal"}
           logo={selected?.logo}
-          onOpenFullscreen={() => selected && openFullscreen(selected)}
+          onOpenFullscreen={openSelectedFullscreen}
         />
 
 

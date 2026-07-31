@@ -790,6 +790,20 @@ function PlayerPage() {
 
   const percent = duration ? (current / duration) * 100 : 0;
 
+  /* Callback estável: mantém o carrossel memoizado fora do ciclo de re-render. */
+  const selectEpisode = useCallback(
+    (next: { id: string; url: string }) => {
+      setStreamHandoff("series", id, next.url, next.id);
+      void navigate({
+        to: "/player",
+        search: { type: "series", id, ep: next.id },
+        viewTransition: true,
+      });
+      setDrawerOpen(false);
+    },
+    [id, navigate],
+  );
+
   const showEpisodes = type === "series" && episodes.length > 1;
 
   // Com a gaveta aberta os controles continuam visíveis e clicáveis na hora.
@@ -1305,11 +1319,9 @@ function PlayerPage() {
         ) : null}
 
 
-      </section>
-
       {/* Carrossel de episódios dentro do player, não da tela */}
       {showEpisodes && serie ? (
-        <div className="relative w-full border-t border-white/10 bg-black/95">
+        <div className="relative w-full rounded-t-lg border-t border-white/10 bg-black/85 backdrop-blur-sm">
           <button
             type="button"
             onClick={() => setDrawerOpen((v) => !v)}
@@ -1342,15 +1354,14 @@ function PlayerPage() {
               seriesPoster={serie.poster}
               episodes={episodes}
               currentEpisodeId={episode?.id}
-              onSelect={(next) => {
-                setStreamHandoff("series", id, next.url, next.id);
-                navigate({ to: "/player", search: { type: "series", id, ep: next.id }, viewTransition: true });
-                setDrawerOpen(false);
-              }}
+              onSelect={selectEpisode}
             />
           </div>
         </div>
       ) : null}
+
+      </section>
+
       </div>
       </div>
 

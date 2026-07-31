@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Clock, Play } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { PlaylistEpisode } from "../../lib/m3u";
 import { useProgress } from "../../lib/progress-store";
 import { useSettings } from "../../lib/settings-store";
@@ -25,7 +25,7 @@ function minutesLabel(min: number) {
 }
 
 
-export function EpisodeCarousel({
+function EpisodeCarouselBase({
   seriesId,
   seriesTitle,
   seriesYear,
@@ -113,7 +113,7 @@ export function EpisodeCarousel({
 
 
   return (
-    <section className="bg-[#050505] px-5 pb-10 pt-6 md:px-10">
+    <section className="bg-transparent px-4 pb-3 pt-2 md:px-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold tracking-wide text-white">{seriesTitle}</h2>
@@ -314,3 +314,10 @@ export function EpisodeCarousel({
     </section>
   );
 }
+
+/**
+ * Memoizado: o player atualiza o tempo várias vezes por segundo — sem isso o
+ * carrossel de capítulos re-renderizava junto e a troca de canal/episódio
+ * engasgava. Só re-renderiza quando a lista ou o episódio atual mudam.
+ */
+export const EpisodeCarousel = memo(EpisodeCarouselBase);
