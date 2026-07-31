@@ -390,7 +390,8 @@ export function CatalogScreen({
           </section>
         </div>
       ) : (
-        <div className="px-6 pb-16 md:px-10">
+        <div className="space-y-4 px-6 pb-16 md:px-10">
+          <PlaylistErrorState />
           <EmptyPlaylist
             section={kind === "series" ? "As séries" : "Os filmes"}
             onOpenLists={() => setListsOpen(true)}
