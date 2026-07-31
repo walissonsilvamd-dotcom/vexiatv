@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { usePlaylist } from "../../lib/playlist-store";
 import { formatDuration, matchWatch, type WatchEntry } from "../../lib/history-store";
 import { SmartImage } from "./SmartImage";
+import { PosterArt } from "./PosterArt";
 
 /** Resolve o item salvo com a lista atual (id → url → nome normalizado). */
 export function useResolvedHistory(entries: WatchEntry[]) {
