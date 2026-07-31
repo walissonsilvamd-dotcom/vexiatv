@@ -1112,7 +1112,7 @@ function PlayerPage() {
         )}
 
         {/* Botões de transporte */}
-        <div className="flex items-center justify-center gap-4 md:gap-7">
+        <div className="flex items-center justify-center gap-3 md:gap-5">
           {type === "series" ? (
             <button
               type="button"
@@ -1123,9 +1123,9 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } }))
               }
               aria-label="Episódio anterior"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipBack className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type !== "live" ? (
@@ -1133,21 +1133,21 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(-10)}
               aria-label="Voltar 10 segundos"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
-              <Rewind className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           <button
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-12 w-12 place-items-center rounded-full bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.95)]"
+            className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
           >
             {playing ? (
-              <Pause className="h-5 w-5 fill-current text-white" aria-hidden />
+              <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
             ) : (
-              <Play className="h-5 w-5 fill-current text-white" aria-hidden />
+              <Play className="h-4 w-4 fill-current text-white" aria-hidden />
             )}
           </button>
           {type !== "live" ? (
@@ -1155,9 +1155,9 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(10)}
               aria-label="Avançar 10 segundos"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
-              <FastForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type === "series" ? (
@@ -1170,12 +1170,13 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } }))
               }
               aria-label="Próximo episódio"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
         </div>
+
 
         {/* Informações do conteúdo */}
         <div className="space-y-1 text-xs">
