@@ -197,7 +197,12 @@ function DetailsPage() {
               {item.year ? ` (${item.year})` : ""}
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              <AudioTagBadge
+                sources={[raw?.title, item.title, item.category, (raw as { group?: string })?.group]}
+                size="md"
+              />
               {item.rating > 0 ? (
+
                 <span className="flex items-center gap-1 text-vexia-gold">
                   <Star className="h-4 w-4 fill-current" aria-hidden />
                   {item.rating.toFixed(1)}
