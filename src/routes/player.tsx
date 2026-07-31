@@ -36,6 +36,8 @@ import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { getSubtitlePref, setSubtitlePref, subtitleItemKey } from "../lib/subtitle-prefs";
+import { pickSubtitleTrack } from "../lib/subtitle-match";
+
 import { formatExpiry } from "../lib/xtream";
 import { getStreamHandoff, setStreamHandoff } from "../lib/stream-handoff";
 
@@ -622,7 +624,7 @@ function PlayerPage() {
   }, [itemKey]);
 
   useEffect(() => {
-    const signature = `${itemKey}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}|${settings.language}`;
+    const signature = `${itemKey}|${subs.tracks.map((t) => `${t.id}:${t.lang}`).join(",")}|${settings.subtitlesEnabled}|${settings.language}`;
     if (subsAutoRef.current === signature) return;
     subsAutoRef.current = signature;
     if (subsManualRef.current) return;
@@ -638,16 +640,16 @@ function PlayerPage() {
     }
     if (subs.tracks.length === 0) return;
 
-    // Ordem: idioma salvo deste conteúdo → escolha manual recente → Ajustes → primeira faixa.
-    const wanted = [saved === "off" ? null : saved, subsLangRef.current, settings.language]
-      .filter(Boolean)
-      .map((l) => (l as string).slice(0, 2).toLowerCase());
-    const match =
-      wanted
-        .map((p) => subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(p)))
-        .find(Boolean) ?? subs.tracks[0];
-    if (match.id !== subs.selected) subs.select(match.id);
+    // Ordem: idioma salvo deste conteúdo → escolha manual recente → Ajustes.
+    // Se nenhum existir na lista carregada, o matcher escolhe a melhor alternativa.
+    const match = pickSubtitleTrack(subs.tracks, [
+      saved === "off" ? null : saved,
+      subsLangRef.current,
+      settings.language,
+    ]);
+    if (match && match.id !== subs.selected) subs.select(match.id);
   }, [settings.subtitlesEnabled, settings.language, subs, itemKey, prefKey]);
+
 
 
 

@@ -67,6 +67,9 @@ export type HistoryEntry = { id: string; title: string; kind: HistoryKind; at: n
 
 const SETTINGS_KEY = "vexia:settings";
 const HISTORY_KEY = "vexia:history";
+/** Aviso interno de mudança de preferências (mesma aba). */
+const SETTINGS_EVENT = "vexia:settings-changed";
+
 
 type Ctx = {
   settings: VexiaSettings;
@@ -106,14 +109,31 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Mantém qualquer tela aberta (inclusive o player em reprodução) em sincronia
+  // com mudanças feitas em Ajustes, sem precisar recarregar.
+  useEffect(() => {
+    const sync = () => setSettings(readJSON(SETTINGS_KEY, DEFAULT_SETTINGS));
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === SETTINGS_KEY) sync();
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(SETTINGS_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(SETTINGS_EVENT, sync);
+    };
+  }, []);
+
   const persist = useCallback((next: VexiaSettings) => {
     setSettings(next);
     try {
       window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event(SETTINGS_EVENT));
     } catch {
       /* armazenamento indisponível */
     }
   }, []);
+
 
   const persistHistory = useCallback((next: HistoryEntry[]) => {
     setHistory(next);
