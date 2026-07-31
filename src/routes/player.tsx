@@ -1127,7 +1127,12 @@ function PlayerPage() {
             [
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
-              { key: "subs", icon: Captions, title: "Legenda", label: subs.currentLabel },
+              {
+                key: "subs",
+                icon: Captions,
+                title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
+                label: subs.currentLabel,
+              },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
           ).map((opt) => {
