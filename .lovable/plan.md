@@ -1,25 +1,47 @@
-## Objetivo
+## VÉXIA TV — Plano das 6 melhorias
 
-Criar uma splash screen em tela cheia para o "VÉXIA TV" usando a imagem enviada como fundo, com uma animação sutil de "carregando". Isso prepara terreno para depois empacotar como APK player de Smart TV.
+Entrego em 3 etapas, cada uma testável no preview.
 
-## O que será feito
+### Etapa 1 — Experiência de uso (maior impacto imediato)
 
-1. **Subir a imagem como asset do CDN** (`lovable-assets`) a partir de `user-uploads://Splash.jpeg`, salvando o ponteiro em `src/assets/splash.jpeg.asset.json`. Assim o binário não fica no repositório.
+**1. Busca global**
+- Nova rota `/busca` + campo de busca no cabeçalho de todas as telas.
+- Procura ao mesmo tempo em Filmes, Séries e Canais da lista carregada, com resultados agrupados por tipo e navegação por D-pad/teclado.
+- Reaproveita o índice já existente da playlist (sem custo extra de rede).
 
-2. **Substituir `src/routes/index.tsx`** (a rota `/` placeholder) por uma splash screen:
-   - Fundo preto com a imagem centralizada em `object-contain` (mantém proporção 16:9, ideal para TV) ocupando 100vw × 100vh.
-   - A imagem já contém o logo VÉXIA TV e o texto "CARREGANDO..." — não vamos sobrepor texto novo, para não duplicar.
-   - Uma leve animação de pulse/glow sutil sobre a imagem para dar sensação de "ativa" enquanto carrega (opcional, discreto).
-   - Sem scroll, sem chrome, sem margens.
+**2. Modo offline / erro de rede**
+- Tela clara quando a lista M3U não carrega: motivo, botão "Tentar novamente" e opção de usar a última lista salva em cache.
+- Indicador discreto de "sem conexão" no cabeçalho.
 
-3. **Atualizar o `head()` da rota** com título e meta apropriados: `VÉXIA TV — Carregando`, description curta, og:title/og:description.
+### Etapa 2 — Conteúdo e continuidade
 
-4. **Remover o placeholder** `data-lovable-blank-page-placeholder` da index.
+**3. Atualização automática da lista**
+- Revalidação em segundo plano ao abrir o app (respeitando um intervalo configurável em Ajustes).
+- Aviso do que mudou: "12 canais novos, 3 removidos", sem travar a navegação.
 
-## Fora do escopo (para depois)
+**4. EPG (guia de programação) nos canais**
+- Leitura de XMLTV quando a lista fornecer a URL do guia (padrão `url-tvg`/`x-tvg-url` do M3U, ou campo manual em Listas).
+- Nos cards e no player: programa atual, próximo e barra de progresso da programação.
+- Se a lista não tiver EPG, tudo continua funcionando sem o guia.
 
-- Empacotamento em APK Android TV.
-- Tela seguinte ao carregamento (home do player, listas, player de vídeo).
-- Lógica real de "carregando" ligada a boot do app.
+### Etapa 3 — Perfis e empacotamento
 
-Confirma que posso seguir assim (só a splash agora, sem texto adicional sobre a imagem)?
+**5. Perfis de usuário + controle parental**
+- Seleção de perfil ao entrar (Adulto/Criança/personalizados), cada um com favoritos, histórico e "continuar assistindo" próprios.
+- PIN de 4 dígitos para perfis adultos e para bloquear categorias sensíveis; PIN guardado apenas no dispositivo.
+
+**6. APK Android TV**
+- Empacotamento com Capacitor: ícone de launcher, splash nativa e banner de TV.
+- Ajustes de foco D-pad, botão Voltar do controle e permissão de rede.
+- Entrego o projeto Android pronto para gerar o APK; a compilação final (Android Studio / assinatura) roda fora do Lovable — te passo o passo a passo.
+
+### Detalhes técnicos
+
+- Busca: novo `src/lib/search-index.ts` (índice normalizado sem acentos) + `src/routes/busca.tsx`.
+- Offline: estados de erro no `PlaylistProvider`, fallback pelo cache IndexedDB já existente, listener de `online/offline`.
+- Auto-update: comparação de assinatura da lista e diff no `playlist-store`.
+- EPG: `src/lib/epg.ts` (parser XMLTV) + cache com TTL curto; consumo em `canais.tsx` e `player.tsx`.
+- Perfis: `src/lib/profiles-store.tsx`, com namespace por perfil nas chaves de favoritos/histórico/progresso.
+- APK: Capacitor com `@capacitor/android`, configuração de TV (leanback) e apontamento para o build web.
+
+Começo pela Etapa 1 assim que você aprovar.
