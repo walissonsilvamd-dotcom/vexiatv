@@ -187,11 +187,11 @@ export function useFilters() {
 
 /* ───────────────────── ordenação ───────────────────── */
 
-export type SortKey = "relevancia" | "nota" | "recentes";
+export type SortKey = "az" | "nota" | "recentes";
 
 export const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: "relevancia", label: "Relevância" },
-  { key: "nota", label: "Nota TMDB" },
+  { key: "az", label: "A → Z" },
+  { key: "nota", label: "Nota" },
   { key: "recentes", label: "Mais recentes" },
 ];
 
@@ -201,9 +201,10 @@ let sortCache: SortKey | null = null;
 
 function readSort(): SortKey {
   if (sortCache) return sortCache;
-  if (typeof window === "undefined") return (sortCache = "relevancia");
+  if (typeof window === "undefined") return (sortCache = "az");
   const raw = window.localStorage.getItem(SORT_KEY) as SortKey | null;
-  sortCache = raw === "nota" || raw === "recentes" ? raw : "relevancia";
+  // "relevancia" é a chave antiga: migra silenciosamente para alfabética.
+  sortCache = raw === "nota" || raw === "recentes" ? raw : "az";
   return sortCache;
 }
 
@@ -224,7 +225,7 @@ export function useSort() {
       return () => sortListeners.delete(fn);
     },
     readSort,
-    () => "relevancia" as SortKey,
+    () => "az" as SortKey,
   );
   return { sort, setSort };
 }
@@ -237,19 +238,20 @@ function releaseTime(item: MediaItem) {
   return item.year > 0 ? Date.UTC(item.year, 0, 1) : 0;
 }
 
-/** Ordena mantendo a ordem original como critério de relevância. */
+/** Ordena: A→Z pelo título, por nota ou pelos lançamentos mais recentes. */
 export function sortMedia<T extends MediaItem>(items: T[], sort: SortKey): T[] {
-  if (sort === "relevancia") return items;
   const copy = [...items];
-  if (sort === "nota") copy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (sort === "az") copy.sort((a, b) => a.title.localeCompare(b.title, "pt-BR", { numeric: true }));
+  else if (sort === "nota") copy.sort((a, b) => (b.rating || 0) - (a.rating || 0));
   else copy.sort((a, b) => releaseTime(b) - releaseTime(a));
   return copy;
 }
 
-/** Ordena canais: relevância = ordem da lista; nota = A→Z; recentes = fim da lista primeiro. */
+/** Canais: A→Z, ordem da lista ou fim da lista primeiro. */
 export function sortChannels<T extends { name: string }>(items: T[], sort: SortKey): T[] {
-  if (sort === "relevancia") return items;
-  if (sort === "nota") return [...items].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  if (sort === "az")
+    return [...items].sort((a, b) => a.name.localeCompare(b.name, "pt-BR", { numeric: true }));
+  if (sort === "nota") return items;
   return [...items].reverse();
 }
 

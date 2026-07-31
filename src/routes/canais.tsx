@@ -138,7 +138,7 @@ function ChannelsPage() {
             className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text outline-none backdrop-blur-xl placeholder:text-vexia-text/45"
           />
         </label>
-        <SortControl navRow={0} labels={{ nota: "A → Z", recentes: "Mais recentes" }} />
+        <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
         <Link
           to="/filtros"
           data-nav-row={0}
