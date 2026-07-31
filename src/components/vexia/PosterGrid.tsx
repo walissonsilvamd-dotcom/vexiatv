@@ -15,11 +15,14 @@ function PosterCardBase({
   navRow,
   progress,
   kind = "movie",
+  priority = false,
 }: {
   item: MediaItem;
   navRow: number;
   progress?: number;
   kind?: "movie" | "series";
+  /** Card acima da dobra: baixa a capa imediatamente e com prioridade alta. */
+  priority?: boolean;
 }) {
   const { has, toggle } = useFavorites();
   const fav = has(kind, item.title);
@@ -50,6 +53,7 @@ function PosterCardBase({
               alt={active.title}
               objectPosition={active.posterPosition ?? "center"}
               key={image}
+              eager={priority}
               onFail={() => setBroken(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               fallback={<PosterArt title={active.title} kind={kind} />}
@@ -57,6 +61,7 @@ function PosterCardBase({
           ) : (
             <PosterArt title={active.title} kind={kind} />
           )}
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-black/20" />
           {/* brilho espelhado */}
           <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
