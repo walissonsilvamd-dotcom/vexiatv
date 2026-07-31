@@ -443,5 +443,6 @@ export function CatalogScreen(props: {
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
     </main>
+    </>
   );
 }
