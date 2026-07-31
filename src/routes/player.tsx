@@ -602,6 +602,33 @@ function PlayerPage() {
   const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
   const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
 
+  /* ── Preferências de legenda vindas de Ajustes ─────────────────
+     Só faz efeito quando a lista carregada realmente traz legendas. */
+  const { settings } = useSettings();
+  const subsAutoRef = useRef<string>("");
+  useEffect(() => {
+    const signature = `${episode?.id ?? ""}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}`;
+    if (subsAutoRef.current === signature) return;
+    subsAutoRef.current = signature;
+
+    if (!settings.subtitlesEnabled) {
+      if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
+      return;
+    }
+    if (subs.tracks.length === 0) return;
+    if (subs.selected !== SUBS_OFF) return;
+
+    const prefix = settings.language.slice(0, 2).toLowerCase();
+    const match =
+      subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(prefix)) ?? subs.tracks[0];
+    subs.select(match.id);
+  }, [settings.subtitlesEnabled, settings.language, subs, episode?.id]);
+
+  const subsClass = `vexia-subs vexia-subs-${
+    settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
+  } vexia-subs-${settings.subtitleColor}`;
+
+
   type MenuOption = { label: string; active: boolean; select: () => void };
   const menuOptions: MenuOption[] = useMemo(() => {
     if (menu === "quality") {
