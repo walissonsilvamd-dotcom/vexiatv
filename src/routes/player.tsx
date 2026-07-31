@@ -809,38 +809,39 @@ function PlayerPage() {
           }, 260);
         }
       }}
-      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white focus:outline-none"
+      className="h-screen w-full overflow-hidden bg-black font-sans text-white focus:outline-none"
     >
-      <div
-        className="relative h-screen w-full overflow-hidden bg-black"
-      >
-      {externalGate && (
-        <ExternalPlayerGate
-          src={src}
-          title={title}
-          onUseInternal={() => setInternalOverride(true)}
-        />
-      )}
-      {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
-      <video
-        ref={slotARef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
-          activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        playsInline
-        muted={activeSlot === "a" ? muted : true}
-      />
-      <video
-        ref={slotBRef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
-          activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        playsInline
-        muted={activeSlot === "b" ? muted : true}
-      />
+      {/* Player centralizado e discreto — ocupa até 90% da largura e 78% da altura. */}
+      <div className="relative mx-auto flex h-full w-full max-w-[95vw] items-center justify-center px-4 py-5">
+        <div className="relative w-full max-w-[1600px] overflow-hidden rounded-xl bg-black shadow-[0_0_60px_-20px_rgb(var(--vexia-primary-rgb)/0.35)] ring-1 ring-white/10">
+          <div className="relative aspect-video w-full bg-black">
+            {externalGate && (
+              <ExternalPlayerGate
+                src={src}
+                title={title}
+                onUseInternal={() => setInternalOverride(true)}
+              />
+            )}
+            {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
+            <video
+              ref={slotARef}
+              className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
+                activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              playsInline
+              muted={activeSlot === "a" ? muted : true}
+            />
+            <video
+              ref={slotBRef}
+              className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
+                activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              playsInline
+              muted={activeSlot === "b" ? muted : true}
+            />
 
+            <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
-      <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
       {/* ── Assinatura vencida: conteúdo bloqueado até a renovação ── */}
       {expired ? (
