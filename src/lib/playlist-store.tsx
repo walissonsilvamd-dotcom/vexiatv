@@ -363,11 +363,61 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     [persist],
   );
 
+  /*
+   * Revalidação silenciosa: baixa a lista de novo sem trocar a tela nem
+   * limpar o conteúdo atual. Se algo mudou, guarda a nova versão e resume a
+   * diferença para o aviso na tela.
+   */
+  const refreshInBackground = useCallback(async () => {
+    const current = storedRef.current;
+    if (!current?.url || updatingRef.current) return;
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+    updatingRef.current = true;
+    setUpdating(true);
+    try {
+      let data: ParsedPlaylist | null = null;
+      if (xtreamCreds(current.url)) {
+        try {
+          data = await fetchXtreamCatalog(current.url);
+        } catch {
+          data = null;
+        }
+      }
+      if (!data) {
+        const session = createParseSession();
+        await downloadPlaylist(current.url, undefined, undefined, (chunk) => session.push(chunk));
+        data = await session.end();
+      }
+      if (!data || data.total === 0) return;
+
+      const diff = current.data ? diffPlaylists(current.data, data) : null;
+      const record: StoredPlaylist = { ...current, data, loadedAt: Date.now() };
+      setStored(record);
+      void savePlaylist(record).catch(() => undefined);
+      if (diff && !diff.unchanged) setUpdate(diff);
+    } catch (err) {
+      // Falha silenciosa: a lista salva continua valendo.
+      console.warn("[vexia] atualização automática da lista falhou", err);
+    } finally {
+      updatingRef.current = false;
+      setUpdating(false);
+    }
+  }, []);
+
+  /* Dispara a revalidação ao abrir o app, respeitando o intervalo mínimo. */
+  useEffect(() => {
+    if (!ready || !autoUpdate || !stored?.url) return;
+    if (Date.now() - (stored.loadedAt ?? 0) < AUTO_UPDATE_INTERVAL_MS) return;
+    const timer = window.setTimeout(() => void refreshInBackground(), 4_000);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, autoUpdate, stored?.url]);
 
   const reload = useCallback(async () => {
     if (!stored?.url) return false;
     return loadFromUrl(stored.url, stored.name);
   }, [stored, loadFromUrl]);
+
 
   const refreshAccount = useCallback(async () => {
     if (!stored?.url) return null;
