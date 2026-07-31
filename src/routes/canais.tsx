@@ -332,23 +332,15 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
-          <div className="grid aspect-video w-full place-items-center bg-black">
-            {selected?.logo ? (
-              <SmartImage
-                src={selected.logo}
-                role="logo"
-                alt={selected.name}
-                eager
-                preview={false}
-                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
-                fallback={<span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>}
-              />
-            ) : (
-              <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
-            )}
-          </div>
-        </div>
+        <ChannelPreview
+          key={selected?.id ?? "none"}
+          src={selected?.url ?? null}
+          name={selected?.name ?? "Canal"}
+          logo={selected?.logo}
+          muted={previewMuted}
+          onToggleMuted={() => setPreviewMuted((m) => !m)}
+          onOpenFullscreen={() => selected && openFullscreen(selected)}
+        />
 
         <div>
           <h2 className="text-xl font-black text-vexia-text">{selected?.name ?? "—"}</h2>
