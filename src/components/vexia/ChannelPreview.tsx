@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
 import { SmartImage } from "./SmartImage";
@@ -28,8 +28,10 @@ export default function ChannelPreview({
   const videoRef = useRef<HTMLVideoElement>(null);
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
+  /** Vira true no primeiro frame realmente exibido: some o "Iniciando prévia". */
+  const [started, setStarted] = useState(false);
 
-  const { activeSlot, buffering, fatalError } = useResilientPlayer({
+  const { activeSlot, buffering, reconnecting, fatalError } = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
@@ -37,7 +39,22 @@ export default function ChannelPreview({
     live: true,
   });
 
+  useEffect(() => {
+    setStarted(false);
+    if (!src) return;
+    const mark = () => setStarted(true);
+    const nodes = [slotARef.current, slotBRef.current].filter(Boolean) as HTMLVideoElement[];
+    for (const n of nodes) n.addEventListener("playing", mark);
+    return () => {
+      for (const n of nodes) n.removeEventListener("playing", mark);
+    };
+  }, [src]);
+
   const showPoster = !src || Boolean(fatalError);
+  /* Primeiro clique: mostra o carregamento até o stream aquecer. */
+  const starting = Boolean(src) && !started && !fatalError;
+  const showBuffer = Boolean(src) && !fatalError && (starting || buffering || reconnecting);
+
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
