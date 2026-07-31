@@ -675,6 +675,7 @@ function PlayerPage() {
           active: subs.selected === SUBS_OFF,
           select: () => {
             subsManualRef.current = true;
+            subsLangRef.current = null;
             subs.select(SUBS_OFF);
           },
         },
@@ -683,6 +684,7 @@ function PlayerPage() {
           active: t.id === subs.selected,
           select: () => {
             subsManualRef.current = true;
+            subsLangRef.current = t.lang || null;
             subs.select(t.id);
           },
         })),
