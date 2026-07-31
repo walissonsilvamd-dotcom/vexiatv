@@ -23,6 +23,8 @@ type Options = {
   slotBRef: RefObject<HTMLVideoElement | null>;
   src: string;
   live: boolean;
+  /** Desliga a reserva paralela em prévias, poupando banda e decoder da TV. */
+  standby?: boolean;
 };
 
 const ENGINE_RETRIES = 1;
@@ -49,7 +51,7 @@ const STANDBY_WARMUP_MS = 2_500;
 const AUTO_CYCLE_MAX = 4;
 const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
 
-export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: Options) {
+export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live, standby = true }: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
   const [standbyEngine, setStandbyEngine] = useState<PlaybackEngine | null>(null);
   const [standbyReady, setStandbyReady] = useState(false);
@@ -231,7 +233,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
 
     /* ── Reserva quente: segundo motor pré-carregado em paralelo, mudo e pausado ── */
     const startStandby = () => {
-      if (disposed || standbyIndex >= order.length) {
+      if (!standby || disposed || standbyIndex >= order.length) {
         setStandbyEngine(null);
         return;
       }
@@ -294,6 +296,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     };
 
     const scheduleStandby = () => {
+      if (!standby) return;
       clearTimeout(timers.warmup);
       standbyStarted = false;
       timers.warmup = setTimeout(() => {
@@ -304,7 +307,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
 
     /** Antecipa a reserva quente assim que aparece o primeiro sinal de travamento. */
     const prewarmStandby = () => {
-      if (disposed || standbyStarted || standbyOk) return;
+      if (!standby || disposed || standbyStarted || standbyOk) return;
       clearTimeout(timers.warmup);
       standbyStarted = true;
       startStandby();
@@ -638,7 +641,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       setStandbyReady(false);
       setStandbyEngine(null);
     };
-  }, [generation, live, src, slotARef, slotBRef, videoRef]);
+  }, [generation, live, src, slotARef, slotBRef, standby, videoRef]);
 
   return {
     engine,
