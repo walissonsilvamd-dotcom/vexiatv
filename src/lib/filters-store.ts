@@ -81,6 +81,7 @@ export const FILTER_GROUPS: FilterGroup[] = [
       "Reino Unido",
       "Argentina",
       "Canadá",
+      "Turquia",
     ],
   },
   {
@@ -88,7 +89,7 @@ export const FILTER_GROUPS: FilterGroup[] = [
     title: "ÁUDIO",
     options: ["Todos", "Português", "Inglês", "Espanhol", "Legendado"],
   },
-  { key: "nota", title: "CLASSIFICAÇÃO TMDB", options: ["Todos", "9.0+", "8.0+", "7.0+", "6.0+"] },
+  { key: "nota", title: "NOTA", options: ["Todos", "9.0+", "8.0+", "7.0+", "6.0+"] },
   {
     key: "duracao",
     title: "DURAÇÃO",
@@ -115,6 +116,7 @@ export const COUNTRY_CODES: Record<string, string[]> = {
   "Reino Unido": ["GB", "UK"],
   Argentina: ["AR"],
   Canadá: ["CA"],
+  Turquia: ["TR"],
 };
 
 export const EMPTY_FILTERS: FilterState = {
