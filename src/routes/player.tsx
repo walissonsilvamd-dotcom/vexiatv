@@ -1358,7 +1358,9 @@ function PlayerPage() {
         </div>
       ) : null}
       </div>
+      </div>
     </main>
+
 
 
 
