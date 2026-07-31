@@ -223,7 +223,7 @@ export function EpisodeCarousel({
                 <div className="space-y-1 p-2.5">
                   <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-vexia-cyan">
                     EP {String(episode.number).padStart(2, "0")}
-                    <AudioTagBadge sources={[episode.title, seriesTitle]} />
+                    <AudioTagBadge sources={[episode.title]} fallbackSources={[seriesTitle]} />
                   </p>
                   <p className="line-clamp-1 text-xs font-semibold text-white">{name}</p>
 
