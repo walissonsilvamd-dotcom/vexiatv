@@ -16,7 +16,7 @@ import type { LucideIcon } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { PosterCard } from "../components/vexia/PosterGrid";
 import { TopNav } from "../components/vexia/TopNav";
-import { VexiaLogo } from "../components/vexia/VexiaLogo";
+
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import {
   FILTER_GROUPS,
@@ -129,19 +129,6 @@ function FiltersPage() {
           <h1 className="hidden truncate text-sm font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)] sm:block">
             Filtros
           </h1>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            data-nav-row={0}
-            tabIndex={0}
-            onClick={clear}
-            className="vexia-focus inline-flex items-center gap-1 rounded-full border border-vexia-cyan/40 px-2.5 py-1 text-[9px] font-bold text-vexia-cyan"
-          >
-            <RotateCcw className="h-3 w-3" />
-            LIMPAR
-          </button>
-          <VexiaLogo className="h-7 shrink-0" />
         </div>
       </header>
 
