@@ -30,18 +30,16 @@ function center(el: HTMLElement) {
   return { x: r.left + r.width / 2, y: r.top + r.height / 2, r };
 }
 
-function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
-  const a = center(from);
+function pickFrom(a: { x: number; y: number; top: number; bottom: number }, candidates: HTMLElement[], dir: Dir) {
   let best: HTMLElement | undefined;
   let bestScore = Number.POSITIVE_INFINITY;
 
   for (const el of candidates) {
-    if (el === from) continue;
     const b = center(el);
     const dx = b.x - a.x;
     const dy = b.y - a.y;
 
-    // Deve estar realmente na direção pedida (com folga de 4px p/ arredondamento).
+    // Deve estar realmente na direção pedida (com folga p/ arredondamento).
     const along = dir === "left" ? -dx : dir === "right" ? dx : dir === "up" ? -dy : dy;
     if (along <= 4) continue;
 
@@ -49,7 +47,7 @@ function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
 
     // Horizontal: exige alinhamento na mesma faixa (evita pular de linha).
     if (dir === "left" || dir === "right") {
-      const overlap = Math.min(a.r.bottom, b.r.bottom) - Math.max(a.r.top, b.r.top);
+      const overlap = Math.min(a.bottom, b.r.bottom) - Math.max(a.top, b.r.top);
       if (overlap <= 2) continue;
     }
 
@@ -63,14 +61,24 @@ function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
   return best;
 }
 
+function anchorOf(el: HTMLElement) {
+  const c = center(el);
+  return { x: c.x, y: c.y, top: c.r.top, bottom: c.r.bottom };
+}
+
+function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
+  return pickFrom(
+    anchorOf(from),
+    candidates.filter((el) => el !== from),
+    dir,
+  );
+}
+
 function scrollableParent(el: HTMLElement): HTMLElement | null {
   let node: HTMLElement | null = el.parentElement;
   while (node) {
     const style = getComputedStyle(node);
-    if (
-      /(auto|scroll)/.test(style.overflowY) &&
-      node.scrollHeight > node.clientHeight + 4
-    ) {
+    if (/(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4) {
       return node;
     }
     node = node.parentElement;
@@ -127,23 +135,31 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
       }
 
       // Grade virtualizada: as linhas de baixo ainda não existem no DOM.
-      // Rolamos o container e tentamos de novo no próximo frame.
+      // Rolamos o container e tentamos de novo assim que a nova linha montar.
       if (dir === "up" || dir === "down") {
         const box = scrollableParent(active);
         if (box) {
           const step = active.getBoundingClientRect().height + 12;
+          const anchor = anchorOf(active);
           const before = box.scrollTop;
           box.scrollTop += dir === "down" ? step : -step;
           if (box.scrollTop !== before) {
-            const from = active;
-            requestAnimationFrame(() => {
-              const next = Array.from(
+            const shift = box.scrollTop - before;
+            const moved = {
+              x: anchor.x,
+              y: anchor.y - shift,
+              top: anchor.top - shift,
+              bottom: anchor.bottom - shift,
+            };
+            const retry = (attempt: number) => {
+              const list = Array.from(
                 (scopeRef?.current ?? document).querySelectorAll<HTMLElement>("[data-nav-row]"),
               ).filter((el) => el.offsetParent !== null);
-              const t = pick(from, next, dir);
+              const t = pickFrom(moved, list, dir);
               if (t) focus(t);
-              else if (!next.includes(from)) focus(next[0]);
-            });
+              else if (attempt < 4) setTimeout(() => retry(attempt + 1), 70);
+            };
+            setTimeout(() => retry(0), 60);
             return;
           }
         }
