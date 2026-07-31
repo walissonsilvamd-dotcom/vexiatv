@@ -5,6 +5,7 @@ import {
   Clock3,
   Globe2,
   LayoutGrid,
+  RotateCcw,
   Shapes,
   Sparkles,
   Star,
