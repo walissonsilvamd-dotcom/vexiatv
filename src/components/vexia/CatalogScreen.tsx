@@ -19,7 +19,7 @@ import {
 } from "../../lib/filters-store";
 
 import { SortControl } from "./SortControl";
-import { useTmdbHeroes } from "../../lib/use-tmdb";
+import { useTmdbHeroesStatus } from "../../lib/use-tmdb";
 import { preloadImages } from "../../lib/image";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
