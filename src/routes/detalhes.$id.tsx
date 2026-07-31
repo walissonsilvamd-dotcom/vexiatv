@@ -278,7 +278,7 @@ function DetailsPage() {
                 </p>
                 {/* Todas as temporadas sempre à mostra: quebram em linhas e o
                     destaque acompanha a altura — sem corte e sem rolagem oculta. */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex h-auto max-w-full flex-wrap items-center gap-1.5 overflow-visible md:gap-2">
                   {seasons.map((season) => {
                     const active = season.number === selectedSeason;
                     return (
