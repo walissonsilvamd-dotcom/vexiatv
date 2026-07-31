@@ -20,15 +20,15 @@ export function AppHeader({ showFilters = true }: { showFilters?: boolean }) {
             <SlidersHorizontal className="h-4 w-4 text-vexia-cyan" aria-hidden />
           </Link>
         ) : null}
-        <button
-          type="button"
+        <Link
+          to="/busca"
           data-nav-row={0}
           tabIndex={0}
           className="vexia-focus grid h-10 w-10 place-items-center rounded-full border border-vexia-cyan/40 bg-vexia-card"
           aria-label="Buscar"
         >
           <Search className="h-4 w-4 text-vexia-cyan" aria-hidden />
-        </button>
+        </Link>
       </div>
     </header>
   );

@@ -22,6 +22,7 @@ import { SortControl } from "./SortControl";
 import { useTmdbHeroesStatus } from "../../lib/use-tmdb";
 import { preloadImages } from "../../lib/image";
 import { EmptyPlaylist } from "./EmptyPlaylist";
+import { PlaylistErrorState } from "./PlaylistErrorState";
 import { PosterCard } from "./PosterGrid";
 import { QrPlaylistDialog } from "./QrPlaylistDialog";
 import { TopNav } from "./TopNav";
@@ -390,7 +391,8 @@ export function CatalogScreen({
           </section>
         </div>
       ) : (
-        <div className="px-6 pb-16 md:px-10">
+        <div className="space-y-4 px-6 pb-16 md:px-10">
+          <PlaylistErrorState />
           <EmptyPlaylist
             section={kind === "series" ? "As séries" : "Os filmes"}
             onOpenLists={() => setListsOpen(true)}

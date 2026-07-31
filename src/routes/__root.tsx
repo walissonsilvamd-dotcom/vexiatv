@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { PlaylistProvider } from "../lib/playlist-store";
 import { SettingsProvider } from "../lib/settings-store";
+import { OfflineBanner } from "../components/vexia/OfflineBanner";
+import { PlaylistUpdateBanner } from "../components/vexia/PlaylistUpdateBanner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerImageCache, warmStartCache } from "../lib/image-cache";
 import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
@@ -178,6 +180,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
         <PlaylistProvider>
+          <OfflineBanner />
+          <PlaylistUpdateBanner />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </PlaylistProvider>

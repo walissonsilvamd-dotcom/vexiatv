@@ -1,10 +1,19 @@
 import { Link } from "@tanstack/react-router";
 import { useSettings } from "../../lib/settings-store";
 
-type TabKey = "Home" | "Canais" | "Filmes" | "Séries" | "Favoritos" | "Histórico" | "Ajustes";
+type TabKey =
+  | "Home"
+  | "Busca"
+  | "Canais"
+  | "Filmes"
+  | "Séries"
+  | "Favoritos"
+  | "Histórico"
+  | "Ajustes";
 
 const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] = [
   { label: "Home", to: "/home" },
+  { label: "Busca", to: "/busca" },
   { label: "Canais", to: "/canais" },
   { label: "Filmes", to: "/filmes", hideKey: "hideVod" },
   { label: "Séries", to: "/series", hideKey: "hideSeries" },

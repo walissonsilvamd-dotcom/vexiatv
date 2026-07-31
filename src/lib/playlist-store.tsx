@@ -16,6 +16,11 @@ import { matchesLegacyId } from "../utils/hash";
 import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
 import { fetchXtreamCatalog, xtreamCreds } from "./xtream-catalog";
 import type { MediaItem } from "../data/vexia";
+import { diffPlaylists, type PlaylistDiff } from "./playlist-diff";
+import { useSettings } from "./settings-store";
+
+/** Intervalo mínimo entre revalidações automáticas da lista (6 horas). */
+const AUTO_UPDATE_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
@@ -68,6 +73,14 @@ type PlaylistContextValue = {
   getLastError: () => string | null;
   /** Reconsulta a validade no servidor do provedor. */
   refreshAccount: () => Promise<PlaylistAccount | null>;
+  /** Resumo da última atualização automática (null quando não houve). */
+  update: PlaylistDiff | null;
+  /** true enquanto a lista é revalidada em segundo plano. */
+  updating: boolean;
+  /** Dispensa o aviso de atualização. */
+  dismissUpdate: () => void;
+  /** Revalida a lista sem travar a navegação. */
+  refreshInBackground: () => Promise<void>;
   clear: () => void;
 };
 
@@ -161,6 +174,12 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   }, []);
   const getLastError = useCallback(() => lastErrorRef.current, []);
   const [quotaOpen, setQuotaOpen] = useState(false);
+  const [update, setUpdate] = useState<PlaylistDiff | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const updatingRef = useRef(false);
+  const storedRef = useRef<StoredPlaylist | null>(null);
+  const { settings } = useSettings();
+  const autoUpdate = settings.autoUpdate;
   const retryRef = useRef<(() => void) | null>(null);
 
   /* Carrega a lista já processada do IndexedDB — sem re-parse a cada abertura. */
@@ -355,11 +374,61 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     [persist],
   );
 
+  /*
+   * Revalidação silenciosa: baixa a lista de novo sem trocar a tela nem
+   * limpar o conteúdo atual. Se algo mudou, guarda a nova versão e resume a
+   * diferença para o aviso na tela.
+   */
+  const refreshInBackground = useCallback(async () => {
+    const current = storedRef.current;
+    if (!current?.url || updatingRef.current) return;
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return;
+    updatingRef.current = true;
+    setUpdating(true);
+    try {
+      let data: ParsedPlaylist | null = null;
+      if (xtreamCreds(current.url)) {
+        try {
+          data = await fetchXtreamCatalog(current.url);
+        } catch {
+          data = null;
+        }
+      }
+      if (!data) {
+        const session = createParseSession();
+        await downloadPlaylist(current.url, undefined, undefined, (chunk) => session.push(chunk));
+        data = await session.end();
+      }
+      if (!data || data.total === 0) return;
+
+      const diff = current.data ? diffPlaylists(current.data, data) : null;
+      const record: StoredPlaylist = { ...current, data, loadedAt: Date.now() };
+      setStored(record);
+      void savePlaylist(record).catch(() => undefined);
+      if (diff && !diff.unchanged) setUpdate(diff);
+    } catch (err) {
+      // Falha silenciosa: a lista salva continua valendo.
+      console.warn("[vexia] atualização automática da lista falhou", err);
+    } finally {
+      updatingRef.current = false;
+      setUpdating(false);
+    }
+  }, []);
+
+  /* Dispara a revalidação ao abrir o app, respeitando o intervalo mínimo. */
+  useEffect(() => {
+    if (!ready || !autoUpdate || !stored?.url) return;
+    if (Date.now() - (stored.loadedAt ?? 0) < AUTO_UPDATE_INTERVAL_MS) return;
+    const timer = window.setTimeout(() => void refreshInBackground(), 4_000);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, autoUpdate, stored?.url]);
 
   const reload = useCallback(async () => {
     if (!stored?.url) return false;
     return loadFromUrl(stored.url, stored.name);
   }, [stored, loadFromUrl]);
+
 
   const refreshAccount = useCallback(async () => {
     if (!stored?.url) return null;
@@ -376,6 +445,12 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     setStored(null);
     void clearPlaylist();
   }, []);
+
+  useEffect(() => {
+    storedRef.current = stored;
+  }, [stored]);
+
+  const dismissUpdate = useCallback(() => setUpdate(null), []);
 
   const data = stored?.data ?? null;
   const account = stored?.account ?? null;
@@ -397,6 +472,10 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     loadFromText,
     reload,
     refreshAccount,
+    update,
+    updating,
+    dismissUpdate,
+    refreshInBackground,
     clear,
   };
 

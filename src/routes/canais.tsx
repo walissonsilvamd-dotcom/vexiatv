@@ -6,6 +6,7 @@ import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
+import { PlaylistErrorState } from "../components/vexia/PlaylistErrorState";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
@@ -17,6 +18,13 @@ import { useDebounce } from "../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
 import { VirtualizedList } from "../components/VirtualizedGrid";
 import { SmartImage } from "../components/vexia/SmartImage";
+import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
+import { programProgress } from "../lib/epg";
+
+/** Hora no formato 20:30. */
+function formatClock(ms: number) {
+  return new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
 
 
 export const Route = createFileRoute("/canais")({
@@ -55,6 +63,9 @@ function ChannelsPage() {
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
+  const { guide } = useEpg();
+  const minuteTick = useMinuteTick();
+  const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
 
@@ -151,7 +162,8 @@ function ChannelsPage() {
 
   if (!hasContent || channels.length === 0) {
     return shell(
-      <div className="px-6 md:px-10">
+      <div className="space-y-4 px-6 md:px-10">
+        <PlaylistErrorState />
         <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
       </div>,
     );
@@ -164,6 +176,7 @@ function ChannelsPage() {
   const renderChannel = (ch: PlaylistChannel, i: number) => {
     const isActive = selected?.id === ch.id;
     const quality = qualityOf(ch.name);
+    const live = nowAndNext(guide, ch.tvgId, minuteTick).now;
     return (
       <div className="group relative mb-1.5">
         <button
@@ -200,7 +213,7 @@ function ChannelsPage() {
             <span
               className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
             >
-              {ch.group}
+              {live ? live.title : ch.group}
               {quality ? ` • ${quality}` : ""}
             </span>
           </span>
@@ -324,6 +337,24 @@ function ChannelsPage() {
               .filter(Boolean)
               .join(" • ")}
           </p>
+          {selectedEpg.now ? (
+            <div className="mt-3 rounded-xl border border-vexia-purple/40 bg-black/50 p-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
+                No ar agora
+              </p>
+              <p className="mt-1 text-sm font-bold text-vexia-text">{selectedEpg.now.title}</p>
+              <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
+                  style={{ width: `${Math.round(programProgress(selectedEpg.now, minuteTick) * 100)}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-vexia-muted">
+                {formatClock(selectedEpg.now.start)} – {formatClock(selectedEpg.now.stop)}
+                {selectedEpg.next ? ` • A seguir: ${selectedEpg.next.title}` : ""}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-2.5">

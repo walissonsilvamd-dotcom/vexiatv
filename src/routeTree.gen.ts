@@ -20,6 +20,7 @@ import { Route as FavoritosRouteImport } from './routes/favoritos'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as CarregandoRouteImport } from './routes/carregando'
 import { Route as CanaisRouteImport } from './routes/canais'
+import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SerieIdRouteImport } from './routes/serie.$id'
 import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
@@ -80,6 +81,11 @@ const CanaisRoute = CanaisRouteImport.update({
   path: '/canais',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuscaRoute = BuscaRouteImport.update({
+  id: '/busca',
+  path: '/busca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -103,6 +109,7 @@ const ApiPublicPlaylistRoute = ApiPublicPlaylistRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/busca': typeof BuscaRoute
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/busca': typeof BuscaRoute
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/busca': typeof BuscaRoute
   '/canais': typeof CanaisRoute
   '/carregando': typeof CarregandoRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/busca'
     | '/canais'
     | '/carregando'
     | '/configuracoes'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/busca'
     | '/canais'
     | '/carregando'
     | '/configuracoes'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/busca'
     | '/canais'
     | '/carregando'
     | '/configuracoes'
@@ -209,6 +221,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BuscaRoute: typeof BuscaRoute
   CanaisRoute: typeof CanaisRoute
   CarregandoRoute: typeof CarregandoRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CanaisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/busca': {
+      id: '/busca'
+      path: '/busca'
+      fullPath: '/busca'
+      preLoaderRoute: typeof BuscaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -337,6 +357,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BuscaRoute: BuscaRoute,
   CanaisRoute: CanaisRoute,
   CarregandoRoute: CarregandoRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,

@@ -43,6 +43,8 @@ export type PlaylistChannel = {
   logo: string;
   url: string;
   schedule: string;
+  /** ID do canal no guia XMLTV (tvg-id), quando a lista informa. */
+  tvgId?: string;
 };
 
 export type ParsedPlaylist = {
@@ -278,6 +280,7 @@ export function buildPlaylist(
       logo: entry.logo,
       url: entry.url,
       schedule: "AO VIVO",
+      tvgId: entry.tvgId,
     });
   });
 
