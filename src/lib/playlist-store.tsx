@@ -16,6 +16,11 @@ import { matchesLegacyId } from "../utils/hash";
 import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
 import { fetchXtreamCatalog, xtreamCreds } from "./xtream-catalog";
 import type { MediaItem } from "../data/vexia";
+import { diffPlaylists, type PlaylistDiff } from "./playlist-diff";
+import { useSettings } from "./settings-store";
+
+/** Intervalo mínimo entre revalidações automáticas da lista (6 horas). */
+const AUTO_UPDATE_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 
 /** Etapas reais do processamento da lista, na ordem de execução. */
@@ -169,6 +174,12 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
   }, []);
   const getLastError = useCallback(() => lastErrorRef.current, []);
   const [quotaOpen, setQuotaOpen] = useState(false);
+  const [update, setUpdate] = useState<PlaylistDiff | null>(null);
+  const [updating, setUpdating] = useState(false);
+  const updatingRef = useRef(false);
+  const storedRef = useRef<StoredPlaylist | null>(null);
+  const { settings } = useSettings();
+  const autoUpdate = settings.autoUpdate;
   const retryRef = useRef<(() => void) | null>(null);
 
   /* Carrega a lista já processada do IndexedDB — sem re-parse a cada abertura. */
@@ -435,6 +446,12 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     void clearPlaylist();
   }, []);
 
+  useEffect(() => {
+    storedRef.current = stored;
+  }, [stored]);
+
+  const dismissUpdate = useCallback(() => setUpdate(null), []);
+
   const data = stored?.data ?? null;
   const account = stored?.account ?? null;
 
@@ -455,6 +472,10 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
     loadFromText,
     reload,
     refreshAccount,
+    update,
+    updating,
+    dismissUpdate,
+    refreshInBackground,
     clear,
   };
 
