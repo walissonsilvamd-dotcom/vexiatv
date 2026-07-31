@@ -1226,6 +1226,15 @@ function PlayerPage() {
                 title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
                 label: subs.currentLabel,
               },
+              {
+                key: "subsDelay",
+                icon: Timer,
+                title: "Atraso legenda",
+                label:
+                  subsOffset === 0
+                    ? "Sincronizada"
+                    : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`,
+              },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
           ).map((opt) => {
