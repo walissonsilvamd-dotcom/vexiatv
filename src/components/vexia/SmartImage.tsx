@@ -7,6 +7,7 @@ import {
   exactImage,
   exactSizes,
   placeholderImage,
+  requiredPhysicalWidth,
   stableImage,
   sizeRank,
   subscribeDisplay,
@@ -57,13 +58,13 @@ export function SmartImage({
   const [enhance, setEnhance] = useState<EnhanceLevel>("none");
   /** Fonte melhorada (upscale inteligente) quando a original é pequena demais. */
   const [upgraded, setUpgraded] = useState<string | undefined>(undefined);
-  /** Largura real desenhada na tela (px CSS), medida no cliente. */
-  const [measured, setMeasured] = useState(0);
+  /** Tamanho real desenhado na tela (px CSS), medido no cliente. */
+  const [measured, setMeasured] = useState({ w: 0, h: 0 });
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   const stable = stableImage(src, role);
   /** Escolha responsiva: tamanho ideal para a largura medida + DPI da tela. */
-  const ideal = measured ? exactImage(src, role, measured) : undefined;
+  const ideal = measured.w ? exactImage(src, role, measured.w, measured.h) : undefined;
   // Só troca quando a versão ideal for MAIOR que a estável: nunca borra e não
   // desperdiça download quando o card já está nítido.
   const base = ideal && sizeRank(ideal) > sizeRank(stable) ? ideal : stable;
@@ -82,8 +83,13 @@ export function SmartImage({
     const el = imgRef.current;
     if (!el || typeof window === "undefined") return;
     const measure = () => {
-      const width = Math.round(el.getBoundingClientRect().width || el.clientWidth);
-      if (width) setMeasured((prev) => (Math.abs(prev - width) > 4 ? width : prev));
+      const rect = el.getBoundingClientRect();
+      const w = Math.round(rect.width || el.clientWidth);
+      const h = Math.round(rect.height || el.clientHeight);
+      if (!w && !h) return;
+      setMeasured((prev) =>
+        Math.abs(prev.w - w) > 4 || Math.abs(prev.h - h) > 4 ? { w, h } : prev,
+      );
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -103,9 +109,11 @@ export function SmartImage({
    * disponível, aplica o realce (nitidez + redução de ruído) proporcional.
    */
   const optimize = (el: HTMLImageElement) => {
-    const rendered = Math.round(
-      (el.getBoundingClientRect().width || el.clientWidth) *
-        Math.min(window.devicePixelRatio || 1, 2),
+    const rect = el.getBoundingClientRect();
+    const rendered = requiredPhysicalWidth(
+      rect.width || el.clientWidth,
+      rect.height || el.clientHeight,
+      role,
     );
     const level = enhanceLevel(el.naturalWidth, rendered);
     if (level === "none") {
@@ -167,8 +175,8 @@ export function SmartImage({
         sizes={
           upgraded
             ? undefined
-            : measured
-              ? exactSizes(measured)
+            : measured.w
+              ? exactSizes(measured.w, measured.h, role)
               : (sizes ?? adaptiveSizes(role))
         }
         alt={alt}
