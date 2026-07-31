@@ -109,7 +109,7 @@ function ListsPage() {
     const finalUrl = buildUrl();
     if (!finalUrl) {
       setFormError(
-        "Informe usuário, senha e servidor — ou cole o link M3U/HLS no campo de URL.",
+        "Informe o CÓDIGO (DNS do servidor), o LOGIN e a SENHA — ou cole o link M3U/HLS no campo de URL.",
       );
       return;
     }
