@@ -25,7 +25,8 @@ import {
   type FilterKey,
 } from "../lib/filters-store";
 import { usePlaylist } from "../lib/playlist-store";
-import { useTmdbHeroes } from "../lib/use-tmdb";
+import { useTmdbHeroesStatus } from "../lib/use-tmdb";
+import { Skeleton } from "../components/ui/skeleton";
 
 export const Route = createFileRoute("/filtros")({
   head: () => ({
@@ -66,11 +67,26 @@ function FiltersPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { filters, set, clear, active } = useFilters();
-  const { movies, series } = usePlaylist();
+  const { movies, series, loading } = usePlaylist();
 
   // Amostra enriquecida pelo TMDB para a prévia do resultado.
-  const richMovies = useTmdbHeroes(useMemo(() => movies.slice(0, SAMPLE), [movies]), "movie");
-  const richSeries = useTmdbHeroes(useMemo(() => series.slice(0, SAMPLE / 2), [series]), "series");
+  const {
+    items: richMovies,
+    pending: pendingMovies,
+    settled: settledMovies,
+    total: totalMovies,
+  } = useTmdbHeroesStatus(useMemo(() => movies.slice(0, SAMPLE), [movies]), "movie");
+  const {
+    items: richSeries,
+    pending: pendingSeries,
+    settled: settledSeries,
+    total: totalSeries,
+  } = useTmdbHeroesStatus(useMemo(() => series.slice(0, SAMPLE / 2), [series]), "series");
+
+  const isBusy = loading || pendingMovies || pendingSeries;
+  const tmdbProgress = Math.round(
+    ((settledMovies + settledSeries) / (totalMovies + totalSeries || 1)) * 100,
+  );
 
   const preview = useMemo(() => {
     const list = [
