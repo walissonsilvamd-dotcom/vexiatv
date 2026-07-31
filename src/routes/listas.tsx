@@ -323,19 +323,49 @@ function ListsPage() {
                 <h2 className="text-xl font-bold tracking-[0.06em] md:text-2xl">
                   ACESSE POR QR CODE
                 </h2>
-                <div className="mt-5 rounded-sm bg-white p-4">
+                <div className="relative mt-5 rounded-sm bg-white p-4">
                   <QRCodeSVG value={qrValue} size={340} level="M" className="h-auto w-full max-w-[340px]" />
+                  {pairing.status !== "waiting" ? (
+                    <div className="absolute inset-0 grid place-items-center rounded-sm bg-black/80 px-4 text-center text-xs font-bold tracking-[0.12em] text-white">
+                      {pairing.status === "creating"
+                        ? "GERANDO CÓDIGO..."
+                        : pairing.status === "expired"
+                          ? "CÓDIGO EXPIRADO"
+                          : pairing.status === "error"
+                            ? "FALHA AO GERAR O CÓDIGO"
+                            : "PAREAMENTO CONCLUÍDO"}
+                    </div>
+                  ) : null}
                 </div>
-                <p className="mt-4 max-w-[340px] text-center text-xs text-white/70">
-                  Leia o QR Code no celular, copie o link da sua lista (M3U ou HLS) e cole aqui.
+                {pairing.code ? (
+                  <p className="mt-3 text-center text-xs text-white/70">
+                    Código:{" "}
+                    <span className="text-base font-black tracking-[0.3em] text-vexia-cyan">
+                      {pairing.code}
+                    </span>
+                  </p>
+                ) : null}
+                <p className="mt-3 max-w-[340px] text-center text-xs text-white/70">
+                  Leia o QR Code no celular, cole o link da sua lista (M3U ou HLS) e envie — a TV
+                  carrega sozinha.
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setQrDialog(true)}
-                  className="vexia-focus mt-3 rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-xs font-bold tracking-[0.14em] text-vexia-cyan"
-                >
-                  COLAR LINK DO QR CODE
-                </button>
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={pairing.refresh}
+                    className="vexia-focus rounded-full border border-vexia-purple/60 px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-white/85"
+                  >
+                    NOVO CÓDIGO
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQrDialog(true)}
+                    className="vexia-focus rounded-full border border-vexia-cyan/60 px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-vexia-cyan"
+                  >
+                    COLAR LINK MANUALMENTE
+                  </button>
+                </div>
+
               </section>
 
               {/* ACESSO */}
