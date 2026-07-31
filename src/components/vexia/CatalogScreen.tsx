@@ -216,14 +216,15 @@ export function CatalogScreen(props: {
             </p>
             <div className="my-2 h-px shrink-0 bg-white/10" />
 
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex shrink-0 items-center gap-1.5">
               <Link
                 to="/home"
                 data-nav-row={1}
                 tabIndex={0}
-                className="vexia-focus flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-vexia-text hover:bg-white/5"
+                aria-label="Voltar para a Home"
+                className="vexia-focus flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-vexia-text hover:bg-white/5"
               >
-                <Undo2 className="h-4 w-4 text-vexia-cyan" aria-hidden /> Voltar
+                <Undo2 className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden /> Voltar
               </Link>
               <button
                 type="button"
@@ -232,15 +233,13 @@ export function CatalogScreen(props: {
                 onClick={() =>
                   (scopeRef.current?.querySelector("input") as HTMLInputElement | null)?.focus()
                 }
-                className="vexia-focus flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-vexia-text hover:bg-white/5"
+                className="vexia-focus flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-vexia-text hover:bg-white/5"
               >
-                <Search className="h-4 w-4 text-vexia-cyan" aria-hidden /> Procurar
+                <Search className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden /> Procurar
               </button>
+              <Clock className="ml-auto h-3.5 w-3.5 shrink-0 text-vexia-cyan/70" aria-hidden />
             </div>
-            <div className="flex items-center gap-2 px-2 py-2 text-sm text-vexia-text/80">
-              <Clock className="h-4 w-4 text-vexia-cyan" aria-hidden />
-              <span className="flex-1">Visualizado recentemente</span>
-            </div>
+
 
             {settings.hideCategories ? (
               <p className="mt-2 rounded-xl bg-black/30 px-3 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-vexia-text/60">
