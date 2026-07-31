@@ -606,10 +606,17 @@ function PlayerPage() {
      Só faz efeito quando a lista carregada realmente traz legendas. */
   const { settings } = useSettings();
   const subsAutoRef = useRef<string>("");
+  /** Escolha manual feita no player tem prioridade sobre a preferência de Ajustes. */
+  const subsManualRef = useRef(false);
+  useEffect(() => {
+    subsManualRef.current = false;
+  }, [episode?.id]);
+
   useEffect(() => {
     const signature = `${episode?.id ?? ""}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}`;
     if (subsAutoRef.current === signature) return;
     subsAutoRef.current = signature;
+    if (subsManualRef.current) return;
 
     if (!settings.subtitlesEnabled) {
       if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
@@ -623,6 +630,7 @@ function PlayerPage() {
       subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(prefix)) ?? subs.tracks[0];
     subs.select(match.id);
   }, [settings.subtitlesEnabled, settings.language, subs, episode?.id]);
+
 
   const subsClass = `vexia-subs vexia-subs-${
     settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
@@ -653,15 +661,22 @@ function PlayerPage() {
         {
           label: "Desligada",
           active: subs.selected === SUBS_OFF,
-          select: () => subs.select(SUBS_OFF),
+          select: () => {
+            subsManualRef.current = true;
+            subs.select(SUBS_OFF);
+          },
         },
         ...subs.tracks.map((t) => ({
-          label: t.label,
+          label: t.lang ? `${t.label} · ${t.lang.toUpperCase()}` : t.label,
           active: t.id === subs.selected,
-          select: () => subs.select(t.id),
+          select: () => {
+            subsManualRef.current = true;
+            subs.select(t.id);
+          },
         })),
       ];
     }
+
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected]);
@@ -1112,7 +1127,12 @@ function PlayerPage() {
             [
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
-              { key: "subs", icon: Captions, title: "Legenda", label: subs.currentLabel },
+              {
+                key: "subs",
+                icon: Captions,
+                title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
+                label: subs.currentLabel,
+              },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
           ).map((opt) => {
