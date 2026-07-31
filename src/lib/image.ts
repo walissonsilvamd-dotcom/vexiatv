@@ -163,26 +163,57 @@ export function adaptiveSizes(role: ImageRole = "poster"): string {
     : "(min-width: 1600px) 16vw, (min-width: 1024px) 20vw, 32vw";
 }
 
+/** Proporção nativa de cada tipo de arte (largura ÷ altura). */
+const ROLE_ASPECT: Record<ImageRole, number> = {
+  poster: 2 / 3,
+  backdrop: 16 / 9,
+  still: 16 / 9,
+  logo: 16 / 9,
+};
+
+/**
+ * Largura de arquivo realmente necessária, em pixels FÍSICOS.
+ *
+ * Considera o recorte `object-fit: cover`: quando o espaço na tela é mais
+ * "alto" que a proporção nativa da arte, a imagem é ampliada pela altura — aí
+ * a largura precisa ser maior do que a caixa, senão borra.
+ */
+export function requiredPhysicalWidth(
+  cssWidth: number,
+  cssHeight: number,
+  role: ImageRole = "poster",
+): number {
+  const dpr = profile.dpr;
+  const aspect = ROLE_ASPECT[role] ?? 2 / 3;
+  const byWidth = cssWidth;
+  const byHeight = cssHeight ? cssHeight * aspect : 0;
+  return Math.round(Math.max(byWidth, byHeight) * dpr);
+}
+
 /**
  * Tamanho ideal para um elemento já medido na tela.
- * Recebe a largura em px CSS e converte para pixels físicos usando o DPI real,
- * garantindo o arquivo mais leve que ainda fica 100% nítido.
+ * Recebe a largura (e opcionalmente a altura) em px CSS e converte para pixels
+ * físicos usando o DPI real, garantindo o arquivo mais leve que ainda fica
+ * 100% nítido — nunca ampliado, portanto nunca borrado.
  */
 export function exactImage(
   url: string | null | undefined,
   role: ImageRole,
   renderedCssWidth: number,
+  renderedCssHeight = 0,
 ): string | undefined {
   if (!url) return undefined;
   if (!isTmdbImage(url) || !renderedCssWidth) return url ?? undefined;
-  const needed = Math.round(renderedCssWidth * profile.dpr);
+  const needed = requiredPhysicalWidth(renderedCssWidth, renderedCssHeight, role);
   return replaceSize(url, sizeForWidth(needed, role));
 }
 
 /** `sizes` exato em px para um elemento medido — evita o navegador "chutar". */
-export function exactSizes(renderedCssWidth: number): string {
-  return `${Math.max(1, Math.round(renderedCssWidth))}px`;
+export function exactSizes(renderedCssWidth: number, renderedCssHeight = 0, role: ImageRole = "poster"): string {
+  const needed = requiredPhysicalWidth(renderedCssWidth, renderedCssHeight, role) / profile.dpr;
+  return `${Math.max(1, Math.round(needed))}px`;
 }
+
 
 
 /* ────────────────────────────────────────────────────────────────
