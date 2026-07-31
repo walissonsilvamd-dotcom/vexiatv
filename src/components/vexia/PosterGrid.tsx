@@ -38,7 +38,7 @@ function PosterCardBase({
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
-        className="vexia-card-focus block overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
+        className="vexia-card-focus block scroll-m-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
