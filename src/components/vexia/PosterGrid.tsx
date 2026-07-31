@@ -38,13 +38,23 @@ function PosterCardBase({
 
   return (
     <div className="group relative">
+      {/* Tooltip: mostra o nome completo quando o título aparece truncado. */}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 hidden max-w-[16rem] -translate-x-1/2 rounded-lg border border-vexia-purple/50 bg-black/95 px-2.5 py-1.5 text-center text-[12px] font-bold leading-snug text-vexia-text shadow-[0_10px_30px_-8px_rgb(var(--vexia-primary-rgb)/0.8)] group-hover:block group-focus-within:block"
+      >
+        {active.title}
+      </span>
       <Link
         to="/detalhes/$id"
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
+        title={active.title}
+        aria-label={active.title}
         className="vexia-card-focus block scroll-m-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
+
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
             <SmartImage
