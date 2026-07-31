@@ -190,8 +190,9 @@ function ChannelsPage() {
   const shell = (children: React.ReactNode) => (
     <main
       ref={scopeRef}
-      className="vexia-safe relative flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
+        height: "100dvh",
         backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
@@ -310,7 +311,7 @@ function ChannelsPage() {
   return shell(
     <div className="grid min-h-0 flex-1 gap-3 px-4 pb-3 md:grid-cols-[220px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
       {/* Coluna 1 — categorias dinâmicas */}
-      <aside className="no-scrollbar min-h-0 space-y-1.5 overflow-y-auto pr-1">
+      <aside className="vexia-scroll min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint]">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
         {hasBlockedChannels ? (
           <button

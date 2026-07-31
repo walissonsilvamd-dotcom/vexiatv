@@ -34,8 +34,10 @@ import { VexiaLogo } from "./VexiaLogo";
 
 const PAGE = 24;
 /** Acima deste total a grade passa a ser virtualizada (só o visível é montado). */
-const VIRTUALIZE_FROM = 60;
-const GRID_CLASS = "grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6";
+const VIRTUALIZE_FROM = 30;
+/* Colunas fluidas: os cards mudam de tamanho sem nunca criar scroll de página. */
+const GRID_CLASS =
+  "grid gap-3 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(104px,9.5vw,150px),1fr))]";
 
 
 export function CatalogScreen(props: {
@@ -166,21 +168,21 @@ export function CatalogScreen(props: {
     <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     <main
       ref={scopeRef}
-      className="vexia-safe relative flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
+        height: "100dvh",
         backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed",
       }}
     >
-      {/* Barra superior */}
-      <header className="flex shrink-0 flex-wrap items-center gap-3 px-6 py-2 md:px-8">
+      {/* Barra superior — compacta, para sobrar espaço à lista e aos cards */}
+      <header className="flex h-12 shrink-0 items-center gap-2 px-4 md:gap-3 md:px-6">
         <TopNav active={activeTab} />
 
-        <label className="relative min-w-[200px] flex-1 max-w-xl">
+        <label className="relative min-w-0 flex-1 max-w-xs shrink">
           <Search
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
+            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden
           />
           <input
@@ -193,33 +195,38 @@ export function CatalogScreen(props: {
             tabIndex={0}
             placeholder={`Buscar ${noun}`}
             aria-label={`Buscar ${noun}`}
-            className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
+            className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2 pl-10 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
           />
         </label>
 
-        <SortControl navRow={0} />
+        <div className="shrink-0"><SortControl navRow={0} /></div>
 
-        <div className="ml-auto">
-          <VexiaLogo className="h-9" />
+        <div className="ml-auto shrink-0">
+          <VexiaLogo className="h-8" />
         </div>
       </header>
 
       {hasContent ? (
-        <div className="grid min-h-0 flex-1 gap-4 px-6 pb-4 md:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-          {/* Coluna esquerda */}
-          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-3 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
-            <div className="grid shrink-0 place-items-center py-1">
-              <VexiaLogo className="h-14" />
-            </div>
-            <div className="my-3 h-px bg-white/10" />
-            <div className="flex items-center justify-between gap-2">
+        <div className="grid min-h-0 flex-1 gap-4 px-5 pb-3 md:px-7 lg:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
+          {/* Coluna esquerda — a LISTA é o elemento principal da tela */}
+          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            <h1 className="shrink-0 px-1 text-base font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
+              {kind === "series" ? "Séries" : "Filmes"}
+            </h1>
+            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-widest text-vexia-cyan/80">
+              {items.length} {noun} na sua lista
+            </p>
+            <div className="my-2 h-px shrink-0 bg-white/10" />
+
+            <div className="flex shrink-0 items-center gap-1.5">
               <Link
                 to="/home"
                 data-nav-row={1}
                 tabIndex={0}
-                className="vexia-focus flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-vexia-text hover:bg-white/5"
+                aria-label="Voltar para a Home"
+                className="vexia-focus flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-vexia-text hover:bg-white/5"
               >
-                <Undo2 className="h-4 w-4 text-vexia-cyan" aria-hidden /> Voltar
+                <Undo2 className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden /> Voltar
               </Link>
               <button
                 type="button"
@@ -228,15 +235,13 @@ export function CatalogScreen(props: {
                 onClick={() =>
                   (scopeRef.current?.querySelector("input") as HTMLInputElement | null)?.focus()
                 }
-                className="vexia-focus flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-vexia-text hover:bg-white/5"
+                className="vexia-focus flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-vexia-text hover:bg-white/5"
               >
-                <Search className="h-4 w-4 text-vexia-cyan" aria-hidden /> Procurar
+                <Search className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden /> Procurar
               </button>
+              <Clock className="ml-auto h-3.5 w-3.5 shrink-0 text-vexia-cyan/70" aria-hidden />
             </div>
-            <div className="flex items-center gap-2 px-2 py-2 text-sm text-vexia-text/80">
-              <Clock className="h-4 w-4 text-vexia-cyan" aria-hidden />
-              <span className="flex-1">Visualizado recentemente</span>
-            </div>
+
 
             {settings.hideCategories ? (
               <p className="mt-2 rounded-xl bg-black/30 px-3 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-vexia-text/60">
@@ -282,37 +287,32 @@ export function CatalogScreen(props: {
             ) : null}
           </aside>
 
-          {/* Coluna direita */}
-          <section className="flex min-h-0 flex-col gap-2.5">
-            <div className="flex shrink-0 items-end justify-between">
-              <div>
-                <h1 className="text-lg font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
-                  {kind === "series" ? "Séries" : "Filmes"}
-                </h1>
-                <p className="text-[11px] font-medium uppercase tracking-widest text-vexia-cyan/80">
-                  {items.length} {noun} na sua lista
+          {/* Coluna direita — os CARDS ocupam o resto da tela */}
+          <section className="flex min-h-0 flex-col gap-2">
+            <div className="flex shrink-0 items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-bold uppercase tracking-[0.2em] text-vexia-cyan/80">
+                  {category}
                 </p>
               </div>
+
               <div
                 aria-live="polite"
                 aria-busy={countBusy}
-                className="flex flex-col items-end gap-0.5 text-right"
+                className="flex shrink-0 items-center gap-2 text-right"
               >
-                <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
+                <span className="flex items-center gap-2 text-xs font-medium text-vexia-text/85">
                   {countBusy ? (
                     <span className="flex items-center gap-2 text-vexia-cyan/90">
-                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-vexia-purple/40 border-t-vexia-cyan" />
+                      <span className="h-3 w-3 animate-spin rounded-full border-2 border-vexia-purple/40 border-t-vexia-cyan" />
                       {sortBusy
                         ? "Reordenando…"
-                        : `Consultando TMDB ${tmdbSettled}/${tmdbTotal}…`}
+                        : `TMDB ${tmdbSettled}/${tmdbTotal}…`}
                     </span>
-                  ) : tmdbNeeded ? (
-                    <>
-                      {shownCount} {shownCount === 1 ? noun.slice(0, -1) : noun} encontrados
-                    </>
                   ) : (
                     <>
-                      {category} ({shownCount})
+                      {shownCount} {shownCount === 1 ? noun.slice(0, -1) : noun}
+                      {tmdbNeeded ? " encontrados" : ""}
                     </>
                   )}
                   <span
@@ -321,18 +321,8 @@ export function CatalogScreen(props: {
                     }`}
                   />
                 </span>
-                {!countBusy ? (
-                  <span className="text-[11px] font-medium text-vexia-text/55">
-                    {tmdbNeeded
-                      ? `Critérios do TMDB conferidos em ${page.length} de ${filtered.length} títulos${
-                          page.length < filtered.length ? " — carregue mais para conferir o resto" : ""
-                        }`
-                      : activeFilters > 0
-                        ? `Filtrados da sua lista (${items.length} no total) — sem consulta ao TMDB`
-                        : `Direto da sua lista (${items.length} no total)`}
-                  </span>
-                ) : null}
               </div>
+
 
 
             </div>
@@ -375,13 +365,16 @@ export function CatalogScreen(props: {
 
 
             <div
-              className={`no-scrollbar min-h-0 flex-1 overflow-y-auto transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+              className={`vexia-scroll min-h-0 flex-1 overflow-x-hidden scroll-p-8 [contain:layout_paint] transition-opacity duration-200 ${
+                useVirtual ? "overflow-y-hidden" : "overflow-y-auto"
+              } ${countBusy ? "opacity-60" : "opacity-100"}`}
             >
               {useVirtual ? (
                 <VirtualizedGrid
                   items={virtualItems}
                   height="100%"
                   gridClassName={GRID_CLASS}
+                  overscan={400}
                   keyFor={(item) => item.id}
                   renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
                 />
@@ -418,13 +411,13 @@ export function CatalogScreen(props: {
 
 
             {!useVirtual && limit < filtered.length ? (
-              <div className="flex shrink-0 justify-center pt-2">
+              <div className="flex shrink-0 justify-center pt-1">
                 <button
                   type="button"
                   data-nav-row={4}
                   tabIndex={0}
                   onClick={() => setLimit((l) => l + PAGE)}
-                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-8 py-3 text-sm font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
+                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-6 py-2 text-xs font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
                 >
                   Mais {noun} disponíveis <ChevronDown className="h-4 w-4" aria-hidden />
                 </button>
