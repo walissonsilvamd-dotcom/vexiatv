@@ -7,6 +7,8 @@ import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
+import { AudioTagBadge } from "./AudioTagBadge";
+
 
 function PosterCardBase({
   item,
