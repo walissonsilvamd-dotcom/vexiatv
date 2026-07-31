@@ -719,7 +719,7 @@ function PlayerPage() {
       {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
       <video
         ref={slotARef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
           activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         playsInline
@@ -727,12 +727,13 @@ function PlayerPage() {
       />
       <video
         ref={slotBRef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
           activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         playsInline
         muted={activeSlot === "b" ? muted : true}
       />
+
 
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
