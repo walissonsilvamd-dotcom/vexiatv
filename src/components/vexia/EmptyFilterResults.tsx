@@ -9,7 +9,7 @@ export function EmptyFilterResults({
 }: {
   noun: string;
   hasFilters?: boolean;
-  hasQuery?: boolean;
+  hasQuery?: string;
   onClear?: () => void;
 }) {
   const title = hasFilters
