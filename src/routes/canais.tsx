@@ -231,7 +231,7 @@ function ChannelsPage() {
 
   if (!hasContent || channels.length === 0) {
     return shell(
-      <div className="space-y-4 px-6 md:px-10">
+      <div className="no-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6 md:px-8">
         <PlaylistErrorState />
         <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
       </div>,
