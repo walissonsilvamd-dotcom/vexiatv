@@ -93,12 +93,28 @@ export function useTmdbItem<T extends MediaItem>(
 }
 
 export function useTmdbHeroes<T extends MediaItem>(items: T[], kind: "movie" | "series"): T[] {
+  return useTmdbHeroesStatus(items, kind).items;
+}
+
+/** Mesma busca do useTmdbHeroes, mas expondo o progresso do enriquecimento. */
+export function useTmdbHeroesStatus<T extends MediaItem>(
+  items: T[],
+  kind: "movie" | "series",
+): { items: T[]; pending: boolean; settled: number; total: number } {
   const search = useServerFn(tmdbSearch);
   const queries = useQueries({
     queries: items.map((item) => buildQuery(item, kind, search)),
   });
 
-  return items.map((item, i) =>
-    mergeEnriched(item, queries[i]?.data as Partial<MediaItem> | null | undefined),
-  );
+  const settled = queries.reduce((total, query) => total + (query.isPending ? 0 : 1), 0);
+
+  return {
+    items: items.map((item, i) =>
+      mergeEnriched(item, queries[i]?.data as Partial<MediaItem> | null | undefined),
+    ),
+    pending: settled < queries.length,
+    settled,
+    total: queries.length,
+  };
 }
+
