@@ -293,9 +293,12 @@ export function CatalogScreen({
               </div>
             ) : (
               <p className="py-16 text-center text-sm text-vexia-text/60">
-                Nenhum resultado para “{query}”.
+                {activeFilters > 0
+                  ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
+                  : `Nenhum resultado para “${query}”.`}
               </p>
             )}
+
 
             {!useVirtual && limit < filtered.length ? (
               <div className="flex justify-center pt-4">
