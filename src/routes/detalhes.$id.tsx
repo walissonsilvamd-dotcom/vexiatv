@@ -96,22 +96,9 @@ function DetailsPage() {
   const activeSeason = seasons.find((s) => s.number === selectedSeason) ?? null;
 
 
-  if (!item) {
-    return (
-      <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
-        <div className="text-center">
-          <p className="text-lg font-bold">Título não encontrado na lista carregada</p>
-          <Link to="/home" className="mt-4 inline-block text-xs text-vexia-cyan">
-            Voltar para a Home
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
   // Recomendações relevantes: sempre relacionadas ao que está sendo assistido.
-  // Pontuamos gêneros em comum, categoria da lista, proximidade de ano, mesmo
-  // idioma/áudio e nota — e só caímos em preenchimento genérico se sobrar pouco.
+  // Pontuamos gêneros em comum, categoria da lista, franquia, proximidade de ano
+  // e nota — e só caímos em preenchimento genérico se sobrar pouco.
   const recommendations = useMemo(() => {
     if (!item) return [];
     const pool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
@@ -130,8 +117,9 @@ function DetailsPage() {
       if (m.category && item.category && norm(m.category) === norm(item.category)) s += 3;
       // Franquia / mesma coleção (palavras marcantes do título em comum)
       const titleHit = norm(m.title)
+        .replace(/[^\p{L}\p{N} ]+/gu, " ")
         .split(/\s+/)
-        .some((w) => w.length > 3 && baseWords.has(w.replace(/[^\p{L}\p{N}]+/gu, "")));
+        .some((w) => w.length > 3 && baseWords.has(w));
       if (titleHit) s += 5;
       if (m.year && item.year && Math.abs(m.year - item.year) <= 5) s += 1;
       s += Math.min(2, (m.rating ?? 0) / 5);
@@ -146,11 +134,26 @@ function DetailsPage() {
 
     if (ranked.length >= 8) return ranked.slice(0, 14);
 
+    const chosen = new Set(ranked.map((m) => m.id));
     const filler = pool
-      .filter((m) => !ranked.includes(m))
+      .filter((m) => !chosen.has(m.id))
       .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     return [...ranked, ...filler].slice(0, 14);
   }, [item, isSeries, series, movies]);
+
+  if (!item) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
+        <div className="text-center">
+          <p className="text-lg font-bold">Título não encontrado na lista carregada</p>
+          <Link to="/home" className="mt-4 inline-block text-xs text-vexia-cyan">
+            Voltar para a Home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
 
 
   const addedAt = source?.loadedAt ? new Date(source.loadedAt) : null;
