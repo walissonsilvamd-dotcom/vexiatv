@@ -361,6 +361,23 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="space-y-4">
+        {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && openFullscreen(selected)}
+            className="vexia-focus flex w-full items-center justify-between gap-3 rounded-xl border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-left backdrop-blur-xl"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-vexia-text">
+              Você estava assistindo em tela cheia
+            </span>
+            <span className="text-[11px] font-black uppercase tracking-[0.14em] text-vexia-cyan">
+              Retomar
+            </span>
+          </button>
+        ) : null}
+
         <ChannelPreview
           key={selected?.id ?? "none"}
           src={selected?.url ?? null}
@@ -370,6 +387,7 @@ function ChannelsPage() {
           onToggleMuted={() => setPreviewMuted((m) => !m)}
           onOpenFullscreen={() => selected && openFullscreen(selected)}
         />
+
 
         <div>
           <h2 className="text-xl font-black text-vexia-text">{selected?.name ?? "—"}</h2>
