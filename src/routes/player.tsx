@@ -34,6 +34,7 @@ import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
+import { useSettings } from "../lib/settings-store";
 import { formatExpiry } from "../lib/xtream";
 import { getStreamHandoff, setStreamHandoff } from "../lib/stream-handoff";
 
@@ -601,6 +602,33 @@ function PlayerPage() {
   const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
   const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
 
+  /* ── Preferências de legenda vindas de Ajustes ─────────────────
+     Só faz efeito quando a lista carregada realmente traz legendas. */
+  const { settings } = useSettings();
+  const subsAutoRef = useRef<string>("");
+  useEffect(() => {
+    const signature = `${episode?.id ?? ""}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}`;
+    if (subsAutoRef.current === signature) return;
+    subsAutoRef.current = signature;
+
+    if (!settings.subtitlesEnabled) {
+      if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
+      return;
+    }
+    if (subs.tracks.length === 0) return;
+    if (subs.selected !== SUBS_OFF) return;
+
+    const prefix = settings.language.slice(0, 2).toLowerCase();
+    const match =
+      subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(prefix)) ?? subs.tracks[0];
+    subs.select(match.id);
+  }, [settings.subtitlesEnabled, settings.language, subs, episode?.id]);
+
+  const subsClass = `vexia-subs vexia-subs-${
+    settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
+  } vexia-subs-${settings.subtitleColor}`;
+
+
   type MenuOption = { label: string; active: boolean; select: () => void };
   const menuOptions: MenuOption[] = useMemo(() => {
     if (menu === "quality") {
@@ -691,7 +719,7 @@ function PlayerPage() {
       {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
       <video
         ref={slotARef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
           activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         playsInline
@@ -699,12 +727,13 @@ function PlayerPage() {
       />
       <video
         ref={slotBRef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${
+        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
           activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         playsInline
         muted={activeSlot === "b" ? muted : true}
       />
+
 
       <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 

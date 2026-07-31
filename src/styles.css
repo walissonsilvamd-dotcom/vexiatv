@@ -553,3 +553,25 @@ body {
     opacity: 1 !important;
   }
 }
+
+/* ── Legendas do player: tamanho e cor vindos de Ajustes ── */
+video.vexia-subs::cue {
+  background: rgba(0, 0, 0, 0.55);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+  font-weight: 700;
+}
+video.vexia-subs-sm::cue {
+  font-size: 70%;
+}
+video.vexia-subs-md::cue {
+  font-size: 100%;
+}
+video.vexia-subs-lg::cue {
+  font-size: 140%;
+}
+video.vexia-subs-white::cue {
+  color: #ffffff;
+}
+video.vexia-subs-yellow::cue {
+  color: #ffd400;
+}
