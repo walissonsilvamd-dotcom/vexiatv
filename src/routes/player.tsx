@@ -47,6 +47,7 @@ import {
   SUBTITLE_OFFSET_STEP,
 } from "../lib/subtitle-prefs";
 import { createSubtitleOffsetController } from "../lib/subtitle-offset";
+import { playableStreamUrl } from "../lib/stream-url";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
 import { formatExpiry } from "../lib/xtream";
@@ -178,9 +179,11 @@ function PlayerPage() {
   const handoffUrl = useMemo(() => getStreamHandoff(type, id, ep), [type, id, ep]);
 
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
-  const src = expired
+  const rawSrc = expired
     ? ""
     : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? handoffUrl ?? "");
+  // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
+  const src = useMemo(() => playableStreamUrl(rawSrc), [rawSrc]);
 
   const resilientPlayer = useResilientPlayer({
     videoRef,
