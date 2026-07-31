@@ -466,3 +466,104 @@ function DetailsPage() {
     </main>
   );
 }
+
+/** Lista de episódios com miniatura oficial, selo de áudio e progresso. */
+function EpisodeList({
+  seriesTitle,
+  seriesYear,
+  season,
+  episodes,
+  navRow,
+  audioFallback,
+  entryFor,
+  onPlay,
+}: {
+  seriesTitle: string;
+  seriesYear?: number;
+  season: number;
+  episodes: PlaylistEpisode[];
+  navRow: number;
+  audioFallback: (string | undefined | null)[];
+  entryFor: (epId: string) => { percent: number; durationSec?: number } | undefined;
+  onPlay: (ep: PlaylistEpisode) => void;
+}) {
+  const { byNumber } = useTmdbSeason(seriesTitle, seriesYear, season);
+
+  return (
+    <ul className="space-y-2">
+      {episodes.map((ep) => {
+        const meta = byNumber.get(ep.number);
+        const image = ep.thumb || meta?.still;
+        const title = ep.title || meta?.name || `Episódio ${ep.number}`;
+        const entry = entryFor(ep.id);
+        const watched = isWatched(entry);
+        return (
+          <li key={ep.id}>
+            <button
+              type="button"
+              data-nav-row={navRow}
+              tabIndex={0}
+              onFocus={() => warmEngines(ep.url)}
+              onMouseEnter={() => warmEngines(ep.url)}
+              onClick={() => onPlay(ep)}
+              className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-2.5 text-left"
+            >
+              <span className="relative h-[3.9rem] w-[7rem] shrink-0 overflow-hidden rounded-lg bg-black/60">
+                {image ? (
+                  <SmartImage
+                    src={image}
+                    role="still"
+                    alt={`Imagem do episódio ${ep.number}`}
+                    sizes="112px"
+                    className="h-full w-full object-cover"
+                    fallback={<PosterArt title={title} kind="series" compact />}
+                  />
+                ) : (
+                  <PosterArt title={title} kind="series" compact />
+                )}
+                {watched ? (
+                  <CheckCircle2
+                    className="absolute right-1 top-1 h-4 w-4 text-vexia-purple-soft"
+                    aria-hidden
+                  />
+                ) : (
+                  <Circle className="absolute right-1 top-1 h-4 w-4 text-vexia-muted" aria-hidden />
+                )}
+                {meta?.runtimeMin ? (
+                  <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-black text-vexia-cyan">
+                    {meta.runtimeMin}min
+                  </span>
+                ) : null}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex min-w-0 items-center gap-2">
+                  <AudioTagBadge sources={[ep.title]} fallbackSources={audioFallback} alwaysShow />
+                  <span className="block truncate text-sm font-bold text-vexia-text">
+                    Episódio {String(ep.number).padStart(2, "0")} • {title}
+                  </span>
+                </span>
+                {meta?.overview ? (
+                  <span className="mt-1 line-clamp-2 block text-[11px] leading-snug text-vexia-muted">
+                    {meta.overview}
+                  </span>
+                ) : null}
+                {entry && !watched ? (
+                  <span className="mt-1.5 block h-1 w-full max-w-[220px] overflow-hidden rounded-full bg-white/10">
+                    <span
+                      className="block h-full rounded-full bg-vexia-purple"
+                      style={{ width: `${entry.percent}%` }}
+                    />
+                  </span>
+                ) : null}
+              </span>
+              <span className="grid h-9 w-9 shrink-0 place-items-center self-center rounded-full bg-vexia-purple">
+                <Play className="h-4 w-4 fill-current text-vexia-text" aria-hidden />
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
