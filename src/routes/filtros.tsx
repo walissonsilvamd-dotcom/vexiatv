@@ -14,6 +14,7 @@ import {
 import { useMemo, useRef } from "react";
 import type { LucideIcon } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
+import { EmptyFilterResults } from "../components/vexia/EmptyFilterResults";
 import { PosterCard } from "../components/vexia/PosterGrid";
 import { TopNav } from "../components/vexia/TopNav";
 
@@ -208,10 +209,12 @@ function FiltersPage() {
             ))}
           </div>
         ) : (
-          <p className="text-[11px] text-vexia-text/55">
-            Nenhum título da amostra combina com estes filtros. Ajuste os critérios ou carregue uma
-            lista maior no menu LISTAS.
-          </p>
+          <EmptyFilterResults
+            noun="resultado"
+            hasFilters={active > 0}
+            hasQuery={undefined}
+            onClear={() => clear()}
+          />
         )}
       </section>
 

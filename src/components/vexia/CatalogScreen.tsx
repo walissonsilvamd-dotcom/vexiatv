@@ -21,6 +21,7 @@ import {
 import { SortControl } from "./SortControl";
 import { useTmdbHeroesStatus } from "../../lib/use-tmdb";
 import { preloadImages } from "../../lib/image";
+import { EmptyFilterResults } from "./EmptyFilterResults";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PlaylistErrorState } from "./PlaylistErrorState";
 import { PosterCard } from "./PosterGrid";
@@ -364,11 +365,15 @@ export function CatalogScreen({
                   ))}
                 </div>
               ) : (
-                <p className="py-16 text-center text-sm text-vexia-text/60">
-                  {activeFilters > 0
-                    ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
-                    : `Nenhum resultado para “${query}”.`}
-                </p>
+                <EmptyFilterResults
+                  noun={noun}
+                  hasFilters={activeFilters > 0}
+                  hasQuery={debouncedQuery}
+                  onClear={() => {
+                    if (debouncedQuery) setQuery("");
+                    else clearFilters();
+                  }}
+                />
               )}
             </div>
 
