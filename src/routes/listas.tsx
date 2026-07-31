@@ -392,10 +392,32 @@ function ListsPage() {
                   DIGITE SEU ACESSO
                 </h2>
                 <p className="mt-1 text-center text-xs text-white/60">
-                  Login + senha da sua lista
+                  {needsServer ? "Servidor + login + senha da sua lista" : "Login + senha da sua lista"}
                 </p>
 
                 <div className="mt-5 space-y-4">
+                  {needsServer ? (
+                    <label className="block">
+                      <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
+                        SERVIDOR (DNS)
+                      </span>
+                      <input
+                        value={server}
+                        onChange={(e) => setServer(e.target.value)}
+                        onPaste={(e) => {
+                          if (applyPaste(e.clipboardData.getData("text"), "server"))
+                            e.preventDefault();
+                        }}
+                        placeholder="ex.: http://meupainel.com:8080"
+                        aria-label="Servidor da lista"
+                        className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                      />
+                      <span className="mt-1 block pl-5 text-[11px] text-white/50">
+                        Endereço do painel do seu provedor — digite uma vez, o app guarda.
+                      </span>
+                    </label>
+                  ) : null}
+
 
                   <label className="block">
                     <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
