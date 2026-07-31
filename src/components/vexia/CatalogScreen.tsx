@@ -94,9 +94,12 @@ export function CatalogScreen({
     [searched, activeFilters, filters, kind],
   );
 
-  /* 3) Critérios TMDB (país, nota, duração, lançamento) na página carregada. */
+  /* 3) Ordenação aplicada ao catálogo filtrado INTEIRO, antes de paginar. */
+  const sorted = useMemo(() => sortMedia(filtered, sort), [filtered, sort]);
+
+  /* 4) Critérios TMDB (país, nota, duração, lançamento) na página carregada. */
   const tmdbNeeded = activeFilters > 0 && needsTmdb(filters);
-  const page = useMemo(() => filtered.slice(0, limit), [filtered, limit]);
+  const page = useMemo(() => sorted.slice(0, limit), [sorted, limit]);
   const enriched = useTmdbHeroes(tmdbNeeded ? page : [], kind);
   const visible = useMemo(() => {
     const base = tmdbNeeded
@@ -105,19 +108,21 @@ export function CatalogScreen({
     return sortMedia(base, sort);
   }, [tmdbNeeded, page, enriched, filters, kind, sort]);
   /* Sem critérios TMDB, a lista filtrada inteira é exibida virtualizada. */
-  const virtualItems = useMemo(
-    () => (tmdbNeeded ? [] : sortMedia(filtered, sort)),
-    [tmdbNeeded, filtered, sort],
-  );
+  const virtualItems = useMemo(() => (tmdbNeeded ? [] : sorted), [tmdbNeeded, sorted]);
   const useVirtual = !tmdbNeeded && virtualItems.length > VIRTUALIZE_FROM;
+
+  /* A paginação recomeça sempre que o conjunto ou a ordem muda. */
+  useEffect(() => {
+    setLimit(PAGE);
+  }, [category, debouncedQuery, sort, activeFilters, filters]);
 
   const hasContent = items.length > 0;
 
   // Pré-carrega os primeiros pôsteres para a grade aparecer instantaneamente.
   useEffect(() => {
-    const first = filtered.slice(0, 12).map((item) => item.poster).filter(Boolean) as string[];
+    const first = sorted.slice(0, 12).map((item) => item.poster).filter(Boolean) as string[];
     if (first.length) preloadImages(first, "poster");
-  }, [filtered]);
+  }, [sorted]);
 
 
   return (
@@ -236,7 +241,9 @@ export function CatalogScreen({
                 </p>
               </div>
               <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
-                {category} ({tmdbNeeded ? visible.length : filtered.length})
+                {category} ({tmdbNeeded
+                  ? `${visible.length} de ${page.length} verificados`
+                  : filtered.length})
                 <span className="h-2 w-2 rounded-full bg-vexia-purple shadow-[0_0_10px_rgba(123,47,190,0.9)]" />
               </span>
             </div>
