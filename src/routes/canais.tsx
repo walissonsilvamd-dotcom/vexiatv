@@ -18,6 +18,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
 import { VirtualizedList } from "../components/VirtualizedGrid";
 import { SmartImage } from "../components/vexia/SmartImage";
+import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { programProgress } from "../lib/epg";
 
@@ -68,6 +69,26 @@ function ChannelsPage() {
   const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
+  /** A prévia começa muda (regra de autoplay dos navegadores/TVs). */
+  const [previewMuted, setPreviewMuted] = useState(true);
+
+  /** Abre o canal em tela cheia, reaproveitando o stream já aquecido na prévia. */
+  const openFullscreen = useCallback(
+    (ch: PlaylistChannel) => {
+      setStreamHandoff("live", ch.id, ch.url);
+      void navigate({ to: "/player", search: { type: "live", id: ch.id } });
+    },
+    [navigate],
+  );
+
+  /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
+  const onChannelClick = useCallback(
+    (ch: PlaylistChannel) => {
+      if (selected?.id === ch.id) openFullscreen(ch);
+      else setSelected(ch);
+    },
+    [selected, openFullscreen],
+  );
 
   const favs = useMemo(
     () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
@@ -183,7 +204,7 @@ function ChannelsPage() {
           type="button"
           data-nav-row={2}
           tabIndex={0}
-          onClick={() => setSelected(ch)}
+          onClick={() => onChannelClick(ch)}
           className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
             isActive
               ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
@@ -312,23 +333,15 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="space-y-4">
-        <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
-          <div className="grid aspect-video w-full place-items-center bg-black">
-            {selected?.logo ? (
-              <SmartImage
-                src={selected.logo}
-                role="logo"
-                alt={selected.name}
-                eager
-                preview={false}
-                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
-                fallback={<span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>}
-              />
-            ) : (
-              <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
-            )}
-          </div>
-        </div>
+        <ChannelPreview
+          key={selected?.id ?? "none"}
+          src={selected?.url ?? null}
+          name={selected?.name ?? "Canal"}
+          logo={selected?.logo}
+          muted={previewMuted}
+          onToggleMuted={() => setPreviewMuted((m) => !m)}
+          onOpenFullscreen={() => selected && openFullscreen(selected)}
+        />
 
         <div>
           <h2 className="text-xl font-black text-vexia-text">{selected?.name ?? "—"}</h2>
