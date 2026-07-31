@@ -126,7 +126,7 @@ function FiltersPage() {
                 <Icon className="h-4 w-4 text-vexia-purple" aria-hidden />
                 {group.title}
               </h2>
-              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex min-w-0 flex-wrap gap-2 py-1">
                 {group.options.map((opt) => {
                   const isActive = filters[group.key] === opt;
                   return (
