@@ -259,9 +259,14 @@ export function CatalogScreen(props: {
                       data-nav-row={2}
                       tabIndex={0}
                       onClick={() => {
-                        setCategory(cat);
-                        setLimit(PAGE);
+                        /* Troca de categoria em transição: o foco do D-pad
+                           responde na hora, a grade recalcula em segundo plano. */
+                        startTransition(() => {
+                          setCategory(cat);
+                          setLimit(PAGE);
+                        });
                       }}
+
                       className={`vexia-focus flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         active
                           ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)]"
