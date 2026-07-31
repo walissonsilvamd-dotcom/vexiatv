@@ -1312,19 +1312,18 @@ function PlayerPage() {
 
 
       </section>
-      </div>
 
+      {/* Carrossel de episódios dentro do player, não da tela */}
       {showEpisodes && serie ? (
         <div
-          className={`fixed inset-x-0 bottom-0 z-30 transform-gpu will-change-transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
+          className={`absolute inset-x-0 bottom-0 z-30 transform-gpu will-change-transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
             drawerOpen ? "translate-y-0" : "translate-y-[calc(100%-72px)]"
           }`}
         >
-          {/* Aba de "espiada": mostra que o carrossel existe sem cobrir o vídeo. */}
           <button
             type="button"
             onClick={() => setDrawerOpen((v) => !v)}
-            className="vexia-focus mx-auto flex h-[72px] w-full max-w-[520px] flex-col items-center justify-end gap-1 rounded-t-2xl bg-gradient-to-t from-black/95 to-transparent pb-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
+            className="vexia-focus mx-auto flex h-[72px] w-full max-w-[420px] flex-col items-center justify-end gap-1 rounded-t-2xl bg-gradient-to-t from-black/95 to-black/60 pb-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
           >
             <span className="h-1 w-16 rounded-full bg-vexia-purple/80 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.9)]" />
             {drawerOpen ? (
@@ -1341,28 +1340,29 @@ function PlayerPage() {
           </button>
           <div
             ref={carouselRef}
-            className={`overflow-y-auto border-t border-white/10 bg-vexia-bg transition-[padding] duration-200 vexia-scroll ${
-              drawerOpen ? "max-h-[58vh] pb-40" : "max-h-[58vh]"
+            className={`overflow-y-auto border-t border-white/10 bg-black/95 transition-[padding] duration-200 vexia-scroll ${
+              drawerOpen ? "max-h-[35vh] pb-8" : "max-h-[35vh]"
             }`}
             aria-hidden={!drawerOpen}
           >
-          <EpisodeCarousel
-            seriesId={id}
-            seriesTitle={serie.title}
-            seriesYear={serie.year || undefined}
-            seriesPoster={serie.poster}
-            episodes={episodes}
-            currentEpisodeId={episode?.id}
-            onSelect={(next) => {
-              setStreamHandoff("series", id, next.url, next.id);
-              navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
-              setDrawerOpen(false);
-            }}
-          />
+            <EpisodeCarousel
+              seriesId={id}
+              seriesTitle={serie.title}
+              seriesYear={serie.year || undefined}
+              seriesPoster={serie.poster}
+              episodes={episodes}
+              currentEpisodeId={episode?.id}
+              onSelect={(next) => {
+                setStreamHandoff("series", id, next.url, next.id);
+                navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
+                setDrawerOpen(false);
+              }}
+            />
           </div>
         </div>
       ) : null}
       </div>
+
       </div>
     </main>
 
