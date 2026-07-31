@@ -167,7 +167,7 @@ function FiltersPage() {
                       onClick={() => set(group.key, opt)}
                       className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
                         isActive
-                          ? "bg-vexia-purple text-white shadow-[0_0_10px_rgba(123,47,190,0.7)]"
+                          ? "bg-vexia-purple text-white shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.7)]"
                           : "border border-vexia-purple/40 bg-[#1A1A1A] text-[#B0B0B0] hover:text-white"
                       }`}
                     >
@@ -222,7 +222,7 @@ function FiltersPage() {
         <p className="shrink-0 text-[9px] font-bold uppercase tracking-[0.16em] text-vexia-cyan sm:text-[10px]">
           ▸ {active} ativos
         </p>
-        <span className="min-w-0 flex-1 truncate text-center text-[10px] font-black uppercase tracking-[0.2em] text-vexia-purple drop-shadow-[0_0_12px_rgba(123,47,190,0.9)] sm:text-[11px]">
+        <span className="min-w-0 flex-1 truncate text-center text-[10px] font-black uppercase tracking-[0.2em] text-vexia-purple drop-shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.9)] sm:text-[11px]">
           Filtros
         </span>
         <button
@@ -230,7 +230,7 @@ function FiltersPage() {
           data-nav-row={99}
           tabIndex={0}
           onClick={apply}
-          className="vexia-focus shrink-0 rounded-full bg-vexia-purple px-5 py-2 text-[10px] font-black tracking-[0.16em] shadow-[0_0_24px_rgba(123,47,190,0.6)] sm:px-8 sm:text-[11px]"
+          className="vexia-focus shrink-0 rounded-full bg-vexia-purple px-5 py-2 text-[10px] font-black tracking-[0.16em] shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.6)] sm:px-8 sm:text-[11px]"
         >
           APLICAR
         </button>

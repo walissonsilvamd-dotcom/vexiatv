@@ -53,7 +53,7 @@ export function WatchProgressBar({ percent }: { percent: number }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-[4px] bg-white/20">
       <div
-        className="h-full rounded-[4px] bg-gradient-to-r from-[#7B2FBE] to-[#00C8FF]"
+        className="h-full rounded-[4px] bg-gradient-to-r from-[#7B2FBE] to-[var(--vexia-secondary)]"
         style={{ width: `${Math.max(3, Math.min(100, percent))}%` }}
       />
     </div>
@@ -92,7 +92,7 @@ export function WatchCard({
         tabIndex={0}
         data-nav-row={navRow}
         onClick={onOpen}
-        className="vexia-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple hover:shadow-[0_0_26px_rgba(0,200,255,0.25)]"
+        className="vexia-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
         <div className={`relative w-full overflow-hidden ${isLive ? "aspect-video" : "aspect-[2/3]"}`}>
           {image && !broken ? (

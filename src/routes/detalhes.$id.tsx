@@ -50,7 +50,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <h2 className="text-sm font-black tracking-[0.14em] text-vexia-text">{children}</h2>
-      <span className="block h-0.5 w-16 rounded-full bg-vexia-purple shadow-[0_0_12px_rgba(123,47,190,0.8)]" />
+      <span className="block h-0.5 w-16 rounded-full bg-vexia-purple shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.8)]" />
     </div>
   );
 }
@@ -186,7 +186,7 @@ function DetailsPage() {
               eager
               preview={false}
               sizes="180px"
-              className="hidden w-[180px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgba(123,47,190,0.8)] md:block"
+              className="hidden w-[180px] shrink-0 rounded-2xl border border-vexia-purple/40 shadow-[0_18px_50px_-16px_rgb(var(--vexia-primary-rgb)/0.8)] md:block"
             />
           ) : null}
           <div className="min-w-0">
@@ -235,7 +235,7 @@ function DetailsPage() {
                         }}
                         className={`vexia-focus inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold tracking-wide transition ${
                           active
-                            ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
+                            ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                             : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
                         }`}
                       >
@@ -265,7 +265,7 @@ function DetailsPage() {
                       },
                     })
                   }
-                  className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgba(123,47,190,0.9)]"
+                  className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                 >
                   <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
                 </button>
@@ -326,7 +326,7 @@ function DetailsPage() {
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                 <div
-                  className="h-full rounded-full bg-vexia-purple shadow-[0_0_12px_rgba(123,47,190,0.9)]"
+                  className="h-full rounded-full bg-vexia-purple shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.9)]"
                   style={{ width: `${resume.percent}%` }}
                 />
               </div>

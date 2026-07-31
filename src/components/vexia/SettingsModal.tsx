@@ -26,7 +26,7 @@ export function SettingsModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-vexia-purple/40 bg-gradient-to-br from-[#1E1E1E] to-[#101010] p-6 shadow-[0_30px_70px_-20px_rgba(123,47,190,0.6)]"
+        className="relative w-full max-w-md overflow-hidden rounded-2xl border border-vexia-purple/40 bg-gradient-to-br from-[#1E1E1E] to-[#101010] p-6 shadow-[0_30px_70px_-20px_rgb(var(--vexia-primary-rgb)/0.6)]"
       >
         <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-vexia-cyan/50 to-transparent" />
         <button
@@ -64,7 +64,7 @@ export function OptionRow({
       onClick={onSelect}
       className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left transition-all ${
         selected
-          ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple/30 to-transparent shadow-[0_0_18px_-6px_rgba(123,47,190,0.9)]"
+          ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple/30 to-transparent shadow-[0_0_18px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
           : "border-white/10 bg-black/30 hover:border-vexia-purple/40"
       }`}
     >
@@ -108,7 +108,7 @@ export function SwitchRow({
         aria-hidden
         className={`flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-all ${
           active
-            ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/70 shadow-[0_0_12px_rgba(123,47,190,0.55)]"
+            ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/70 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.55)]"
             : "bg-white/10"
         }`}
       >
@@ -133,7 +133,7 @@ export function ModalButton({
 }) {
   const styles = {
     primary:
-      "border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 text-white shadow-[0_10px_26px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)]",
+      "border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 text-white shadow-[0_10px_26px_-10px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.25)]",
     danger:
       "border-red-500/30 bg-gradient-to-b from-red-600 to-red-700 text-white shadow-[0_10px_26px_-10px_rgba(220,38,38,0.8),inset_0_1px_0_rgba(255,255,255,0.2)]",
     ghost: "border-white/15 bg-black/40 text-vexia-cyan hover:border-vexia-cyan/50",

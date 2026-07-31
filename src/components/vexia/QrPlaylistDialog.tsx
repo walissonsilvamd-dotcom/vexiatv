@@ -84,7 +84,7 @@ export function QrPlaylistDialog({
         if (e.target === e.currentTarget && !isLoading) onClose();
       }}
     >
-      <div className="w-full max-w-[440px] rounded-3xl border border-vexia-purple/40 bg-vexia-popup p-7 shadow-[0_0_60px_-20px_rgba(123,47,190,0.55),0_0_120px_-40px_rgba(0,0,0,0.9)]">
+      <div className="w-full max-w-[440px] rounded-3xl border border-vexia-purple/40 bg-vexia-popup p-7 shadow-[0_0_60px_-20px_rgb(var(--vexia-primary-rgb)/0.55),0_0_120px_-40px_rgba(0,0,0,0.9)]">
         {/* Cabeçalho */}
         <div className="relative">
           <h2 className="text-center text-xl font-black uppercase tracking-[0.12em] text-white">
@@ -170,7 +170,7 @@ export function QrPlaylistDialog({
               type="button"
               onClick={() => void submit()}
               disabled={isLoading || !url.trim()}
-              className="vexia-focus group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-vexia-purple px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_0_35px_-8px_rgba(123,47,190,0.65),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:shadow-[0_0_45px_-6px_rgba(123,47,190,0.8),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-50"
+              className="vexia-focus group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-vexia-purple px-6 py-3.5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_0_35px_-8px_rgb(var(--vexia-primary-rgb)/0.65),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:shadow-[0_0_45px_-6px_rgb(var(--vexia-primary-rgb)/0.8),inset_0_1px_0_rgba(255,255,255,0.35)] disabled:opacity-50"
             >
               <span className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent" aria-hidden />
               {done ? (

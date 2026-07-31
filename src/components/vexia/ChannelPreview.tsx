@@ -57,7 +57,7 @@ export default function ChannelPreview({
 
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
+    <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgb(var(--vexia-secondary-rgb)/0.5)]">
       <button
         type="button"
         aria-label={`Abrir ${name} em tela cheia`}
@@ -90,7 +90,7 @@ export default function ChannelPreview({
                 alt={name}
                 eager
                 preview={false}
-                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(0,200,255,0.35)]"
+                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 fallback={
                   <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
                 }
@@ -104,7 +104,7 @@ export default function ChannelPreview({
         {showBuffer ? (
           <span className="absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
             <span className="flex flex-col items-center gap-2">
-              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgba(0,200,255,0.45)]" />
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
                 {reconnecting ? "Reconectando" : starting ? "Iniciando prévia" : "Carregando buffer"}
               </span>

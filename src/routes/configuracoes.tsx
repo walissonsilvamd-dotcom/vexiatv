@@ -242,7 +242,7 @@ function SettingsPage() {
           <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
         </button>
         <div className="text-center">
-          <h1 className="text-2xl font-black tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgba(123,43,190,0.55)] md:text-3xl">
+          <h1 className="text-2xl font-black tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)] md:text-3xl">
             AJUSTES
           </h1>
 
@@ -278,12 +278,12 @@ function SettingsPage() {
                     setDialog(item.dialog);
                   }
                 }}
-                className="group vexia-focus relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-4 text-left shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgba(123,47,190,0.35)] focus:scale-[1.02] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgba(0,200,255,0.25)]"
+                className="group vexia-focus relative flex flex-col items-start gap-4 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-4 text-left shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgb(var(--vexia-primary-rgb)/0.35)] focus:scale-[1.02] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
               >
                 <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                 <span className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-vexia-purple/10 opacity-60 blur-2xl transition-opacity group-hover:opacity-100" />
 
-                <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-vexia-purple/25 to-vexia-purple/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] ring-1 ring-vexia-purple/20 transition-all group-hover:scale-110 group-hover:from-vexia-purple/40 group-hover:shadow-[0_0_20px_rgba(123,47,190,0.35)]">
+                <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-vexia-purple/25 to-vexia-purple/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] ring-1 ring-vexia-purple/20 transition-all group-hover:scale-110 group-hover:from-vexia-purple/40 group-hover:shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.35)]">
                   <Icon className="h-6 w-6 text-vexia-purple" aria-hidden strokeWidth={1.5} />
                 </span>
 
@@ -300,7 +300,7 @@ function SettingsPage() {
                   <span
                     className={`relative z-10 mt-auto flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-all duration-300 ${
                       active
-                        ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/70 shadow-[0_0_12px_rgba(123,47,190,0.55)]"
+                        ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/70 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.55)]"
                         : "bg-white/10"
                     }`}
                     aria-hidden

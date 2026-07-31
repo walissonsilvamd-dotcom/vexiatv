@@ -24,7 +24,7 @@ export function PlaylistUpdateBanner() {
 
   return (
     <div role="status" aria-live="polite" className="fixed bottom-4 right-4 z-[90] max-w-sm">
-      <div className="flex items-center gap-3 rounded-2xl border border-vexia-purple/50 bg-black/85 px-4 py-3 shadow-[0_0_28px_rgba(123,47,190,0.5)] backdrop-blur-xl">
+      <div className="flex items-center gap-3 rounded-2xl border border-vexia-purple/50 bg-black/85 px-4 py-3 shadow-[0_0_28px_rgb(var(--vexia-primary-rgb)/0.5)] backdrop-blur-xl">
         <RefreshCw className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden />
         <p className="min-w-0 text-xs text-vexia-text">
           <span className="block font-black uppercase tracking-widest text-white">

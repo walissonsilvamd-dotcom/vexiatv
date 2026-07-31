@@ -168,7 +168,7 @@
 /* Barras de rolagem globais: preto + roxo VÉXIA */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary, #7B2BBE) #050505;
+  scrollbar-color: var(--color-primary, var(--vexia-primary)) #050505;
 }
 
 *::-webkit-scrollbar {
@@ -182,7 +182,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #9B4BE0, #7B2BBE);
+  background: linear-gradient(180deg, #9B4BE0, var(--vexia-primary));
   border-radius: 999px;
   border: 2px solid #050505;
 }
@@ -199,7 +199,7 @@
 /* Barra fina neon para carrosséis horizontais (Home, gaveta de episódios) */
 @utility vexia-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #7B2BBE #050505;
+  scrollbar-color: var(--vexia-primary) #050505;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -209,9 +209,9 @@
     border-radius: 999px;
   }
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #9B4BE0, #7B2BBE);
+    background: linear-gradient(90deg, #9B4BE0, var(--vexia-primary));
     border-radius: 999px;
-    box-shadow: 0 0 8px rgba(123, 43, 190, 0.7);
+    box-shadow: 0 0 8px rgb(var(--vexia-primary-rgb)/0.7);
   }
   &::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(90deg, #B76BF5, #8E36D8);

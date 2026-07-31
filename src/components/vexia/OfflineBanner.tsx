@@ -15,7 +15,7 @@ export function OfflineBanner() {
       aria-live="polite"
       className="pointer-events-none fixed inset-x-0 top-0 z-[90] flex justify-center px-4 py-2"
     >
-      <span className="pointer-events-auto flex items-center gap-2 rounded-full border border-vexia-purple/50 bg-black/85 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-vexia-text shadow-[0_0_24px_rgba(123,47,190,0.55)] backdrop-blur-xl">
+      <span className="pointer-events-auto flex items-center gap-2 rounded-full border border-vexia-purple/50 bg-black/85 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-vexia-text shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.55)] backdrop-blur-xl">
         <WifiOff className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
         Sem conexão — exibindo o conteúdo salvo
       </span>

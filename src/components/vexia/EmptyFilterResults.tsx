@@ -32,7 +32,7 @@ export function EmptyFilterResults({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
         <Link
           to="/filtros"
-          className="vexia-focus rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-wide text-white shadow-[0_0_18px_rgba(123,47,190,0.45)]"
+          className="vexia-focus rounded-full bg-vexia-purple px-6 py-2.5 text-xs font-bold tracking-wide text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.45)]"
         >
           AJUSTAR FILTROS
         </Link>
