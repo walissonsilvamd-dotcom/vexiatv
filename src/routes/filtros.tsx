@@ -120,9 +120,9 @@ function FiltersPage() {
           return (
             <section
               key={group.key}
-              className="grid items-center gap-3 md:grid-cols-[210px_minmax(0,1fr)]"
+              className="grid items-start gap-3 md:grid-cols-[210px_minmax(0,1fr)]"
             >
-              <h2 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-vexia-purple-soft md:justify-end">
+              <h2 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-vexia-purple-soft md:justify-end md:pt-2">
                 <Icon className="h-4 w-4 text-vexia-purple" aria-hidden />
                 {group.title}
               </h2>
