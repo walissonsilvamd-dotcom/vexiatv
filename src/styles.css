@@ -549,14 +549,16 @@ body {
   &:focus,
   &:focus-visible,
   &:hover {
-
-    transform: scale(1.06) translateZ(0);
-    border-color: color-mix(in oklab, var(--vexia-purple-soft) 90%, transparent);
+    transform: scale(1.07) translateZ(0);
+    border-color: var(--vexia-purple-soft);
     box-shadow:
-      0 0 0 2px var(--vexia-purple-soft),
-      0 0 26px -4px color-mix(in oklab, var(--vexia-cyan) 60%, transparent),
-      0 18px 40px -18px rgba(0, 0, 0, 0.9);
+      0 0 0 3px var(--vexia-purple-soft),
+      0 0 0 5px color-mix(in oklab, var(--vexia-cyan) 45%, transparent),
+      0 0 22px 2px color-mix(in oklab, var(--vexia-purple-soft) 85%, transparent),
+      0 0 48px -2px color-mix(in oklab, var(--vexia-cyan) 70%, transparent),
+      0 22px 48px -18px rgba(0, 0, 0, 0.95);
   }
+
 }
 
 /* ── Carrosséis: fade suave nas laterais ─────────────────────────── */
