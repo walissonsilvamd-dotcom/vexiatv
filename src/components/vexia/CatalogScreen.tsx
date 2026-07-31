@@ -7,7 +7,17 @@ import { useSpatialNav } from "../../hooks/use-spatial-nav";
 import { useDebounce } from "../../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../../utils/search-index";
 import { VirtualizedGrid } from "../VirtualizedGrid";
-import { matchesFilters, sortMedia, useFilters, useSort } from "../../lib/filters-store";
+import {
+  activeFilterChips,
+  clearFilters,
+  matchesFilters,
+  matchesLocalFilters,
+  needsTmdb,
+  sortMedia,
+  useFilters,
+  useSort,
+} from "../../lib/filters-store";
+
 import { SortControl } from "./SortControl";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
 import { preloadImages } from "../../lib/image";
