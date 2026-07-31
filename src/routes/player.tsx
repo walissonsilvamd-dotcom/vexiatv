@@ -31,7 +31,9 @@ import {
   useSubtitleTracks,
 } from "../hooks/useMediaTracks";
 
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
+
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { ExternalPlayerGate } from "../components/vexia/ExternalPlayerGate";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
