@@ -109,21 +109,49 @@ function DetailsPage() {
     );
   }
 
-  // Recomendações: prioriza o MESMO tipo (série -> séries, filme -> filmes).
-  // Muitos itens da lista M3U ainda não têm gênero (só depois do TMDB), então
-  // usamos gênero -> categoria -> mesmo tipo como camadas de fallback.
-  const sameKindPool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
-  const otherPool = (isSeries ? movies : series).filter((m) => m.id !== item.id);
-  const score = (m: (typeof sameKindPool)[number]) => {
-    const genreHit = m.genres?.some((g) => item.genres?.includes(g)) ? 2 : 0;
-    const catHit = m.category && item.category && m.category === item.category ? 1 : 0;
-    return genreHit + catHit;
-  };
-  const ranked = [...sameKindPool]
-    .map((m) => ({ m, s: score(m) }))
-    .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0))
-    .map((x) => x.m);
-  const recommendations = (ranked.length >= 8 ? ranked : [...ranked, ...otherPool]).slice(0, 14);
+  // Recomendações relevantes: sempre relacionadas ao que está sendo assistido.
+  // Pontuamos gêneros em comum, categoria da lista, proximidade de ano, mesmo
+  // idioma/áudio e nota — e só caímos em preenchimento genérico se sobrar pouco.
+  const recommendations = useMemo(() => {
+    if (!item) return [];
+    const pool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
+    const itemGenres = new Set((item.genres ?? []).map((g) => g.toLowerCase()));
+    const norm = (s?: string | null) => (s ?? "").toLowerCase();
+    const baseWords = new Set(
+      norm(item.title)
+        .replace(/[^\p{L}\p{N} ]+/gu, " ")
+        .split(/\s+/)
+        .filter((w) => w.length > 3),
+    );
+
+    const score = (m: (typeof pool)[number]) => {
+      const shared = (m.genres ?? []).filter((g) => itemGenres.has(g.toLowerCase())).length;
+      let s = shared * 4;
+      if (m.category && item.category && norm(m.category) === norm(item.category)) s += 3;
+      // Franquia / mesma coleção (palavras marcantes do título em comum)
+      const titleHit = norm(m.title)
+        .split(/\s+/)
+        .some((w) => w.length > 3 && baseWords.has(w.replace(/[^\p{L}\p{N}]+/gu, "")));
+      if (titleHit) s += 5;
+      if (m.year && item.year && Math.abs(m.year - item.year) <= 5) s += 1;
+      s += Math.min(2, (m.rating ?? 0) / 5);
+      return s;
+    };
+
+    const ranked = pool
+      .map((m) => ({ m, s: score(m) }))
+      .filter((x) => x.s > 2)
+      .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0))
+      .map((x) => x.m);
+
+    if (ranked.length >= 8) return ranked.slice(0, 14);
+
+    const filler = pool
+      .filter((m) => !ranked.includes(m))
+      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    return [...ranked, ...filler].slice(0, 14);
+  }, [item, isSeries, series, movies]);
+
 
   const addedAt = source?.loadedAt ? new Date(source.loadedAt) : null;
   const cast = item.castList ?? item.cast?.map((name) => ({ name, photo: "", character: "" }));
