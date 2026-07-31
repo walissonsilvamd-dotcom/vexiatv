@@ -525,8 +525,10 @@ body {
     transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
     box-shadow 200ms ease,
     border-color 200ms ease;
+  &:focus,
   &:focus-visible,
   &:hover {
+
     transform: scale(1.06) translateZ(0);
     border-color: color-mix(in oklab, var(--vexia-purple-soft) 90%, transparent);
     box-shadow:
