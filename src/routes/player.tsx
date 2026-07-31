@@ -35,6 +35,7 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
+import { getSubtitlePref, setSubtitlePref, subtitleItemKey } from "../lib/subtitle-prefs";
 import { formatExpiry } from "../lib/xtream";
 import { getStreamHandoff, setStreamHandoff } from "../lib/stream-handoff";
 
