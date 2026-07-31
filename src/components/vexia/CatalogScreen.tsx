@@ -34,8 +34,10 @@ import { VexiaLogo } from "./VexiaLogo";
 
 const PAGE = 24;
 /** Acima deste total a grade passa a ser virtualizada (só o visível é montado). */
-const VIRTUALIZE_FROM = 60;
-const GRID_CLASS = "grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6";
+const VIRTUALIZE_FROM = 30;
+/* Colunas fluidas: os cards mudam de tamanho sem nunca criar scroll de página. */
+const GRID_CLASS =
+  "grid gap-3 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(104px,9.5vw,150px),1fr))]";
 
 
 export function CatalogScreen(props: {
@@ -363,13 +365,14 @@ export function CatalogScreen(props: {
 
 
             <div
-              className={`no-scrollbar min-h-0 flex-1 overflow-y-auto transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+              className={`vexia-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-p-8 [contain:layout_paint] transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
             >
               {useVirtual ? (
                 <VirtualizedGrid
                   items={virtualItems}
                   height="100%"
                   gridClassName={GRID_CLASS}
+                  overscan={400}
                   keyFor={(item) => item.id}
                   renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
                 />
@@ -406,13 +409,13 @@ export function CatalogScreen(props: {
 
 
             {!useVirtual && limit < filtered.length ? (
-              <div className="flex shrink-0 justify-center pt-2">
+              <div className="flex shrink-0 justify-center pt-1">
                 <button
                   type="button"
                   data-nav-row={4}
                   tabIndex={0}
                   onClick={() => setLimit((l) => l + PAGE)}
-                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-8 py-3 text-sm font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
+                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-6 py-2 text-xs font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
                 >
                   Mais {noun} disponíveis <ChevronDown className="h-4 w-4" aria-hidden />
                 </button>
