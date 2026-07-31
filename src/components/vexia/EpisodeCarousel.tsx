@@ -166,7 +166,7 @@ export function EpisodeCarousel({
           aria-label="Episódios anteriores"
           onClick={() => scrollPage(-1)}
           disabled={!edges.left}
-          className="vexia-focus absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0 md:grid"
+          className="vexia-focus absolute left-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
         >
           <ChevronLeft className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>
@@ -189,6 +189,8 @@ export function EpisodeCarousel({
                 type="button"
                 onClick={() => choose(episode)}
                 aria-current={active}
+                data-episode-card="true"
+                data-active={active ? "true" : "false"}
                 className={`vexia-focus w-[190px] shrink-0 snap-start overflow-hidden rounded-lg bg-[#1A1A1A] text-left transition-transform duration-200 ${
                   active
                     ? "scale-105 border-2 border-vexia-purple shadow-[0_0_22px_-2px_rgba(0,200,255,0.55)]"
@@ -249,7 +251,7 @@ export function EpisodeCarousel({
           aria-label="Próximos episódios"
           onClick={() => scrollPage(1)}
           disabled={!edges.right}
-          className="vexia-focus absolute right-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0 md:grid"
+          className="vexia-focus absolute right-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
         >
           <ChevronRight className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>
