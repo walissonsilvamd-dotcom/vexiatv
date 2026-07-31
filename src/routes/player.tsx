@@ -35,7 +35,18 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
-import { getSubtitlePref, setSubtitlePref, subtitleItemKey } from "../lib/subtitle-prefs";
+import {
+  getSubtitleOffset,
+  getSubtitlePref,
+  setSubtitleOffset,
+  setSubtitlePref,
+  subtitleItemKey,
+  clampSubtitleOffset,
+  SUBTITLE_OFFSET_MIN,
+  SUBTITLE_OFFSET_MAX,
+  SUBTITLE_OFFSET_STEP,
+} from "../lib/subtitle-prefs";
+import { createSubtitleOffsetController } from "../lib/subtitle-offset";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
 import { formatExpiry } from "../lib/xtream";
