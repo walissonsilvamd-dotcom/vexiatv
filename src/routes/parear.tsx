@@ -129,6 +129,22 @@ function PairPage() {
             <p className="text-center text-xs text-white/70">
               Código <span className="font-bold tracking-[0.3em] text-vexia-cyan">{code}</span>
             </p>
+
+            <div className="grid grid-cols-2 gap-2 rounded-full border border-vexia-purple/40 bg-black/50 p-1">
+              {(["link", "acesso"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className={`rounded-full px-3 py-2 text-[11px] font-bold tracking-[0.12em] ${
+                    mode === m ? "bg-vexia-purple text-white" : "text-white/70"
+                  }`}
+                >
+                  {m === "link" ? "LINK M3U/HLS" : "CÓDIGO + LOGIN"}
+                </button>
+              ))}
+            </div>
+
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -136,16 +152,48 @@ function PairPage() {
               aria-label="Nome da lista"
               className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
             />
-            <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              inputMode="url"
-              autoCapitalize="none"
-              autoCorrect="off"
-              placeholder="Cole o link M3U ou HLS aqui"
-              aria-label="Link da lista M3U ou HLS"
-              className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-            />
+
+            {mode === "link" ? (
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                inputMode="url"
+                autoCapitalize="none"
+                autoCorrect="off"
+                placeholder="Cole o link M3U ou HLS aqui"
+                aria-label="Link da lista M3U ou HLS"
+                className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+              />
+            ) : (
+              <>
+                <input
+                  value={server}
+                  onChange={(e) => setServer(e.target.value)}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  placeholder="CÓDIGO (ex: meuservidor.com:8080)"
+                  aria-label="Código do servidor"
+                  className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                />
+                <input
+                  value={user}
+                  onChange={(e) => setUser(e.target.value)}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  placeholder="LOGIN"
+                  aria-label="Login"
+                  className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                />
+                <input
+                  value={pass}
+                  onChange={(e) => setPass(e.target.value)}
+                  type="password"
+                  placeholder="SENHA"
+                  aria-label="Senha"
+                  className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
+                />
+              </>
+            )}
             {error ? <p className="text-center text-xs text-red-400">{error}</p> : null}
             <button
               type="button"
