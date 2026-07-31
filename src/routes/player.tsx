@@ -684,6 +684,7 @@ function PlayerPage() {
           select: () => {
             subsManualRef.current = true;
             subsLangRef.current = null;
+            setSubtitlePref(prefKey, "off");
             subs.select(SUBS_OFF);
           },
         },
@@ -693,6 +694,7 @@ function PlayerPage() {
           select: () => {
             subsManualRef.current = true;
             subsLangRef.current = t.lang || null;
+            if (t.lang) setSubtitlePref(prefKey, t.lang);
             subs.select(t.id);
           },
         })),
