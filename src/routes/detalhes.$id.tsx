@@ -412,74 +412,30 @@ function DetailsPage() {
               TEMPORADA {String(activeSeason.number).padStart(2, "0")}
             </SectionHeading>
             {[activeSeason].map((season, si) => (
-              <div key={season.number} className="space-y-2">
-
-                <ul className="space-y-2">
-                  {season.episodes.map((ep) => {
-                    const entry = entryFor(`${item.id}::${ep.id}`);
-                    const watched = isWatched(entry);
-                    return (
-                      <li key={ep.id}>
-                        <button
-                          type="button"
-                          data-nav-row={3 + si}
-                          tabIndex={0}
-                          onFocus={() => warmEngines(ep.url)}
-                          onMouseEnter={() => warmEngines(ep.url)}
-                          onClick={() => {
-                            // Entrega o link já conhecido: o player toca na hora.
-                            setStreamHandoff("series", item.id, ep.url, ep.id);
-                            navigate({
-                              to: "/player",
-                              search: { type: "series", id: item.id, ep: ep.id },
-                            });
-                          }}
-                          className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-2.5 text-left"
-                        >
-                          {watched ? (
-                            <CheckCircle2
-                              className="h-4 w-4 shrink-0 text-vexia-purple-soft"
-                              aria-hidden
-                            />
-                          ) : (
-                            <Circle className="h-4 w-4 shrink-0 text-vexia-muted" aria-hidden />
-                          )}
-                          <span className="min-w-0 flex-1">
-                            <span className="flex min-w-0 items-center gap-2">
-                              <AudioTagBadge
-                                sources={[ep.title]}
-                                fallbackSources={[
-                                  raw?.title,
-                                  item.category,
-                                  (raw as { group?: string })?.group,
-                                ]}
-                              />
-                              <span className="block truncate text-sm font-bold text-vexia-text">
-                                Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
-                              </span>
-                            </span>
-
-                            {entry && !watched ? (
-                              <span className="mt-1.5 block h-1 w-full max-w-[220px] overflow-hidden rounded-full bg-white/10">
-                                <span
-                                  className="block h-full rounded-full bg-vexia-purple"
-                                  style={{ width: `${entry.percent}%` }}
-                                />
-                              </span>
-                            ) : null}
-                          </span>
-                          <span className="shrink-0 text-[11px] font-semibold text-vexia-cyan">
-                            {entry?.durationSec
-                              ? `${Math.round(entry.durationSec / 60)} min`
-                              : "▶"}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              <EpisodeList
+                key={season.number}
+                seriesTitle={item.title}
+                seriesYear={item.year}
+                season={season.number}
+                episodes={season.episodes}
+                navRow={3 + si}
+                audioFallback={[
+                  raw?.title,
+                  item.category,
+                  (raw as { group?: string })?.group,
+                ]}
+                entryFor={(epId) => entryFor(`${item.id}::${epId}`)}
+                onPlay={(ep) => {
+                  // Entrega o link já conhecido: o player toca na hora.
+                  setStreamHandoff("series", item.id, ep.url, ep.id);
+                  navigate({
+                    to: "/player",
+                    search: { type: "series", id: item.id, ep: ep.id },
+                  });
+                }}
+              />
             ))}
+
           </section>
         ) : null}
 
