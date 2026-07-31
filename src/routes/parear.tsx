@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2 } from "lucide-react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { checkPairSession, submitPairPlaylist } from "../lib/pair.functions";
+import { buildXtreamUrl } from "../lib/playlist-input";
 
 export const Route = createFileRoute("/parear")({
   head: () => ({
