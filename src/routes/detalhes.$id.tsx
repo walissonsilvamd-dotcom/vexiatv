@@ -392,9 +392,13 @@ function DetailsPage() {
                             <Circle className="h-4 w-4 shrink-0 text-vexia-muted" aria-hidden />
                           )}
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-bold text-vexia-text">
-                              Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
+                            <span className="flex min-w-0 items-center gap-2">
+                              <AudioTagBadge sources={[ep.title, item.title, item.category]} />
+                              <span className="block truncate text-sm font-bold text-vexia-text">
+                                Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
+                              </span>
                             </span>
+
                             {entry && !watched ? (
                               <span className="mt-1.5 block h-1 w-full max-w-[220px] overflow-hidden rounded-full bg-white/10">
                                 <span
