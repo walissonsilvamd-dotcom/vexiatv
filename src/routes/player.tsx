@@ -120,7 +120,9 @@ function PlayerPage() {
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
-  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "speed">(null);
+  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "subsDelay" | "speed">(
+    null,
+  );
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
