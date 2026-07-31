@@ -166,7 +166,7 @@ export function CatalogScreen(props: {
     <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     <main
       ref={scopeRef}
-      className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
         backgroundSize: "cover",
@@ -175,7 +175,7 @@ export function CatalogScreen(props: {
       }}
     >
       {/* Barra superior */}
-      <header className="flex flex-wrap items-center gap-3 px-6 py-4 md:px-10">
+      <header className="flex shrink-0 flex-wrap items-center gap-3 px-6 py-2 md:px-8">
         <TopNav active={activeTab} />
 
         <label className="relative min-w-[200px] flex-1 max-w-xl">
@@ -200,16 +200,16 @@ export function CatalogScreen(props: {
         <SortControl navRow={0} />
 
         <div className="ml-auto">
-          <VexiaLogo className="h-12" />
+          <VexiaLogo className="h-9" />
         </div>
       </header>
 
       {hasContent ? (
-        <div className="grid gap-6 px-6 pb-12 md:px-10 lg:grid-cols-[300px_1fr]">
+        <div className="grid min-h-0 flex-1 gap-4 px-6 pb-4 md:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
           {/* Coluna esquerda */}
-          <aside className="h-fit rounded-3xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-4 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
-            <div className="grid place-items-center py-4">
-              <VexiaLogo className="h-24" />
+          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-3 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            <div className="grid shrink-0 place-items-center py-1">
+              <VexiaLogo className="h-14" />
             </div>
             <div className="my-3 h-px bg-white/10" />
             <div className="flex items-center justify-between gap-2">
@@ -243,7 +243,7 @@ export function CatalogScreen(props: {
                 Categorias ocultas em Ajustes
               </p>
             ) : (
-            <ul className="mt-2 max-h-[52vh] space-y-1 overflow-y-auto pr-1">
+            <ul className="no-scrollbar mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
               {categories.map((cat) => {
                 const active = cat === category;
                 const count = cat === "Todos" ? items.length : (counts.get(cat) ?? 0);
@@ -283,13 +283,13 @@ export function CatalogScreen(props: {
           </aside>
 
           {/* Coluna direita */}
-          <section className="space-y-4">
-            <div className="flex items-end justify-between">
+          <section className="flex min-h-0 flex-col gap-2.5">
+            <div className="flex shrink-0 items-end justify-between">
               <div>
-                <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
+                <h1 className="text-lg font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
                   {kind === "series" ? "Séries" : "Filmes"}
                 </h1>
-                <p className="text-xs font-medium uppercase tracking-widest text-vexia-cyan/80">
+                <p className="text-[11px] font-medium uppercase tracking-widest text-vexia-cyan/80">
                   {items.length} {noun} na sua lista
                 </p>
               </div>
@@ -339,7 +339,7 @@ export function CatalogScreen(props: {
 
             {/* Filtros vindos do menu FILTROS da Home */}
             {activeFilters > 0 ? (
-              <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/30 bg-black/50 px-3 py-2.5 backdrop-blur-xl">
+              <div className="flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/30 bg-black/50 px-3 py-2 backdrop-blur-xl">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-vexia-cyan/90">
                   Filtros da Home
                 </span>
@@ -375,15 +375,17 @@ export function CatalogScreen(props: {
 
 
             <div
-              className={`transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+              className={`no-scrollbar min-h-0 flex-1 overflow-y-auto transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
             >
               {useVirtual ? (
                 <VirtualizedGrid
                   items={virtualItems}
+                  height="100%"
                   gridClassName={GRID_CLASS}
                   keyFor={(item) => item.id}
                   renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
                 />
+
               ) : visible.length > 0 ? (
                 <div className={GRID_CLASS}>
                   {visible.map((item) => (
@@ -416,7 +418,7 @@ export function CatalogScreen(props: {
 
 
             {!useVirtual && limit < filtered.length ? (
-              <div className="flex justify-center pt-4">
+              <div className="flex shrink-0 justify-center pt-2">
                 <button
                   type="button"
                   data-nav-row={4}
