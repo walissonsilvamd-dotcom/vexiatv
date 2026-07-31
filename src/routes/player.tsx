@@ -1315,15 +1315,11 @@ function PlayerPage() {
 
       {/* Carrossel de episódios dentro do player, não da tela */}
       {showEpisodes && serie ? (
-        <div
-          className={`absolute inset-x-0 bottom-0 z-30 transform-gpu will-change-transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            drawerOpen ? "translate-y-0" : "translate-y-[calc(100%-72px)]"
-          }`}
-        >
+        <div className="relative w-full border-t border-white/10 bg-black/95">
           <button
             type="button"
             onClick={() => setDrawerOpen((v) => !v)}
-            className="vexia-focus mx-auto flex h-[72px] w-full max-w-[420px] flex-col items-center justify-end gap-1 rounded-t-2xl bg-gradient-to-t from-black/95 to-black/60 pb-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
+            className="vexia-focus flex w-full flex-col items-center justify-center gap-1 py-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
           >
             <span className="h-1 w-16 rounded-full bg-vexia-purple/80 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.9)]" />
             {drawerOpen ? (
@@ -1340,8 +1336,8 @@ function PlayerPage() {
           </button>
           <div
             ref={carouselRef}
-            className={`overflow-y-auto border-t border-white/10 bg-black/95 transition-[padding] duration-200 vexia-scroll ${
-              drawerOpen ? "max-h-[35vh] pb-8" : "max-h-[35vh]"
+            className={`overflow-y-auto transition-[max-height,padding] duration-300 vexia-scroll ${
+              drawerOpen ? "max-h-[35vh] py-3" : "max-h-0 py-0"
             }`}
             aria-hidden={!drawerOpen}
           >
@@ -1362,6 +1358,8 @@ function PlayerPage() {
         </div>
       ) : null}
       </div>
+      </div>
+
 
       </div>
     </main>
