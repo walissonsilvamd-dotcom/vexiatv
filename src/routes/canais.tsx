@@ -6,6 +6,7 @@ import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
+import { PlaylistErrorState } from "../components/vexia/PlaylistErrorState";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
