@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import type { HlsLike } from "./useMediaTracks";
 import {
   attachEngine,
+  warmEngines,
   engineOrder,
   playWithAutoplayFallback,
   type EngineHandles,
@@ -31,7 +32,12 @@ const STALL_TIMEOUT_MS = 6_000;
 const SOFT_STALL_MS = 2_000;
 const STALL_CHECK_MS = 500;
 const NUDGE_MAX = 1;
-const STANDBY_WARMUP_MS = 0;
+/**
+ * A reserva só começa a baixar depois que o motor principal engatou. No começo
+ * a banda inteira fica para o vídeo que o cliente está esperando; qualquer
+ * sinal de travamento antecipa a reserva na hora (prewarmStandby).
+ */
+const STANDBY_WARMUP_MS = 2_500;
 /** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
 const AUTO_CYCLE_MAX = 4;
 const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
@@ -93,6 +99,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       setStandbyReady(false);
       return;
     }
+
+    // Biblioteca e conexão já aquecidas: o attach abaixo não espera download.
+    warmEngines(src);
 
     let disposed = false;
     let activeSlotLocal: PlayerSlot = "a";

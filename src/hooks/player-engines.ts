@@ -123,7 +123,6 @@ export async function attachEngine(
       testBandwidth: false,
       capLevelToPlayerSize: true,
       startLevel: -1,
-      maxBufferSize: 0,
       // Começa a tocar com o mínimo de dados possível.
       maxStarvationDelay: 2,
       maxLoadingDelay: 2,
