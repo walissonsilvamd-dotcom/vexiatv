@@ -94,7 +94,10 @@ function PosterCardBase({
           ) : null}
         </div>
         <div className="space-y-0.5 border-t border-white/5 p-2.5">
-          <p className="truncate text-xs font-extrabold text-vexia-text">{active.title}</p>
+          {/* Duas linhas: títulos longos aparecem por inteiro em vez de cortados. */}
+          <p className="line-clamp-2 min-h-[2.2em] text-[13px] font-extrabold leading-tight text-vexia-text">
+            {active.title}
+          </p>
           <p className="truncate text-[11px] font-medium text-vexia-cyan/80">
             {active.year ? active.year : active.genres[0]}
             {active.seasons ? ` • ${active.seasons} temp.` : ""}
@@ -170,7 +173,7 @@ export function PosterGrid({
 
   return (
     <div
-      className="grid grid-cols-3 gap-3 md:grid-cols-6 lg:grid-cols-8"
+      className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
       style={{ contain: "layout paint style" }}
     >
 
