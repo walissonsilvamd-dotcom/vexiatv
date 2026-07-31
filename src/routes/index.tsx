@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import splashAsset from "../assets/splash-clean.jpeg.asset.json";
-import { VexiaLogo } from "../components/vexia/VexiaLogo";
+import { SplashLogo } from "../components/vexia/SplashLogo";
 import { SLOGAN } from "../data/vexia-catalog";
 
 export const Route = createFileRoute("/")({
@@ -80,7 +80,7 @@ function SplashScreen() {
 
         {/* Logo: entrada cinematográfica (aproxima, ganha foco e assenta). */}
         <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1200ms_cubic-bezier(0.22,1,0.36,1)_both]">
-          <VexiaLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain animate-[splash-logo-glow_5s_ease-in-out_600ms_infinite]" />
+          <SplashLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain animate-[splash-logo-glow_5s_ease-in-out_600ms_infinite]" />
         </div>
 
 
