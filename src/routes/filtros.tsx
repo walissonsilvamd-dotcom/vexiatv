@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import {
+  ArrowLeft,
   CalendarDays,
   Clock3,
   Globe2,
@@ -95,7 +96,16 @@ function FiltersPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex flex-wrap items-center gap-3 px-5 py-2 md:px-8">
+      <header className="flex items-center gap-3 px-5 py-2 md:px-8">
+        <Link
+          to="/home"
+          data-nav-row={0}
+          tabIndex={0}
+          className="vexia-focus inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white hover:text-vexia-cyan"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Voltar
+        </Link>
         <TopNav className="w-fit" />
         <h1 className="text-base font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)]">
           Filtros
@@ -106,7 +116,7 @@ function FiltersPage() {
             data-nav-row={0}
             tabIndex={0}
             onClick={clear}
-            className="vexia-focus rounded-full border border-vexia-cyan/40 px-4 py-1 text-[10px] font-bold text-vexia-cyan"
+            className="vexia-focus rounded-full border border-vexia-cyan/40 px-3 py-1 text-[10px] font-bold text-vexia-cyan"
           >
             LIMPAR
           </button>
@@ -114,19 +124,19 @@ function FiltersPage() {
         </div>
       </header>
 
-      <div className="grid gap-x-6 gap-y-1.5 px-5 md:px-8 xl:grid-cols-2">
+      <div className="grid gap-x-6 gap-y-1 px-5 md:px-8 xl:grid-cols-2">
         {FILTER_GROUPS.map((group, gi) => {
           const Icon = ICONS[group.key];
           return (
             <section
               key={group.key}
-              className="grid items-start gap-2 md:grid-cols-[130px_minmax(0,1fr)]"
+              className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-2 py-1"
             >
-              <h2 className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-vexia-purple-soft md:justify-end md:pt-1">
+              <h2 className="flex shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-[0.12em] text-vexia-purple-soft">
                 <Icon className="h-3.5 w-3.5 shrink-0 text-vexia-purple" aria-hidden />
                 {group.title}
               </h2>
-              <div className="flex min-w-0 flex-wrap gap-1.5">
+              <div className="flex min-w-0 flex-wrap gap-1">
                 {group.options.map((opt) => {
                   const isActive = filters[group.key] === opt;
                   return (
@@ -136,9 +146,9 @@ function FiltersPage() {
                       data-nav-row={gi + 1}
                       tabIndex={0}
                       onClick={() => set(group.key, opt)}
-                      className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-bold transition-all ${
+                      className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-bold transition-all ${
                         isActive
-                          ? "bg-vexia-purple text-white shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+                          ? "bg-vexia-purple text-white shadow-[0_0_10px_rgba(123,47,190,0.7)]"
                           : "border border-vexia-purple/40 bg-[#1A1A1A] text-[#B0B0B0] hover:text-white"
                       }`}
                     >
