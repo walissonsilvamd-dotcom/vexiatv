@@ -130,19 +130,6 @@ function FiltersPage() {
             Filtros
           </h1>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button
-            type="button"
-            data-nav-row={0}
-            tabIndex={0}
-            onClick={clear}
-            className="vexia-focus inline-flex items-center gap-1 rounded-full border border-vexia-cyan/40 px-2.5 py-1 text-[9px] font-bold text-vexia-cyan"
-          >
-            <RotateCcw className="h-3 w-3" />
-            LIMPAR
-          </button>
-          <VexiaLogo className="h-7 shrink-0" />
-        </div>
       </header>
 
       <div className="grid gap-x-4 gap-y-1 px-5 md:px-8 xl:grid-cols-2">
