@@ -96,7 +96,16 @@ function FiltersPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex flex-wrap items-center gap-3 px-5 py-2 md:px-8">
+      <header className="flex items-center gap-3 px-5 py-2 md:px-8">
+        <Link
+          to="/home"
+          data-nav-row={0}
+          tabIndex={0}
+          className="vexia-focus inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white hover:text-vexia-cyan"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Voltar
+        </Link>
         <TopNav className="w-fit" />
         <h1 className="text-base font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)]">
           Filtros
@@ -107,7 +116,7 @@ function FiltersPage() {
             data-nav-row={0}
             tabIndex={0}
             onClick={clear}
-            className="vexia-focus rounded-full border border-vexia-cyan/40 px-4 py-1 text-[10px] font-bold text-vexia-cyan"
+            className="vexia-focus rounded-full border border-vexia-cyan/40 px-3 py-1 text-[10px] font-bold text-vexia-cyan"
           >
             LIMPAR
           </button>
