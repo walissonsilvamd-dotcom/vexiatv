@@ -6,6 +6,8 @@ import { useSettings } from "../../lib/settings-store";
 import { useTmdbSeason } from "../../lib/use-tmdb-season";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { SmartImage } from "./SmartImage";
+import { AudioTagBadge } from "./AudioTagBadge";
+
 
 type Props = {
   seriesId: string;
