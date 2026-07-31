@@ -663,8 +663,50 @@ function PlayerPage() {
     if (match && match.id !== subs.selected) subs.select(match.id);
   }, [settings.subtitlesEnabled, settings.language, subs, itemKey, prefKey]);
 
+  /* ── Atraso (sincronia) das legendas, salvo por canal/título ───── */
+  const [subsOffset, setSubsOffset] = useState(0);
+  const offsetCtlRef = useRef<ReturnType<typeof createSubtitleOffsetController> | null>(null);
 
+  // Ao trocar de conteúdo, recupera o atraso salvo daquele canal/título.
+  useEffect(() => {
+    setSubsOffset(getSubtitleOffset(prefKey));
+  }, [prefKey]);
 
+  // Liga o controlador ao vídeo ativo (troca junto no failover).
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !mediaReady) return;
+    const ctl = createSubtitleOffsetController(video);
+    offsetCtlRef.current = ctl;
+    ctl.setOffset(subsOffset);
+    return () => {
+      ctl.destroy();
+      if (offsetCtlRef.current === ctl) offsetCtlRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoRef.current, mediaReady]);
+
+  useEffect(() => {
+    offsetCtlRef.current?.setOffset(subsOffset);
+  }, [subsOffset, subs.selected]);
+
+  const applySubsOffset = (value: number) => {
+    const next = clampSubtitleOffset(value);
+    setSubsOffset(next);
+    setSubtitleOffset(prefKey, next);
+  };
+
+  /* Ao voltar pelo histórico (bfcache), reaplica faixa, estilo e atraso. */
+  useEffect(() => {
+    const restore = () => {
+      subsAutoRef.current = "";
+      subsManualRef.current = false;
+      setSubsOffset(getSubtitleOffset(prefKey));
+      offsetCtlRef.current?.refresh();
+    };
+    window.addEventListener("pageshow", restore);
+    return () => window.removeEventListener("pageshow", restore);
+  }, [prefKey]);
 
 
   const subsClass = `vexia-subs vexia-subs-${
