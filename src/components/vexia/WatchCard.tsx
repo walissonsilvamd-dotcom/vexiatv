@@ -1,9 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Clapperboard, Film, ImageOff, Tv, X } from "lucide-react";
+import { Clapperboard, Film, Tv, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { usePlaylist } from "../../lib/playlist-store";
 import { formatDuration, matchWatch, type WatchEntry } from "../../lib/history-store";
 import { SmartImage } from "./SmartImage";
+import { PosterArt } from "./PosterArt";
 
 /** Resolve o item salvo com a lista atual (id → url → nome normalizado). */
 export function useResolvedHistory(entries: WatchEntry[]) {
@@ -102,9 +103,7 @@ export function WatchCard({
               className={`h-full w-full ${isLive ? "object-contain p-3" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
-              <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
-            </div>
+            <PosterArt title={entry.name} kind={isLive ? "live" : "movie"} compact={isLive} />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
           <span className="absolute left-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full border border-white/10 bg-black/70 backdrop-blur-md">

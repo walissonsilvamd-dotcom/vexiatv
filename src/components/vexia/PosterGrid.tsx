@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, ImageOff, Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { preloadImages } from "../../lib/image";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
+import { PosterArt } from "./PosterArt";
 
 export function PosterCard({
   item,
@@ -49,15 +50,10 @@ export function PosterCard({
               key={image}
               onFail={() => setBroken(true)}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              fallback={<span className="hidden" />}
+              fallback={<PosterArt title={active.title} kind={kind} />}
             />
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-vexia-purple/45 via-black to-black p-3 text-center">
-              <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
-              <span className="line-clamp-3 text-[11px] font-bold leading-tight text-white/85">
-                {active.title}
-              </span>
-            </div>
+            <PosterArt title={active.title} kind={kind} />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-black/20" />
           {/* brilho espelhado */}

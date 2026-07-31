@@ -1,5 +1,5 @@
+import { PosterArt } from "./PosterArt";
 import { useEffect, useRef, useState } from "react";
-import { ImageOff } from "lucide-react";
 import {
   adaptiveSizes,
   adaptiveSrcSet,
@@ -143,9 +143,7 @@ export function SmartImage({
   if (!src || broken) {
     return (
       fallback ?? (
-        <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
-          <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
-        </div>
+        <PosterArt title={alt || ""} compact={role === "logo" || role === "still"} />
       )
     );
   }

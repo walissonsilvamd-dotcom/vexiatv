@@ -1,7 +1,8 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
 import { warmEngines } from "../hooks/player-engines";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ImageOff, Play } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
+import { PosterArt } from "../components/vexia/PosterArt";
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
@@ -122,8 +123,8 @@ function EpisodesPage() {
                         className="h-16 w-28 shrink-0 rounded-lg object-cover"
                       />
                     ) : (
-                      <span className="grid h-16 w-28 shrink-0 place-items-center rounded-lg bg-black">
-                        <ImageOff className="h-4 w-4 text-vexia-cyan/60" aria-hidden />
+                      <span className="h-16 w-28 shrink-0 overflow-hidden rounded-lg">
+                        <PosterArt title={ep.title || `Episódio ${ep.number}`} kind="series" compact />
                       </span>
                     )}
                     <span className="min-w-0 flex-1">

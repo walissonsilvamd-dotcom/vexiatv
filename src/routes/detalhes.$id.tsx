@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Circle,
   Heart,
-  ImageOff,
   ListVideo,
   Play,
   Star,
@@ -22,6 +21,7 @@ import { mediaFavorite, useFavorites } from "../lib/favorites-store";
 import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 import { SmartImage } from "../components/vexia/SmartImage";
+import { PosterArt } from "../components/vexia/PosterArt";
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
@@ -144,9 +144,7 @@ function DetailsPage() {
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
-            <ImageOff className="h-10 w-10 text-vexia-cyan/60" aria-hidden />
-          </div>
+          <PosterArt title={item.title} kind={kind === "series" ? "series" : "movie"} compact />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-vexia-bg via-vexia-bg/70 to-black/70" />
 
