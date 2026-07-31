@@ -809,38 +809,39 @@ function PlayerPage() {
           }, 260);
         }
       }}
-      className="h-screen w-full overflow-hidden bg-vexia-bg font-sans text-white focus:outline-none"
+      className="h-screen w-full overflow-hidden bg-black font-sans text-white focus:outline-none"
     >
-      <div
-        className="relative h-screen w-full overflow-hidden bg-black"
-      >
-      {externalGate && (
-        <ExternalPlayerGate
-          src={src}
-          title={title}
-          onUseInternal={() => setInternalOverride(true)}
-        />
-      )}
-      {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
-      <video
-        ref={slotARef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
-          activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        playsInline
-        muted={activeSlot === "a" ? muted : true}
-      />
-      <video
-        ref={slotBRef}
-        className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
-          activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-        playsInline
-        muted={activeSlot === "b" ? muted : true}
-      />
+      {/* Player centralizado e discreto — ocupa até 90% da largura e 78% da altura. */}
+      <div className="relative mx-auto flex h-full w-full max-w-[95vw] items-center justify-center px-4 py-5">
+        <div className="relative w-full max-w-[1600px] overflow-hidden rounded-xl bg-black shadow-[0_0_60px_-20px_rgb(var(--vexia-primary-rgb)/0.35)] ring-1 ring-white/10">
+          <div className="relative aspect-video w-full bg-black">
+            {externalGate && (
+              <ExternalPlayerGate
+                src={src}
+                title={title}
+                onUseInternal={() => setInternalOverride(true)}
+              />
+            )}
+            {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
+            <video
+              ref={slotARef}
+              className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
+                activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              playsInline
+              muted={activeSlot === "a" ? muted : true}
+            />
+            <video
+              ref={slotBRef}
+              className={`absolute inset-0 h-full w-full bg-black object-contain ${subsClass} ${
+                activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              playsInline
+              muted={activeSlot === "b" ? muted : true}
+            />
 
+            <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
-      <div className="absolute inset-0" onClick={onSurfaceTap} role="presentation" />
 
       {/* ── Assinatura vencida: conteúdo bloqueado até a renovação ── */}
       {expired ? (
@@ -994,23 +995,23 @@ function PlayerPage() {
         onPointerDown={ping}
         onClickCapture={ping}
         onFocusCapture={ping}
-        className={`absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent px-5 py-4 transition-opacity duration-300 md:px-8 ${overlay}`}
+        className={`absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent px-4 py-2 transition-opacity duration-300 md:px-6 ${overlay}`}
       >
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3">
           <button
             type="button"
             onClick={goBack}
-            className="vexia-focus flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-vexia-cyan"
+            className="vexia-focus flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium text-vexia-cyan"
           >
-            <ArrowLeft className="h-6 w-6" aria-hidden /> Voltar
+            <ArrowLeft className="h-5 w-5" aria-hidden /> Voltar
           </button>
         </div>
 
         <div className="min-w-0 flex-1 text-center">
-          <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.18em]">
+          <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold tracking-[0.16em]">
             {type === "live" ? (
-              <span className="flex items-center gap-1.5 text-[#FF1744]">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-[#FF1744]" /> AO VIVO
+              <span className="flex items-center gap-1 text-[#FF1744]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF1744]" /> AO VIVO
               </span>
             ) : (
               <span className="text-vexia-cyan">{kindLabel}</span>
@@ -1020,22 +1021,22 @@ function PlayerPage() {
               <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
             ) : null}
           </div>
-          <h1 className="truncate text-base font-medium text-white md:text-lg">
+          <h1 className="truncate text-sm font-medium text-white md:text-base">
             {title}
             {episode ? ` — S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}` : ""}
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setFav((f) => !f)}
             aria-label="Favoritar"
             aria-pressed={fav}
-            className={`vexia-focus grid h-9 w-9 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
+            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
           >
             <Heart
-              className={`h-4 w-4 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
+              className={`h-3.5 w-3.5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
               aria-hidden
             />
           </button>
@@ -1043,25 +1044,26 @@ function PlayerPage() {
             type="button"
             onClick={() => setMuted((m) => !m)}
             aria-label="Áudio"
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
           >
             {muted ? (
-              <VolumeX className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <VolumeX className="h-4 w-4 text-vexia-cyan" aria-hidden />
             ) : (
-              <Volume2 className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <Volume2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             )}
           </button>
           <button
             type="button"
             onClick={toggleFullscreen}
             aria-label="Tela cheia"
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
           >
-            <Maximize className="h-5 w-5 text-vexia-cyan" aria-hidden />
+            <Maximize className="h-4 w-4 text-vexia-cyan" aria-hidden />
           </button>
-          <VexiaLogo className="h-9" />
+          <VexiaLogo className="h-7" />
         </div>
       </header>
+
 
       {/* ── Controles ── */}
       <section
@@ -1069,10 +1071,11 @@ function PlayerPage() {
         onPointerDown={ping}
         onClickCapture={ping}
         onFocusCapture={ping}
-        className={`absolute inset-x-0 bottom-0 z-40 space-y-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-5 pt-5 transition-opacity duration-200 md:px-8 ${
-          showEpisodes && serie ? "pb-20" : "pb-4"
+        className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 transition-opacity duration-200 md:px-6 ${
+          showEpisodes && serie ? "pb-16" : "pb-3"
         } ${overlay}`}
       >
+
         {/* Barra de progresso / atraso */}
         {type === "live" ? (
           <div className="flex items-center gap-3 text-xs font-medium">
@@ -1109,7 +1112,7 @@ function PlayerPage() {
         )}
 
         {/* Botões de transporte */}
-        <div className="flex items-center justify-center gap-4 md:gap-7">
+        <div className="flex items-center justify-center gap-3 md:gap-5">
           {type === "series" ? (
             <button
               type="button"
@@ -1120,9 +1123,9 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } }))
               }
               aria-label="Episódio anterior"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipBack className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type !== "live" ? (
@@ -1130,21 +1133,21 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(-10)}
               aria-label="Voltar 10 segundos"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
-              <Rewind className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           <button
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-12 w-12 place-items-center rounded-full bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.95)]"
+            className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
           >
             {playing ? (
-              <Pause className="h-5 w-5 fill-current text-white" aria-hidden />
+              <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
             ) : (
-              <Play className="h-5 w-5 fill-current text-white" aria-hidden />
+              <Play className="h-4 w-4 fill-current text-white" aria-hidden />
             )}
           </button>
           {type !== "live" ? (
@@ -1152,9 +1155,9 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(10)}
               aria-label="Avançar 10 segundos"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
-              <FastForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type === "series" ? (
@@ -1167,12 +1170,13 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } }))
               }
               aria-label="Próximo episódio"
-              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
         </div>
+
 
         {/* Informações do conteúdo */}
         <div className="space-y-1 text-xs">
@@ -1196,7 +1200,7 @@ function PlayerPage() {
         </div>
 
         {/* Menu de configurações do player */}
-        <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-2">
+        <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
           {(
             [
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
@@ -1217,24 +1221,24 @@ function PlayerPage() {
                 type="button"
                 onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
                 aria-pressed={open}
-                className={`vexia-focus group grid min-w-0 max-w-[150px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_22px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
+                className={`vexia-focus group grid min-w-0 max-w-[130px] grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-2 py-1 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_18px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
                   open
-                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
+                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_16px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
                     : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
                 }`}
               >
                 <span
-                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
+                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors ${
                     open ? "bg-vexia-purple text-white" : "bg-black/50 text-vexia-cyan"
                   }`}
                 >
-                  <opt.icon className="h-3.5 w-3.5" aria-hidden />
+                  <opt.icon className="h-3 w-3" aria-hidden />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">
+                  <span className="block text-[8px] font-bold uppercase tracking-[0.14em] text-white/45">
                     {opt.title}
                   </span>
-                  <span className="block truncate text-[12px] font-semibold text-white">
+                  <span className="block truncate text-[10px] font-semibold text-white">
                     {opt.label}
                   </span>
                 </span>
@@ -1242,17 +1246,17 @@ function PlayerPage() {
             );
           })}
           {/* Atraso da legenda: só − e +, sem poluir a tela */}
-          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.06] px-2 py-1">
-            <Timer className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
+          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5">
+            <Timer className="h-3 w-3 shrink-0 text-vexia-cyan" aria-hidden />
             <button
               type="button"
               aria-label="Adiantar legenda"
               onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset - SUBTITLE_OFFSET_STEP))}
-              className="vexia-focus grid h-6 w-6 place-items-center rounded-lg bg-black/50 text-sm font-black text-vexia-cyan"
+              className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
             >
               −
             </button>
-            <span className="min-w-[46px] text-center text-[11px] font-bold tabular-nums text-white">
+            <span className="min-w-[36px] text-center text-[10px] font-bold tabular-nums text-white">
               {subsOffset === 0
                 ? "0s"
                 : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`}
@@ -1261,7 +1265,7 @@ function PlayerPage() {
               type="button"
               aria-label="Atrasar legenda"
               onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset + SUBTITLE_OFFSET_STEP))}
-              className="vexia-focus grid h-6 w-6 place-items-center rounded-lg bg-black/50 text-sm font-black text-vexia-cyan"
+              className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
             >
               +
             </button>
@@ -1270,16 +1274,17 @@ function PlayerPage() {
             type="button"
             onClick={() => setMenu((m) => (m ? null : "quality"))}
             aria-label="Configurações"
-            className="vexia-focus grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
+            className="vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
           >
-            <Settings className="h-4.5 w-4.5 text-vexia-cyan" aria-hidden />
+            <Settings className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
           </button>
         </div>
 
+
         {menu ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgb(var(--vexia-primary-rgb)/0.9)]">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-vexia-purple/40 bg-black/85 p-2 shadow-[0_0_22px_-8px_rgb(var(--vexia-primary-rgb)/0.9)]">
             {menuOptions.length === 0 ? (
-              <p className="px-2 py-1 text-[11px] font-medium text-white/70">
+              <p className="px-2 py-1 text-[10px] font-medium text-white/70">
                 {menu === "audio"
                   ? "Este stream não oferece faixas de áudio alternativas."
                   : "Este stream não oferece legendas."}
@@ -1293,9 +1298,9 @@ function PlayerPage() {
                   opt.select();
                   ping();
                 }}
-                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold transition-all ${
+                className={`vexia-focus rounded-full border px-3 py-1 text-[10px] font-semibold transition-all ${
                   opt.active
-                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_14px_-3px_rgb(var(--vexia-secondary-rgb)/0.8)]"
+                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_12px_-3px_rgb(var(--vexia-secondary-rgb)/0.8)]"
                     : "border-white/12 bg-white/[0.05] text-white hover:border-vexia-cyan/40"
                 }`}
               >
@@ -1304,6 +1309,7 @@ function PlayerPage() {
             ))}
           </div>
         ) : null}
+
 
       </section>
       </div>
@@ -1356,7 +1362,12 @@ function PlayerPage() {
           </div>
         </div>
       ) : null}
+      </div>
+      </div>
     </main>
+
+
+
 
   );
 }
