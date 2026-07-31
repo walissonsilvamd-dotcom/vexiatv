@@ -126,9 +126,6 @@ function FiltersPage() {
             <ArrowLeft className="h-3 w-3 shrink-0" />
           </Link>
           <TopNav className="w-fit min-w-0 overflow-x-auto [&>a]:px-2.5 [&>a]:py-1 [&>a]:text-[10px] sm:[&>a]:px-3 sm:[&>a]:py-1.5 sm:[&>a]:text-[11px]" />
-          <h1 className="hidden truncate text-sm font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)] sm:block">
-            Filtros
-          </h1>
         </div>
       </header>
 
