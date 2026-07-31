@@ -365,7 +365,9 @@ export function CatalogScreen(props: {
 
 
             <div
-              className={`vexia-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-p-8 [contain:layout_paint] transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+              className={`vexia-scroll min-h-0 flex-1 overflow-x-hidden scroll-p-8 [contain:layout_paint] transition-opacity duration-200 ${
+                useVirtual ? "overflow-y-hidden" : "overflow-y-auto"
+              } ${countBusy ? "opacity-60" : "opacity-100"}`}
             >
               {useVirtual ? (
                 <VirtualizedGrid
