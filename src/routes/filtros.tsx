@@ -215,19 +215,19 @@ function FiltersPage() {
         )}
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-white/10 bg-black/90 px-5 py-2 backdrop-blur md:px-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-vexia-cyan">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 border-t border-white/10 bg-black/90 px-5 py-2 backdrop-blur md:px-8">
+        <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-vexia-cyan">
           ▸ {active} ativos
         </p>
-        <p className="absolute inset-x-0 mx-auto w-fit text-center text-[11px] font-black uppercase tracking-[0.2em] text-vexia-purple drop-shadow-[0_0_12px_rgba(123,47,190,0.9)]">
+        <span className="flex-1 text-center text-[11px] font-black uppercase tracking-[0.2em] text-vexia-purple drop-shadow-[0_0_12px_rgba(123,47,190,0.9)]">
           Filtros
-        </p>
+        </span>
         <button
           type="button"
           data-nav-row={99}
           tabIndex={0}
           onClick={apply}
-          className="vexia-focus rounded-full bg-vexia-purple px-8 py-2 text-[11px] font-black tracking-[0.16em] shadow-[0_0_24px_rgba(123,47,190,0.6)]"
+          className="vexia-focus shrink-0 rounded-full bg-vexia-purple px-8 py-2 text-[11px] font-black tracking-[0.16em] shadow-[0_0_24px_rgba(123,47,190,0.6)]"
         >
           APLICAR
         </button>
