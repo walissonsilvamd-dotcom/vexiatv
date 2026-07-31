@@ -653,15 +653,22 @@ function PlayerPage() {
         {
           label: "Desligada",
           active: subs.selected === SUBS_OFF,
-          select: () => subs.select(SUBS_OFF),
+          select: () => {
+            subsManualRef.current = true;
+            subs.select(SUBS_OFF);
+          },
         },
         ...subs.tracks.map((t) => ({
-          label: t.label,
+          label: t.lang ? `${t.label} · ${t.lang.toUpperCase()}` : t.label,
           active: t.id === subs.selected,
-          select: () => subs.select(t.id),
+          select: () => {
+            subsManualRef.current = true;
+            subs.select(t.id);
+          },
         })),
       ];
     }
+
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected]);
