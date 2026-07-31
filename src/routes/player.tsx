@@ -1071,9 +1071,7 @@ function PlayerPage() {
         onPointerDown={ping}
         onClickCapture={ping}
         onFocusCapture={ping}
-        className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 transition-opacity duration-200 md:px-6 ${
-          showEpisodes && serie ? "pb-16" : "pb-3"
-        } ${overlay}`}
+        className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 pb-3 transition-opacity duration-200 md:px-6 ${overlay}`}
       >
 
         {/* Barra de progresso / atraso */}
