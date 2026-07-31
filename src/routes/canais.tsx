@@ -76,7 +76,7 @@ function ChannelsPage() {
   }, [channels]);
 
   const categories = data?.channelCategories ?? ["Todos"];
-  const { filters, active: activeFilters } = useFilters();
+  const { filters } = useFilters();
   const { sort } = useSort();
 
   const index = useMemo(
