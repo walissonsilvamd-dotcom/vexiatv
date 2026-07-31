@@ -87,8 +87,8 @@ function ChannelsPage() {
   const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
-  /** A prévia começa muda (regra de autoplay dos navegadores/TVs). */
-  const [previewMuted, setPreviewMuted] = useState(true);
+  /** A prévia toca com som normal; se o navegador bloquear, o hook cai para mudo. */
+  const [previewMuted, setPreviewMuted] = useState(false);
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
   const restoredRef = useRef(false);

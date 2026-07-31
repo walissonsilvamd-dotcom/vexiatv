@@ -25,6 +25,7 @@ import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SerieIdRouteImport } from './routes/serie.$id'
 import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
+import { Route as ApiPublicStreamRouteImport } from './routes/api/public/stream'
 import { Route as ApiPublicPlaylistRouteImport } from './routes/api/public/playlist'
 
 const SeriesRoute = SeriesRouteImport.update({
@@ -107,6 +108,11 @@ const DetalhesIdRoute = DetalhesIdRouteImport.update({
   path: '/detalhes/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicStreamRoute = ApiPublicStreamRouteImport.update({
+  id: '/api/public/stream',
+  path: '/api/public/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPlaylistRoute = ApiPublicPlaylistRouteImport.update({
   id: '/api/public/playlist',
   path: '/api/public/playlist',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
+  '/api/public/stream': typeof ApiPublicStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
+    | '/api/public/stream'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
+    | '/api/public/stream'
   id:
     | '__root__'
     | '/'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
+    | '/api/public/stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   DetalhesIdRoute: typeof DetalhesIdRoute
   SerieIdRoute: typeof SerieIdRoute
   ApiPublicPlaylistRoute: typeof ApiPublicPlaylistRoute
+  ApiPublicStreamRoute: typeof ApiPublicStreamRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DetalhesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/stream': {
+      id: '/api/public/stream'
+      path: '/api/public/stream'
+      fullPath: '/api/public/stream'
+      preLoaderRoute: typeof ApiPublicStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/playlist': {
       id: '/api/public/playlist'
       path: '/api/public/playlist'
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   DetalhesIdRoute: DetalhesIdRoute,
   SerieIdRoute: SerieIdRoute,
   ApiPublicPlaylistRoute: ApiPublicPlaylistRoute,
+  ApiPublicStreamRoute: ApiPublicStreamRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -44,11 +44,10 @@ import {
   setSubtitlePref,
   subtitleItemKey,
   clampSubtitleOffset,
-  SUBTITLE_OFFSET_MIN,
-  SUBTITLE_OFFSET_MAX,
   SUBTITLE_OFFSET_STEP,
 } from "../lib/subtitle-prefs";
 import { createSubtitleOffsetController } from "../lib/subtitle-offset";
+import { playableStreamUrl } from "../lib/stream-url";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
 import { formatExpiry } from "../lib/xtream";
@@ -110,7 +109,6 @@ function fmt(sec: number) {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
-const MAX_RETRIES = 2;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
@@ -128,7 +126,7 @@ function PlayerPage() {
 
   const [showControls, setShowControls] = useState(true);
   const [playing, setPlaying] = useState(false);
-  const [bufferingFromMedia, setBufferingFromMedia] = useState(true);
+  const [, setBufferingFromMedia] = useState(true);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -181,9 +179,11 @@ function PlayerPage() {
   const handoffUrl = useMemo(() => getStreamHandoff(type, id, ep), [type, id, ep]);
 
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
-  const src = expired
+  const rawSrc = expired
     ? ""
     : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? handoffUrl ?? "");
+  // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
+  const src = useMemo(() => playableStreamUrl(rawSrc), [rawSrc]);
 
   const resilientPlayer = useResilientPlayer({
     videoRef,
@@ -193,9 +193,6 @@ function PlayerPage() {
     live: type === "live",
   });
   const {
-    engine,
-    standbyEngine,
-    standbyReady,
     activeSlot,
     hlsApi,
     reconnecting,
@@ -206,7 +203,6 @@ function PlayerPage() {
     retry: retryStream,
     tryOtherEngine,
   } = resilientPlayer;
-  const buffering = resilientPlayer.buffering || bufferingFromMedia;
 
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
@@ -762,17 +758,6 @@ function PlayerPage() {
         })),
       ];
     }
-    if (menu === "subsDelay") {
-      const steps: number[] = [];
-      for (let v = SUBTITLE_OFFSET_MIN; v <= SUBTITLE_OFFSET_MAX + 0.001; v += SUBTITLE_OFFSET_STEP) {
-        steps.push(clampSubtitleOffset(v));
-      }
-      return steps.map((v) => ({
-        label: v === 0 ? "Sincronizada (0s)" : `${v > 0 ? "+" : ""}${v.toFixed(2).replace(/\.?0+$/, "")}s`,
-        active: Math.abs(v - subsOffset) < 0.001,
-        select: () => applySubsOffset(v),
-      }));
-    }
 
 
     return [];
@@ -807,7 +792,7 @@ function PlayerPage() {
 
   // Com a gaveta aberta os controles continuam visíveis e clicáveis na hora.
   const overlay =
-    showControls || drawerOpen ? "opacity-100" : "pointer-events-none opacity-0";
+    showControls || drawerOpen || menu ? "opacity-100" : "pointer-events-none opacity-0";
 
   return (
     <main
@@ -882,29 +867,10 @@ function PlayerPage() {
 
 
 
-      {(buffering || reconnecting) && !fatalError && (
-        <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <div className="flex flex-col items-center gap-2">
-            <Loader2
-              className="h-12 w-12 animate-spin text-vexia-purple drop-shadow-[0_0_16px_rgb(var(--vexia-primary-rgb)/0.9)]"
-              aria-hidden
-            />
-            {reconnecting ? (
-              <span className="text-xs font-semibold text-vexia-cyan">
-                {recoveryCycle > 0
-                  ? `Recuperando automaticamente… (ciclo ${recoveryCycle})`
-                  : `Trocando motor… ${engine ? `(${engine})` : ""} ${attempt ? `• tentativa ${attempt}/${MAX_RETRIES}` : ""}`}
-              </span>
-            ) : standbyReady && standbyEngine ? (
-              <span className="text-[11px] font-semibold text-white/50">
-                Reserva pronta ({standbyEngine})
-              </span>
-            ) : null}
-
-
-
-
-          </div>
+      {/* Aviso discreto de reconexão (sem spinner cobrindo o filme). */}
+      {reconnecting && !fatalError && (
+        <div className="pointer-events-none absolute left-5 top-20 z-30 rounded-full bg-black/70 px-3 py-1 text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
+          {recoveryCycle > 0 ? "RECONECTANDO…" : "TROCANDO MOTOR…"}
         </div>
       )}
 
@@ -1024,6 +990,10 @@ function PlayerPage() {
 
       {/* ── Topo ── */}
       <header
+        onPointerMove={ping}
+        onPointerDown={ping}
+        onClickCapture={ping}
+        onFocusCapture={ping}
         className={`absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent px-5 py-4 transition-opacity duration-300 md:px-8 ${overlay}`}
       >
         <div className="flex items-start gap-4">
@@ -1095,8 +1065,12 @@ function PlayerPage() {
 
       {/* ── Controles ── */}
       <section
-        className={`absolute inset-x-0 bottom-0 z-40 space-y-3 bg-gradient-to-t from-black via-black/85 to-transparent px-5 pt-10 transition-opacity duration-200 md:px-10 ${
-          showEpisodes && serie ? "pb-24" : "pb-6"
+        onPointerMove={ping}
+        onPointerDown={ping}
+        onClickCapture={ping}
+        onFocusCapture={ping}
+        className={`absolute inset-x-0 bottom-0 z-40 space-y-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-5 pt-5 transition-opacity duration-200 md:px-8 ${
+          showEpisodes && serie ? "pb-20" : "pb-4"
         } ${overlay}`}
       >
         {/* Barra de progresso / atraso */}
@@ -1135,7 +1109,7 @@ function PlayerPage() {
         )}
 
         {/* Botões de transporte */}
-        <div className="flex items-center justify-center gap-6 md:gap-10">
+        <div className="flex items-center justify-center gap-4 md:gap-7">
           {type === "series" ? (
             <button
               type="button"
@@ -1146,9 +1120,9 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } }))
               }
               aria-label="Episódio anterior"
-              className="vexia-focus grid h-11 w-11 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipBack className="h-6 w-6 text-vexia-cyan" aria-hidden />
+              <SkipBack className="h-5 w-5 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type !== "live" ? (
@@ -1156,21 +1130,21 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(-10)}
               aria-label="Voltar 10 segundos"
-              className="vexia-focus grid h-11 w-11 place-items-center rounded-full"
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
             >
-              <Rewind className="h-6 w-6 text-vexia-cyan" aria-hidden />
+              <Rewind className="h-5 w-5 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           <button
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-16 w-16 place-items-center rounded-full bg-vexia-purple shadow-[0_0_28px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
+            className="vexia-focus grid h-12 w-12 place-items-center rounded-full bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.95)]"
           >
             {playing ? (
-              <Pause className="h-7 w-7 fill-current text-white" aria-hidden />
+              <Pause className="h-5 w-5 fill-current text-white" aria-hidden />
             ) : (
-              <Play className="h-7 w-7 fill-current text-white" aria-hidden />
+              <Play className="h-5 w-5 fill-current text-white" aria-hidden />
             )}
           </button>
           {type !== "live" ? (
@@ -1178,9 +1152,9 @@ function PlayerPage() {
               type="button"
               onClick={() => seekBy(10)}
               aria-label="Avançar 10 segundos"
-              className="vexia-focus grid h-11 w-11 place-items-center rounded-full"
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
             >
-              <FastForward className="h-6 w-6 text-vexia-cyan" aria-hidden />
+              <FastForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
           {type === "series" ? (
@@ -1193,9 +1167,9 @@ function PlayerPage() {
                 navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } }))
               }
               aria-label="Próximo episódio"
-              className="vexia-focus grid h-11 w-11 place-items-center rounded-full disabled:opacity-30"
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full disabled:opacity-30"
             >
-              <SkipForward className="h-6 w-6 text-vexia-cyan" aria-hidden />
+              <SkipForward className="h-5 w-5 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
         </div>
@@ -1216,11 +1190,6 @@ function PlayerPage() {
               ) : null}
             </>
           ) : null}
-          {type === "movie" && movie?.overview ? (
-            <p className="line-clamp-2 max-w-3xl text-[12px] font-normal text-white/90">
-              {movie.overview}
-            </p>
-          ) : null}
           {type === "live" && channel?.now ? (
             <p className="font-medium text-vexia-cyan">Agora: {channel.now}</p>
           ) : null}
@@ -1238,15 +1207,6 @@ function PlayerPage() {
                 title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
                 label: subs.currentLabel,
               },
-              {
-                key: "subsDelay",
-                icon: Timer,
-                title: "Atraso legenda",
-                label:
-                  subsOffset === 0
-                    ? "Sincronizada"
-                    : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`,
-              },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
           ).map((opt) => {
@@ -1257,14 +1217,14 @@ function PlayerPage() {
                 type="button"
                 onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
                 aria-pressed={open}
-                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_22px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
+                className={`vexia-focus group grid min-w-0 max-w-[150px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_22px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
                   open
                     ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
                     : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
                 }`}
               >
                 <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors ${
+                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
                     open ? "bg-vexia-purple text-white" : "bg-black/50 text-vexia-cyan"
                   }`}
                 >
@@ -1281,11 +1241,36 @@ function PlayerPage() {
               </button>
             );
           })}
+          {/* Atraso da legenda: só − e +, sem poluir a tela */}
+          <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.06] px-2 py-1">
+            <Timer className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
+            <button
+              type="button"
+              aria-label="Adiantar legenda"
+              onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset - SUBTITLE_OFFSET_STEP))}
+              className="vexia-focus grid h-6 w-6 place-items-center rounded-lg bg-black/50 text-sm font-black text-vexia-cyan"
+            >
+              −
+            </button>
+            <span className="min-w-[46px] text-center text-[11px] font-bold tabular-nums text-white">
+              {subsOffset === 0
+                ? "0s"
+                : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`}
+            </span>
+            <button
+              type="button"
+              aria-label="Atrasar legenda"
+              onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset + SUBTITLE_OFFSET_STEP))}
+              className="vexia-focus grid h-6 w-6 place-items-center rounded-lg bg-black/50 text-sm font-black text-vexia-cyan"
+            >
+              +
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => setMenu((m) => (m ? null : "quality"))}
             aria-label="Configurações"
-            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
+            className="vexia-focus grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
           >
             <Settings className="h-4.5 w-4.5 text-vexia-cyan" aria-hidden />
           </button>
