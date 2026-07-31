@@ -995,23 +995,23 @@ function PlayerPage() {
         onPointerDown={ping}
         onClickCapture={ping}
         onFocusCapture={ping}
-        className={`absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent px-5 py-4 transition-opacity duration-300 md:px-8 ${overlay}`}
+        className={`absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent px-4 py-2 transition-opacity duration-300 md:px-6 ${overlay}`}
       >
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-3">
           <button
             type="button"
             onClick={goBack}
-            className="vexia-focus flex items-center gap-2 rounded-full px-2 py-1 text-sm font-medium text-vexia-cyan"
+            className="vexia-focus flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium text-vexia-cyan"
           >
-            <ArrowLeft className="h-6 w-6" aria-hidden /> Voltar
+            <ArrowLeft className="h-5 w-5" aria-hidden /> Voltar
           </button>
         </div>
 
         <div className="min-w-0 flex-1 text-center">
-          <div className="flex items-center justify-center gap-2 text-[11px] font-bold tracking-[0.18em]">
+          <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold tracking-[0.16em]">
             {type === "live" ? (
-              <span className="flex items-center gap-1.5 text-[#FF1744]">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-[#FF1744]" /> AO VIVO
+              <span className="flex items-center gap-1 text-[#FF1744]">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF1744]" /> AO VIVO
               </span>
             ) : (
               <span className="text-vexia-cyan">{kindLabel}</span>
@@ -1021,22 +1021,22 @@ function PlayerPage() {
               <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
             ) : null}
           </div>
-          <h1 className="truncate text-base font-medium text-white md:text-lg">
+          <h1 className="truncate text-sm font-medium text-white md:text-base">
             {title}
             {episode ? ` — S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}` : ""}
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setFav((f) => !f)}
             aria-label="Favoritar"
             aria-pressed={fav}
-            className={`vexia-focus grid h-9 w-9 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
+            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
           >
             <Heart
-              className={`h-4 w-4 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
+              className={`h-3.5 w-3.5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
               aria-hidden
             />
           </button>
@@ -1044,25 +1044,26 @@ function PlayerPage() {
             type="button"
             onClick={() => setMuted((m) => !m)}
             aria-label="Áudio"
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
           >
             {muted ? (
-              <VolumeX className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <VolumeX className="h-4 w-4 text-vexia-cyan" aria-hidden />
             ) : (
-              <Volume2 className="h-5 w-5 text-vexia-cyan" aria-hidden />
+              <Volume2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             )}
           </button>
           <button
             type="button"
             onClick={toggleFullscreen}
             aria-label="Tela cheia"
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
           >
-            <Maximize className="h-5 w-5 text-vexia-cyan" aria-hidden />
+            <Maximize className="h-4 w-4 text-vexia-cyan" aria-hidden />
           </button>
-          <VexiaLogo className="h-9" />
+          <VexiaLogo className="h-7" />
         </div>
       </header>
+
 
       {/* ── Controles ── */}
       <section
