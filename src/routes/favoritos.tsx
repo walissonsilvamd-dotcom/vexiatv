@@ -60,7 +60,7 @@ function FavoriteCard({
         data-nav-row={navRow}
         tabIndex={0}
         onClick={onOpen}
-        className="vexia-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
+        className="vexia-card-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
         <div
           className={`relative w-full overflow-hidden ${isChannel ? "aspect-video" : "aspect-[2/3]"}`}
