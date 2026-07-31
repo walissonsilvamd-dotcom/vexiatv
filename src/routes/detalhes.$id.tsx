@@ -1,4 +1,6 @@
 import { matchesLegacyId } from "../utils/hash";
+import { setStreamHandoff } from "../lib/stream-handoff";
+import { warmEngines } from "../hooks/player-engines";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -371,12 +373,16 @@ function DetailsPage() {
                           type="button"
                           data-nav-row={3 + si}
                           tabIndex={0}
-                          onClick={() =>
+                          onFocus={() => warmEngines(ep.url)}
+                          onMouseEnter={() => warmEngines(ep.url)}
+                          onClick={() => {
+                            // Entrega o link já conhecido: o player toca na hora.
+                            setStreamHandoff("series", item.id, ep.url, ep.id);
                             navigate({
                               to: "/player",
                               search: { type: "series", id: item.id, ep: ep.id },
-                            })
-                          }
+                            });
+                          }}
                           className="vexia-focus flex w-full items-center gap-3 rounded-xl border border-white/5 bg-vexia-card/70 p-3 text-left"
                         >
                           {watched ? (

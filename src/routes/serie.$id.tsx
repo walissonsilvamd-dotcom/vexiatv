@@ -1,3 +1,5 @@
+import { setStreamHandoff } from "../lib/stream-handoff";
+import { warmEngines } from "../hooks/player-engines";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ImageOff, Play } from "lucide-react";
 import { useMemo, useRef } from "react";
@@ -99,12 +101,15 @@ function EpisodesPage() {
                     type="button"
                     data-nav-row={si + 1}
                     tabIndex={0}
-                    onClick={() =>
+                    onFocus={() => warmEngines(ep.url)}
+                    onMouseEnter={() => warmEngines(ep.url)}
+                    onClick={() => {
+                      setStreamHandoff("series", id, ep.url, ep.id);
                       void navigate({
                         to: "/player",
                         search: { type: "series", id, ep: ep.id },
-                      })
-                    }
+                      });
+                    }}
                     className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
                   >
                     {ep.thumb ? (
