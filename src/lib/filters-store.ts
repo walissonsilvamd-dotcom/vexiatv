@@ -364,6 +364,38 @@ export function matchesFilters(item: MediaItem, kind: MediaKind, state: FilterSt
   );
 }
 
+/** Critérios que a própria lista M3U já responde (sem precisar do TMDB). */
+export const LOCAL_FILTER_KEYS: FilterKey[] = ["tipo", "genero", "ano", "audio"];
+/** Critérios que só existem depois do enriquecimento TMDB. */
+export const TMDB_FILTER_KEYS: FilterKey[] = ["pais", "nota", "duracao", "lancamento"];
+
+/** Aplica só o que dá para avaliar sobre a lista inteira, sem TMDB. */
+export function matchesLocalFilters(item: MediaItem, kind: MediaKind, state: FilterState) {
+  return (
+    matchesType(item, kind, state.tipo) &&
+    matchesGenre(item, state.genero) &&
+    matchesYear(item, state.ano) &&
+    (state.audio === "Todos" || !item.audio ? true : matchesAudio(item, state.audio))
+  );
+}
+
+/** Há algum critério ativo que exige metadados do TMDB? */
+export function needsTmdb(state: FilterState) {
+  return TMDB_FILTER_KEYS.some((key) => state[key] !== "Todos");
+}
+
+/** Rótulos dos filtros ativos, para exibir como chips. */
+export function activeFilterChips(state: FilterState) {
+  return (Object.keys(state) as FilterKey[])
+    .filter((key) => state[key] !== "Todos")
+    .map((key) => ({
+      key,
+      title: FILTER_GROUPS.find((g) => g.key === key)?.title ?? key.toUpperCase(),
+      value: state[key],
+    }));
+}
+
+
 /** Aplica o filtro de TIPO em um canal ao vivo (Kids, Anime, Doc, Reality). */
 export function matchesChannel(name: string, category: string, state: FilterState) {
   const tipo = state.tipo;
