@@ -12,7 +12,9 @@ import {
   parsePastedAccess,
 } from "../lib/playlist-input";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { usePairing } from "../lib/use-pairing";
 import { formatExpiry, formatRemaining } from "../lib/xtream";
+
 
 
 import { TopNav } from "../components/vexia/TopNav";
@@ -56,7 +58,22 @@ function ListsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [qrDialog, setQrDialog] = useState(false);
 
-  const qrValue = url.trim() || source?.url || `https://vexia.tv/pair?mac=${DEVICE_MAC}&key=${DEVICE_KEY}`;
+  // Pareamento real: a TV gera um código, o celular lê o QR e envia a lista.
+  const pairing = usePairing(form, (received) => {
+    setForm(false);
+    void navigate({
+      to: "/carregando",
+      search: { url: received.url, name: received.name },
+    });
+  });
+
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+
+  const qrValue = pairing.code
+    ? `${origin}/parear?c=${pairing.code}`
+    : `${origin}/parear`;
+
 
   const openForm = () => {
     setName(source?.name ?? "");
