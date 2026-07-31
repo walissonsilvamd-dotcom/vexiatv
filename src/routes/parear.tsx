@@ -68,15 +68,16 @@ function PairPage() {
 
   const send = async () => {
     const finalUrl =
-      mode === "link" ? url.trim() : buildXtreamUrl(server, user, pass);
+      mode === "link" ? url.trim() : buildXtreamUrl(resolveServer(server), user, pass);
     if (!/^https?:\/\//i.test(finalUrl)) {
       setError(
         mode === "link"
           ? "O link precisa começar com http:// ou https://"
-          : "Preencha o CÓDIGO (servidor), o LOGIN e a SENHA.",
+          : "Preencha o LOGIN e a SENHA.",
       );
       return;
     }
+
     setError(null);
     setSending(true);
     try {
@@ -177,15 +178,7 @@ function PairPage() {
               />
             ) : (
               <>
-                <input
-                  value={server}
-                  onChange={(e) => setServer(e.target.value)}
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  placeholder="CÓDIGO (ex: meuservidor.com:8080)"
-                  aria-label="Código do servidor"
-                  className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-5 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-                />
+
                 <input
                   value={user}
                   onChange={(e) => setUser(e.target.value)}

@@ -102,17 +102,18 @@ function ListsPage() {
   const buildUrl = () => {
     const typed = url.trim();
     if (typed) return typed;
-    return buildXtreamUrl(server, user, pass);
+    return buildXtreamUrl(resolveServer(server), user, pass);
   };
 
   const submit = () => {
     const finalUrl = buildUrl();
     if (!finalUrl) {
       setFormError(
-        "Informe o CÓDIGO (DNS do servidor), o LOGIN e a SENHA — ou cole o link M3U/HLS no campo de URL.",
+        "Informe o LOGIN e a SENHA — ou cole o link M3U/HLS no campo de URL.",
       );
       return;
     }
+
     if (!isLikelyPlaylistUrl(finalUrl)) {
       setFormError("O link precisa começar com http:// ou https://");
       return;
@@ -374,26 +375,11 @@ function ListsPage() {
                   DIGITE SEU ACESSO
                 </h2>
                 <p className="mt-1 text-center text-xs text-white/60">
-                  Código (DNS do servidor) + login + senha
+                  Login + senha da sua lista
                 </p>
 
                 <div className="mt-5 space-y-4">
-                  <label className="block">
-                    <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
-                      CÓDIGO
-                    </span>
-                    <input
-                      value={server}
-                      onChange={(e) => setServer(e.target.value)}
-                      onPaste={(e) => {
-                        if (applyPaste(e.clipboardData.getData("text"), "server"))
-                          e.preventDefault();
-                      }}
-                      placeholder="ex: meuservidor.com:8080"
-                      aria-label="Código do servidor"
-                      className="w-full rounded-full border border-vexia-purple/70 bg-black/70 px-6 py-3 text-base text-white placeholder:text-white/45 focus:outline-none"
-                    />
-                  </label>
+
                   <label className="block">
                     <span className="mb-1 block pl-5 text-[11px] font-bold tracking-[0.18em] text-vexia-cyan">
                       LOGIN
