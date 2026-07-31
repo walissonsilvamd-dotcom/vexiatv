@@ -38,6 +38,10 @@ function PairPage() {
   const [state, setState] = useState<"checking" | "ready" | "invalid" | "expired">("checking");
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [mode, setMode] = useState<"link" | "acesso">("link");
+  const [server, setServer] = useState("");
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
