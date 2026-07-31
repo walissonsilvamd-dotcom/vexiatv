@@ -584,3 +584,24 @@ video.vexia-subs-white::cue {
 video.vexia-subs-yellow::cue {
   color: #ffd400;
 }
+
+
+/* ─── Estilo de Interface (Ajustes → Estilo de Interface) ───────────────
+   Horizontal: padrão, ideal para TV. Vertical: cards maiores e menos
+   colunas, pensado para celular/tablet. */
+[data-vexia-layout="vertical"] .grid.grid-cols-3 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 768px) {
+  [data-vexia-layout="vertical"] .grid.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1280px) {
+  [data-vexia-layout="vertical"] .grid.grid-cols-3 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+[data-vexia-layout="vertical"] .vexia-row-scroll > * {
+  scroll-snap-align: start;
+}

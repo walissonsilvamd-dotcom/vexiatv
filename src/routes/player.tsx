@@ -33,6 +33,7 @@ import {
 
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
+import { ExternalPlayerGate } from "../components/vexia/ExternalPlayerGate";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
@@ -215,6 +216,10 @@ function PlayerPage() {
   const pendingResumeRef = useRef<number | null>(null);
 
   const [confirmForget, setConfirmForget] = useState(false);
+  const { settings } = useSettings();
+  /* Ajustes → Player de Vídeo: "externo" abre o link em outro aplicativo. */
+  const [internalOverride, setInternalOverride] = useState(false);
+  const externalGate = settings.player === "external" && !internalOverride;
 
   const title =
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
@@ -621,7 +626,6 @@ function PlayerPage() {
 
   /* ── Preferências de legenda vindas de Ajustes ─────────────────
      Só faz efeito quando a lista carregada realmente traz legendas. */
-  const { settings } = useSettings();
   const subsAutoRef = useRef<string>("");
   /** Escolha manual feita no player tem prioridade sobre a preferência de Ajustes. */
   const subsManualRef = useRef(false);
@@ -825,6 +829,13 @@ function PlayerPage() {
       <div
         className="relative h-screen w-full overflow-hidden bg-black"
       >
+      {externalGate && (
+        <ExternalPlayerGate
+          src={src}
+          title={title}
+          onUseInternal={() => setInternalOverride(true)}
+        />
+      )}
       {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
       <video
         ref={slotARef}
