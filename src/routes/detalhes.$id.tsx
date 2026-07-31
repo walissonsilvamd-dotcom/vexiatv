@@ -168,7 +168,9 @@ function DetailsPage() {
       </div>
 
       {/* ─── Destaque com backdrop ─── */}
-      <section className="relative mt-2 min-h-[260px] w-full overflow-hidden md:h-[44vh]">
+      {/* Altura MÍNIMA (nunca fixa): o destaque cresce conforme o conteúdo, então
+          as temporadas nunca ficam cortadas quando quebram em várias linhas. */}
+      <section className="relative mt-2 w-full overflow-hidden min-h-[260px] md:min-h-[44vh]">
         {item.backdrop ? (
           <SmartImage
             src={item.backdrop}
@@ -274,6 +276,8 @@ function DetailsPage() {
                 <p className="text-[11px] font-black tracking-[0.14em] text-vexia-purple-soft">
                   ESCOLHA A TEMPORADA
                 </p>
+                {/* Todas as temporadas sempre à mostra: quebram em linhas e o
+                    destaque acompanha a altura — sem corte e sem rolagem oculta. */}
                 <div className="flex flex-wrap gap-2">
                   {seasons.map((season) => {
                     const active = season.number === selectedSeason;
@@ -290,13 +294,13 @@ function DetailsPage() {
                             .getElementById("temporadas")
                             ?.scrollIntoView({ behavior: "smooth", block: "start" });
                         }}
-                        className={`vexia-focus inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-bold tracking-wide transition ${
+                        className={`vexia-focus inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold tracking-wide transition ${
                           active
                             ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                             : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
                         }`}
                       >
-                        <ListVideo className="h-4 w-4" aria-hidden /> TEMPORADA{" "}
+                        <ListVideo className="h-3.5 w-3.5 shrink-0" aria-hidden /> T
                         {String(season.number).padStart(2, "0")}
                         <span className="text-[10px] font-semibold text-vexia-cyan">
                           {season.episodes.length} ep

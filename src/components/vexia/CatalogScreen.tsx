@@ -35,9 +35,10 @@ import { VexiaLogo } from "./VexiaLogo";
 const PAGE = 24;
 /** Acima deste total a grade passa a ser virtualizada (só o visível é montado). */
 const VIRTUALIZE_FROM = 30;
-/* Colunas fluidas: os cards mudam de tamanho sem nunca criar scroll de página. */
+/* Colunas fluidas e LARGAS: ~5 cards por linha em 1080p. Preferimos menos cards
+   por linha a títulos cortados — o nome do filme/série tem de ser legível. */
 const GRID_CLASS =
-  "grid gap-3 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(104px,9.5vw,150px),1fr))]";
+  "grid gap-4 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(158px,15vw,232px),1fr))]";
 
 
 export function CatalogScreen(props: {
