@@ -18,8 +18,9 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import type { PlaylistEpisode, PlaylistSeries } from "../lib/m3u";
 import { usePlaylist } from "../lib/playlist-store";
 import { mediaFavorite, useFavorites } from "../lib/favorites-store";
-import { isWatched, useProgress } from "../lib/progress-store";
+import { isWatched, useProgress, type ProgressEntry } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
+import { useTmdbSeason } from "../lib/use-tmdb-season";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
 import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
@@ -484,7 +485,7 @@ function EpisodeList({
   episodes: PlaylistEpisode[];
   navRow: number;
   audioFallback: (string | undefined | null)[];
-  entryFor: (epId: string) => { percent: number; durationSec?: number } | undefined;
+  entryFor: (epId: string) => ProgressEntry | undefined;
   onPlay: (ep: PlaylistEpisode) => void;
 }) {
   const { byNumber } = useTmdbSeason(seriesTitle, seriesYear, season);
