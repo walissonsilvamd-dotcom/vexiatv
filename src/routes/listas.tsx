@@ -115,11 +115,21 @@ function ListsPage() {
   const submit = () => {
     const finalUrl = buildUrl();
     if (!finalUrl) {
+      if (!url.trim() && user.trim() && !resolveServer(server)) {
+        setFormError(
+          "Falta o SERVIDOR (DNS) da sua lista. Peça ao seu provedor o endereço do painel (ex.: http://meupainel.com:8080) e informe no campo SERVIDOR.",
+        );
+        return;
+      }
       setFormError(
-        "Informe o LOGIN e a SENHA — ou cole o link M3U/HLS no campo de URL.",
+        "Informe o SERVIDOR, o LOGIN e a SENHA — ou cole o link M3U/HLS no campo de URL.",
       );
       return;
     }
+    if (needsServer && server.trim()) {
+      localStorage.setItem("vexia:xtream-server", server.trim());
+    }
+
 
     if (!isLikelyPlaylistUrl(finalUrl)) {
       setFormError("O link precisa começar com http:// ou https://");
