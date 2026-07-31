@@ -56,6 +56,12 @@ function ListsPage() {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [server, setServer] = useState("");
+  /* Enquanto o app não tiver um DNS padrão, o cliente informa o servidor uma
+     vez e ele fica guardado no aparelho. */
+  const needsServer = !DEFAULT_XTREAM_SERVER;
+  useEffect(() => {
+    if (needsServer) setServer(localStorage.getItem("vexia:xtream-server") ?? "");
+  }, [needsServer]);
   const [formError, setFormError] = useState<string | null>(null);
   const [qrDialog, setQrDialog] = useState(false);
 
