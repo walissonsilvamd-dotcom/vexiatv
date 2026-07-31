@@ -403,11 +403,8 @@ function ChannelsPage() {
             type="button"
             data-nav-row={4}
             tabIndex={0}
-            onClick={() => {
-              if (!selected) return;
-              setStreamHandoff("live", selected.id, selected.url);
-              void navigate({ to: "/player", search: { type: "live", id: selected.id } });
-            }}
+            onClick={() => selected && openFullscreen(selected)}
+
             className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
           >
             <Play className="h-4 w-4" aria-hidden /> Assistir
