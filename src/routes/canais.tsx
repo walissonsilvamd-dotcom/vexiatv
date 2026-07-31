@@ -203,7 +203,7 @@ function ChannelsPage() {
           type="button"
           data-nav-row={2}
           tabIndex={0}
-          onClick={() => setSelected(ch)}
+          onClick={() => onChannelClick(ch)}
           className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
             isActive
               ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
