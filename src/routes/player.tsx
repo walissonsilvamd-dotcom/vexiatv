@@ -606,10 +606,17 @@ function PlayerPage() {
      Só faz efeito quando a lista carregada realmente traz legendas. */
   const { settings } = useSettings();
   const subsAutoRef = useRef<string>("");
+  /** Escolha manual feita no player tem prioridade sobre a preferência de Ajustes. */
+  const subsManualRef = useRef(false);
+  useEffect(() => {
+    subsManualRef.current = false;
+  }, [episode?.id]);
+
   useEffect(() => {
     const signature = `${episode?.id ?? ""}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}`;
     if (subsAutoRef.current === signature) return;
     subsAutoRef.current = signature;
+    if (subsManualRef.current) return;
 
     if (!settings.subtitlesEnabled) {
       if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
@@ -623,6 +630,7 @@ function PlayerPage() {
       subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(prefix)) ?? subs.tracks[0];
     subs.select(match.id);
   }, [settings.subtitlesEnabled, settings.language, subs, episode?.id]);
+
 
   const subsClass = `vexia-subs vexia-subs-${
     settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
