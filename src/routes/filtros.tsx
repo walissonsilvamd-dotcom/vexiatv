@@ -198,10 +198,26 @@ function FiltersPage() {
 
       {/* Prévia do resultado */}
       <section className="mt-3 min-h-0 flex-1 space-y-1.5 px-5 md:px-8">
-        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          Prévia do resultado
-        </h2>
-        {preview.length > 0 ? (
+        <div className="flex items-center justify-between">
+          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
+            Prévia do resultado
+          </h2>
+          {isBusy && (
+            <span className="text-[10px] font-bold text-vexia-purple-soft animate-pulse">
+              {loading ? "Carregando lista…" : `Enriquecendo ${tmdbProgress}%`}
+            </span>
+          )}
+        </div>
+        {isBusy ? (
+          <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <Skeleton
+                key={i}
+                className="aspect-[2/3] rounded-xl border border-vexia-purple/20 bg-white/10"
+              />
+            ))}
+          </div>
+        ) : preview.length > 0 ? (
           <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
             {preview.map(({ item, kind }) => (
               <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
