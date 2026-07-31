@@ -608,28 +608,40 @@ function PlayerPage() {
   const subsAutoRef = useRef<string>("");
   /** Escolha manual feita no player tem prioridade sobre a preferência de Ajustes. */
   const subsManualRef = useRef(false);
-  useEffect(() => {
-    subsManualRef.current = false;
-  }, [episode?.id]);
+  /** Último idioma escolhido à mão — reaplicado ao trocar de item/episódio. */
+  const subsLangRef = useRef<string | null>(null);
+
+  /** Identidade do que está tocando: muda ao vir da busca, da lista ou de outro episódio. */
+  const itemKey = `${type}|${id}|${episode?.id ?? ""}`;
 
   useEffect(() => {
-    const signature = `${episode?.id ?? ""}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}`;
+    subsManualRef.current = false;
+  }, [itemKey]);
+
+  useEffect(() => {
+    const signature = `${itemKey}|${subs.tracks.map((t) => t.id).join(",")}|${settings.subtitlesEnabled}|${settings.language}`;
     if (subsAutoRef.current === signature) return;
     subsAutoRef.current = signature;
     if (subsManualRef.current) return;
 
-    if (!settings.subtitlesEnabled) {
+    const wantsSubs = settings.subtitlesEnabled || Boolean(subsLangRef.current);
+    if (!wantsSubs) {
       if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
       return;
     }
     if (subs.tracks.length === 0) return;
-    if (subs.selected !== SUBS_OFF) return;
 
-    const prefix = settings.language.slice(0, 2).toLowerCase();
+    // Ordem de preferência: idioma escolhido à mão → idioma dos Ajustes → primeira faixa.
+    const wanted = [subsLangRef.current, settings.language]
+      .filter(Boolean)
+      .map((l) => (l as string).slice(0, 2).toLowerCase());
     const match =
-      subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(prefix)) ?? subs.tracks[0];
-    subs.select(match.id);
-  }, [settings.subtitlesEnabled, settings.language, subs, episode?.id]);
+      wanted
+        .map((p) => subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(p)))
+        .find(Boolean) ?? subs.tracks[0];
+    if (match.id !== subs.selected) subs.select(match.id);
+  }, [settings.subtitlesEnabled, settings.language, subs, itemKey]);
+
 
 
   const subsClass = `vexia-subs vexia-subs-${
