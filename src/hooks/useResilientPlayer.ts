@@ -26,12 +26,19 @@ type Options = {
 };
 
 const ENGINE_RETRIES = 1;
-const STARTUP_TIMEOUT_MS = 9_000;
-const STALL_TIMEOUT_MS = 6_000;
+const STARTUP_TIMEOUT_MS = 6_000;
+const STALL_TIMEOUT_MS = 3_500;
 /** Congelamento leve: tenta "cutucar" o stream antes de trocar de motor. */
-const SOFT_STALL_MS = 2_000;
-const STALL_CHECK_MS = 500;
+const SOFT_STALL_MS = 900;
+/** Troca imediata para a reserva assim que o congelamento passa deste tempo. */
+const INSTANT_SWAP_MS = 700;
+const STALL_CHECK_MS = 200;
 const NUDGE_MAX = 1;
+/** VOD: a reserva fica sempre próxima da posição atual para trocar sem seek. */
+const STANDBY_SYNC_TOLERANCE_S = 4;
+const STANDBY_SYNC_EVERY_MS = 3_000;
+/** Pequeno avanço para a reserva já ter buffer à frente no momento da troca. */
+const STANDBY_LEAD_S = 0.6;
 /**
  * A reserva só começa a baixar depois que o motor principal engatou. No começo
  * a banda inteira fica para o vídeo que o cliente está esperando; qualquer
@@ -190,6 +197,38 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     };
 
 
+    /**
+     * Mantém a reserva (VOD) alinhada com a posição atual, de modo que a troca
+     * de motor não precise de seek — é isso que torna o failover instantâneo.
+     */
+    let lastStandbySyncAt = 0;
+    const syncStandbyPosition = (force = false) => {
+      if (disposed || live || !standbyStarted) return;
+      const now = Date.now();
+      if (!force && now - lastStandbySyncAt < STANDBY_SYNC_EVERY_MS) return;
+      lastStandbySyncAt = now;
+      const activeVideo = elementFor(activeSlotLocal);
+      const standbyVideo = elementFor(other(activeSlotLocal));
+      const target = activeVideo.currentTime + STANDBY_LEAD_S;
+      if (!Number.isFinite(target) || target <= 0) return;
+      if (Math.abs(standbyVideo.currentTime - target) < STANDBY_SYNC_TOLERANCE_S) return;
+      try {
+        standbyVideo.currentTime = target;
+        // Um respiro tocando garante que o novo trecho entre no buffer.
+        void standbyVideo.play().catch(() => undefined);
+        setTimeout(() => {
+          if (disposed || !standbyOk) return;
+          try {
+            standbyVideo.pause();
+          } catch {
+            /* noop */
+          }
+        }, 900);
+      } catch {
+        /* stream sem seek */
+      }
+    };
+
     /* ── Reserva quente: segundo motor pré-carregado em paralelo, mudo e pausado ── */
     const startStandby = () => {
       if (disposed || standbyIndex >= order.length) {
@@ -209,11 +248,18 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         if (disposed) return;
         standbyOk = true;
         setStandbyReady(true);
-        // Mantém o buffer, mas sem consumir banda continuamente.
-        try {
-          video.pause();
-        } catch {
-          /* noop */
+        if (live) {
+          // Ao vivo: a reserva continua tocando muda para não ficar defasada da
+          // borda; assim a promoção mostra imagem no mesmo instante.
+          void video.play().catch(() => undefined);
+        } else {
+          // VOD: alinha a reserva com a posição atual e mantém buffer parado.
+          syncStandbyPosition(true);
+          try {
+            video.pause();
+          } catch {
+            /* noop */
+          }
         }
         video.removeEventListener("playing", markReady);
       };
@@ -267,6 +313,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
     /* ── Troca instantânea para a instância reserva ── */
     const promoteStandby = () => {
       if (disposed || !standbyOk) return false;
+      // Só promove se a reserva realmente tem quadro pronto: trocar para um
+      // vídeo vazio deixaria a tela preta em vez de continuar a exibição.
+      if (elementFor(other(activeSlotLocal)).readyState < 2) return false;
       clearActiveTimers();
       const oldSlot = activeSlotLocal;
       const newSlot = other(oldSlot);
@@ -300,7 +349,9 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       newVideo.muted = wasMuted;
       newVideo.volume = volume;
       newVideo.playbackRate = playbackRate;
-      if (!live && position > 0) {
+      // A reserva já vem sincronizada; só corrige se estiver realmente longe,
+      // evitando um seek (que custaria segundos de rebuffer) na troca.
+      if (!live && position > 0 && Math.abs(newVideo.currentTime - position) > 2) {
         try {
           newVideo.currentTime = position;
         } catch {
@@ -477,15 +528,21 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
       };
       const onWaiting = () => {
         setBuffering(true);
+        // Reserva pronta: troca na hora, sem esperar o vigia de travamento.
+        if (standbyOk && promoteStandby()) return;
         prewarmStandby();
       };
       // "stalled"/"suspend": os dados pararam de chegar — prepara a reserva já.
       const onStalled = () => {
         setBuffering(true);
-        if (!video.paused && !video.ended) prewarmStandby();
+        if (video.paused || video.ended) return;
+        if (standbyOk && promoteStandby()) return;
+        prewarmStandby();
       };
       const onMediaError = () => {
         const code = video.error?.code;
+        // Erro fatal de mídia com reserva pronta: troca imediata, sem retentativa.
+        if (standbyOk && promoteStandby()) return;
         recoverOrFallback(`media-error${code ? ` • code ${code}` : ""}`, () => {
           try {
             video.load();
@@ -552,14 +609,19 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live }: 
         return;
       }
 
-      if (idle > SOFT_STALL_MS && standbyOk) {
-        promoteStandby();
+      // Troca instantânea: menos de 1s de congelamento já promove a reserva.
+      if (idle > INSTANT_SWAP_MS && standbyOk) {
+        if (promoteStandby()) return;
+      }
+
+      if (idle > SOFT_STALL_MS) {
+        prewarmStandby();
+        if (nudges < NUDGE_MAX && Date.now() - lastNudgeAt > 800) nudge();
         return;
       }
 
-      if (idle > SOFT_STALL_MS && nudges < NUDGE_MAX && Date.now() - lastNudgeAt > 1_000) {
-        nudge();
-      }
+      // Fluxo saudável: mantém a reserva colada na posição atual (VOD).
+      syncStandbyPosition();
     }, STALL_CHECK_MS);
 
 
