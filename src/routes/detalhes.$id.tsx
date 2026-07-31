@@ -22,6 +22,8 @@ import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
