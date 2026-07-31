@@ -124,6 +124,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Estilo de Interface: aplica o modo de exibição no documento inteiro.
+  useEffect(() => {
+    document.documentElement.dataset.vexiaLayout = settings.displayMode;
+  }, [settings.displayMode]);
+
   const persist = useCallback((next: VexiaSettings) => {
     setSettings(next);
     try {
