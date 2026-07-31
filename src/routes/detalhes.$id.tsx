@@ -294,7 +294,7 @@ function DetailsPage() {
                             .getElementById("temporadas")
                             ?.scrollIntoView({ behavior: "smooth", block: "start" });
                         }}
-                        className={`vexia-focus inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold tracking-wide transition ${
+                        className={`vexia-focus inline-flex shrink-0 whitespace-nowrap items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold leading-none tracking-wide transition md:px-3 md:py-1.5 ${
                           active
                             ? "bg-vexia-purple text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                             : "border border-vexia-purple/50 bg-black/50 text-vexia-purple-soft"
