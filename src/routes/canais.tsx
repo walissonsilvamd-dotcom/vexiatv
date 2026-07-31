@@ -21,6 +21,8 @@ import { SmartImage } from "../components/vexia/SmartImage";
 import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { programProgress } from "../lib/epg";
+import { readLastChannel, writeLastChannel } from "../lib/last-channel";
+
 
 /** Hora no formato 20:30. */
 function formatClock(ms: number) {
