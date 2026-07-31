@@ -18,6 +18,13 @@ import { useDebounce } from "../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
 import { VirtualizedList } from "../components/VirtualizedGrid";
 import { SmartImage } from "../components/vexia/SmartImage";
+import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
+import { programProgress } from "../lib/epg";
+
+/** Hora no formato 20:30. */
+function formatClock(ms: number) {
+  return new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
 
 
 export const Route = createFileRoute("/canais")({
@@ -56,6 +63,9 @@ function ChannelsPage() {
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
+  const { guide } = useEpg();
+  const minuteTick = useMinuteTick();
+  const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
 
