@@ -94,6 +94,11 @@ function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
+/** Leitura fora do React (motores de vídeo, TMDB). */
+export function readSettings(): VexiaSettings {
+  return readJSON(SETTINGS_KEY, DEFAULT_SETTINGS);
+}
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<VexiaSettings>(DEFAULT_SETTINGS);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
@@ -128,6 +133,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.dataset.vexiaLayout = settings.displayMode;
   }, [settings.displayMode]);
+
+  // Idioma e Região: idioma do documento (leitores de tela, datas, TMDB).
+  useEffect(() => {
+    document.documentElement.lang = settings.language;
+  }, [settings.language]);
 
   const persist = useCallback((next: VexiaSettings) => {
     setSettings(next);

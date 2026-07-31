@@ -1,3 +1,4 @@
+import { readSettings } from "../lib/settings-store";
 import type { HlsLike } from "./useMediaTracks";
 
 export type PlaybackEngine = "hls.js" | "mpegts.js" | "native";
@@ -79,6 +80,15 @@ export async function playWithAutoplayFallback(video: HTMLVideoElement) {
 }
 
 /** Liga um motor de reprodução a um elemento <video>. Nunca lança. */
+/** Altura máxima permitida pela preferência de Qualidade (null = automático). */
+function qualityCap(): number | null {
+  const quality = readSettings().quality;
+  if (quality === "low") return 480;
+  if (quality === "medium") return 720;
+  if (quality === "high") return 1080;
+  return null; // auto e original usam tudo o que a lista oferecer
+}
+
 export async function attachEngine(
   video: HTMLVideoElement,
   engine: PlaybackEngine,
@@ -116,12 +126,13 @@ export async function attachEngine(
       onFatal("hls-not-supported");
       return { hlsApi: null, destroy: () => undefined };
     }
+    const maxHeight = qualityCap();
     const instance = new Hls({
       lowLatencyMode: live,
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
-      capLevelToPlayerSize: true,
+      capLevelToPlayerSize: maxHeight === null,
       startLevel: -1,
       // Começa a tocar com o mínimo de dados possível.
       maxStarvationDelay: 2,
@@ -141,7 +152,18 @@ export async function attachEngine(
       fragLoadingMaxRetry: 3,
     });
     instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
-    instance.on(Hls.Events.MANIFEST_PARSED, () => onReadyToPlay());
+    instance.on(Hls.Events.MANIFEST_PARSED, () => {
+      // Ajustes → Qualidade: limita a resolução máxima escolhida pelo cliente.
+      if (maxHeight !== null) {
+        const allowed = instance.levels
+          .map((level, i) => ({ i, h: level.height || 0 }))
+          .filter((l) => l.h && l.h <= maxHeight);
+        if (allowed.length) {
+          instance.autoLevelCapping = allowed[allowed.length - 1].i;
+        }
+      }
+      onReadyToPlay();
+    });
     instance.on(Hls.Events.ERROR, (_event, data) => {
       if (!data.fatal) return;
       const detail = `${data.type}${data.details ? ` • ${data.details}` : ""}`;

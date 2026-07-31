@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import type { MediaItem } from "../data/vexia";
 import { readTmdbCache, resolveTmdb, tmdbCacheKey } from "./tmdb-cache";
 import { tmdbSearch } from "./tmdb.functions";
+import { readSettings } from "./settings-store";
 
 const STALE_TIME = 1000 * 60 * 60 * 24 * 7;
 const GC_TIME = 1000 * 60 * 60;
@@ -38,7 +39,8 @@ function buildQuery<T extends MediaItem>(
   mode: "full" | "card" = "full",
   force = false,
 ) {
-  const key = tmdbCacheKey(item.title, item.year || undefined, kind);
+  const language = readSettings().language;
+  const key = `${tmdbCacheKey(item.title, item.year || undefined, kind)}|${language}`;
   const cached = readTmdbCache(key);
   return {
     // Chave normalizada: itens duplicados na lista compartilham o mesmo cache.
@@ -50,6 +52,7 @@ function buildQuery<T extends MediaItem>(
             title: item.title,
             year: item.year || undefined,
             kind: kind === "series" ? ("tv" as const) : ("movie" as const),
+            language,
           },
         }) as Promise<Partial<MediaItem> | null>,
       );
