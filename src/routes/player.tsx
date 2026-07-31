@@ -1356,8 +1356,9 @@ function PlayerPage() {
           />
           </div>
         </div>
-      ) : null}
+      </div>
     </main>
+
 
   );
 }
