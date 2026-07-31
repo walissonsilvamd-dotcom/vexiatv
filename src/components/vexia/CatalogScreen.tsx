@@ -462,7 +462,7 @@ export function CatalogScreen(props: {
                   {Array.from({ length: 12 }).map((_, i) => (
                     <div
                       key={i}
-                      className="aspect-[2/3] animate-pulse rounded-xl border border-vexia-purple/20 bg-white/5"
+                      className="aspect-[4/3] animate-pulse rounded-xl border border-vexia-purple/20 bg-white/5"
                     />
                   ))}
                 </div>
