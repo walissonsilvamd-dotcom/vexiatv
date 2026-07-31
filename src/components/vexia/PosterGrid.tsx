@@ -130,8 +130,12 @@ export const PosterCard = memo(
     a.item.rating === b.item.rating &&
     a.navRow === b.navRow &&
     a.kind === b.kind &&
+    a.priority === b.priority &&
     a.progress === b.progress,
 );
+
+/** Quantos cards são considerados "acima da dobra" (2 linhas em TV). */
+const ABOVE_FOLD = 16;
 
 export function PosterGrid({
   items,
@@ -144,19 +148,23 @@ export function PosterGrid({
   progressMap?: Record<string, number>;
   kind?: "movie" | "series";
 }) {
-  // Pré-carrega as capas desta página no cache persistente: rolar fica
-  // instantâneo e a qualidade continua sendo a máxima da tela. Usamos tempo
-  // ocioso para não competir com a animação de troca de página no D-pad.
+  // As capas visíveis (acima da dobra) baixam na hora, com prioridade alta e
+  // no máximo 4 downloads simultâneos. O resto da página vai para o cache
+  // persistente em tempo ocioso, sem competir com o que está na tela.
   useEffect(() => {
     if (!items.length) return;
-    const run = () => preloadImages(items.map((item) => item.poster || item.backdrop), "poster");
+    const urls = items.map((item) => item.poster || item.backdrop);
+    preloadImages(urls.slice(0, ABOVE_FOLD), "poster", ABOVE_FOLD);
+    const rest = urls.slice(ABOVE_FOLD);
+    if (!rest.length) return;
+    const run = () => preloadImages(rest, "poster", 0);
     const idle = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
       .requestIdleCallback;
     if (idle) {
-      const handle = idle(run, { timeout: 500 });
+      const handle = idle(run, { timeout: 900 });
       return () => (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
     }
-    const id = setTimeout(run, 200);
+    const id = setTimeout(run, 300);
     return () => clearTimeout(id);
   }, [items]);
 
@@ -167,18 +175,20 @@ export function PosterGrid({
     >
 
 
-      {items.map((item) => (
+      {items.map((item, index) => (
         <PosterCard
           key={item.id}
           item={item}
           navRow={navRow}
           kind={kind}
+          priority={index < ABOVE_FOLD}
           progress={progressMap?.[item.id]}
         />
       ))}
     </div>
   );
 }
+
 
 export function LoadMore({
   label,
