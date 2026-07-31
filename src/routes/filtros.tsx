@@ -250,7 +250,7 @@ function FiltersPage() {
             {Array.from({ length: 16 }).map((_, i) => (
               <Skeleton
                 key={i}
-                className="aspect-[4/3] rounded-xl border border-vexia-purple/20 bg-white/10"
+                className="aspect-[2/3] rounded-xl border border-vexia-purple/20 bg-white/10"
               />
             ))}
           </div>
