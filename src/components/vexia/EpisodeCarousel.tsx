@@ -63,8 +63,33 @@ export function EpisodeCarousel({
     activeRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [currentEpisodeId, season]);
 
-  const scrollBy = (delta: number) =>
-    trackRef.current?.scrollBy({ left: delta, behavior: "smooth" });
+  /* ── Setas de navegação (mouse/PC): só aparecem quando há para onde ir ── */
+  const [edges, setEdges] = useState({ left: false, right: false });
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      setEdges({ left: track.scrollLeft > 8, right: track.scrollLeft < max - 8 });
+    };
+    update();
+    track.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(track);
+    return () => {
+      track.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [seasonEpisodes.length]);
+
+  /** Rola exatamente uma "página" de cards visíveis. */
+  const scrollPage = (direction: 1 | -1) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const step = Math.max(240, Math.round(track.clientWidth * 0.8));
+    track.scrollBy({ left: step * direction, behavior: "smooth" });
+  };
 
   const choose = (episode: PlaylistEpisode) => {
     if (episode.id === currentEpisodeId) return;
@@ -139,10 +164,11 @@ export function EpisodeCarousel({
         <button
           type="button"
           aria-label="Episódios anteriores"
-          onClick={() => scrollBy(-480)}
-          className="vexia-focus absolute -left-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/80 md:grid"
+          onClick={() => scrollPage(-1)}
+          disabled={!edges.left}
+          className="vexia-focus absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0 md:grid"
         >
-          <ChevronLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
+          <ChevronLeft className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>
 
         <div
@@ -221,10 +247,11 @@ export function EpisodeCarousel({
         <button
           type="button"
           aria-label="Próximos episódios"
-          onClick={() => scrollBy(480)}
-          className="vexia-focus absolute -right-3 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-white/15 bg-black/80 md:grid"
+          onClick={() => scrollPage(1)}
+          disabled={!edges.right}
+          className="vexia-focus absolute right-0 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0 md:grid"
         >
-          <ChevronRight className="h-5 w-5 text-vexia-cyan" aria-hidden />
+          <ChevronRight className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>
       </div>
 
