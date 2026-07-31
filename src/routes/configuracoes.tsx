@@ -30,6 +30,7 @@ import {
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { useSettings } from "../lib/settings-store";
 import { usePlaylist } from "../lib/playlist-store";
+import { useSort } from "../lib/filters-store";
 import {
   clearCompleted,
   clearWatchHistory,
@@ -85,11 +86,11 @@ const LANGUAGES = [
   { value: "es-ES", label: "🇪🇸 Español", hint: "España" },
 ] as const;
 
+/* Mesmas opções usadas nas telas de Filmes, Séries e Canais. */
 const SORTS = [
   { value: "az", label: "A - Z", hint: "Ordem alfabética" },
-  { value: "za", label: "Z - A", hint: "Ordem inversa" },
-  { value: "recent", label: "Mais recentes", hint: "Adicionados por último" },
-  { value: "popular", label: "Mais populares", hint: "Maior avaliação" },
+  { value: "nota", label: "Nota", hint: "Maior avaliação primeiro" },
+  { value: "recentes", label: "Mais recentes", hint: "Lançamentos primeiro" },
 ] as const;
 
 const QUALITIES = [
@@ -107,6 +108,8 @@ function SettingsPage() {
   const [historyOn, setHistoryOn] = useState(true);
   useEffect(() => setHistoryOn(isHistoryEnabled()), []);
   const { reload } = usePlaylist();
+  /* Classificação: mesma preferência aplicada nas listagens do app. */
+  const { sort, setSort } = useSort();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [pin, setPin] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
@@ -199,7 +202,7 @@ function SettingsPage() {
       kind: "action",
       icon: ArrowUpDown,
       label: "Classificação",
-      sub: SORTS.find((s) => s.value === settings.sortMode)?.label ?? "A - Z",
+      sub: SORTS.find((s) => s.value === sort)?.label ?? "A - Z",
       dialog: "sort",
     },
     {
@@ -538,9 +541,9 @@ function SettingsPage() {
             key={s.value}
             label={s.label}
             hint={s.hint}
-            selected={settings.sortMode === s.value}
+            selected={sort === s.value}
             onSelect={() => {
-              set("sortMode", s.value);
+              setSort(s.value);
               close();
               notify(`Ordenação: ${s.label}`);
             }}

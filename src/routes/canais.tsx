@@ -9,6 +9,9 @@ import { EmptyPlaylist } from "../components/vexia/EmptyPlaylist";
 import { PlaylistErrorState } from "../components/vexia/PlaylistErrorState";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
+import { PinPrompt } from "../components/vexia/PinPrompt";
+import { isAdultText, useParentalUnlocked } from "../lib/parental";
+import { useSettings } from "../lib/settings-store";
 import { usePlaylist } from "../lib/playlist-store";
 import type { PlaylistChannel } from "../lib/m3u";
 import { channelFavorite, useFavorites } from "../lib/favorites-store";
@@ -60,7 +63,20 @@ function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const navigate = useNavigate();
-  const { channels, data, hasContent } = usePlaylist();
+  const { channels: allChannels, data, hasContent } = usePlaylist();
+  /* Ajustes → Controle dos Pais / Ocultar Categorias. */
+  const { settings } = useSettings();
+  const unlockedAdult = useParentalUnlocked();
+  const [pinOpen, setPinOpen] = useState(false);
+  const blockAdult = settings.parentalEnabled && !unlockedAdult;
+  const channels = useMemo(
+    () =>
+      blockAdult
+        ? allChannels.filter((c) => !isAdultText(c.name, c.category, c.group))
+        : allChannels,
+    [allChannels, blockAdult],
+  );
+  const hasBlockedChannels = blockAdult && channels.length !== allChannels.length;
   const { has, toggle } = useFavorites();
 
   const [category, setCategory] = useState("Todos");
@@ -123,7 +139,11 @@ function ChannelsPage() {
     return map;
   }, [channels]);
 
-  const categories = data?.channelCategories ?? ["Todos"];
+  const rawCategories = data?.channelCategories ?? ["Todos"];
+  const categories = useMemo(
+    () => (blockAdult ? rawCategories.filter((cat) => !isAdultText(cat)) : rawCategories),
+    [rawCategories, blockAdult],
+  );
   const { filters } = useFilters();
   const { sort } = useSort();
 
@@ -292,7 +312,17 @@ function ChannelsPage() {
       {/* Coluna 1 — categorias dinâmicas */}
       <aside className="no-scrollbar max-h-[78vh] space-y-1.5 overflow-y-auto pr-1">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
-        {["Favoritos", ...categories].map((cat) => {
+        {hasBlockedChannels ? (
+          <button
+            type="button"
+            onClick={() => setPinOpen(true)}
+            className="vexia-focus w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+          >
+            Liberar conteúdo adulto
+          </button>
+        ) : null}
+        <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
+        {(settings.hideCategories ? ["Favoritos", "Todos"] : ["Favoritos", ...categories]).map((cat) => {
           const total = cat === "Todos" ? channels.length : cat === "Favoritos" ? favs.length : (counts.get(cat) ?? 0);
           const isActive = category === cat;
           return (
