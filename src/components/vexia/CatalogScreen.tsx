@@ -235,14 +235,48 @@ export function CatalogScreen({
                   {items.length} {noun} na sua lista
                 </p>
               </div>
-              <span className="flex items-center gap-1.5 text-sm font-medium text-vexia-text/85">
-                Ordenar por Adicionados <ChevronDown className="h-4 w-4" aria-hidden />
-              </span>
               <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
-                {category} ({filtered.length})
+                {category} ({tmdbNeeded ? visible.length : filtered.length})
                 <span className="h-2 w-2 rounded-full bg-vexia-purple shadow-[0_0_10px_rgba(123,47,190,0.9)]" />
               </span>
             </div>
+
+            {/* Filtros vindos do menu FILTROS da Home */}
+            {activeFilters > 0 ? (
+              <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/30 bg-black/50 px-3 py-2.5 backdrop-blur-xl">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-vexia-cyan/90">
+                  Filtros da Home
+                </span>
+                {activeFilterChips(filters).map((chip) => (
+                  <span
+                    key={chip.key}
+                    className="rounded-full border border-vexia-purple/50 bg-vexia-purple/20 px-3 py-1 text-xs font-semibold text-white shadow-[0_0_14px_rgba(123,47,190,0.35)]"
+                  >
+                    {chip.title}: {chip.value}
+                  </span>
+                ))}
+                <div className="ml-auto flex items-center gap-2">
+                  <Link
+                    to="/filtros"
+                    data-nav-row={2}
+                    tabIndex={0}
+                    className="vexia-focus rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-vexia-text hover:bg-white/10"
+                  >
+                    Ajustar
+                  </Link>
+                  <button
+                    type="button"
+                    data-nav-row={2}
+                    tabIndex={0}
+                    onClick={() => clearFilters()}
+                    className="vexia-focus rounded-full border border-white/15 px-3 py-1 text-xs font-semibold text-vexia-text hover:bg-white/10"
+                  >
+                    Limpar
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
 
             {useVirtual ? (
               <VirtualizedGrid
