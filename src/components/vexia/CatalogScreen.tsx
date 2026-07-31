@@ -255,31 +255,47 @@ export function CatalogScreen({
                   {items.length} {noun} na sua lista
                 </p>
               </div>
-              <span
+              <div
                 aria-live="polite"
                 aria-busy={countBusy}
-                className="flex items-center gap-2 text-sm font-medium text-vexia-text/85"
+                className="flex flex-col items-end gap-0.5 text-right"
               >
-                {countBusy ? (
-                  <span className="flex items-center gap-2 text-vexia-cyan/90">
-                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-vexia-purple/40 border-t-vexia-cyan" />
-                    {sortBusy
-                      ? "Reordenando…"
-                      : `Verificando ${tmdbSettled}/${tmdbTotal}…`}
+                <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
+                  {countBusy ? (
+                    <span className="flex items-center gap-2 text-vexia-cyan/90">
+                      <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-vexia-purple/40 border-t-vexia-cyan" />
+                      {sortBusy
+                        ? "Reordenando…"
+                        : `Consultando TMDB ${tmdbSettled}/${tmdbTotal}…`}
+                    </span>
+                  ) : tmdbNeeded ? (
+                    <>
+                      {shownCount} {shownCount === 1 ? noun.slice(0, -1) : noun} encontrados
+                    </>
+                  ) : (
+                    <>
+                      {category} ({shownCount})
+                    </>
+                  )}
+                  <span
+                    className={`h-2 w-2 rounded-full shadow-[0_0_10px_rgba(123,47,190,0.9)] ${
+                      countBusy ? "animate-pulse bg-vexia-cyan" : "bg-vexia-purple"
+                    }`}
+                  />
+                </span>
+                {!countBusy ? (
+                  <span className="text-[11px] font-medium text-vexia-text/55">
+                    {tmdbNeeded
+                      ? `Critérios do TMDB conferidos em ${page.length} de ${filtered.length} títulos${
+                          page.length < filtered.length ? " — carregue mais para conferir o resto" : ""
+                        }`
+                      : activeFilters > 0
+                        ? `Filtrados da sua lista (${items.length} no total) — sem consulta ao TMDB`
+                        : `Direto da sua lista (${items.length} no total)`}
                   </span>
-                ) : (
-                  <>
-                    {category} ({tmdbNeeded
-                      ? `${shownCount} de ${page.length} verificados`
-                      : shownCount})
-                  </>
-                )}
-                <span
-                  className={`h-2 w-2 rounded-full shadow-[0_0_10px_rgba(123,47,190,0.9)] ${
-                    countBusy ? "animate-pulse bg-vexia-cyan" : "bg-vexia-purple"
-                  }`}
-                />
-              </span>
+                ) : null}
+              </div>
+
 
             </div>
 
