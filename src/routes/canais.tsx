@@ -1,7 +1,7 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Play, Search, SlidersHorizontal, Tv } from "lucide-react";
+import { Heart, Play, Search, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -76,7 +76,7 @@ function ChannelsPage() {
   }, [channels]);
 
   const categories = data?.channelCategories ?? ["Todos"];
-  const { filters, active: activeFilters } = useFilters();
+  const { filters } = useFilters();
   const { sort } = useSort();
 
   const index = useMemo(
@@ -139,21 +139,6 @@ function ChannelsPage() {
           />
         </label>
         <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
-        <Link
-          to="/filtros"
-          data-nav-row={0}
-          tabIndex={0}
-          aria-label="Abrir filtros"
-          className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-[11px] font-bold text-vexia-cyan backdrop-blur-xl"
-        >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden />
-          FILTROS
-          {activeFilters > 0 ? (
-            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-vexia-purple px-1 text-[10px] font-black text-white">
-              {activeFilters}
-            </span>
-          ) : null}
-        </Link>
         <div className="ml-auto hidden md:block">
           <VexiaLogo className="h-11" />
         </div>
