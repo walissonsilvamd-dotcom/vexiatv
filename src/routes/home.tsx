@@ -356,7 +356,7 @@ function HomePage() {
               })
             }
             className="group flex w-full items-center gap-[1.2vw] rounded-2xl border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
-            style={{ boxShadow: "0 0 26px rgba(123,43,190,0.35)" }}
+            style={{ boxShadow: "0 0 26px rgb(var(--vexia-primary-rgb)/0.35)" }}
           >
             {lastSession.poster ? (
               <img
@@ -407,7 +407,7 @@ function HomePage() {
       {/* Continuar assistindo (histórico local) */}
       {continueList.length > 0 ? (
         <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
-          <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
+          <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]">
             Continuar assistindo
           </h2>
           <div className="vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1 vexia-scroll">
@@ -447,7 +447,7 @@ function HomePage() {
               onClick={() => openTile(tile)}
               className={`group relative flex aspect-[5/4] max-h-[15vh] w-full flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(123,47,190,0.55),0_0_30px_-6px_rgba(0,200,255,0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgb(var(--vexia-primary-rgb)/0.55),0_0_30px_-6px_rgb(var(--vexia-secondary-rgb)/0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-vexia-cyan/50 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
               }`}
             >
@@ -468,7 +468,7 @@ function HomePage() {
                 className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
                   isActive
                     ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_var(--vexia-cyan)]"
-                    : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgba(0,200,255,0.35)]"
+                    : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 }`}
                 aria-hidden
               />

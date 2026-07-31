@@ -111,7 +111,7 @@ function SearchPage() {
 
         <main className="space-y-8 px-5 pb-20 md:px-10">
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgba(123,47,190,0.85)]">
+            <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
               Busca global
             </h1>
             <p className="text-xs font-medium uppercase tracking-widest text-vexia-cyan/80">

@@ -148,7 +148,7 @@ export function EpisodeCarousel({
                 aria-pressed={s === season}
                 className={`vexia-focus rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
                   s === season
-                    ? "bg-vexia-purple text-white shadow-[0_0_16px_-2px_rgba(123,47,190,0.9)]"
+                    ? "bg-vexia-purple text-white shadow-[0_0_16px_-2px_rgb(var(--vexia-primary-rgb)/0.9)]"
                     : "bg-[#1A1A1A] text-white hover:bg-[#242424]"
                 }`}
               >
@@ -166,7 +166,7 @@ export function EpisodeCarousel({
           aria-label="Episódios anteriores"
           onClick={() => scrollPage(-1)}
           disabled={!edges.left}
-          className="vexia-focus absolute left-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
+          className="vexia-focus absolute left-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
         >
           <ChevronLeft className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>
@@ -193,7 +193,7 @@ export function EpisodeCarousel({
                 data-active={active ? "true" : "false"}
                 className={`vexia-focus w-[190px] shrink-0 snap-start overflow-hidden rounded-lg bg-[#1A1A1A] text-left transition-transform duration-200 ${
                   active
-                    ? "scale-105 border-2 border-vexia-purple shadow-[0_0_22px_-2px_rgba(0,200,255,0.55)]"
+                    ? "scale-105 border-2 border-vexia-purple shadow-[0_0_22px_-2px_rgb(var(--vexia-secondary-rgb)/0.55)]"
                     : "border border-white/5 hover:border-vexia-purple/50"
                 }`}
               >
@@ -212,7 +212,7 @@ export function EpisodeCarousel({
                     </div>
                   )}
                   {active ? (
-                    <span className="absolute left-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-vexia-purple shadow-[0_0_14px_rgba(0,200,255,0.8)]">
+                    <span className="absolute left-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-vexia-purple shadow-[0_0_14px_rgb(var(--vexia-secondary-rgb)/0.8)]">
                       <Play className="h-3.5 w-3.5 fill-current text-white" aria-hidden />
                     </span>
                   ) : null}
@@ -251,7 +251,7 @@ export function EpisodeCarousel({
           aria-label="Próximos episódios"
           onClick={() => scrollPage(1)}
           disabled={!edges.right}
-          className="vexia-focus absolute right-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgba(123,47,190,0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
+          className="vexia-focus absolute right-0 top-1/2 z-20 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-vexia-purple/50 bg-black/85 shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.95)] backdrop-blur-sm transition-opacity duration-200 hover:border-vexia-cyan/70 disabled:pointer-events-none disabled:opacity-0"
         >
           <ChevronRight className="h-6 w-6 text-vexia-cyan" aria-hidden />
         </button>

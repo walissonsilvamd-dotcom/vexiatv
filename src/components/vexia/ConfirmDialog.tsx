@@ -48,7 +48,7 @@ export function ConfirmDialog({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f] p-6 text-center shadow-[0_0_40px_rgba(123,47,190,0.35)]"
+        className="w-full max-w-sm rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f] p-6 text-center shadow-[0_0_40px_rgb(var(--vexia-primary-rgb)/0.35)]"
       >
         <span className="mx-auto mb-3 grid h-11 w-11 place-items-center rounded-full border border-vexia-purple/40 bg-vexia-purple/15">
           <AlertTriangle className="h-5 w-5 text-vexia-purple-soft" aria-hidden />
@@ -70,7 +70,7 @@ export function ConfirmDialog({
             type="button"
             tabIndex={0}
             onClick={onConfirm}
-            className="vexia-focus rounded-full bg-vexia-purple px-6 py-2 text-xs font-black text-white shadow-[0_0_20px_rgba(123,47,190,0.55)]"
+            className="vexia-focus rounded-full bg-vexia-purple px-6 py-2 text-xs font-black text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.55)]"
           >
             {confirmLabel}
           </button>

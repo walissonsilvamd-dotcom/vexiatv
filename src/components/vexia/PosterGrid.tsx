@@ -38,7 +38,7 @@ export function PosterCard({
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
-        className="vexia-card-focus block overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgba(123,47,190,0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgba(0,200,255,0.25)]"
+        className="vexia-card-focus block overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
@@ -74,7 +74,7 @@ export function PosterCard({
             <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
 
               <div
-                className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgba(123,47,190,0.8)]"
+                className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.8)]"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -94,7 +94,7 @@ export function PosterCard({
         aria-label={fav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         className={`absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border backdrop-blur-md transition-all ${
           fav
-            ? "border-vexia-purple/60 bg-vexia-purple/80 shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+            ? "border-vexia-purple/60 bg-vexia-purple/80 shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]"
             : "border-white/15 bg-black/60 hover:border-vexia-cyan/60"
         }`}
       >
@@ -162,7 +162,7 @@ export function LoadMore({
         data-nav-row={navRow}
         tabIndex={0}
         onClick={onClick}
-        className="vexia-focus rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-9 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_28px_-10px_rgba(123,47,190,0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_34px_-8px_rgba(123,47,190,1)]"
+        className="vexia-focus rounded-full border border-white/10 bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-9 py-3 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_28px_-10px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_34px_-8px_rgb(var(--vexia-primary-rgb)/1)]"
       >
         {label}
       </button>

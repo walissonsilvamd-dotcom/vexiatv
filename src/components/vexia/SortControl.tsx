@@ -26,7 +26,7 @@ export function SortControl({
           onClick={() => setSort(opt.key)}
           className={`vexia-focus whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${
             sort === opt.key
-              ? "bg-vexia-purple text-white shadow-[0_0_16px_rgba(123,47,190,0.6)]"
+              ? "bg-vexia-purple text-white shadow-[0_0_16px_rgb(var(--vexia-primary-rgb)/0.6)]"
               : "text-vexia-text/65 hover:text-white"
           }`}
         >

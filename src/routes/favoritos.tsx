@@ -60,7 +60,7 @@ function FavoriteCard({
         data-nav-row={navRow}
         tabIndex={0}
         onClick={onOpen}
-        className="vexia-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple hover:shadow-[0_0_26px_rgba(0,200,255,0.25)]"
+        className="vexia-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:-translate-y-1 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
       >
         <div
           className={`relative w-full overflow-hidden ${isChannel ? "aspect-video" : "aspect-[2/3]"}`}
@@ -95,7 +95,7 @@ function FavoriteCard({
         type="button"
         onClick={onRemove}
         aria-label="Remover dos favoritos"
-        className="absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border border-vexia-purple/60 bg-vexia-purple/80 shadow-[0_0_14px_rgba(123,47,190,0.7)] backdrop-blur-md transition-all hover:scale-105"
+        className="absolute left-1.5 top-1.5 grid h-8 w-8 place-items-center rounded-full border border-vexia-purple/60 bg-vexia-purple/80 shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)] backdrop-blur-md transition-all hover:scale-105"
       >
         <Heart className="h-3.5 w-3.5 fill-current text-white" aria-hidden />
       </button>
@@ -199,7 +199,7 @@ function FavoritesPage() {
         </div>
       </header>
 
-      <h1 className="px-6 text-2xl font-black tracking-wide text-vexia-purple-soft drop-shadow-[0_0_18px_rgba(123,47,190,0.6)] md:px-10 md:text-3xl">
+      <h1 className="px-6 text-2xl font-black tracking-wide text-vexia-purple-soft drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.6)] md:px-10 md:text-3xl">
         FAVORITOS
       </h1>
 
@@ -221,7 +221,7 @@ function FavoritesPage() {
                   onClick={() => setFilter(f.kind)}
                   className={`vexia-focus flex shrink-0 items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm font-bold transition-all ${
                     isActive
-                      ? "bg-vexia-purple text-white shadow-[0_0_20px_rgba(123,47,190,0.55)]"
+                      ? "bg-vexia-purple text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.55)]"
                       : "bg-[#1A1A1A] text-vexia-text hover:bg-white/10"
                   }`}
                 >

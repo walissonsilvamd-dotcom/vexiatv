@@ -116,7 +116,7 @@ function HistoryPage() {
         </div>
       </header>
 
-      <h1 className="flex items-center gap-3 px-6 text-2xl font-black tracking-wide text-vexia-purple-soft drop-shadow-[0_0_18px_rgba(123,47,190,0.6)] md:px-10 md:text-3xl">
+      <h1 className="flex items-center gap-3 px-6 text-2xl font-black tracking-wide text-vexia-purple-soft drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.6)] md:px-10 md:text-3xl">
         <History className="h-7 w-7" aria-hidden /> HISTÓRICO
       </h1>
 
@@ -137,7 +137,7 @@ function HistoryPage() {
                   onClick={() => setFilter(f.kind)}
                   className={`vexia-focus flex shrink-0 items-center justify-between gap-3 rounded-lg px-4 py-2.5 text-sm font-bold transition-all ${
                     isActive
-                      ? "bg-vexia-purple text-white shadow-[0_0_20px_rgba(123,47,190,0.55)]"
+                      ? "bg-vexia-purple text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.55)]"
                       : "bg-[#1A1A1A] text-vexia-text hover:bg-white/10"
                   }`}
                 >
@@ -156,7 +156,7 @@ function HistoryPage() {
               data-nav-row={1}
               tabIndex={0}
               onClick={() => setConfirm(true)}
-              className="vexia-focus flex w-full items-center justify-center gap-2 rounded-lg bg-vexia-purple px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[0_0_20px_rgba(123,47,190,0.5)]"
+              className="vexia-focus flex w-full items-center justify-center gap-2 rounded-lg bg-vexia-purple px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.5)]"
             >
               <Trash2 className="h-4 w-4" aria-hidden /> Limpar histórico
             </button>

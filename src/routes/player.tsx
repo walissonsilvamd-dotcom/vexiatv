@@ -875,7 +875,7 @@ function PlayerPage() {
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="flex flex-col items-center gap-2">
             <Loader2
-              className="h-12 w-12 animate-spin text-vexia-purple drop-shadow-[0_0_16px_rgba(123,47,190,0.9)]"
+              className="h-12 w-12 animate-spin text-vexia-purple drop-shadow-[0_0_16px_rgb(var(--vexia-primary-rgb)/0.9)]"
               aria-hidden
             />
             {reconnecting ? (
@@ -922,7 +922,7 @@ function PlayerPage() {
       {/* ── Erro fatal / recuperação ── */}
       {src && fatalError ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/90 px-6">
-          <div className="w-full max-w-md rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f]/95 p-6 text-center shadow-[0_0_40px_rgba(123,47,190,0.35)]">
+          <div className="w-full max-w-md rounded-2xl border border-vexia-purple/40 bg-[#0b0b0f]/95 p-6 text-center shadow-[0_0_40px_rgb(var(--vexia-primary-rgb)/0.35)]">
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full border border-[#FF1744]/60 bg-[#FF1744]/10">
               <WifiOff className="h-7 w-7 text-[#FF1744]" aria-hidden />
             </div>
@@ -967,7 +967,7 @@ function PlayerPage() {
       {/* ── Aviso de retomada automática ── */}
       {resumeNotice != null ? (
         <div className="absolute bottom-28 left-1/2 z-30 -translate-x-1/2 px-4">
-          <div className="flex items-center gap-3 rounded-full border border-vexia-purple/50 bg-[#0b0b0f]/95 px-4 py-2 shadow-[0_0_24px_rgba(123,47,190,0.45)]">
+          <div className="flex items-center gap-3 rounded-full border border-vexia-purple/50 bg-[#0b0b0f]/95 px-4 py-2 shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.45)]">
             <span className="text-[11px] font-bold text-vexia-cyan">
               Retomando de {fmt(resumeNotice)}
             </span>
@@ -1154,7 +1154,7 @@ function PlayerPage() {
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-16 w-16 place-items-center rounded-full bg-vexia-purple shadow-[0_0_28px_-4px_rgba(123,47,190,0.95)]"
+            className="vexia-focus grid h-16 w-16 place-items-center rounded-full bg-vexia-purple shadow-[0_0_28px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
           >
             {playing ? (
               <Pause className="h-7 w-7 fill-current text-white" aria-hidden />
@@ -1246,9 +1246,9 @@ function PlayerPage() {
                 type="button"
                 onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
                 aria-pressed={open}
-                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgba(0,200,255,0.55),0_0_22px_-4px_rgba(0,200,255,0.9)] focus-visible:outline-none ${
+                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_22px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
                   open
-                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgba(123,47,190,0.95)]"
+                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
                     : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
                 }`}
               >
@@ -1274,14 +1274,14 @@ function PlayerPage() {
             type="button"
             onClick={() => setMenu((m) => (m ? null : "quality"))}
             aria-label="Configurações"
-            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgba(0,200,255,0.55)] focus-visible:outline-none"
+            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
           >
             <Settings className="h-4.5 w-4.5 text-vexia-cyan" aria-hidden />
           </button>
         </div>
 
         {menu ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgba(123,47,190,0.9)]">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgb(var(--vexia-primary-rgb)/0.9)]">
             {menuOptions.length === 0 ? (
               <p className="px-2 py-1 text-[11px] font-medium text-white/70">
                 {menu === "audio"
@@ -1299,7 +1299,7 @@ function PlayerPage() {
                 }}
                 className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold transition-all ${
                   opt.active
-                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_14px_-3px_rgba(0,200,255,0.8)]"
+                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_14px_-3px_rgb(var(--vexia-secondary-rgb)/0.8)]"
                     : "border-white/12 bg-white/[0.05] text-white hover:border-vexia-cyan/40"
                 }`}
               >
@@ -1324,7 +1324,7 @@ function PlayerPage() {
             onClick={() => setDrawerOpen((v) => !v)}
             className="vexia-focus mx-auto flex h-[72px] w-full max-w-[520px] flex-col items-center justify-end gap-1 rounded-t-2xl bg-gradient-to-t from-black/95 to-transparent pb-2 text-[11px] font-bold tracking-[0.2em] text-vexia-cyan"
           >
-            <span className="h-1 w-16 rounded-full bg-vexia-purple/80 shadow-[0_0_12px_rgba(123,43,190,0.9)]" />
+            <span className="h-1 w-16 rounded-full bg-vexia-purple/80 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.9)]" />
             {drawerOpen ? (
               <>
                 <ChevronUp className="h-4 w-4" aria-hidden />

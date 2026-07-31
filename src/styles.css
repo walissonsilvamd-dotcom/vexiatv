@@ -77,9 +77,18 @@
   --vexia-surface: oklch(0.15 0.025 288);
   --vexia-card: oklch(0.19 0.028 288);
   --vexia-popup: oklch(0.18 0.006 285);
-  --vexia-purple: oklch(0.52 0.24 305);
-  --vexia-purple-soft: oklch(0.66 0.19 300);
-  --vexia-cyan: oklch(0.79 0.16 220);
+  /* ============================================================
+   * IDENTIDADE VISUAL — trocar apenas estas 4 linhas muda o app inteiro
+   * ============================================================ */
+  --vexia-primary: #7B2BBE;        /* cor primária (hoje roxo) */
+  --vexia-primary-rgb: 123 43 190; /* mesma cor em RGB (para glows/sombras) */
+  --vexia-secondary: #00C8FF;        /* cor secundária (hoje ciano) */
+  --vexia-secondary-rgb: 0 200 255;  /* mesma cor em RGB */
+
+  /* Derivados automáticos — não precisa mexer */
+  --vexia-purple: var(--vexia-primary);
+  --vexia-purple-soft: color-mix(in oklab, var(--vexia-primary) 70%, white);
+  --vexia-cyan: var(--vexia-secondary);
   --vexia-gold: oklch(0.88 0.17 92);
   --vexia-text: oklch(1 0 0);
   --vexia-muted: oklch(0.75 0.012 285);
@@ -168,7 +177,7 @@
 /* Barras de rolagem globais: preto + roxo VÉXIA */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary, #7B2BBE) #050505;
+  scrollbar-color: var(--color-primary, var(--vexia-primary)) #050505;
 }
 
 *::-webkit-scrollbar {
@@ -182,7 +191,7 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #9B4BE0, #7B2BBE);
+  background: linear-gradient(180deg, var(--vexia-purple-soft), var(--vexia-primary));
   border-radius: 999px;
   border: 2px solid #050505;
 }
@@ -199,7 +208,7 @@
 /* Barra fina neon para carrosséis horizontais (Home, gaveta de episódios) */
 @utility vexia-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #7B2BBE #050505;
+  scrollbar-color: var(--vexia-primary) #050505;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -209,9 +218,9 @@
     border-radius: 999px;
   }
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #9B4BE0, #7B2BBE);
+    background: linear-gradient(90deg, var(--vexia-purple-soft), var(--vexia-primary));
     border-radius: 999px;
-    box-shadow: 0 0 8px rgba(123, 43, 190, 0.7);
+    box-shadow: 0 0 8px rgb(var(--vexia-primary-rgb)/0.7);
   }
   &::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(90deg, #B76BF5, #8E36D8);

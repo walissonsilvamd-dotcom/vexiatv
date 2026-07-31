@@ -1,5 +1,5 @@
 import { Clapperboard, Film, Tv } from "lucide-react";
-import logoAsset from "../../assets/vexia-logo-tv.png.asset.json";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Arte gerada para itens sem capa.
@@ -10,12 +10,12 @@ import logoAsset from "../../assets/vexia-logo-tv.png.asset.json";
  */
 
 const PALETTES: Array<[string, string, string]> = [
-  ["#7B2BBE", "#2A0B45", "#00C8FF"],
-  ["#4A1A8C", "#0B0B18", "#7B2BBE"],
-  ["#00C8FF", "#062033", "#7B2BBE"],
-  ["#B02BBE", "#2A0B2E", "#00C8FF"],
-  ["#2B4BBE", "#0A1230", "#00C8FF"],
-  ["#BE2B6B", "#2A0B18", "#7B2BBE"],
+  ["var(--vexia-primary)", "#2A0B45", "var(--vexia-secondary)"],
+  ["#4A1A8C", "#0B0B18", "var(--vexia-primary)"],
+  ["var(--vexia-secondary)", "#062033", "var(--vexia-primary)"],
+  ["#B02BBE", "#2A0B2E", "var(--vexia-secondary)"],
+  ["#2B4BBE", "#0A1230", "var(--vexia-secondary)"],
+  ["#BE2B6B", "#2A0B18", "var(--vexia-primary)"],
 ];
 
 function hashOf(value: string) {
@@ -88,7 +88,7 @@ export function PosterArt({
       </div>
       {!compact ? (
         <img
-          src={logoAsset.url}
+          src={BRAND.logoUrl}
           alt=""
           aria-hidden
           className="pointer-events-none absolute bottom-2 right-2 h-6 w-6 opacity-70"

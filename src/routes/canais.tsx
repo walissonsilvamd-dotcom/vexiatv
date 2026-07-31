@@ -235,7 +235,7 @@ function ChannelsPage() {
           onClick={() => onChannelClick(ch)}
           className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
             isActive
-              ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgba(0,200,255,0.6)]"
+              ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgb(var(--vexia-secondary-rgb)/0.6)]"
               : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
           }`}
         >
@@ -273,7 +273,7 @@ function ChannelsPage() {
           aria-label={favs.includes(ch.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
             favs.includes(ch.id)
-              ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgba(123,47,190,0.7)]"
+              ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]"
               : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
           }`}
         >
@@ -307,7 +307,7 @@ function ChannelsPage() {
               }}
               className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                 isActive
-                  ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgba(123,47,190,0.85),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                  ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.85),inset_0_1px_0_rgba(255,255,255,0.2)]"
                   : "border-white/10 bg-vexia-card text-vexia-text hover:border-vexia-purple/40"
               }`}
             >
@@ -345,7 +345,7 @@ function ChannelsPage() {
                 data-nav-row={3}
                 tabIndex={0}
                 onClick={() => setLimit((l) => l + PAGE)}
-                className="vexia-focus mt-2 w-full rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
+                className="vexia-focus mt-2 w-full rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 py-3 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-[0_10px_26px_-12px_rgb(var(--vexia-primary-rgb)/0.9)]"
               >
                 Carregar mais canais
               </button>
@@ -423,7 +423,7 @@ function ChannelsPage() {
             tabIndex={0}
             onClick={() => selected && openFullscreen(selected)}
 
-            className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgb(var(--vexia-primary-rgb)/0.9)]"
           >
             <Play className="h-4 w-4" aria-hidden /> Assistir
           </button>

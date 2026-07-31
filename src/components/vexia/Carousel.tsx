@@ -27,7 +27,7 @@ export function Carousel({
 
   return (
     <section className="space-y-2">
-      <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgba(123,47,190,0.7)]">
+      <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]">
         {icon ? <span aria-hidden>{icon}</span> : null}
         {title}
       </h2>
@@ -43,7 +43,7 @@ export function Carousel({
               onClick={() => onChip?.(chip)}
               className={`vexia-focus rounded-full px-3.5 py-1 text-[11px] font-bold transition-all ${
                 chip === activeChip
-                  ? "bg-vexia-purple text-white shadow-[0_0_16px_rgba(123,47,190,0.65)]"
+                  ? "bg-vexia-purple text-white shadow-[0_0_16px_rgb(var(--vexia-primary-rgb)/0.65)]"
                   : "border border-vexia-purple/40 bg-[#1A1A1A] text-vexia-text/70 hover:text-white"
               }`}
             >

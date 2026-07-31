@@ -233,7 +233,7 @@ export function CatalogScreen({
                       }}
                       className={`vexia-focus flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         active
-                          ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgba(123,47,190,0.55)]"
+                          ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)]"
                           : "bg-[#1A1A1A]/70 font-medium text-vexia-text hover:bg-white/10"
                       }`}
                     >
@@ -250,7 +250,7 @@ export function CatalogScreen({
           <section className="space-y-4">
             <div className="flex items-end justify-between">
               <div>
-                <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgba(123,47,190,0.85)]">
+                <h1 className="text-2xl font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
                   {kind === "series" ? "Séries" : "Filmes"}
                 </h1>
                 <p className="text-xs font-medium uppercase tracking-widest text-vexia-cyan/80">
@@ -280,7 +280,7 @@ export function CatalogScreen({
                     </>
                   )}
                   <span
-                    className={`h-2 w-2 rounded-full shadow-[0_0_10px_rgba(123,47,190,0.9)] ${
+                    className={`h-2 w-2 rounded-full shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.9)] ${
                       countBusy ? "animate-pulse bg-vexia-cyan" : "bg-vexia-purple"
                     }`}
                   />
@@ -310,7 +310,7 @@ export function CatalogScreen({
                 {activeFilterChips(filters).map((chip) => (
                   <span
                     key={chip.key}
-                    className="rounded-full border border-vexia-purple/50 bg-vexia-purple/20 px-3 py-1 text-xs font-semibold text-white shadow-[0_0_14px_rgba(123,47,190,0.35)]"
+                    className="rounded-full border border-vexia-purple/50 bg-vexia-purple/20 px-3 py-1 text-xs font-semibold text-white shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.35)]"
                   >
                     {chip.title}: {chip.value}
                   </span>
@@ -386,7 +386,7 @@ export function CatalogScreen({
                   data-nav-row={4}
                   tabIndex={0}
                   onClick={() => setLimit((l) => l + PAGE)}
-                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-8 py-3 text-sm font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgba(123,47,190,0.5)]"
+                  className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-8 py-3 text-sm font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
                 >
                   Mais {noun} disponíveis <ChevronDown className="h-4 w-4" aria-hidden />
                 </button>
