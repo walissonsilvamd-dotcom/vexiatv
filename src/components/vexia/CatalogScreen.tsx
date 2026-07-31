@@ -27,6 +27,9 @@ import { PlaylistErrorState } from "./PlaylistErrorState";
 import { PosterCard } from "./PosterGrid";
 import { QrPlaylistDialog } from "./QrPlaylistDialog";
 import { TopNav } from "./TopNav";
+import { PinPrompt } from "./PinPrompt";
+import { isAdultText, useParentalUnlocked } from "../../lib/parental";
+import { useSettings } from "../../lib/settings-store";
 import { VexiaLogo } from "./VexiaLogo";
 
 const PAGE = 24;
@@ -35,17 +38,15 @@ const VIRTUALIZE_FROM = 60;
 const GRID_CLASS = "grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6";
 
 
-export function CatalogScreen({
-  kind,
-  items,
-  categories,
-  activeTab,
-}: {
+export function CatalogScreen(props: {
   kind: "movie" | "series";
   items: MediaItem[];
   categories: string[];
   activeTab: "Filmes" | "Séries";
 }) {
+  const { kind, activeTab } = props;
+  let items = props.items;
+  let categories = props.categories;
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const [category, setCategory] = useState("Todos");
@@ -53,6 +54,24 @@ export function CatalogScreen({
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const { filters, active: activeFilters } = useFilters();
+  /* Ajustes → Controle dos Pais / Ocultar Categorias. */
+  const { settings } = useSettings();
+  const unlockedAdult = useParentalUnlocked();
+  const [pinOpen, setPinOpen] = useState(false);
+  const blockAdult = settings.parentalEnabled && !unlockedAdult;
+  const allItems = items;
+  items = useMemo(
+    () =>
+      blockAdult
+        ? allItems.filter((item) => !isAdultText(item.title, item.category, ...item.genres))
+        : allItems,
+    [allItems, blockAdult],
+  );
+  const hasBlocked = blockAdult && items.length !== allItems.length;
+  categories = useMemo(
+    () => (blockAdult ? categories.filter((cat) => !isAdultText(cat)) : categories),
+    [categories, blockAdult],
+  );
   const { sort } = useSort();
 
   const noun = kind === "series" ? "séries" : "filmes";
@@ -143,6 +162,8 @@ export function CatalogScreen({
 
 
   return (
+    <>
+    <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     <main
       ref={scopeRef}
       className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
@@ -217,6 +238,11 @@ export function CatalogScreen({
               <span className="flex-1">Visualizado recentemente</span>
             </div>
 
+            {settings.hideCategories ? (
+              <p className="mt-2 rounded-xl bg-black/30 px-3 py-3 text-center text-[11px] font-bold uppercase tracking-widest text-vexia-text/60">
+                Categorias ocultas em Ajustes
+              </p>
+            ) : (
             <ul className="mt-2 max-h-[52vh] space-y-1 overflow-y-auto pr-1">
               {categories.map((cat) => {
                 const active = cat === category;
@@ -244,6 +270,16 @@ export function CatalogScreen({
                 );
               })}
             </ul>
+            )}
+            {hasBlocked ? (
+              <button
+                type="button"
+                onClick={() => setPinOpen(true)}
+                className="vexia-focus mt-3 w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
+            ) : null}
           </aside>
 
           {/* Coluna direita */}
