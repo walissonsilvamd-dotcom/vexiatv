@@ -120,9 +120,9 @@ export function CatalogScreen({
 
   // Pré-carrega os primeiros pôsteres para a grade aparecer instantaneamente.
   useEffect(() => {
-    const first = filtered.slice(0, 12).map((item) => item.poster).filter(Boolean) as string[];
+    const first = sorted.slice(0, 12).map((item) => item.poster).filter(Boolean) as string[];
     if (first.length) preloadImages(first, "poster");
-  }, [filtered]);
+  }, [sorted]);
 
 
   return (
