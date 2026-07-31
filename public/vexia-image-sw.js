@@ -8,7 +8,9 @@
  * - Pré-carregamento: o app manda uma lista de URLs (mensagem VEXIA_PREFETCH)
  *   e o service worker baixa em segundo plano, sem travar a interface.
  */
-const CACHE = "vexia-images-v2";
+const CACHE = "vexia-images-v3";
+/** Parâmetro usado nas retentativas do app: não deve criar entradas novas. */
+const RETRY_PARAM = "vexia-retry";
 const MAX_ENTRIES = 1200;
 const PREFETCH_CONCURRENCY = 4;
 
@@ -32,6 +34,14 @@ function isCacheableImage(request) {
   if (url.origin === self.location.origin) return false;
   if (request.destination === "image") return true;
   return /\.(png|jpe?g|webp|avif|gif)$/i.test(url.pathname) || url.hostname.includes("image.tmdb.org");
+}
+
+/** Chave de cache "limpa": retentativas reaproveitam a mesma entrada. */
+function cacheKey(request) {
+  const url = new URL(request.url);
+  if (!url.searchParams.has(RETRY_PARAM)) return request;
+  url.searchParams.delete(RETRY_PARAM);
+  return new Request(url.toString(), { mode: "cors", credentials: "omit" });
 }
 
 async function trim(cache) {
@@ -58,9 +68,10 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
-      const hit = await cache.match(request, { ignoreVary: true });
+      const key = cacheKey(request);
+      const hit = await cache.match(key, { ignoreVary: true });
       if (hit) {
-        event.waitUntil(touch(cache, request, hit));
+        event.waitUntil(touch(cache, key, hit));
         return hit;
       }
       try {
@@ -68,14 +79,14 @@ self.addEventListener("fetch", (event) => {
         if (response && (response.ok || response.type === "opaque")) {
           event.waitUntil(
             cache
-              .put(request, response.clone())
+              .put(key, response.clone())
               .then(() => trim(cache))
               .catch(() => {}),
           );
         }
         return response;
       } catch (error) {
-        const stale = await cache.match(request, { ignoreVary: true });
+        const stale = await cache.match(key, { ignoreVary: true });
         if (stale) return stale;
         throw error;
       }
@@ -114,7 +125,7 @@ self.addEventListener("message", (event) => {
   const data = event.data;
   if (!data || typeof data !== "object") return;
   if (data.type === "VEXIA_PREFETCH" && Array.isArray(data.urls)) {
-    event.waitUntil(prefetch(data.urls.slice(0, 60)));
+    event.waitUntil(prefetch(data.urls.slice(0, 160)));
   }
   if (data.type === "VEXIA_CLEAR_IMAGE_CACHE") {
     event.waitUntil(caches.delete(CACHE));
