@@ -11,7 +11,7 @@ import {
   Star,
   Volume2,
 } from "lucide-react";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { EmptyFilterResults } from "../components/vexia/EmptyFilterResults";
@@ -22,6 +22,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import {
   FILTER_GROUPS,
   matchesFilters,
+  matchesLocalFilters,
   useFilters,
   type FilterKey,
 } from "../lib/filters-store";
@@ -62,13 +63,45 @@ const ICONS: Record<FilterKey, LucideIcon> = {
 };
 
 const SAMPLE = 40;
+/** Quantos títulos a mais entram na verificação a cada "Aplicar"/"Ver mais". */
+const STEP = 60;
 
 function FiltersPage() {
   const navigate = useNavigate();
   const scopeRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const { filters, set, clear, active } = useFilters();
   const { movies, series, loading } = usePlaylist();
+  /** Resultado aplicado aparece na própria tela de filtros (sem trocar de tela). */
+  const [applied, setApplied] = useState(false);
+  const [limit, setLimit] = useState(SAMPLE);
+
+  /* Base já filtrada pelo que a lista responde sozinha (tipo, gênero, ano, áudio). */
+  const localBase = useMemo(
+    () =>
+      [
+        ...movies.map((item) => ({ item, kind: "movie" as const })),
+        ...series.map((item) => ({ item, kind: "series" as const })),
+      ].filter(({ item, kind }) => matchesLocalFilters(item, kind, filters)),
+    [movies, series, filters],
+  );
+
+  const pool = useMemo(() => localBase.slice(0, limit), [localBase, limit]);
+  const poolMovies = useMemo(
+    () => pool.filter((p) => p.kind === "movie").map((p) => p.item),
+    [pool],
+  );
+  const poolSeries = useMemo(
+    () => pool.filter((p) => p.kind === "series").map((p) => p.item),
+    [pool],
+  );
+
+  /* Cada troca de filtro reinicia a verificação. */
+  useEffect(() => {
+    setLimit(SAMPLE);
+    setApplied(false);
+  }, [filters]);
 
   // Amostra enriquecida pelo TMDB para a prévia do resultado.
   const {
@@ -76,31 +109,43 @@ function FiltersPage() {
     pending: pendingMovies,
     settled: settledMovies,
     total: totalMovies,
-  } = useTmdbHeroesStatus(useMemo(() => movies.slice(0, SAMPLE), [movies]), "movie");
+  } = useTmdbHeroesStatus(poolMovies, "movie");
   const {
     items: richSeries,
     pending: pendingSeries,
     settled: settledSeries,
     total: totalSeries,
-  } = useTmdbHeroesStatus(useMemo(() => series.slice(0, SAMPLE / 2), [series]), "series");
+  } = useTmdbHeroesStatus(poolSeries, "series");
 
   const isBusy = loading || pendingMovies || pendingSeries;
   const tmdbProgress = Math.round(
     ((settledMovies + settledSeries) / (totalMovies + totalSeries || 1)) * 100,
   );
 
-  const preview = useMemo(() => {
+  const results = useMemo(() => {
     const list = [
       ...richMovies.map((m) => ({ item: m, kind: "movie" as const })),
       ...richSeries.map((s) => ({ item: s, kind: "series" as const })),
     ];
-    return list.filter(({ item, kind }) => matchesFilters(item, kind, filters)).slice(0, 16);
+    return list.filter(({ item, kind }) => matchesFilters(item, kind, filters));
   }, [richMovies, richSeries, filters]);
 
+  const preview = useMemo(
+    () => (applied ? results : results.slice(0, 16)),
+    [applied, results],
+  );
+
   const apply = () => {
-    if (filters.tipo === "Séries") navigate({ to: "/series" });
-    else if (filters.tipo === "Canais") navigate({ to: "/canais" });
-    else navigate({ to: "/filmes" });
+    // Canais não têm card de pôster: esse tipo continua abrindo a tela de canais.
+    if (filters.tipo === "Canais") {
+      navigate({ to: "/canais" });
+      return;
+    }
+    setApplied(true);
+    setLimit((l) => Math.max(l, SAMPLE) + STEP);
+    requestAnimationFrame(() =>
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
   };
 
   return (
@@ -181,15 +226,22 @@ function FiltersPage() {
         })}
       </div>
 
-      {/* Prévia do resultado */}
-      <section className="mt-3 min-h-0 flex-1 space-y-1.5 px-5 md:px-8">
-        <div className="flex items-center justify-between">
+      {/* Resultado — sempre aqui na própria tela de filtros */}
+      <section
+        ref={resultsRef}
+        className="no-scrollbar mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto px-5 md:px-8"
+      >
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-            Prévia do resultado
+            {applied ? `Resultado (${results.length})` : "Prévia do resultado"}
           </h2>
-          {isBusy && (
-            <span className="text-[10px] font-bold text-vexia-purple-soft animate-pulse">
-              {loading ? "Carregando lista…" : `Enriquecendo ${tmdbProgress}%`}
+          {isBusy ? (
+            <span className="animate-pulse text-[10px] font-bold text-vexia-purple-soft">
+              {loading ? "Carregando lista…" : `Verificando ${tmdbProgress}%`}
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold text-vexia-text/50">
+              Conferidos {pool.length} de {localBase.length} títulos
             </span>
           )}
         </div>
@@ -203,11 +255,26 @@ function FiltersPage() {
             ))}
           </div>
         ) : preview.length > 0 ? (
-          <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
-            {preview.map(({ item, kind }) => (
-              <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+              {preview.map(({ item, kind }) => (
+                <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
+              ))}
+            </div>
+            {applied && pool.length < localBase.length ? (
+              <div className="flex justify-center pb-2 pt-1">
+                <button
+                  type="button"
+                  data-nav-row={95}
+                  tabIndex={0}
+                  onClick={() => setLimit((l) => l + STEP)}
+                  className="vexia-focus rounded-full border border-vexia-purple/50 bg-black/50 px-6 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-vexia-cyan"
+                >
+                  Ver mais resultados
+                </button>
+              </div>
+            ) : null}
+          </>
         ) : (
           <EmptyFilterResults
             noun="resultado"
@@ -217,6 +284,7 @@ function FiltersPage() {
           />
         )}
       </section>
+
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 overflow-hidden border-t border-white/10 bg-black/90 px-3 py-2 backdrop-blur sm:gap-4 sm:px-5 md:px-8">
         <p className="shrink-0 text-[9px] font-bold uppercase tracking-[0.16em] text-vexia-cyan sm:text-[10px]">
