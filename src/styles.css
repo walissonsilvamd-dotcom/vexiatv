@@ -574,6 +574,21 @@ body {
   }
 }
 
+/* ── Troca de página: cross-fade curto (fluido no D-pad, sem "piscar") ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 140ms;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+
 /* ── Legendas do player: tamanho e cor vindos de Ajustes ── */
 video.vexia-subs::cue {
   background: rgba(0, 0, 0, 0.55);
