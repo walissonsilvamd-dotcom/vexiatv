@@ -136,7 +136,7 @@ function FiltersPage() {
                       data-nav-row={gi + 1}
                       tabIndex={0}
                       onClick={() => set(group.key, opt)}
-                      className={`vexia-focus shrink-0 rounded-full px-4 py-1.5 text-[12px] font-bold transition-all ${
+                      className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-[12px] font-bold transition-all ${
                         isActive
                           ? "bg-vexia-purple text-white shadow-[0_0_18px_rgba(123,47,190,0.7)]"
                           : "border border-vexia-purple/40 bg-[#1A1A1A] text-[#B0B0B0] hover:text-white"
