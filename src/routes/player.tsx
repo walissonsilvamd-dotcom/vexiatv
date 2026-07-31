@@ -1305,11 +1305,9 @@ function PlayerPage() {
         ) : null}
 
 
-      </section>
-
       {/* Carrossel de episódios dentro do player, não da tela */}
       {showEpisodes && serie ? (
-        <div className="relative w-full border-t border-white/10 bg-black/95">
+        <div className="relative w-full rounded-t-lg border-t border-white/10 bg-black/85 backdrop-blur-sm">
           <button
             type="button"
             onClick={() => setDrawerOpen((v) => !v)}
@@ -1351,6 +1349,9 @@ function PlayerPage() {
           </div>
         </div>
       ) : null}
+
+      </section>
+
       </div>
       </div>
 
