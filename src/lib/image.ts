@@ -105,7 +105,9 @@ export function sizeForWidth(neededPhysicalWidth: number, role: ImageRole = "pos
 
 function pickPosterSize(width = screenWidth()): string {
   // Um pôster ocupa ~1/5 da largura da tela nos grids da TV.
-  return sizeForWidth(Math.max(500, Math.round(width / 5)), "poster");
+  // Sem "piso" artificial: o card do grid ocupa ~1/5 da tela, então pedimos
+  // exatamente o arquivo que cobre esse espaço (mais leve = aparece mais rápido).
+  return sizeForWidth(Math.max(200, Math.round(width / 5)), "poster");
 }
 
 function pickBackdropSize(width = screenWidth()): string {
@@ -300,10 +302,10 @@ export function preloadImages(
 ): void {
   if (typeof window === "undefined") return;
   const list = urls.filter(Boolean) as string[];
-  list.slice(0, 12).forEach((url, index) => preloadImage(url, role, index));
+  list.slice(0, 8).forEach((url, index) => preloadImage(url, role, index));
 
   const background = list
-    .slice(12, 60)
+    .slice(8, 24)
     .map((url) => adaptiveImage(url, role))
     .filter((url): url is string => !!url && !preloaded.has(url));
   if (background.length) {
