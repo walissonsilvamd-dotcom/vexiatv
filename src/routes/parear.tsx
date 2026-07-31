@@ -66,14 +66,20 @@ function PairPage() {
   }, [code, check]);
 
   const send = async () => {
-    if (!/^https?:\/\//i.test(url.trim())) {
-      setError("O link precisa começar com http:// ou https://");
+    const finalUrl =
+      mode === "link" ? url.trim() : buildXtreamUrl(server, user, pass);
+    if (!/^https?:\/\//i.test(finalUrl)) {
+      setError(
+        mode === "link"
+          ? "O link precisa começar com http:// ou https://"
+          : "Preencha o CÓDIGO (servidor), o LOGIN e a SENHA.",
+      );
       return;
     }
     setError(null);
     setSending(true);
     try {
-      const r = await submit({ data: { code, name: name.trim() || undefined, url: url.trim() } });
+      const r = await submit({ data: { code, name: name.trim() || undefined, url: finalUrl } });
       if (r.ok) setSent(true);
       else setError("Esse código expirou. Gere um novo QR Code na TV.");
     } catch {
