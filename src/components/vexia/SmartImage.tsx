@@ -14,6 +14,11 @@ import {
   type ImageRole,
 } from "../../lib/image";
 
+/** Quantas vezes tentamos a mesma capa antes de mostrar a arte de fallback. */
+const MAX_ATTEMPTS = 2;
+/** Tempo máximo de espera por uma capa antes de retentar (ms). */
+const SLOW_MS = 6000;
+
 
 /**
  * Imagem VÉXIA com carregamento progressivo.
@@ -56,6 +61,8 @@ export function SmartImage({
   const [enhance, setEnhance] = useState<EnhanceLevel>("none");
   /** Fonte melhorada (upscale inteligente) quando a original é pequena demais. */
   const [upgraded, setUpgraded] = useState<string | undefined>(undefined);
+  /** Nº da tentativa atual (0 = primeira). Usado para retentar sozinho. */
+  const [attempt, setAttempt] = useState(0);
   /** Tamanho real desenhado na tela (px CSS), medido no cliente. */
   const [measured, setMeasured] = useState({ w: 0, h: 0 });
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -68,7 +75,13 @@ export function SmartImage({
   // Assim que o card é medido, usamos o arquivo EXATO para aquele tamanho —
   // menor download, imagem aparece muito mais rápido e sem perder nitidez.
   const base = ideal ?? stable;
-  const full = upgraded ?? base;
+  const chosen = upgraded ?? base;
+  // A retentativa usa um parâmetro novo na URL para o navegador/cache não
+  // devolver a falha anterior (o TMDB ignora parâmetros extras).
+  const full =
+    attempt > 0 && chosen
+      ? `${chosen}${chosen.includes("?") ? "&" : "?"}vexia-retry=${attempt}`
+      : chosen;
   // Antes da medição não disparamos download nenhum (evita baixar 2 versões).
   const ready = eager || measured.w > 0;
   const preview = usePreview ? placeholderImage(src, role) : undefined;
@@ -78,7 +91,27 @@ export function SmartImage({
     setLoaded(false);
     setEnhance("none");
     setUpgraded(undefined);
+    setAttempt(0);
   }, [base]);
+
+  /**
+   * Retentativa automática por DEMORA: se a capa não chegou em ~6s, tentamos
+   * de novo (até 2 vezes). Depois disso mostramos a arte de fallback, então o
+   * card nunca fica preso num carregamento infinito.
+   */
+  useEffect(() => {
+    if (!ready || loaded || broken || !full) return;
+    const timeout = setTimeout(() => {
+      if (attempt < MAX_ATTEMPTS) setAttempt((current) => current + 1);
+      else {
+        setBroken(true);
+        onFail?.();
+      }
+    }, SLOW_MS);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, loaded, broken, full, attempt]);
+
 
   /** Mede o elemento e refaz a medição quando a tela/densidade muda. */
   useLayoutEffect(() => {
@@ -192,6 +225,11 @@ export function SmartImage({
             // A versão maior não existe: volta para a original e realça.
             setUpgraded(undefined);
             setEnhance("medium");
+            return;
+          }
+          // Falha de rede: retenta sozinho antes de desistir.
+          if (attempt < MAX_ATTEMPTS) {
+            setAttempt((current) => current + 1);
             return;
           }
           setBroken(true);

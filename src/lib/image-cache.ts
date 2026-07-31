@@ -1,6 +1,6 @@
 /** Chave onde guardamos as últimas imagens vistas (aquecimento na abertura). */
 const WARM_KEY = "vexia:warm-images";
-const WARM_LIMIT = 60;
+const WARM_LIMIT = 200;
 
 /** Registra o cache persistente de imagens (só no navegador/WebView). */
 export function registerImageCache() {

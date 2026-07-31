@@ -246,6 +246,7 @@ const preloaded = new Set<string>();
 /** Fila de pré-carregamento: baixa em paralelo controlado, sem travar a TV. */
 const queue: { url: string; priority: number }[] = [];
 let running = 0;
+/** Limite de downloads simultâneos: acima disso a TV começa a engasgar. */
 const MAX_PARALLEL = 4;
 
 function idle(run: () => void) {
@@ -264,9 +265,13 @@ function pump() {
     const img = new Image();
     img.decoding = "async";
     img.crossOrigin = "anonymous";
+    // Acima da dobra: pedimos prioridade máxima de rede ao navegador.
+    if (next.priority < 0)
+      (img as unknown as { fetchPriority?: string }).fetchPriority = "high";
     const done = () => {
       running -= 1;
-      if (queue.length) idle(pump);
+      // A fila urgente continua imediatamente; o resto espera tempo ocioso.
+      if (queue.length) (queue[0].priority < 0 ? pump : () => idle(pump))();
     };
     img.onload = () => {
       void img.decode?.().catch(() => {});
@@ -281,6 +286,9 @@ function pump() {
  * Baixa (e decodifica) uma imagem em segundo plano, sem bloquear a interface.
  * A cópia fica no cache persistente (service worker), então nas próximas
  * aberturas ela aparece instantaneamente e sempre em alta qualidade.
+ *
+ * `priority` negativo = "acima da dobra": entra na frente da fila e começa
+ * a baixar na hora, sem esperar tempo ocioso.
  */
 export function preloadImage(url?: string | null, role: ImageRole = "poster", priority = 1): void {
   if (typeof window === "undefined") return;
@@ -288,31 +296,46 @@ export function preloadImage(url?: string | null, role: ImageRole = "poster", pr
   if (!target || preloaded.has(target)) return;
   preloaded.add(target);
   queue.push({ url: target, priority });
-  idle(pump);
+  if (priority < 0) pump();
+  else idle(pump);
 }
 
 /**
  * Pré-carrega uma lista de imagens (ex.: primeiras linhas de um grid).
- * As primeiras entram pela fila do navegador (uso imediato) e o restante é
- * entregue ao cache persistente para baixar em segundo plano.
+ *
+ *  1. As primeiras (`aboveFold`) são as que o cliente realmente vê: baixam
+ *     imediatamente, com prioridade alta e concorrência limitada a 4.
+ *  2. O restante vai para o cache persistente (service worker), que baixa em
+ *     segundo plano sem competir com o que está na tela.
+ *  3. Tudo é registrado para o "aquecimento" da próxima abertura do app.
  */
 export function preloadImages(
   urls: (string | null | undefined)[],
   role: ImageRole = "poster",
+  aboveFold = 12,
 ): void {
   if (typeof window === "undefined") return;
   const list = urls.filter(Boolean) as string[];
-  list.slice(0, 8).forEach((url, index) => preloadImage(url, role, index));
+  if (!list.length) return;
+
+  const visible = list.slice(0, aboveFold);
+  visible.forEach((url, index) => preloadImage(url, role, -aboveFold + index));
+
+  const warm = visible
+    .map((url) => adaptiveImage(url, role))
+    .filter((url): url is string => !!url);
 
   const background = list
-    .slice(8, 24)
+    .slice(aboveFold, aboveFold + 24)
     .map((url) => adaptiveImage(url, role))
     .filter((url): url is string => !!url && !preloaded.has(url));
-  if (background.length) {
-    background.forEach((url) => preloaded.add(url));
-    void import("./image-cache").then(({ prefetchThroughCache }) =>
-      prefetchThroughCache(background),
-    );
+  background.forEach((url) => preloaded.add(url));
+
+  if (background.length || warm.length) {
+    void import("./image-cache").then(({ prefetchThroughCache, rememberWarm }) => {
+      if (warm.length) rememberWarm(warm);
+      if (background.length) prefetchThroughCache(background);
+    });
   }
 }
 
