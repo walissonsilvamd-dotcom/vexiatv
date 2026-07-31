@@ -39,6 +39,9 @@ const VIRTUALIZE_FROM = 30;
    por linha a títulos cortados — o nome do filme/série tem de ser legível. */
 const GRID_CLASS =
   "grid gap-4 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(158px,15vw,232px),1fr))]";
+/* Painel recolhido: o espaço liberado entra mais um card por linha. */
+const GRID_CLASS_WIDE =
+  "grid gap-4 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(150px,12.5vw,210px),1fr))]";
 
 
 export function CatalogScreen(props: {
@@ -61,6 +64,27 @@ export function CatalogScreen(props: {
   const { settings } = useSettings();
   const unlockedAdult = useParentalUnlocked();
   const [pinOpen, setPinOpen] = useState(false);
+  /**
+   * Painel de categorias recolhível.
+   *
+   * Enquanto o cliente mexe no painel ele fica aberto (5 cards por linha).
+   * Quando o foco vai para os cards, o painel recolhe para um trilho fino e o
+   * espaço livre vira mais um card por linha — sem nunca criar scroll de página.
+   */
+  const [railed, setRailed] = useState(false);
+  const asideRef = useRef<HTMLElement>(null);
+  const gridWrapRef = useRef<HTMLDivElement>(null);
+
+  /** Volta a abrir o painel e leva o foco para a categoria ativa. */
+  const openPanel = () => {
+    setRailed(false);
+    requestAnimationFrame(() => {
+      const el = asideRef.current?.querySelector<HTMLElement>(
+        '[data-nav-row="2"][aria-pressed="true"], [data-nav-row="2"]',
+      );
+      el?.focus();
+    });
+  };
   const blockAdult = settings.parentalEnabled && !unlockedAdult;
   const allItems = items;
   items = useMemo(
@@ -208,9 +232,46 @@ export function CatalogScreen(props: {
       </header>
 
       {hasContent ? (
-        <div className="grid min-h-0 flex-1 gap-4 px-5 pb-3 md:px-7 lg:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
+        <div
+          onFocus={(e) => {
+            /* Um único ouvinte decide o estado: foco nos cards recolhe,
+               foco no painel abre. Vale para D-pad, teclado e mouse. */
+            const t = e.target as Node;
+            if (gridWrapRef.current?.contains(t)) setRailed(true);
+            else if (asideRef.current?.contains(t)) setRailed(false);
+          }}
+          className={`grid min-h-0 flex-1 gap-4 px-5 pb-3 transition-[grid-template-columns] duration-300 ease-out md:px-7 ${
+            railed
+              ? "lg:grid-cols-[3.25rem_minmax(0,1fr)]"
+              : "lg:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]"
+          }`}
+        >
           {/* Coluna esquerda — a LISTA é o elemento principal da tela */}
-          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+          <aside
+            ref={asideRef}
+            onMouseEnter={() => setRailed(false)}
+            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            {railed ? (
+              /* Trilho: seta ESQUERDA nos cards cai aqui e reabre o painel. */
+              <button
+                type="button"
+                data-nav-row={2}
+                tabIndex={0}
+                onClick={openPanel}
+                onFocus={openPanel}
+                aria-label="Abrir categorias"
+                className="vexia-focus flex min-h-0 flex-1 flex-col items-center gap-3 rounded-xl py-3 text-vexia-cyan"
+              >
+                <ChevronDown className="h-4 w-4 rotate-90" aria-hidden />
+                <span
+                  className="text-[11px] font-black uppercase tracking-[0.28em] text-white/85"
+                  style={{ writingMode: "vertical-rl" }}
+                >
+                  {category === "Todos" ? (kind === "series" ? "Séries" : "Filmes") : category}
+                </span>
+              </button>
+            ) : (
+            <>
             <h1 className="shrink-0 px-1 text-base font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
               {kind === "series" ? "Séries" : "Filmes"}
             </h1>
@@ -259,6 +320,7 @@ export function CatalogScreen(props: {
                       type="button"
                       data-nav-row={2}
                       tabIndex={0}
+                      aria-pressed={active}
                       onClick={() => {
                         /* Troca de categoria em transição: o foco do D-pad
                            responde na hora, a grade recalcula em segundo plano. */
@@ -291,6 +353,8 @@ export function CatalogScreen(props: {
                 Liberar conteúdo adulto
               </button>
             ) : null}
+            </>
+            )}
           </aside>
 
           {/* Coluna direita — os CARDS ocupam o resto da tela */}
@@ -371,6 +435,7 @@ export function CatalogScreen(props: {
 
 
             <div
+              ref={gridWrapRef}
               className={`vexia-scroll min-h-0 flex-1 overflow-x-hidden scroll-p-8 [contain:layout_paint] transition-opacity duration-200 ${
                 useVirtual ? "overflow-y-hidden" : "overflow-y-auto"
               } ${countBusy ? "opacity-60" : "opacity-100"}`}
@@ -379,21 +444,21 @@ export function CatalogScreen(props: {
                 <VirtualizedGrid
                   items={virtualItems}
                   height="100%"
-                  gridClassName={GRID_CLASS}
+                  gridClassName={railed ? GRID_CLASS_WIDE : GRID_CLASS}
                   overscan={400}
                   keyFor={(item) => item.id}
                   renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
                 />
 
               ) : visible.length > 0 ? (
-                <div className={GRID_CLASS}>
+                <div className={railed ? GRID_CLASS_WIDE : GRID_CLASS}>
                   {visible.map((item) => (
                     <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
                   ))}
                 </div>
               ) : countBusy ? (
                 /* Nada de "nenhum resultado" enquanto a ordenação/verificação roda. */
-                <div className={GRID_CLASS} aria-hidden>
+                <div className={railed ? GRID_CLASS_WIDE : GRID_CLASS} aria-hidden>
                   {Array.from({ length: 12 }).map((_, i) => (
                     <div
                       key={i}
