@@ -35,6 +35,7 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { formatExpiry } from "../lib/xtream";
+import { getStreamHandoff, setStreamHandoff } from "../lib/stream-handoff";
 
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
 import { saveLastSession } from "../lib/last-session";
@@ -153,8 +154,16 @@ function PlayerPage() {
   const nextEpisode = episodes[epIndex + 1];
   const prevEpisode = episodes[epIndex - 1];
 
+  /**
+   * Link entregue pela tela anterior no momento do clique. Permite começar a
+   * tocar imediatamente, sem esperar a lista de episódios/catálogo carregar.
+   */
+  const handoffUrl = useMemo(() => getStreamHandoff(type, id, ep), [type, id, ep]);
+
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
-  const src = expired ? "" : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
+  const src = expired
+    ? ""
+    : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? handoffUrl ?? "");
 
   const resilientPlayer = useResilientPlayer({
     videoRef,
@@ -278,7 +287,10 @@ function PlayerPage() {
       if (watchMetaRef.current?.name && type !== "live") {
         completeWatch(watchMetaRef.current.kind, watchMetaRef.current.name);
       }
-      if (nextEpisode) navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } });
+      if (nextEpisode) {
+        setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
+        navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } });
+      }
     };
     video.addEventListener("timeupdate", onTime);
     video.addEventListener("loadedmetadata", onMeta);
@@ -973,7 +985,9 @@ function PlayerPage() {
               type="button"
               disabled={!prevEpisode}
               onClick={() =>
-                prevEpisode && navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } })
+                prevEpisode &&
+                (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
+                navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } }))
               }
               aria-label="Episódio anterior"
               className="vexia-focus grid h-11 w-11 place-items-center rounded-full disabled:opacity-30"
@@ -1018,7 +1032,9 @@ function PlayerPage() {
               type="button"
               disabled={!nextEpisode}
               onClick={() =>
-                nextEpisode && navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } })
+                nextEpisode &&
+                (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
+                navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } }))
               }
               aria-label="Próximo episódio"
               className="vexia-focus grid h-11 w-11 place-items-center rounded-full disabled:opacity-30"
@@ -1158,6 +1174,7 @@ function PlayerPage() {
             episodes={episodes}
             currentEpisodeId={episode?.id}
             onSelect={(next) => {
+              setStreamHandoff("series", id, next.url, next.id);
               navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
               setDrawerOpen(false);
             }}
