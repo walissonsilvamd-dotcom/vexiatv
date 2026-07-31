@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Clock, Search, Undo2 } from "lucide-react";
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
@@ -259,9 +259,14 @@ export function CatalogScreen(props: {
                       data-nav-row={2}
                       tabIndex={0}
                       onClick={() => {
-                        setCategory(cat);
-                        setLimit(PAGE);
+                        /* Troca de categoria em transição: o foco do D-pad
+                           responde na hora, a grade recalcula em segundo plano. */
+                        startTransition(() => {
+                          setCategory(cat);
+                          setLimit(PAGE);
+                        });
                       }}
+
                       className={`vexia-focus flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         active
                           ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)]"
@@ -416,7 +421,7 @@ export function CatalogScreen(props: {
                   type="button"
                   data-nav-row={4}
                   tabIndex={0}
-                  onClick={() => setLimit((l) => l + PAGE)}
+                  onClick={() => startTransition(() => setLimit((l) => l + PAGE))}
                   className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-6 py-2 text-xs font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
                 >
                   Mais {noun} disponíveis <ChevronDown className="h-4 w-4" aria-hidden />

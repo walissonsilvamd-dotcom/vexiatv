@@ -311,7 +311,7 @@ function PlayerPage() {
       }
       if (nextEpisode) {
         setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
-        navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } });
+        navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true });
       }
     };
     video.addEventListener("timeupdate", onTime);
@@ -1133,7 +1133,7 @@ function PlayerPage() {
               onClick={() =>
                 prevEpisode &&
                 (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: prevEpisode.id } }))
+                navigate({ to: "/player", search: { type, id, ep: prevEpisode.id }, viewTransition: true }))
               }
               aria-label="Episódio anterior"
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
@@ -1180,7 +1180,7 @@ function PlayerPage() {
               onClick={() =>
                 nextEpisode &&
                 (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: nextEpisode.id } }))
+                navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true }))
               }
               aria-label="Próximo episódio"
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
@@ -1344,7 +1344,7 @@ function PlayerPage() {
               currentEpisodeId={episode?.id}
               onSelect={(next) => {
                 setStreamHandoff("series", id, next.url, next.id);
-                navigate({ to: "/player", search: { type: "series", id, ep: next.id } });
+                navigate({ to: "/player", search: { type: "series", id, ep: next.id }, viewTransition: true });
                 setDrawerOpen(false);
               }}
             />
