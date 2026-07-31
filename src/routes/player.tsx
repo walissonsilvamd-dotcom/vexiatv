@@ -757,6 +757,18 @@ function PlayerPage() {
         })),
       ];
     }
+    if (menu === "subsDelay") {
+      const steps: number[] = [];
+      for (let v = SUBTITLE_OFFSET_MIN; v <= SUBTITLE_OFFSET_MAX + 0.001; v += SUBTITLE_OFFSET_STEP) {
+        steps.push(clampSubtitleOffset(v));
+      }
+      return steps.map((v) => ({
+        label: v === 0 ? "Sincronizada (0s)" : `${v > 0 ? "+" : ""}${v.toFixed(2).replace(/\.?0+$/, "")}s`,
+        active: Math.abs(v - subsOffset) < 0.001,
+        select: () => applySubsOffset(v),
+      }));
+    }
+
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
