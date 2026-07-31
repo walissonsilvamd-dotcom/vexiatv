@@ -320,26 +320,41 @@ export function CatalogScreen({
             ) : null}
 
 
-            {useVirtual ? (
-              <VirtualizedGrid
-                items={virtualItems}
-                gridClassName={GRID_CLASS}
-                keyFor={(item) => item.id}
-                renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
-              />
-            ) : visible.length > 0 ? (
-              <div className={GRID_CLASS}>
-                {visible.map((item) => (
-                  <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
-                ))}
-              </div>
-            ) : (
-              <p className="py-16 text-center text-sm text-vexia-text/60">
-                {activeFilters > 0
-                  ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
-                  : `Nenhum resultado para “${query}”.`}
-              </p>
-            )}
+            <div
+              className={`transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+            >
+              {useVirtual ? (
+                <VirtualizedGrid
+                  items={virtualItems}
+                  gridClassName={GRID_CLASS}
+                  keyFor={(item) => item.id}
+                  renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
+                />
+              ) : visible.length > 0 ? (
+                <div className={GRID_CLASS}>
+                  {visible.map((item) => (
+                    <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
+                  ))}
+                </div>
+              ) : countBusy ? (
+                /* Nada de "nenhum resultado" enquanto a ordenação/verificação roda. */
+                <div className={GRID_CLASS} aria-hidden>
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="aspect-[2/3] animate-pulse rounded-xl border border-vexia-purple/20 bg-white/5"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="py-16 text-center text-sm text-vexia-text/60">
+                  {activeFilters > 0
+                    ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
+                    : `Nenhum resultado para “${query}”.`}
+                </p>
+              )}
+            </div>
+
 
 
             {!useVirtual && limit < filtered.length ? (
