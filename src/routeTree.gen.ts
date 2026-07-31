@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as PlayerRouteImport } from './routes/player'
+import { Route as ParearRouteImport } from './routes/parear'
 import { Route as ListasRouteImport } from './routes/listas'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HistoricoRouteImport } from './routes/historico'
@@ -34,6 +35,11 @@ const SeriesRoute = SeriesRouteImport.update({
 const PlayerRoute = PlayerRouteImport.update({
   id: '/player',
   path: '/player',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParearRoute = ParearRouteImport.update({
+  id: '/parear',
+  path: '/parear',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListasRoute = ListasRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
+  '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
+  '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
   '/listas': typeof ListasRoute
+  '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/detalhes/$id': typeof DetalhesIdRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/historico'
     | '/home'
     | '/listas'
+    | '/parear'
     | '/player'
     | '/series'
     | '/detalhes/$id'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/historico'
     | '/home'
     | '/listas'
+    | '/parear'
     | '/player'
     | '/series'
     | '/detalhes/$id'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/historico'
     | '/home'
     | '/listas'
+    | '/parear'
     | '/player'
     | '/series'
     | '/detalhes/$id'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   HistoricoRoute: typeof HistoricoRoute
   HomeRoute: typeof HomeRoute
   ListasRoute: typeof ListasRoute
+  ParearRoute: typeof ParearRoute
   PlayerRoute: typeof PlayerRoute
   SeriesRoute: typeof SeriesRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/player'
       fullPath: '/player'
       preLoaderRoute: typeof PlayerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parear': {
+      id: '/parear'
+      path: '/parear'
+      fullPath: '/parear'
+      preLoaderRoute: typeof ParearRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/listas': {
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoricoRoute: HistoricoRoute,
   HomeRoute: HomeRoute,
   ListasRoute: ListasRoute,
+  ParearRoute: ParearRoute,
   PlayerRoute: PlayerRoute,
   SeriesRoute: SeriesRoute,
   DetalhesIdRoute: DetalhesIdRoute,
