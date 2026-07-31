@@ -120,13 +120,13 @@ function FiltersPage() {
           return (
             <section
               key={group.key}
-              className="grid items-center gap-3 md:grid-cols-[210px_minmax(0,1fr)]"
+              className="grid items-start gap-3 md:grid-cols-[210px_minmax(0,1fr)]"
             >
-              <h2 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-vexia-purple-soft md:justify-end">
+              <h2 className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-vexia-purple-soft md:justify-end md:pt-2">
                 <Icon className="h-4 w-4 text-vexia-purple" aria-hidden />
                 {group.title}
               </h2>
-              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex min-w-0 flex-wrap gap-2 py-1">
                 {group.options.map((opt) => {
                   const isActive = filters[group.key] === opt;
                   return (
@@ -136,7 +136,7 @@ function FiltersPage() {
                       data-nav-row={gi + 1}
                       tabIndex={0}
                       onClick={() => set(group.key, opt)}
-                      className={`vexia-focus shrink-0 rounded-full px-4 py-1.5 text-[12px] font-bold transition-all ${
+                      className={`vexia-focus shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-[12px] font-bold transition-all ${
                         isActive
                           ? "bg-vexia-purple text-white shadow-[0_0_18px_rgba(123,47,190,0.7)]"
                           : "border border-vexia-purple/40 bg-[#1A1A1A] text-[#B0B0B0] hover:text-white"
