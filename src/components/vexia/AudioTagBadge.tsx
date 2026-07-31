@@ -3,13 +3,25 @@ import { AUDIO_TAG_LABEL, detectAudioTag } from "../../lib/audio-tag";
 type Props = {
   /** Textos onde procurar a marcação (título, grupo, categoria...). */
   sources: (string | undefined | null)[];
+  /**
+   * Textos usados só quando o próprio item não traz marcação — normalmente o
+   * título/grupo da série, que costuma carregar o "DUBLADO"/"LEGENDADO".
+   */
+  fallbackSources?: (string | undefined | null)[];
   size?: "sm" | "md";
   className?: string;
 };
 
 /** Selo DUBL / LEG exibido nos cards, no destaque e na frente de cada episódio. */
-export function AudioTagBadge({ sources, size = "sm", className = "" }: Props) {
-  const tag = detectAudioTag(...sources);
+export function AudioTagBadge({
+  sources,
+  fallbackSources,
+  size = "sm",
+  className = "",
+}: Props) {
+  const tag =
+    detectAudioTag(...sources) ??
+    (fallbackSources ? detectAudioTag(...fallbackSources) : null);
   if (!tag) return null;
   const tone =
     tag === "DUBL"
