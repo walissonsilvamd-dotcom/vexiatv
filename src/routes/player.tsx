@@ -1282,9 +1282,9 @@ function PlayerPage() {
 
 
         {menu ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgb(var(--vexia-primary-rgb)/0.9)]">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-vexia-purple/40 bg-black/85 p-2 shadow-[0_0_22px_-8px_rgb(var(--vexia-primary-rgb)/0.9)]">
             {menuOptions.length === 0 ? (
-              <p className="px-2 py-1 text-[11px] font-medium text-white/70">
+              <p className="px-2 py-1 text-[10px] font-medium text-white/70">
                 {menu === "audio"
                   ? "Este stream não oferece faixas de áudio alternativas."
                   : "Este stream não oferece legendas."}
@@ -1298,9 +1298,9 @@ function PlayerPage() {
                   opt.select();
                   ping();
                 }}
-                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold transition-all ${
+                className={`vexia-focus rounded-full border px-3 py-1 text-[10px] font-semibold transition-all ${
                   opt.active
-                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_14px_-3px_rgb(var(--vexia-secondary-rgb)/0.8)]"
+                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_12px_-3px_rgb(var(--vexia-secondary-rgb)/0.8)]"
                     : "border-white/12 bg-white/[0.05] text-white hover:border-vexia-cyan/40"
                 }`}
               >
@@ -1309,6 +1309,7 @@ function PlayerPage() {
             ))}
           </div>
         ) : null}
+
 
       </section>
       </div>
