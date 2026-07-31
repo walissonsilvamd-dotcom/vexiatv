@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Heart, HeartOff, ImageOff, Search, Star } from "lucide-react";
+import { Heart, HeartOff, Search, Star } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
@@ -72,9 +72,7 @@ function FavoriteCard({
               className={`h-full w-full ${isChannel ? "object-contain p-4" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
             />
           ) : (
-            <div className="grid h-full w-full place-items-center bg-gradient-to-br from-vexia-purple/40 to-black">
-              <ImageOff className="h-6 w-6 text-vexia-cyan/70" aria-hidden />
-            </div>
+            <PosterArt title={fav.name} kind={isChannel ? "live" : "movie"} compact={isChannel} />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
           {fav.rating && fav.rating > 0 ? (
