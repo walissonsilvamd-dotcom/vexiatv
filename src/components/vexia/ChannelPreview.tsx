@@ -36,7 +36,28 @@ export default function ChannelPreview({
     src: playable,
     live: true,
     standby: false,
+    // Prévia leve: faixa mais baixa da lista e buffer curto = abre na hora.
+    preview: true,
   });
+
+  /**
+   * Troca de canal: o stream anterior é cortado IMEDIATAMENTE (pausa + libera
+   * o elemento), então a TV não fica baixando dois canais ao mesmo tempo.
+   */
+  useEffect(() => {
+    return () => {
+      for (const node of [slotARef.current, slotBRef.current]) {
+        if (!node) continue;
+        try {
+          node.pause();
+          node.removeAttribute("src");
+          node.load();
+        } catch {
+          /* elemento já desmontado */
+        }
+      }
+    };
+  }, [playable]);
 
   useEffect(() => {
     setStarted(false);
@@ -109,8 +130,18 @@ export default function ChannelPreview({
           </span>
         ) : null}
 
+        {/* Placeholder (skeleton) com transição curta enquanto a prévia troca. */}
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute inset-0 transition-opacity duration-200 ${
+            showBuffer ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <span className="vexia-preview-skeleton absolute inset-0" />
+        </span>
+
         {showBuffer ? (
-          <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
+          <span className="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-200">
             <span className="flex flex-col items-center gap-2">
               <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">

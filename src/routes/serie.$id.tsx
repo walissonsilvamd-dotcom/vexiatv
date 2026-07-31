@@ -9,6 +9,8 @@ import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import { useTmdbItem } from "../lib/use-tmdb";
+import { useTmdbSeason } from "../lib/use-tmdb-season";
+import type { PlaylistEpisode } from "../lib/m3u";
 
 import { TopNav } from "../components/vexia/TopNav";
 
@@ -93,64 +95,119 @@ function EpisodesPage() {
 
       <div className="space-y-8 px-5 md:px-10">
         {seasons.map((season, si) => (
-          <section key={season.number} className="space-y-3">
-            <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">
-              TEMPORADA {season.number}
-            </h2>
-            <ul className="space-y-2">
-              {season.episodes.map((ep) => (
-                <li key={ep.id}>
-                  <button
-                    type="button"
-                    data-nav-row={si + 1}
-                    tabIndex={0}
-                    onFocus={() => warmEngines(ep.url)}
-                    onMouseEnter={() => warmEngines(ep.url)}
-                    onClick={() => {
-                      setStreamHandoff("series", id, ep.url, ep.id);
-                      void navigate({
-                        to: "/player",
-                        search: { type: "series", id, ep: ep.id },
-                      });
-                    }}
-                    className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
-                  >
-                    {ep.thumb ? (
-                      <SmartImage
-                        src={ep.thumb}
-                        role="still"
-                        alt=""
-                        preview={false}
-                        sizes="112px"
-                        className="h-16 w-28 shrink-0 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <span className="h-16 w-28 shrink-0 overflow-hidden rounded-lg">
-                        <PosterArt title={ep.title || `Episódio ${ep.number}`} kind="series" compact />
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span className="flex min-w-0 items-center gap-2">
-                        <AudioTagBadge sources={[ep.title]} />
-                        <span className="block truncate text-sm font-bold text-vexia-text">
-                          {String(ep.number).padStart(2, "0")} — {ep.title}
-                        </span>
-                      </span>
-
-                      <span className="mt-1 block truncate text-[11px] text-vexia-cyan">
-                        Temporada {season.number} • Episódio {ep.number}
-                      </span>
-                    </span>
-                    <span className="grid h-9 w-9 shrink-0 place-items-center self-center rounded-full bg-vexia-purple">
-                      <Play className="h-4 w-4 fill-current text-vexia-text" aria-hidden />
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <SeasonEpisodes
+            key={season.number}
+            season={season.number}
+            episodes={season.episodes}
+            seriesId={id}
+            seriesTitle={serie.title}
+            seriesYear={serie.year}
+            navRow={si + 1}
+            onPlay={(ep) => {
+              setStreamHandoff("series", id, ep.url, ep.id);
+              void navigate({ to: "/player", search: { type: "series", id, ep: ep.id } });
+            }}
+          />
         ))}
       </div>
     </main>
   );
 }
+
+/**
+ * Uma temporada com a IMAGEM de cada capítulo.
+ *
+ * A miniatura vem da lista quando existe; quando não vem (é o caso mais comum
+ * nas listas IPTV), buscamos o still oficial do episódio no TMDB — junto com a
+ * sinopse e a duração, que ajudam a escolher o capítulo sem entrar nele.
+ */
+function SeasonEpisodes({
+  season,
+  episodes,
+  seriesId,
+  seriesTitle,
+  seriesYear,
+  navRow,
+  onPlay,
+}: {
+  season: number;
+  episodes: PlaylistEpisode[];
+  seriesId: string;
+  seriesTitle: string;
+  seriesYear?: number;
+  navRow: number;
+  onPlay: (ep: PlaylistEpisode) => void;
+}) {
+  const { byNumber } = useTmdbSeason(seriesTitle, seriesYear, season);
+
+  return (
+    <section className="space-y-3">
+      <h2 className="text-sm font-black tracking-wide text-vexia-purple-soft">
+        TEMPORADA {season}
+      </h2>
+      <ul className="space-y-2">
+        {episodes.map((ep) => {
+          const meta = byNumber.get(ep.number);
+          const image = ep.thumb || meta?.still;
+          const title = ep.title || meta?.name || `Episódio ${ep.number}`;
+          return (
+            <li key={ep.id}>
+              <button
+                type="button"
+                data-nav-row={navRow}
+                tabIndex={0}
+                onFocus={() => warmEngines(ep.url)}
+                onMouseEnter={() => warmEngines(ep.url)}
+                onClick={() => onPlay(ep)}
+                className="vexia-focus flex w-full gap-3 rounded-lg bg-vexia-card p-3 text-left"
+              >
+                <span className="relative h-[4.5rem] w-32 shrink-0 overflow-hidden rounded-lg bg-black/60">
+                  {image ? (
+                    <SmartImage
+                      src={image}
+                      role="still"
+                      alt={`Imagem do episódio ${ep.number}`}
+                      sizes="128px"
+                      className="h-full w-full object-cover"
+                      fallback={<PosterArt title={title} kind="series" compact />}
+                    />
+                  ) : (
+                    <PosterArt title={title} kind="series" compact />
+                  )}
+                  {meta?.runtimeMin ? (
+                    <span className="absolute bottom-1 right-1 rounded bg-black/80 px-1.5 py-0.5 text-[9px] font-black text-vexia-cyan">
+                      {meta.runtimeMin}min
+                    </span>
+                  ) : null}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex min-w-0 items-center gap-2">
+                    <AudioTagBadge sources={[ep.title]} />
+                    <span className="block truncate text-sm font-bold text-vexia-text">
+                      {String(ep.number).padStart(2, "0")} — {title}
+                    </span>
+                  </span>
+
+                  <span className="mt-1 block truncate text-[11px] text-vexia-cyan">
+                    Temporada {season} • Episódio {ep.number}
+                    {meta?.rating ? ` • ★ ${meta.rating.toFixed(1)}` : ""}
+                  </span>
+
+                  {meta?.overview ? (
+                    <span className="mt-1 line-clamp-2 block text-[11px] leading-snug text-vexia-muted">
+                      {meta.overview}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center self-center rounded-full bg-vexia-purple">
+                  <Play className="h-4 w-4 fill-current text-vexia-text" aria-hidden />
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
