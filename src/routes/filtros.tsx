@@ -96,31 +96,32 @@ function FiltersPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex items-center gap-3 px-5 py-2 md:px-8">
+      <header className="flex flex-wrap items-center gap-2 px-5 py-2 md:px-8">
         <Link
           to="/home"
           data-nav-row={0}
           tabIndex={0}
-          className="vexia-focus inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-white hover:text-vexia-cyan"
+          title="Voltar"
+          aria-label="Voltar"
+          className="vexia-focus inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 p-1.5 text-white hover:text-vexia-cyan"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Voltar
+          <ArrowLeft className="h-3 w-3" />
         </Link>
-        <TopNav className="w-fit" />
-        <h1 className="text-base font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)]">
+        <TopNav className="w-fit [&>a]:px-3 [&>a]:py-1.5 [&>a]:text-[11px]" />
+        <h1 className="text-sm font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_16px_rgba(123,47,190,0.8)]">
           Filtros
         </h1>
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
             data-nav-row={0}
             tabIndex={0}
             onClick={clear}
-            className="vexia-focus rounded-full border border-vexia-cyan/40 px-3 py-1 text-[10px] font-bold text-vexia-cyan"
+            className="vexia-focus rounded-full border border-vexia-cyan/40 px-2.5 py-1 text-[9px] font-bold text-vexia-cyan"
           >
             LIMPAR
           </button>
-          <VexiaLogo className="h-8" />
+          <VexiaLogo className="h-7" />
         </div>
       </header>
 
