@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Play } from "lucide-react";
 import { PosterArt } from "../components/vexia/PosterArt";
 import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+import { countriesLabel } from "../lib/country";
 
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
@@ -69,11 +70,11 @@ function EpisodesPage() {
   }
 
   return (
-    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-16 text-vexia-text">
+    <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-10 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
         <TopNav active="Séries" className="w-fit" />
       </div>
-      <div className="flex items-center gap-3 px-5 py-4 md:px-10">
+      <div className="flex items-center gap-3 px-5 py-3 md:px-10">
         <Link
           to="/series"
           data-nav-row={0}
@@ -87,13 +88,33 @@ function EpisodesPage() {
           <h1 className="text-xl font-black tracking-wide text-vexia-purple-soft md:text-2xl">
             {serie.title}
           </h1>
-          <p className="text-xs text-vexia-cyan">
-            {epLoading ? "Carregando episódios…" : `${seasons.length} temporadas • ${epList.length} episódios`}
-          </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold">
+            <AudioTagBadge
+              sources={[raw?.title, serie.title, serie.category, (raw as { group?: string })?.group]}
+            />
+            {serie.rating > 0 ? (
+              <span className="rounded-md bg-black/45 px-2 py-0.5 text-vexia-gold">
+                ★ {serie.rating.toFixed(1)}
+              </span>
+            ) : null}
+            {countriesLabel(serie.countries) ? (
+              <span className="rounded-md bg-black/45 px-2 py-0.5 text-vexia-text">
+                {countriesLabel(serie.countries)}
+              </span>
+            ) : null}
+            {serie.genres.length ? (
+              <span className="rounded-md bg-black/45 px-2 py-0.5 text-vexia-purple-soft">
+                {serie.genres.slice(0, 3).join(" • ")}
+              </span>
+            ) : null}
+            <span className="rounded-md bg-black/45 px-2 py-0.5 text-vexia-cyan">
+              {epLoading ? "Carregando episódios…" : `${seasons.length} temp • ${epList.length} ep`}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-8 px-5 md:px-10">
+      <div className="space-y-5 px-5 md:px-10">
         {seasons.map((season, si) => (
           <SeasonEpisodes
             key={season.number}
@@ -101,6 +122,7 @@ function EpisodesPage() {
             episodes={season.episodes}
             seriesId={id}
             seriesTitle={serie.title}
+            audioFallback={[raw?.title, serie.category, (raw as { group?: string })?.group]}
             seriesYear={serie.year}
             navRow={si + 1}
             onPlay={(ep) => {
@@ -127,6 +149,7 @@ function SeasonEpisodes({
   seriesId,
   seriesTitle,
   seriesYear,
+  audioFallback,
   navRow,
   onPlay,
 }: {
@@ -135,6 +158,7 @@ function SeasonEpisodes({
   seriesId: string;
   seriesTitle: string;
   seriesYear?: number;
+  audioFallback?: (string | undefined | null)[];
   navRow: number;
   onPlay: (ep: PlaylistEpisode) => void;
 }) {
@@ -182,7 +206,7 @@ function SeasonEpisodes({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex min-w-0 items-center gap-2">
-                    <AudioTagBadge sources={[ep.title]} />
+                    <AudioTagBadge sources={[ep.title]} fallbackSources={audioFallback} />
                     <span className="block truncate text-sm font-bold text-vexia-text">
                       {String(ep.number).padStart(2, "0")} — {title}
                     </span>
