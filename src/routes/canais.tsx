@@ -166,6 +166,7 @@ function ChannelsPage() {
   const renderChannel = (ch: PlaylistChannel, i: number) => {
     const isActive = selected?.id === ch.id;
     const quality = qualityOf(ch.name);
+    const live = nowAndNext(guide, ch.tvgId, minuteTick).now;
     return (
       <div className="group relative mb-1.5">
         <button
@@ -202,7 +203,7 @@ function ChannelsPage() {
             <span
               className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
             >
-              {ch.group}
+              {live ? live.title : ch.group}
               {quality ? ` • ${quality}` : ""}
             </span>
           </span>
@@ -326,6 +327,24 @@ function ChannelsPage() {
               .filter(Boolean)
               .join(" • ")}
           </p>
+          {selectedEpg.now ? (
+            <div className="mt-3 rounded-xl border border-vexia-purple/40 bg-black/50 p-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
+                No ar agora
+              </p>
+              <p className="mt-1 text-sm font-bold text-vexia-text">{selectedEpg.now.title}</p>
+              <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
+                  style={{ width: `${Math.round(programProgress(selectedEpg.now, minuteTick) * 100)}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-[11px] text-vexia-muted">
+                {formatClock(selectedEpg.now.start)} – {formatClock(selectedEpg.now.stop)}
+                {selectedEpg.next ? ` • A seguir: ${selectedEpg.next.title}` : ""}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-2.5">
