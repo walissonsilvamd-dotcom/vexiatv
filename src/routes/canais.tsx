@@ -190,7 +190,7 @@ function ChannelsPage() {
   const shell = (children: React.ReactNode) => (
     <main
       ref={scopeRef}
-      className="vexia-safe relative min-h-screen bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
         backgroundSize: "cover",
@@ -198,7 +198,7 @@ function ChannelsPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex flex-wrap items-center gap-3 px-6 py-4 md:px-10">
+      <header className="flex shrink-0 flex-wrap items-center gap-3 px-6 py-2 md:px-8">
         <TopNav active="Canais" />
         <label className="relative max-w-xl flex-1">
           <Search
@@ -220,7 +220,7 @@ function ChannelsPage() {
         </label>
         <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
         <div className="ml-auto hidden md:block">
-          <VexiaLogo className="h-11" />
+          <VexiaLogo className="h-9" />
         </div>
       </header>
 
@@ -231,7 +231,7 @@ function ChannelsPage() {
 
   if (!hasContent || channels.length === 0) {
     return shell(
-      <div className="space-y-4 px-6 md:px-10">
+      <div className="no-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6 md:px-8">
         <PlaylistErrorState />
         <EmptyPlaylist section="Os canais ao vivo" onOpenLists={() => setListsOpen(true)} />
       </div>,
@@ -308,9 +308,9 @@ function ChannelsPage() {
 
 
   return shell(
-    <div className="grid gap-4 px-4 pb-10 md:grid-cols-[240px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-8">
+    <div className="grid min-h-0 flex-1 gap-3 px-4 pb-3 md:grid-cols-[220px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
       {/* Coluna 1 — categorias dinâmicas */}
-      <aside className="no-scrollbar max-h-[78vh] space-y-1.5 overflow-y-auto pr-1">
+      <aside className="no-scrollbar min-h-0 space-y-1.5 overflow-y-auto pr-1">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
         {hasBlockedChannels ? (
           <button
@@ -353,16 +353,17 @@ function ChannelsPage() {
 
       {/* Coluna 2 — lista de canais */}
       <section
-        className={`border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar max-h-[78vh] overflow-y-auto"}`}
+        className={`min-h-0 border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar overflow-y-auto"}`}
       >
         {useVirtual ? (
           <VirtualizedList
             items={list}
-            height="78vh"
+            height="100%"
             className="no-scrollbar"
             keyFor={(ch) => ch.id}
             renderItem={(ch, i) => renderChannel(ch, i)}
           />
+
         ) : (
           <>
             {visible.map((ch, i) => (
@@ -390,7 +391,7 @@ function ChannelsPage() {
 
 
       {/* Coluna 3 — prévia do canal */}
-      <section className="space-y-4">
+      <section className="no-scrollbar min-h-0 space-y-3 overflow-y-auto">
         {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
           <button
             type="button"
