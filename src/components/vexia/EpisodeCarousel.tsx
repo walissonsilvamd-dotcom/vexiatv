@@ -219,10 +219,12 @@ export function EpisodeCarousel({
                 </div>
 
                 <div className="space-y-1 p-2.5">
-                  <p className="text-[11px] font-bold tracking-wide text-vexia-cyan">
+                  <p className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-vexia-cyan">
                     EP {String(episode.number).padStart(2, "0")}
+                    <AudioTagBadge sources={[episode.title, seriesTitle]} />
                   </p>
                   <p className="line-clamp-1 text-xs font-semibold text-white">{name}</p>
+
                   {meta?.runtimeMin || episode.runtimeMin ? (
                     <p className="flex items-center gap-1 text-[11px] text-[#B0B0B0]">
                       <Clock className="h-3 w-3" aria-hidden />{" "}
