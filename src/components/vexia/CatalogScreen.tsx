@@ -177,10 +177,10 @@ export function CatalogScreen(props: {
       }}
     >
       {/* Barra superior — compacta, para sobrar espaço à lista e aos cards */}
-      <header className="flex h-12 shrink-0 items-center gap-3 px-5 md:px-7">
+      <header className="flex h-12 shrink-0 items-center gap-2 px-4 md:gap-3 md:px-6">
         <TopNav active={activeTab} />
 
-        <label className="relative min-w-[160px] flex-1 max-w-md">
+        <label className="relative min-w-0 flex-1 max-w-xs shrink">
           <Search
             className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden
@@ -199,7 +199,7 @@ export function CatalogScreen(props: {
           />
         </label>
 
-        <SortControl navRow={0} />
+        <div className="shrink-0"><SortControl navRow={0} /></div>
 
         <div className="ml-auto shrink-0">
           <VexiaLogo className="h-8" />
