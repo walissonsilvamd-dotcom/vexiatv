@@ -1,15 +1,13 @@
 import { PosterArt } from "./PosterArt";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   adaptiveSizes,
   adaptiveSrcSet,
   enhanceLevel,
   exactImage,
-  exactSizes,
   placeholderImage,
   requiredPhysicalWidth,
   stableImage,
-  sizeRank,
   subscribeDisplay,
   upgradeTmdbSize,
   type EnhanceLevel,
@@ -67,8 +65,12 @@ export function SmartImage({
   const ideal = measured.w ? exactImage(src, role, measured.w, measured.h) : undefined;
   // Só troca quando a versão ideal for MAIOR que a estável: nunca borra e não
   // desperdiça download quando o card já está nítido.
-  const base = ideal && sizeRank(ideal) > sizeRank(stable) ? ideal : stable;
+  // Assim que o card é medido, usamos o arquivo EXATO para aquele tamanho —
+  // menor download, imagem aparece muito mais rápido e sem perder nitidez.
+  const base = ideal ?? stable;
   const full = upgraded ?? base;
+  // Antes da medição não disparamos download nenhum (evita baixar 2 versões).
+  const ready = eager || measured.w > 0;
   const preview = usePreview ? placeholderImage(src, role) : undefined;
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export function SmartImage({
   }, [base]);
 
   /** Mede o elemento e refaz a medição quando a tela/densidade muda. */
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = imgRef.current;
     if (!el || typeof window === "undefined") return;
     const measure = () => {
@@ -168,15 +170,9 @@ export function SmartImage({
       ) : null}
       <img
         ref={imgRef}
-        src={full}
-        srcSet={upgraded ? undefined : adaptiveSrcSet(src, role)}
-        sizes={
-          upgraded
-            ? undefined
-            : measured.w
-              ? exactSizes(measured.w, measured.h, role)
-              : (sizes ?? adaptiveSizes(role))
-        }
+        src={ready ? full : undefined}
+        srcSet={upgraded || measured.w ? undefined : ready ? adaptiveSrcSet(src, role) : undefined}
+        sizes={upgraded || measured.w ? undefined : (sizes ?? adaptiveSizes(role))}
         alt={alt}
         loading={eager ? "eager" : "lazy"}
         decoding="async"
