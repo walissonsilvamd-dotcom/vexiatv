@@ -152,8 +152,20 @@ function ChannelsPage() {
 
 
   useEffect(() => {
-    setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
-  }, [list]);
+    setSelected((cur) => {
+      if (cur && list.some((c) => c.id === cur.id)) return cur;
+      // Ao voltar para a página, retoma o último canal usado, se ainda existir.
+      if (!restoredRef.current && lastChannel) {
+        const saved = list.find((c) => c.id === lastChannel.id);
+        if (saved) {
+          restoredRef.current = true;
+          return saved;
+        }
+      }
+      return list[0] ?? null;
+    });
+  }, [list, lastChannel]);
+
 
   const shell = (children: React.ReactNode) => (
     <main
