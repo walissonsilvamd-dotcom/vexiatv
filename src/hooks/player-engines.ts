@@ -38,6 +38,35 @@ export function engineOrder(src: string): PlaybackEngine[] {
   return ["native", "mpegts.js", "hls.js"];
 }
 
+/**
+ * Pré-carrega o motor de reprodução (e abre a conexão com o servidor de
+ * stream) ANTES do clique. Assim, ao escolher o episódio, não há espera para
+ * baixar a biblioteca nem para resolver DNS/TLS: o vídeo começa na hora.
+ */
+let warmed = false;
+export function warmEngines(src?: string | null): void {
+  if (typeof window === "undefined") return;
+  if (!warmed) {
+    warmed = true;
+    void import("hls.js").catch(() => undefined);
+  }
+  if (!src) return;
+  try {
+    const origin = new URL(src, window.location.href).origin;
+    if (document.querySelector(`link[data-vexia-warm="${origin}"]`)) return;
+    for (const rel of ["preconnect", "dns-prefetch"]) {
+      const link = document.createElement("link");
+      link.rel = rel;
+      link.href = origin;
+      link.crossOrigin = "anonymous";
+      link.dataset.vexiaWarm = origin;
+      document.head.appendChild(link);
+    }
+  } catch {
+    /* URL relativa/inválida: nada a aquecer */
+  }
+}
+
 export async function playWithAutoplayFallback(video: HTMLVideoElement) {
   try {
     await video.play();
@@ -91,9 +120,12 @@ export async function attachEngine(
       lowLatencyMode: live,
       enableWorker: true,
       startFragPrefetch: true,
-      testBandwidth: true,
+      testBandwidth: false,
       capLevelToPlayerSize: true,
       startLevel: -1,
+      // Começa a tocar com o mínimo de dados possível.
+      maxStarvationDelay: 2,
+      maxLoadingDelay: 2,
       backBufferLength: live ? 20 : 90,
       maxBufferLength: live ? 30 : 60,
       maxMaxBufferLength: live ? 60 : 120,
@@ -101,7 +133,7 @@ export async function attachEngine(
       highBufferWatchdogPeriod: 1,
       nudgeOffset: 0.1,
       nudgeMaxRetry: 2,
-      manifestLoadingTimeOut: 8_000,
+      manifestLoadingTimeOut: 6_000,
       manifestLoadingMaxRetry: 2,
       levelLoadingTimeOut: 8_000,
       levelLoadingMaxRetry: 2,
