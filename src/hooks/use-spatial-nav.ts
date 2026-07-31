@@ -30,9 +30,18 @@ function center(el: HTMLElement) {
   return { x: r.left + r.width / 2, y: r.top + r.height / 2, r };
 }
 
-function pickFrom(a: { x: number; y: number; top: number; bottom: number }, candidates: HTMLElement[], dir: Dir) {
+function pickFrom(
+  a: { x: number; y: number; top: number; bottom: number },
+  candidates: HTMLElement[],
+  dir: Dir,
+  origin?: HTMLElement,
+) {
   let best: HTMLElement | undefined;
   let bestScore = Number.POSITIVE_INFINITY;
+
+  // Container de rolagem do foco atual: usado para preferir vizinhos do mesmo
+  // trilho (carrossel/grade) e não pular para o header por engano.
+  const originBox = origin ? scrollableParent(origin) : null;
 
   for (const el of candidates) {
     const b = center(el);
@@ -52,7 +61,11 @@ function pickFrom(a: { x: number; y: number; top: number; bottom: number }, cand
     }
 
     // Custo: distância na direção + penalidade forte por desvio lateral.
-    const score = along + across * 3;
+    let score = along + across * 3;
+    // Mesmo carrossel/grade tem prioridade; sair do trilho custa mais.
+    if (originBox && scrollableParent(el) !== originBox) {
+      score += dir === "left" || dir === "right" ? 4000 : 120;
+    }
     if (score < bestScore) {
       bestScore = score;
       best = el;
@@ -71,23 +84,44 @@ function pick(from: HTMLElement, candidates: HTMLElement[], dir: Dir) {
     anchorOf(from),
     candidates.filter((el) => el !== from),
     dir,
+    from,
   );
 }
 
+const scrollCache = new WeakMap<HTMLElement, HTMLElement | null>();
+
 function scrollableParent(el: HTMLElement): HTMLElement | null {
+  const cached = scrollCache.get(el);
+  if (cached !== undefined) return cached;
   let node: HTMLElement | null = el.parentElement;
+  let found: HTMLElement | null = null;
   while (node) {
     const style = getComputedStyle(node);
-    if (/(auto|scroll)/.test(style.overflowY) && node.scrollHeight > node.clientHeight + 4) {
-      return node;
+    if (/(auto|scroll)/.test(style.overflowY + style.overflowX) && (node.scrollHeight > node.clientHeight + 4 || node.scrollWidth > node.clientWidth + 4)) {
+      found = node;
+      break;
     }
     node = node.parentElement;
   }
-  return null;
+  scrollCache.set(el, found);
+  return found;
 }
+
 
 export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
+    // Cache curto da lista de focáveis: no D-pad o usuário dispara muitas
+    // teclas por segundo e re-medir tudo a cada toque é o que travava a TV.
+    let cache: { at: number; els: HTMLElement[] } | null = null;
+    let lastKeyAt = 0;
+
+    const collect = (root: ParentNode) =>
+      Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter((el) => {
+        if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+
     const onKey = (event: KeyboardEvent) => {
       const dir = KEYS[event.key];
       if (!dir) return;
@@ -102,17 +136,21 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
         return;
       }
 
+      const now = performance.now();
+      // Anti-flood: ignora repetições absurdamente rápidas do controle.
+      if (now - lastKeyAt < 45) {
+        event.preventDefault();
+        return;
+      }
+      lastKeyAt = now;
+
       const root: ParentNode = scopeRef?.current ?? document;
-      const els = Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter(
-        (el) => {
-          if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
-          const r = el.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        },
-      );
+      const els = cache && now - cache.at < 250 ? cache.els.filter((el) => el.isConnected) : collect(root);
+      cache = { at: now, els };
       if (els.length === 0) return;
 
       event.preventDefault();
+
 
       const focus = (el?: HTMLElement) => {
         if (!el) return;

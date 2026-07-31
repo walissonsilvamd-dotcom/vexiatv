@@ -31,7 +31,9 @@ import {
   useSubtitleTracks,
 } from "../hooks/useMediaTracks";
 
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
+
 import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { ExternalPlayerGate } from "../components/vexia/ExternalPlayerGate";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -1021,10 +1023,23 @@ function PlayerPage() {
               <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
             ) : null}
           </div>
-          <h1 className="truncate text-sm font-medium text-white md:text-base">
-            {title}
-            {episode ? ` — S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}` : ""}
+          <h1 className="flex min-w-0 items-center justify-center gap-2 text-sm font-medium text-white md:text-base">
+            <span className="truncate">
+              {title}
+              {episode ? ` — S${String(episode.season).padStart(2, "0")}E${String(episode.number).padStart(2, "0")}` : ""}
+            </span>
+            <AudioTagBadge
+              sources={[
+                episode?.title,
+                episode?.url,
+                title,
+                movie?.category,
+                serie?.category,
+                channel?.group,
+              ]}
+            />
           </h1>
+
         </div>
 
         <div className="flex items-center gap-2">
