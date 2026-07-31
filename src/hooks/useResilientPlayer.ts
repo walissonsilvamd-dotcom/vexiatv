@@ -25,6 +25,8 @@ type Options = {
   live: boolean;
   /** Desliga a reserva paralela em prévias, poupando banda e decoder da TV. */
   standby?: boolean;
+  /** Prévia: qualidade/bitrate reduzidos para abrir o canal mais rápido. */
+  preview?: boolean;
 };
 
 const ENGINE_RETRIES = 1;
@@ -51,7 +53,15 @@ const STANDBY_WARMUP_MS = 2_500;
 const AUTO_CYCLE_MAX = 4;
 const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
 
-export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live, standby = true }: Options) {
+export function useResilientPlayer({
+  videoRef,
+  slotARef,
+  slotBRef,
+  src,
+  live,
+  standby = true,
+  preview = false,
+}: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
   const [standbyEngine, setStandbyEngine] = useState<PlaybackEngine | null>(null);
   const [standbyReady, setStandbyReady] = useState(false);
@@ -270,6 +280,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live, st
       void attachEngine(video, selected, {
         src,
         live,
+        preview,
         onReadyToPlay: () => {
           void video.play().catch(() => undefined);
         },
@@ -485,6 +496,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live, st
         const instance = await attachEngine(video, selected, {
           src,
           live,
+          preview,
           onReadyToPlay: () => void startAutoplay(),
           onRecoverable: (reason, recover) => recoverOrFallback(reason, recover),
           onFatal: (reason) => startNext(reason),
@@ -641,7 +653,7 @@ export function useResilientPlayer({ videoRef, slotARef, slotBRef, src, live, st
       setStandbyReady(false);
       setStandbyEngine(null);
     };
-  }, [generation, live, src, slotARef, slotBRef, standby, videoRef]);
+  }, [generation, live, preview, src, slotARef, slotBRef, standby, videoRef]);
 
   return {
     engine,

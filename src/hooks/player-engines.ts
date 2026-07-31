@@ -17,6 +17,12 @@ export type AttachOptions = {
   onRecoverable?: (reason: string, recover: () => void) => void;
   /** Chamado quando o motor está pronto para iniciar a reprodução. */
   onReadyToPlay: () => void;
+  /**
+   * Modo prévia: qualidade/bitrate reduzidos de propósito. Começa na faixa
+   * mais leve da lista (máx. 480p) e usa buffers curtos, então o canal abre
+   * muito mais rápido e gasta pouca banda — sem perder usabilidade.
+   */
+  preview?: boolean;
 };
 
 export function sourceKind(src: string) {
@@ -81,12 +87,13 @@ export async function playWithAutoplayFallback(video: HTMLVideoElement) {
 
 /** Liga um motor de reprodução a um elemento <video>. Nunca lança. */
 /** Altura máxima permitida pela preferência de Qualidade (null = automático). */
-function qualityCap(): number | null {
+function qualityCap(preview = false): number | null {
   const quality = readSettings().quality;
-  if (quality === "low") return 480;
-  if (quality === "medium") return 720;
-  if (quality === "high") return 1080;
-  return null; // auto e original usam tudo o que a lista oferecer
+  const cap =
+    quality === "low" ? 480 : quality === "medium" ? 720 : quality === "high" ? 1080 : null;
+  // Na prévia nunca passamos de 480p, mesmo que o cliente escolha "original".
+  if (preview) return Math.min(cap ?? 480, 480);
+  return cap; // auto e original usam tudo o que a lista oferecer
 }
 
 export async function attachEngine(
@@ -94,7 +101,7 @@ export async function attachEngine(
   engine: PlaybackEngine,
   options: AttachOptions,
 ): Promise<EngineHandles> {
-  const { src, live, onFatal, onRecoverable, onReadyToPlay } = options;
+  const { src, live, onFatal, onRecoverable, onReadyToPlay, preview = false } = options;
   const fail = (reason: string, recover?: () => void) => {
     if (recover && onRecoverable) onRecoverable(reason, recover);
     else onFatal(reason);
@@ -126,20 +133,21 @@ export async function attachEngine(
       onFatal("hls-not-supported");
       return { hlsApi: null, destroy: () => undefined };
     }
-    const maxHeight = qualityCap();
+    const maxHeight = qualityCap(preview);
     const instance = new Hls({
-      lowLatencyMode: live,
+      lowLatencyMode: live && !preview,
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
-      capLevelToPlayerSize: maxHeight === null,
-      startLevel: -1,
+      capLevelToPlayerSize: maxHeight === null || preview,
+      // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
+      startLevel: preview ? 0 : -1,
       // Começa a tocar com o mínimo de dados possível.
       maxStarvationDelay: 2,
       maxLoadingDelay: 2,
-      backBufferLength: live ? 20 : 90,
-      maxBufferLength: live ? 30 : 60,
-      maxMaxBufferLength: live ? 60 : 120,
+      backBufferLength: preview ? 6 : live ? 20 : 90,
+      maxBufferLength: preview ? 6 : live ? 30 : 60,
+      maxMaxBufferLength: preview ? 12 : live ? 60 : 120,
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 1,
       nudgeOffset: 0.1,
@@ -190,12 +198,12 @@ export async function attachEngine(
     {
       enableWorker: true,
       enableStashBuffer: true,
-      stashInitialSize: live ? 256 * 1024 : 1024 * 1024,
+      stashInitialSize: preview ? 96 * 1024 : live ? 256 * 1024 : 1024 * 1024,
       lazyLoad: !live,
       lazyLoadMaxDuration: live ? 30 : 180,
       lazyLoadRecoverDuration: live ? 10 : 30,
       liveBufferLatencyChasing: live,
-      liveBufferLatencyMaxLatency: 3,
+      liveBufferLatencyMaxLatency: preview ? 2 : 3,
       liveBufferLatencyMinRemain: 0.5,
       autoCleanupSourceBuffer: true,
       autoCleanupMaxBackwardDuration: live ? 30 : 120,
