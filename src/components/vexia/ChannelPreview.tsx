@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
-import SmartImage from "./SmartImage";
+import { SmartImage } from "./SmartImage";
 
 /**
  * Prévia ao vivo do canal selecionado.
