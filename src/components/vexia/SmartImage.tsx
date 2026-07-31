@@ -227,6 +227,11 @@ export function SmartImage({
             setEnhance("medium");
             return;
           }
+          // Falha de rede: retenta sozinho antes de desistir.
+          if (attempt < MAX_ATTEMPTS) {
+            setAttempt((current) => current + 1);
+            return;
+          }
           setBroken(true);
           onFail?.();
         }}
