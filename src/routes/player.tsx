@@ -613,6 +613,8 @@ function PlayerPage() {
 
   /** Identidade do que está tocando: muda ao vir da busca, da lista ou de outro episódio. */
   const itemKey = `${type}|${id}|${episode?.id ?? ""}`;
+  /** Chave de memória por canal/título — séries compartilham entre episódios. */
+  const prefKey = subtitleItemKey(type, id);
 
   useEffect(() => {
     subsManualRef.current = false;
@@ -624,15 +626,19 @@ function PlayerPage() {
     subsAutoRef.current = signature;
     if (subsManualRef.current) return;
 
-    const wantsSubs = settings.subtitlesEnabled || Boolean(subsLangRef.current);
+    const saved = getSubtitlePref(prefKey);
+    const wantsSubs =
+      saved === "off"
+        ? false
+        : Boolean(saved) || settings.subtitlesEnabled || Boolean(subsLangRef.current);
     if (!wantsSubs) {
       if (subs.selected !== SUBS_OFF) subs.select(SUBS_OFF);
       return;
     }
     if (subs.tracks.length === 0) return;
 
-    // Ordem de preferência: idioma escolhido à mão → idioma dos Ajustes → primeira faixa.
-    const wanted = [subsLangRef.current, settings.language]
+    // Ordem: idioma salvo deste conteúdo → escolha manual recente → Ajustes → primeira faixa.
+    const wanted = [saved === "off" ? null : saved, subsLangRef.current, settings.language]
       .filter(Boolean)
       .map((l) => (l as string).slice(0, 2).toLowerCase());
     const match =
@@ -640,7 +646,8 @@ function PlayerPage() {
         .map((p) => subs.tracks.find((t) => t.lang?.toLowerCase().startsWith(p)))
         .find(Boolean) ?? subs.tracks[0];
     if (match.id !== subs.selected) subs.select(match.id);
-  }, [settings.subtitlesEnabled, settings.language, subs, itemKey]);
+  }, [settings.subtitlesEnabled, settings.language, subs, itemKey, prefKey]);
+
 
 
 
