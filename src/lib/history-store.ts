@@ -161,7 +161,8 @@ export function useWatchHistory() {
 export function useContinueWatching(limit = 15) {
   const { history } = useWatchHistory();
   return history
-    .filter((e) => e.kind === "channel" || (e.percent > 1 && e.percent < 95))
+    // Mesma faixa usada pela retomada do player: > 2% e < 95%.
+    .filter((e) => e.kind === "channel" || (e.percent > 2 && e.percent < 95))
     .slice(0, limit);
 }
 
