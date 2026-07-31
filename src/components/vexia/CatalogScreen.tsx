@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, Clock, Search, SlidersHorizontal, Undo2 } from "lucide-react";
+import { ChevronDown, Clock, Search, Undo2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
@@ -132,22 +132,6 @@ export function CatalogScreen({
             className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
           />
         </label>
-
-        <Link
-          to="/filtros"
-          data-nav-row={0}
-          tabIndex={0}
-          aria-label="Abrir filtros"
-          className="vexia-focus flex items-center gap-2 rounded-full border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-[11px] font-bold text-vexia-cyan backdrop-blur-xl"
-        >
-          <SlidersHorizontal className="h-4 w-4" aria-hidden />
-          FILTROS
-          {activeFilters > 0 ? (
-            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-vexia-purple px-1 text-[10px] font-black text-white">
-              {activeFilters}
-            </span>
-          ) : null}
-        </Link>
 
         <SortControl navRow={0} />
 
