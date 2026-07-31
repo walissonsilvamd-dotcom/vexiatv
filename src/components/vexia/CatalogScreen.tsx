@@ -285,17 +285,15 @@ export function CatalogScreen(props: {
             ) : null}
           </aside>
 
-          {/* Coluna direita */}
-          <section className="flex min-h-0 flex-col gap-2.5">
-            <div className="flex shrink-0 items-end justify-between">
-              <div>
-                <h1 className="text-lg font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
-                  {kind === "series" ? "Séries" : "Filmes"}
-                </h1>
-                <p className="text-[11px] font-medium uppercase tracking-widest text-vexia-cyan/80">
-                  {items.length} {noun} na sua lista
+          {/* Coluna direita — os CARDS ocupam o resto da tela */}
+          <section className="flex min-h-0 flex-col gap-2">
+            <div className="flex shrink-0 items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-bold uppercase tracking-[0.2em] text-vexia-cyan/80">
+                  {category}
                 </p>
               </div>
+
               <div
                 aria-live="polite"
                 aria-busy={countBusy}
