@@ -3,6 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Captions,
+  Timer,
   ChevronDown,
   ChevronUp,
   ChevronsLeftRight,
