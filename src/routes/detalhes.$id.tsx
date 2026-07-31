@@ -170,7 +170,7 @@ function DetailsPage() {
       {/* ─── Destaque com backdrop ─── */}
       {/* Altura MÍNIMA (nunca fixa): o destaque cresce conforme o conteúdo, então
           as temporadas nunca ficam cortadas quando quebram em várias linhas. */}
-      <section className="relative mt-2 w-full overflow-hidden min-h-[260px] md:min-h-[44vh]">
+      <section className="relative mt-2 h-auto w-full overflow-visible min-h-[220px] md:min-h-[38vh]">
         {item.backdrop ? (
           <SmartImage
             src={item.backdrop}
