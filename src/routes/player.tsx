@@ -104,6 +104,7 @@ function PlayerPage() {
   const slotBRef = useRef<HTMLVideoElement>(null);
   const shellRef = useRef<HTMLElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const lastTap = useRef(0);
   const watchMetaRef = useRef<{ kind: WatchKind; name: string } | null>(null);
@@ -496,7 +497,7 @@ function PlayerPage() {
         if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
           e.preventDefault();
           const cards = Array.from(
-            carouselRef.current!.querySelectorAll<HTMLButtonElement>("button[aria-current]"),
+            carouselRef.current!.querySelectorAll<HTMLButtonElement>("button[data-episode-card]"),
           );
           const i = cards.indexOf(document.activeElement as HTMLButtonElement);
           const next = cards[i + (e.key === "ArrowRight" ? 1 : -1)];
@@ -508,6 +509,10 @@ function PlayerPage() {
           e.preventDefault();
           (document.activeElement as HTMLElement).blur();
           setDrawerOpen(false);
+          // Sobe direto para Qualidade/Áudio/Legenda, sem passar pelo vídeo.
+          window.setTimeout(() => {
+            controlsRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+          }, 60);
           return;
         }
         if (e.key === "Escape" || e.key === "Backspace") {
@@ -545,7 +550,7 @@ function PlayerPage() {
             setDrawerOpen(true);
             window.setTimeout(() => {
               carouselRef.current
-                ?.querySelector<HTMLButtonElement>('button[aria-current="true"]')
+                ?.querySelector<HTMLButtonElement>('button[data-active="true"]')
                 ?.focus();
             }, 260);
           }
@@ -657,11 +662,11 @@ function PlayerPage() {
 
   const percent = duration ? (current / duration) * 100 : 0;
 
-  const overlay = showControls
-    ? "opacity-100"
-    : "pointer-events-none opacity-0";
-
   const showEpisodes = type === "series" && episodes.length > 1;
+
+  // Com a gaveta aberta os controles continuam visíveis e clicáveis na hora.
+  const overlay =
+    showControls || drawerOpen ? "opacity-100" : "pointer-events-none opacity-0";
 
   return (
     <main
@@ -673,7 +678,7 @@ function PlayerPage() {
           setDrawerOpen(true);
           window.setTimeout(() => {
             carouselRef.current
-              ?.querySelector<HTMLButtonElement>('button[aria-current="true"]')
+              ?.querySelector<HTMLButtonElement>('button[data-active="true"]')
               ?.focus();
           }, 260);
         }
@@ -941,7 +946,7 @@ function PlayerPage() {
 
       {/* ── Controles ── */}
       <section
-        className={`absolute inset-x-0 bottom-0 z-20 space-y-3 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-5 pt-10 transition-opacity duration-300 md:px-10 ${
+        className={`absolute inset-x-0 bottom-0 z-40 space-y-3 bg-gradient-to-t from-black via-black/85 to-transparent px-5 pt-10 transition-opacity duration-200 md:px-10 ${
           showEpisodes && serie ? "pb-24" : "pb-6"
         } ${overlay}`}
       >
@@ -1073,7 +1078,7 @@ function PlayerPage() {
         </div>
 
         {/* Menu de configurações do player */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-2">
           {(
             [
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
@@ -1089,7 +1094,7 @@ function PlayerPage() {
                 type="button"
                 onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
                 aria-pressed={open}
-                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left backdrop-blur-md transition-all duration-200 ${
+                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgba(0,200,255,0.55),0_0_22px_-4px_rgba(0,200,255,0.9)] focus-visible:outline-none ${
                   open
                     ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgba(123,47,190,0.95)]"
                     : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
@@ -1117,14 +1122,14 @@ function PlayerPage() {
             type="button"
             onClick={() => setMenu((m) => (m ? null : "quality"))}
             aria-label="Configurações"
-            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-md transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
+            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgba(0,200,255,0.55)] focus-visible:outline-none"
           >
             <Settings className="h-4.5 w-4.5 text-vexia-cyan" aria-hidden />
           </button>
         </div>
 
         {menu ? (
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgba(123,47,190,0.9)] backdrop-blur-md">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgba(123,47,190,0.9)]">
             {menuOptions.length === 0 ? (
               <p className="px-2 py-1 text-[11px] font-medium text-white/70">
                 {menu === "audio"
@@ -1157,7 +1162,7 @@ function PlayerPage() {
 
       {showEpisodes && serie ? (
         <div
-          className={`fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out ${
+          className={`fixed inset-x-0 bottom-0 z-30 transform-gpu will-change-transform transition-transform duration-300 ease-out motion-reduce:transition-none ${
             drawerOpen ? "translate-y-0" : "translate-y-[calc(100%-72px)]"
           }`}
         >
@@ -1182,7 +1187,9 @@ function PlayerPage() {
           </button>
           <div
             ref={carouselRef}
-            className="max-h-[60vh] overflow-y-auto border-t border-white/10 bg-vexia-bg/95 backdrop-blur-xl"
+            className={`overflow-y-auto border-t border-white/10 bg-vexia-bg transition-[padding] duration-200 vexia-scroll ${
+              drawerOpen ? "max-h-[58vh] pb-40" : "max-h-[58vh]"
+            }`}
             aria-hidden={!drawerOpen}
           >
           <EpisodeCarousel
