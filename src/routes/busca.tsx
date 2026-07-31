@@ -100,7 +100,7 @@ function SearchPage() {
     <div ref={scopeRef} className="min-h-screen bg-vexia-bg text-vexia-text">
       <div
         className="min-h-screen bg-cover bg-center"
-        style={{ backgroundImage: `linear-gradient(rgba(5,5,5,.92),rgba(5,5,5,.97)), url(${nebula.src})` }}
+        style={{ backgroundImage: `linear-gradient(rgba(5,5,5,.92),rgba(5,5,5,.97)), url(${nebula.url})` }}
       >
         <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 md:px-10">
           <Link to="/home" className="vexia-focus rounded-lg" aria-label="VÉXIA TV — início">
@@ -134,7 +134,7 @@ function SearchPage() {
           </label>
 
           {!hasContent ? (
-            <EmptyPlaylist />
+            <EmptyPlaylist section="Os resultados" />
           ) : term.length < 2 ? (
             <p className="text-sm text-vexia-text/60">
               Escreva pelo menos 2 letras para procurar em toda a sua lista.
