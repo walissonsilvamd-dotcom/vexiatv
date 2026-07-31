@@ -8,6 +8,8 @@ type Props = {
    * título/grupo da série, que costuma carregar o "DUBLADO"/"LEGENDADO".
    */
   fallbackSources?: (string | undefined | null)[];
+  /** Mostra um selo neutro "N/D" quando não há marcação detectável. */
+  alwaysShow?: boolean;
   size?: "sm" | "md";
   className?: string;
 };
@@ -16,13 +18,26 @@ type Props = {
 export function AudioTagBadge({
   sources,
   fallbackSources,
+  alwaysShow = false,
   size = "sm",
   className = "",
 }: Props) {
   const tag =
     detectAudioTag(...sources) ??
     (fallbackSources ? detectAudioTag(...fallbackSources) : null);
-  if (!tag) return null;
+  const dimsEarly = size === "md" ? "px-2.5 py-1 text-[11px]" : "px-1.5 py-0.5 text-[10px]";
+  if (!tag) {
+    if (!alwaysShow) return null;
+    return (
+      <span
+        title="Áudio não informado na lista"
+        aria-label="Áudio não informado"
+        className={`inline-flex shrink-0 items-center rounded-md border border-white/20 bg-black/60 font-black tracking-[0.08em] text-white/55 backdrop-blur-sm ${dimsEarly} ${className}`}
+      >
+        N/D
+      </span>
+    );
+  }
   const tone =
     tag === "DUBL"
       ? "border-vexia-purple/60 bg-vexia-purple/25 text-white"
