@@ -209,10 +209,12 @@ function FiltersPage() {
             ))}
           </div>
         ) : (
-          <p className="text-[11px] text-vexia-text/55">
-            Nenhum título da amostra combina com estes filtros. Ajuste os critérios ou carregue uma
-            lista maior no menu LISTAS.
-          </p>
+          <EmptyFilterResults
+            noun="resultado"
+            hasFilters={active > 0}
+            hasQuery={undefined}
+            onClear={() => clear()}
+          />
         )}
       </section>
 
