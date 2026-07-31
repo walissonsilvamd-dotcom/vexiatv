@@ -140,18 +140,27 @@ export function PosterGrid({
   kind?: "movie" | "series";
 }) {
   // Pré-carrega as capas desta página no cache persistente: rolar fica
-  // instantâneo e a qualidade continua sendo a máxima da tela.
+  // instantâneo e a qualidade continua sendo a máxima da tela. Usamos tempo
+  // ocioso para não competir com a animação de troca de página no D-pad.
   useEffect(() => {
     if (!items.length) return;
-    const id = setTimeout(
-      () => preloadImages(items.map((item) => item.poster || item.backdrop), "poster"),
-      400,
-    );
+    const run = () => preloadImages(items.map((item) => item.poster || item.backdrop), "poster");
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+      .requestIdleCallback;
+    if (idle) {
+      const handle = idle(run, { timeout: 500 });
+      return () => (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(handle);
+    }
+    const id = setTimeout(run, 200);
     return () => clearTimeout(id);
   }, [items]);
 
   return (
-    <div className="grid grid-cols-3 gap-3 md:grid-cols-6 lg:grid-cols-8">
+    <div
+      className="grid grid-cols-3 gap-3 md:grid-cols-6 lg:grid-cols-8"
+      style={{ contain: "layout paint style" }}
+    >
+
 
       {items.map((item) => (
         <PosterCard

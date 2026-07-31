@@ -1176,26 +1176,7 @@ function PlayerPage() {
         </div>
 
 
-        {/* Informações do conteúdo */}
-        <div className="space-y-1 text-xs">
-          {type === "series" && episode ? (
-            <>
-              <p className="font-medium text-vexia-cyan">
-                Temporada {episode.season} • Episódio {String(episode.number).padStart(2, "0")} •{" "}
-                {episode.title} {duration ? `• ⏱ ${fmt(duration)}` : ""}
-              </p>
-              {nextEpisode ? (
-                <p className="text-vexia-cyan/80">
-                  Próximo episódio: Temporada {nextEpisode.season} • Episódio{" "}
-                  {String(nextEpisode.number).padStart(2, "0")} • {nextEpisode.title}
-                </p>
-              ) : null}
-            </>
-          ) : null}
-          {type === "live" && channel?.now ? (
-            <p className="font-medium text-vexia-cyan">Agora: {channel.now}</p>
-          ) : null}
-        </div>
+
 
         {/* Menu de configurações do player */}
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
