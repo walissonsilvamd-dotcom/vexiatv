@@ -941,7 +941,9 @@ function PlayerPage() {
 
       {/* ── Controles ── */}
       <section
-        className={`absolute inset-x-0 bottom-0 z-20 space-y-3 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-5 pb-6 pt-10 transition-opacity duration-300 md:px-10 ${overlay}`}
+        className={`absolute inset-x-0 bottom-0 z-20 space-y-3 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-5 pt-10 transition-opacity duration-300 md:px-10 ${
+          showEpisodes && serie ? "pb-24" : "pb-6"
+        } ${overlay}`}
       >
         {/* Barra de progresso / atraso */}
         {type === "live" ? (
@@ -1071,41 +1073,58 @@ function PlayerPage() {
         </div>
 
         {/* Menu de configurações do player */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {(
             [
-              { key: "quality", icon: ChevronsLeftRight, label: quality },
-              { key: "audio", icon: Volume2, label: audio.currentLabel },
-              { key: "subs", icon: Captions, label: subs.currentLabel },
-              { key: "speed", icon: Gauge, label: `${speed}x` },
+              { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
+              { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
+              { key: "subs", icon: Captions, title: "Legenda", label: subs.currentLabel },
+              { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
             ] as const
-          ).map((opt) => (
-            <button
-              key={opt.key}
-              type="button"
-              onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
-              className={`vexia-focus flex items-center gap-2 rounded-xl border px-3 py-1.5 text-[11px] font-semibold ${
-                menu === opt.key
-                  ? "border-vexia-purple text-vexia-cyan shadow-[0_0_14px_-2px_rgba(123,47,190,0.9)]"
-                  : "border-white/15 text-white"
-              }`}
-            >
-              <opt.icon className="h-4 w-4 text-vexia-cyan" aria-hidden />
-              {opt.label}
-            </button>
-          ))}
+          ).map((opt) => {
+            const open = menu === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
+                aria-pressed={open}
+                className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 rounded-2xl border px-3.5 py-2 text-left backdrop-blur-md transition-all duration-200 ${
+                  open
+                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_20px_-4px_rgba(123,47,190,0.95)]"
+                    : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
+                }`}
+              >
+                <span
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors ${
+                    open ? "bg-vexia-purple text-white" : "bg-black/50 text-vexia-cyan"
+                  }`}
+                >
+                  <opt.icon className="h-3.5 w-3.5" aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[9px] font-bold uppercase tracking-[0.16em] text-white/45">
+                    {opt.title}
+                  </span>
+                  <span className="block truncate text-[12px] font-semibold text-white">
+                    {opt.label}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
           <button
             type="button"
-            onClick={() => setMenu("quality")}
+            onClick={() => setMenu((m) => (m ? null : "quality"))}
             aria-label="Configurações"
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-xl border border-white/15"
+            className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-md transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
           >
-            <Settings className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            <Settings className="h-4.5 w-4.5 text-vexia-cyan" aria-hidden />
           </button>
         </div>
 
         {menu ? (
-          <div className="flex flex-wrap gap-2 rounded-2xl border border-vexia-purple/40 bg-black/80 p-3">
+          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-vexia-purple/40 bg-black/85 p-3 shadow-[0_0_28px_-10px_rgba(123,47,190,0.9)] backdrop-blur-md">
             {menuOptions.length === 0 ? (
               <p className="px-2 py-1 text-[11px] font-medium text-white/70">
                 {menu === "audio"
@@ -1121,10 +1140,10 @@ function PlayerPage() {
                   opt.select();
                   ping();
                 }}
-                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold ${
+                className={`vexia-focus rounded-full border px-4 py-1.5 text-[11px] font-semibold transition-all ${
                   opt.active
-                    ? "border-vexia-purple text-vexia-cyan"
-                    : "border-white/15 text-white"
+                    ? "border-vexia-purple bg-vexia-purple/25 text-vexia-cyan shadow-[0_0_14px_-3px_rgba(0,200,255,0.8)]"
+                    : "border-white/12 bg-white/[0.05] text-white hover:border-vexia-cyan/40"
                 }`}
               >
                 {opt.label}
