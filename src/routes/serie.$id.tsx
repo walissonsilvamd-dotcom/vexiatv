@@ -9,6 +9,8 @@ import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
 import { useTmdbItem } from "../lib/use-tmdb";
+import { useTmdbSeason } from "../lib/use-tmdb-season";
+import type { PlaylistEpisode } from "../lib/m3u";
 
 import { TopNav } from "../components/vexia/TopNav";
 
