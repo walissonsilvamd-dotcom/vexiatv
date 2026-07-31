@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
+import { playableStreamUrl } from "../../lib/stream-url";
 import { SmartImage } from "./SmartImage";
 
 /**
  * Prévia ao vivo do canal selecionado.
  *
  * Usa o mesmo motor resiliente do player principal (dois motores com troca
- * automática), porém em silêncio e sem controles: é só uma janela de espiada.
- * Clicar na prévia leva para a tela cheia.
+ * automática) e com som normal. Clicar na prévia leva para a tela cheia.
  */
 export default function ChannelPreview({
   src,
@@ -31,46 +31,55 @@ export default function ChannelPreview({
   /** Vira true no primeiro frame realmente exibido: some o "Iniciando prévia". */
   const [started, setStarted] = useState(false);
 
-  const { activeSlot, buffering, reconnecting, fatalError } = useResilientPlayer({
+  // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
+  const playable = src ? playableStreamUrl(src) : "";
+
+  const { activeSlot, buffering, reconnecting, fatalError, mutedByAutoplay } = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
-    src: src ?? "",
+    src: playable,
     live: true,
   });
 
   useEffect(() => {
     setStarted(false);
-    if (!src) return;
+    if (!playable) return;
     const mark = () => setStarted(true);
     const nodes = [slotARef.current, slotBRef.current].filter(Boolean) as HTMLVideoElement[];
     for (const n of nodes) n.addEventListener("playing", mark);
     return () => {
       for (const n of nodes) n.removeEventListener("playing", mark);
     };
-  }, [src]);
+  }, [playable]);
 
-  const showPoster = !src || Boolean(fatalError);
+  /* Aplica o som pedido direto no elemento (o atributo React pode chegar tarde). */
+  useEffect(() => {
+    const active = activeSlot === "a" ? slotARef.current : slotBRef.current;
+    const standby = activeSlot === "a" ? slotBRef.current : slotARef.current;
+    if (standby) standby.muted = true;
+    if (active) {
+      active.muted = muted;
+      if (!muted) active.volume = 1;
+    }
+  }, [muted, activeSlot, started]);
+
+  const showPoster = !playable || Boolean(fatalError);
   /* Primeiro clique: mostra o carregamento até o stream aquecer. */
-  const starting = Boolean(src) && !started && !fatalError;
-  const showBuffer = Boolean(src) && !fatalError && (starting || buffering || reconnecting);
-
+  const starting = Boolean(playable) && !started && !fatalError;
+  const showBuffer = Boolean(playable) && !fatalError && (starting || buffering || reconnecting);
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgb(var(--vexia-secondary-rgb)/0.5)]">
-      <button
-        type="button"
-        aria-label={`Abrir ${name} em tela cheia`}
-        onClick={onOpenFullscreen}
-        className="vexia-focus block aspect-video w-full bg-black"
-      >
+      <div className="relative aspect-video w-full bg-black">
         <video
           ref={slotARef}
           className={`absolute inset-0 h-full w-full bg-black object-contain transition-opacity duration-200 ${
             !showPoster && activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
           playsInline
-          muted={activeSlot === "a" ? muted : true}
+          autoPlay
+          preload="auto"
         />
         <video
           ref={slotBRef}
@@ -78,11 +87,13 @@ export default function ChannelPreview({
             !showPoster && activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
           playsInline
-          muted={activeSlot === "b" ? muted : true}
+          autoPlay
+          preload="auto"
+          muted
         />
 
         {showPoster ? (
-          <span className="absolute inset-0 grid place-items-center">
+          <span className="pointer-events-none absolute inset-0 grid place-items-center">
             {logo ? (
               <SmartImage
                 src={logo}
@@ -102,7 +113,7 @@ export default function ChannelPreview({
         ) : null}
 
         {showBuffer ? (
-          <span className="absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
+          <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
             <span className="flex flex-col items-center gap-2">
               <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
@@ -112,19 +123,30 @@ export default function ChannelPreview({
           </span>
         ) : null}
 
-        <span className="absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
+        {/* Clique na imagem: abre em tela cheia (camada acima do vídeo). */}
+        <button
+          type="button"
+          aria-label={`Abrir ${name} em tela cheia`}
+          onClick={onOpenFullscreen}
+          className="vexia-focus absolute inset-0 h-full w-full"
+        />
+
+        <span className="pointer-events-none absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
           {fatalError ? "Sinal indisponível" : starting ? "Aquecendo" : "Ao vivo"}
         </span>
-
-      </button>
+      </div>
 
       <button
         type="button"
         aria-label={muted ? "Ativar som da prévia" : "Silenciar prévia"}
         onClick={onToggleMuted}
-        className="vexia-focus absolute bottom-2 right-2 grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-black/70 text-vexia-text"
+        className="vexia-focus absolute bottom-2 right-2 z-10 grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-black/70 text-vexia-text"
       >
-        {muted ? <VolumeX className="h-4 w-4" aria-hidden /> : <Volume2 className="h-4 w-4" aria-hidden />}
+        {muted || mutedByAutoplay ? (
+          <VolumeX className="h-4 w-4" aria-hidden />
+        ) : (
+          <Volume2 className="h-4 w-4" aria-hidden />
+        )}
       </button>
     </div>
   );
