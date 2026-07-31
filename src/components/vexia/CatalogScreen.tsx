@@ -421,7 +421,7 @@ export function CatalogScreen(props: {
                   type="button"
                   data-nav-row={4}
                   tabIndex={0}
-                  onClick={() => setLimit((l) => l + PAGE)}
+                  onClick={() => startTransition(() => setLimit((l) => l + PAGE))}
                   className="vexia-focus flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-6 py-2 text-xs font-bold text-vexia-text backdrop-blur-xl transition-all hover:border-vexia-purple/60 hover:shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
                 >
                   Mais {noun} disponíveis <ChevronDown className="h-4 w-4" aria-hidden />
