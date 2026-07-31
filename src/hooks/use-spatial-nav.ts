@@ -110,6 +110,18 @@ function scrollableParent(el: HTMLElement): HTMLElement | null {
 
 export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
+    // Cache curto da lista de focáveis: no D-pad o usuário dispara muitas
+    // teclas por segundo e re-medir tudo a cada toque é o que travava a TV.
+    let cache: { at: number; els: HTMLElement[] } | null = null;
+    let lastKeyAt = 0;
+
+    const collect = (root: ParentNode) =>
+      Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter((el) => {
+        if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+
     const onKey = (event: KeyboardEvent) => {
       const dir = KEYS[event.key];
       if (!dir) return;
@@ -124,17 +136,21 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
         return;
       }
 
+      const now = performance.now();
+      // Anti-flood: ignora repetições absurdamente rápidas do controle.
+      if (now - lastKeyAt < 45) {
+        event.preventDefault();
+        return;
+      }
+      lastKeyAt = now;
+
       const root: ParentNode = scopeRef?.current ?? document;
-      const els = Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter(
-        (el) => {
-          if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
-          const r = el.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        },
-      );
+      const els = cache && now - cache.at < 250 ? cache.els.filter((el) => el.isConnected) : collect(root);
+      cache = { at: now, els };
       if (els.length === 0) return;
 
       event.preventDefault();
+
 
       const focus = (el?: HTMLElement) => {
         if (!el) return;
