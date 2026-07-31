@@ -3,6 +3,8 @@ import { warmEngines } from "../hooks/player-engines";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Play } from "lucide-react";
 import { PosterArt } from "../components/vexia/PosterArt";
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
@@ -128,9 +130,13 @@ function EpisodesPage() {
                       </span>
                     )}
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-bold text-vexia-text">
-                        {String(ep.number).padStart(2, "0")} — {ep.title}
+                      <span className="flex min-w-0 items-center gap-2">
+                        <AudioTagBadge sources={[ep.title]} />
+                        <span className="block truncate text-sm font-bold text-vexia-text">
+                          {String(ep.number).padStart(2, "0")} — {ep.title}
+                        </span>
                       </span>
+
                       <span className="mt-1 block truncate text-[11px] text-vexia-cyan">
                         Temporada {season.number} • Episódio {ep.number}
                       </span>

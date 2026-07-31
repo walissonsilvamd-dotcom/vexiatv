@@ -22,6 +22,8 @@ import { isWatched, useProgress } from "../lib/progress-store";
 import { useTmdbItem } from "../lib/use-tmdb";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
@@ -195,7 +197,12 @@ function DetailsPage() {
               {item.year ? ` (${item.year})` : ""}
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-semibold">
+              <AudioTagBadge
+                sources={[raw?.title, item.title, item.category, (raw as { group?: string })?.group]}
+                size="md"
+              />
               {item.rating > 0 ? (
+
                 <span className="flex items-center gap-1 text-vexia-gold">
                   <Star className="h-4 w-4 fill-current" aria-hidden />
                   {item.rating.toFixed(1)}
@@ -392,9 +399,13 @@ function DetailsPage() {
                             <Circle className="h-4 w-4 shrink-0 text-vexia-muted" aria-hidden />
                           )}
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-bold text-vexia-text">
-                              Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
+                            <span className="flex min-w-0 items-center gap-2">
+                              <AudioTagBadge sources={[ep.title, item.title, item.category]} />
+                              <span className="block truncate text-sm font-bold text-vexia-text">
+                                Episódio {String(ep.number).padStart(2, "0")} • {ep.title}
+                              </span>
                             </span>
+
                             {entry && !watched ? (
                               <span className="mt-1.5 block h-1 w-full max-w-[220px] overflow-hidden rounded-full bg-white/10">
                                 <span

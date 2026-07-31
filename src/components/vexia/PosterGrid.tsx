@@ -7,6 +7,8 @@ import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
+import { AudioTagBadge } from "./AudioTagBadge";
+
 
 function PosterCardBase({
   item,
@@ -70,6 +72,12 @@ function PosterCardBase({
             <Star className="h-3 w-3 fill-current" aria-hidden />
             {active.rating > 0 ? active.rating.toFixed(1) : "—"}
           </span>
+          {/* Selo DUBL / LEG — evita entrar no título para descobrir o áudio */}
+          <AudioTagBadge
+            sources={[item.title, active.title, item.category]}
+            className="absolute left-1.5 top-1.5 bg-black/75"
+          />
+
           {progress != null ? (
             <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
 
