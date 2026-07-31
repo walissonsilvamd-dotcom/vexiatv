@@ -1,4 +1,4 @@
-import logoAsset from "../../assets/vexia-logo-tv.png.asset.json";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Contorno escuro (4 direções + halo) para separar a logo de fundos claros
@@ -17,8 +17,8 @@ const LOGO_FILTER = [
 export function VexiaLogo({ className = "h-14" }: { className?: string }) {
   return (
     <img
-      src={logoAsset.url}
-      alt="VÉXIA TV"
+      src={BRAND.logoUrl}
+      alt={BRAND.name}
       loading="eager"
       decoding="async"
       fetchPriority="high"

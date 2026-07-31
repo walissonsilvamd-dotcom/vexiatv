@@ -16,7 +16,7 @@ import { OfflineBanner } from "../components/vexia/OfflineBanner";
 import { PlaylistUpdateBanner } from "../components/vexia/PlaylistUpdateBanner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { registerImageCache, warmStartCache } from "../lib/image-cache";
-import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
+import { BRAND } from "../lib/brand";
 
 function NotFoundComponent() {
   return (
@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "preconnect", href: "https://image.tmdb.org", crossOrigin: "anonymous" },
-      { rel: "preload", as: "image", href: logoAsset.url },
+      { rel: "preload", as: "image", href: BRAND.logoUrl },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32.png" },
       { rel: "apple-touch-icon", type: "image/png", sizes: "180x180", href: "/apple-touch-icon.png" },
     ],

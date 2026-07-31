@@ -1,5 +1,5 @@
 import { Clapperboard, Film, Tv } from "lucide-react";
-import logoAsset from "../../assets/vexia-logo-tv.png.asset.json";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Arte gerada para itens sem capa.
@@ -88,7 +88,7 @@ export function PosterArt({
       </div>
       {!compact ? (
         <img
-          src={logoAsset.url}
+          src={BRAND.logoUrl}
           alt=""
           aria-hidden
           className="pointer-events-none absolute bottom-2 right-2 h-6 w-6 opacity-70"
