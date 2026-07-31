@@ -460,6 +460,27 @@ body {
   animation: vexia-shimmer 1400ms linear infinite;
 }
 
+/* Placeholder da prévia de canais: brilho suave enquanto o sinal aquece. */
+.vexia-preview-skeleton {
+  pointer-events: none;
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in oklab, var(--vexia-purple) 20%, transparent) 20%,
+      color-mix(in oklab, var(--vexia-cyan) 16%, transparent) 45%,
+      color-mix(in oklab, var(--vexia-purple) 20%, transparent) 70%
+    ),
+    #060606;
+  background-size: 220% 100%;
+  animation: vexia-shimmer 1400ms linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vexia-preview-skeleton {
+    animation: none;
+  }
+}
+
 @keyframes vexia-shimmer {
   from {
     background-position: 140% 0;
