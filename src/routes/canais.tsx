@@ -68,6 +68,26 @@ function ChannelsPage() {
   const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
+  /** A prévia começa muda (regra de autoplay dos navegadores/TVs). */
+  const [previewMuted, setPreviewMuted] = useState(true);
+
+  /** Abre o canal em tela cheia, reaproveitando o stream já aquecido na prévia. */
+  const openFullscreen = useCallback(
+    (ch: PlaylistChannel) => {
+      setStreamHandoff("live", ch.id, ch.url);
+      void navigate({ to: "/player", search: { type: "live", id: ch.id } });
+    },
+    [navigate],
+  );
+
+  /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
+  const onChannelClick = useCallback(
+    (ch: PlaylistChannel) => {
+      if (selected?.id === ch.id) openFullscreen(ch);
+      else setSelected(ch);
+    },
+    [selected, openFullscreen],
+  );
 
   const favs = useMemo(
     () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
