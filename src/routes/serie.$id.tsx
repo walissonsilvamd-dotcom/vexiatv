@@ -3,6 +3,8 @@ import { warmEngines } from "../hooks/player-engines";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Play } from "lucide-react";
 import { PosterArt } from "../components/vexia/PosterArt";
+import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
+
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { usePlaylist } from "../lib/playlist-store";
