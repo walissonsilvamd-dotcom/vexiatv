@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, Clock, Search, Undo2 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
 import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
@@ -19,7 +19,7 @@ import {
 } from "../../lib/filters-store";
 
 import { SortControl } from "./SortControl";
-import { useTmdbHeroes } from "../../lib/use-tmdb";
+import { useTmdbHeroesStatus } from "../../lib/use-tmdb";
 import { preloadImages } from "../../lib/image";
 import { EmptyPlaylist } from "./EmptyPlaylist";
 import { PosterCard } from "./PosterGrid";
@@ -94,27 +94,42 @@ export function CatalogScreen({
     [searched, activeFilters, filters, kind],
   );
 
-  /* 3) Ordenação aplicada ao catálogo filtrado INTEIRO, antes de paginar. */
-  const sorted = useMemo(() => sortMedia(filtered, sort), [filtered, sort]);
+  /* 3) Ordenação aplicada ao catálogo filtrado INTEIRO, antes de paginar.
+     O valor adiado evita travar a interface enquanto a nova ordem é calculada. */
+  const deferredSort = useDeferredValue(sort);
+  const sortBusy = deferredSort !== sort;
+  const sorted = useMemo(() => sortMedia(filtered, deferredSort), [filtered, deferredSort]);
 
   /* 4) Critérios TMDB (país, nota, duração, lançamento) na página carregada. */
   const tmdbNeeded = activeFilters > 0 && needsTmdb(filters);
   const page = useMemo(() => sorted.slice(0, limit), [sorted, limit]);
-  const enriched = useTmdbHeroes(tmdbNeeded ? page : [], kind);
+  const {
+    items: enriched,
+    pending: tmdbPending,
+    settled: tmdbSettled,
+    total: tmdbTotal,
+  } = useTmdbHeroesStatus(tmdbNeeded ? page : [], kind);
   const visible = useMemo(() => {
     const base = tmdbNeeded
       ? enriched.filter((item) => matchesFilters(item, kind, filters))
       : page;
-    return sortMedia(base, sort);
-  }, [tmdbNeeded, page, enriched, filters, kind, sort]);
+    return sortMedia(base, deferredSort);
+  }, [tmdbNeeded, page, enriched, filters, kind, deferredSort]);
   /* Sem critérios TMDB, a lista filtrada inteira é exibida virtualizada. */
   const virtualItems = useMemo(() => (tmdbNeeded ? [] : sorted), [tmdbNeeded, sorted]);
   const useVirtual = !tmdbNeeded && virtualItems.length > VIRTUALIZE_FROM;
 
+  /* Enquanto a verificação TMDB roda, a contagem final ainda não é confiável. */
+  const countBusy = sortBusy || (tmdbNeeded && tmdbPending);
+  /* Mantém o último número estável em tela para não haver salto brusco. */
+  const lastCount = useRef(0);
+  if (!countBusy) lastCount.current = tmdbNeeded ? visible.length : filtered.length;
+  const shownCount = countBusy ? lastCount.current : tmdbNeeded ? visible.length : filtered.length;
+
   /* A paginação recomeça sempre que o conjunto ou a ordem muda. */
   useEffect(() => {
     setLimit(PAGE);
-  }, [category, debouncedQuery, sort, activeFilters, filters]);
+  }, [category, debouncedQuery, deferredSort, activeFilters, filters]);
 
   const hasContent = items.length > 0;
 
@@ -240,12 +255,32 @@ export function CatalogScreen({
                   {items.length} {noun} na sua lista
                 </p>
               </div>
-              <span className="flex items-center gap-2 text-sm font-medium text-vexia-text/85">
-                {category} ({tmdbNeeded
-                  ? `${visible.length} de ${page.length} verificados`
-                  : filtered.length})
-                <span className="h-2 w-2 rounded-full bg-vexia-purple shadow-[0_0_10px_rgba(123,47,190,0.9)]" />
+              <span
+                aria-live="polite"
+                aria-busy={countBusy}
+                className="flex items-center gap-2 text-sm font-medium text-vexia-text/85"
+              >
+                {countBusy ? (
+                  <span className="flex items-center gap-2 text-vexia-cyan/90">
+                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-vexia-purple/40 border-t-vexia-cyan" />
+                    {sortBusy
+                      ? "Reordenando…"
+                      : `Verificando ${tmdbSettled}/${tmdbTotal}…`}
+                  </span>
+                ) : (
+                  <>
+                    {category} ({tmdbNeeded
+                      ? `${shownCount} de ${page.length} verificados`
+                      : shownCount})
+                  </>
+                )}
+                <span
+                  className={`h-2 w-2 rounded-full shadow-[0_0_10px_rgba(123,47,190,0.9)] ${
+                    countBusy ? "animate-pulse bg-vexia-cyan" : "bg-vexia-purple"
+                  }`}
+                />
               </span>
+
             </div>
 
             {/* Filtros vindos do menu FILTROS da Home */}
@@ -285,26 +320,41 @@ export function CatalogScreen({
             ) : null}
 
 
-            {useVirtual ? (
-              <VirtualizedGrid
-                items={virtualItems}
-                gridClassName={GRID_CLASS}
-                keyFor={(item) => item.id}
-                renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
-              />
-            ) : visible.length > 0 ? (
-              <div className={GRID_CLASS}>
-                {visible.map((item) => (
-                  <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
-                ))}
-              </div>
-            ) : (
-              <p className="py-16 text-center text-sm text-vexia-text/60">
-                {activeFilters > 0
-                  ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
-                  : `Nenhum resultado para “${query}”.`}
-              </p>
-            )}
+            <div
+              className={`transition-opacity duration-200 ${countBusy ? "opacity-60" : "opacity-100"}`}
+            >
+              {useVirtual ? (
+                <VirtualizedGrid
+                  items={virtualItems}
+                  gridClassName={GRID_CLASS}
+                  keyFor={(item) => item.id}
+                  renderItem={(item) => <PosterCard item={item} navRow={3} kind={kind} />}
+                />
+              ) : visible.length > 0 ? (
+                <div className={GRID_CLASS}>
+                  {visible.map((item) => (
+                    <PosterCard key={item.id} item={item} navRow={3} kind={kind} />
+                  ))}
+                </div>
+              ) : countBusy ? (
+                /* Nada de "nenhum resultado" enquanto a ordenação/verificação roda. */
+                <div className={GRID_CLASS} aria-hidden>
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="aspect-[2/3] animate-pulse rounded-xl border border-vexia-purple/20 bg-white/5"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="py-16 text-center text-sm text-vexia-text/60">
+                  {activeFilters > 0
+                    ? `Nenhum ${noun.slice(0, -1)} corresponde aos filtros selecionados na Home.`
+                    : `Nenhum resultado para “${query}”.`}
+                </p>
+              )}
+            </div>
+
 
 
             {!useVirtual && limit < filtered.length ? (
