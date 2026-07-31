@@ -44,8 +44,6 @@ import {
   setSubtitlePref,
   subtitleItemKey,
   clampSubtitleOffset,
-  SUBTITLE_OFFSET_MIN,
-  SUBTITLE_OFFSET_MAX,
   SUBTITLE_OFFSET_STEP,
 } from "../lib/subtitle-prefs";
 import { createSubtitleOffsetController } from "../lib/subtitle-offset";
@@ -110,7 +108,6 @@ function fmt(sec: number) {
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
-const MAX_RETRIES = 2;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
@@ -128,7 +125,7 @@ function PlayerPage() {
 
   const [showControls, setShowControls] = useState(true);
   const [playing, setPlaying] = useState(false);
-  const [bufferingFromMedia, setBufferingFromMedia] = useState(true);
+  const [, setBufferingFromMedia] = useState(true);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -193,9 +190,6 @@ function PlayerPage() {
     live: type === "live",
   });
   const {
-    engine,
-    standbyEngine,
-    standbyReady,
     activeSlot,
     hlsApi,
     reconnecting,
@@ -206,7 +200,6 @@ function PlayerPage() {
     retry: retryStream,
     tryOtherEngine,
   } = resilientPlayer;
-  const buffering = resilientPlayer.buffering || bufferingFromMedia;
 
   const progressKey = type === "series" && episode ? `${id}::${episode.id}` : id;
   const { entryFor } = useProgress(id);
