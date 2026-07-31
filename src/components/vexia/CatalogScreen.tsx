@@ -166,21 +166,21 @@ export function CatalogScreen(props: {
     <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     <main
       ref={scopeRef}
-      className="vexia-safe relative flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
+        height: "100dvh",
         backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed",
       }}
     >
-      {/* Barra superior */}
-      <header className="flex shrink-0 flex-wrap items-center gap-3 px-6 py-2 md:px-8">
+      {/* Barra superior — compacta, para sobrar espaço à lista e aos cards */}
+      <header className="flex h-12 shrink-0 items-center gap-3 px-5 md:px-7">
         <TopNav active={activeTab} />
 
-        <label className="relative min-w-[200px] flex-1 max-w-xl">
+        <label className="relative min-w-[160px] flex-1 max-w-md">
           <Search
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
+            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden
           />
           <input
@@ -193,25 +193,29 @@ export function CatalogScreen(props: {
             tabIndex={0}
             placeholder={`Buscar ${noun}`}
             aria-label={`Buscar ${noun}`}
-            className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2.5 pl-11 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
+            className="vexia-focus w-full rounded-full border border-white/10 bg-black/60 py-2 pl-10 pr-4 text-sm text-vexia-text placeholder:text-vexia-text/45 backdrop-blur-xl outline-none"
           />
         </label>
 
         <SortControl navRow={0} />
 
-        <div className="ml-auto">
-          <VexiaLogo className="h-9" />
+        <div className="ml-auto shrink-0">
+          <VexiaLogo className="h-8" />
         </div>
       </header>
 
       {hasContent ? (
-        <div className="grid min-h-0 flex-1 gap-4 px-6 pb-4 md:px-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-          {/* Coluna esquerda */}
-          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-3 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
-            <div className="grid shrink-0 place-items-center py-1">
-              <VexiaLogo className="h-14" />
-            </div>
-            <div className="my-3 h-px bg-white/10" />
+        <div className="grid min-h-0 flex-1 gap-4 px-5 pb-3 md:px-7 lg:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]">
+          {/* Coluna esquerda — a LISTA é o elemento principal da tela */}
+          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            <h1 className="shrink-0 px-1 text-base font-black uppercase tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.85)]">
+              {kind === "series" ? "Séries" : "Filmes"}
+            </h1>
+            <p className="shrink-0 px-1 text-[10px] font-medium uppercase tracking-widest text-vexia-cyan/80">
+              {items.length} {noun} na sua lista
+            </p>
+            <div className="my-2 h-px shrink-0 bg-white/10" />
+
             <div className="flex items-center justify-between gap-2">
               <Link
                 to="/home"
