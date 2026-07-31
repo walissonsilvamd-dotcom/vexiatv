@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
 import { playableStreamUrl } from "../../lib/stream-url";
 import { SmartImage } from "./SmartImage";
@@ -9,7 +9,7 @@ import { SmartImage } from "./SmartImage";
  * Usa o mesmo motor resiliente do player principal (dois motores com troca
  * automática) e com som normal. Clicar na prévia leva para a tela cheia.
  */
-export default function ChannelPreview({
+function ChannelPreviewBase({
   src,
   name,
   logo,
@@ -167,3 +167,11 @@ export default function ChannelPreview({
     </div>
   );
 }
+
+/**
+ * Memoizado: a prévia só re-renderiza quando o canal (url/nome/logo) muda.
+ * Sem isso, cada tique do EPG ou movimento de foco na lista re-renderizava o
+ * player inteiro e a imagem engasgava.
+ */
+const ChannelPreview = memo(ChannelPreviewBase);
+export default ChannelPreview;

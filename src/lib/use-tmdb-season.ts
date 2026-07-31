@@ -1,6 +1,13 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { tmdbSeasonEpisodes } from "./tmdb.functions";
+import {
+  readSeasonCache,
+  seasonCacheKey,
+  warmSeasonStills,
+  writeSeasonCache,
+} from "./tmdb-season-cache";
 
 export type TmdbEpisodeMeta = {
   number: number;
@@ -23,12 +30,24 @@ export function useTmdbSeason(
 ) {
   const fetchSeason = useServerFn(tmdbSeasonEpisodes);
 
+  const key = title && season !== undefined ? seasonCacheKey(title, year, season) : "";
+  const cached = key ? readSeasonCache(key) : undefined;
+
   const { data, isPending } = useQuery({
-    queryKey: ["tmdb-season", (title ?? "").toLowerCase(), year ?? 0, season ?? -1],
-    queryFn: async () =>
-      (await fetchSeason({
+    queryKey: ["tmdb-season", key],
+    // Cache persistente: reentrar na série (ou trocar entre séries) não baixa
+    // novamente nomes, sinopses nem os stills dos capítulos.
+    initialData: cached,
+    queryFn: async () => {
+      const result = (await fetchSeason({
         data: { title: title as string, year: year || undefined, season: season as number },
-      })) as TmdbEpisodeMeta[],
+      })) as TmdbEpisodeMeta[];
+      if (key && result?.length) {
+        writeSeasonCache(key, result);
+        warmSeasonStills(result);
+      }
+      return result;
+    },
     enabled: !!title && season !== undefined && season >= 0,
     staleTime: 1000 * 60 * 60 * 24 * 7,
     gcTime: 1000 * 60 * 60,
@@ -38,8 +57,12 @@ export function useTmdbSeason(
     refetchOnReconnect: false,
   });
 
-  const byNumber = new Map<number, TmdbEpisodeMeta>();
-  for (const item of data ?? []) byNumber.set(item.number, item);
+  // Identidade estável do Map: evita re-render em cascata da lista de capítulos.
+  const byNumber = useMemo(() => {
+    const map = new Map<number, TmdbEpisodeMeta>();
+    for (const item of data ?? []) map.set(item.number, item);
+    return map;
+  }, [data]);
 
   return { byNumber, isPending };
 }
