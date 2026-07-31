@@ -139,7 +139,11 @@ export async function attachEngine(
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
-      capLevelToPlayerSize: maxHeight === null || preview,
+      // Fora da prévia buscamos SEMPRE a melhor faixa que a banda aguenta:
+      // não limitamos pelo tamanho do elemento e já estimamos banda alta, então
+      // o filme abre na melhor imagem e a ABR só desce se realmente precisar.
+      capLevelToPlayerSize: preview,
+      abrEwmaDefaultEstimate: preview ? 800_000 : 8_000_000,
       // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
       startLevel: preview ? 0 : -1,
       // Começa a tocar com o mínimo de dados possível.

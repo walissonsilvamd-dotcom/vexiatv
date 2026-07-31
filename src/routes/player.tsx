@@ -790,6 +790,20 @@ function PlayerPage() {
 
   const percent = duration ? (current / duration) * 100 : 0;
 
+  /* Callback estável: mantém o carrossel memoizado fora do ciclo de re-render. */
+  const selectEpisode = useCallback(
+    (next: { id: string; url: string }) => {
+      setStreamHandoff("series", id, next.url, next.id);
+      void navigate({
+        to: "/player",
+        search: { type: "series", id, ep: next.id },
+        viewTransition: true,
+      });
+      setDrawerOpen(false);
+    },
+    [id, navigate],
+  );
+
   const showEpisodes = type === "series" && episodes.length > 1;
 
   // Com a gaveta aberta os controles continuam visíveis e clicáveis na hora.
@@ -1340,11 +1354,7 @@ function PlayerPage() {
               seriesPoster={serie.poster}
               episodes={episodes}
               currentEpisodeId={episode?.id}
-              onSelect={(next) => {
-                setStreamHandoff("series", id, next.url, next.id);
-                navigate({ to: "/player", search: { type: "series", id, ep: next.id }, viewTransition: true });
-                setDrawerOpen(false);
-              }}
+              onSelect={selectEpisode}
             />
           </div>
         </div>
