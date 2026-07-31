@@ -1071,10 +1071,11 @@ function PlayerPage() {
         onPointerDown={ping}
         onClickCapture={ping}
         onFocusCapture={ping}
-        className={`absolute inset-x-0 bottom-0 z-40 space-y-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-5 pt-5 transition-opacity duration-200 md:px-8 ${
-          showEpisodes && serie ? "pb-20" : "pb-4"
+        className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 transition-opacity duration-200 md:px-6 ${
+          showEpisodes && serie ? "pb-16" : "pb-3"
         } ${overlay}`}
       >
+
         {/* Barra de progresso / atraso */}
         {type === "live" ? (
           <div className="flex items-center gap-3 text-xs font-medium">
