@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { preloadImages } from "../../lib/image";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
@@ -8,7 +8,7 @@ import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
 
-export function PosterCard({
+function PosterCardBase({
   item,
   navRow,
   progress,
@@ -107,6 +107,18 @@ export function PosterCard({
   );
 }
 
+
+/** Memo: em grades grandes evita re-render de todos os cards na TV. */
+export const PosterCard = memo(
+  PosterCardBase,
+  (a, b) =>
+    a.item.id === b.item.id &&
+    a.item.poster === b.item.poster &&
+    a.item.rating === b.item.rating &&
+    a.navRow === b.navRow &&
+    a.kind === b.kind &&
+    a.progress === b.progress,
+);
 
 export function PosterGrid({
   items,
