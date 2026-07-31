@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
 import { SmartImage } from "./SmartImage";
@@ -28,8 +28,10 @@ export default function ChannelPreview({
   const videoRef = useRef<HTMLVideoElement>(null);
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
+  /** Vira true no primeiro frame realmente exibido: some o "Iniciando prévia". */
+  const [started, setStarted] = useState(false);
 
-  const { activeSlot, buffering, fatalError } = useResilientPlayer({
+  const { activeSlot, buffering, reconnecting, fatalError } = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
@@ -37,7 +39,22 @@ export default function ChannelPreview({
     live: true,
   });
 
+  useEffect(() => {
+    setStarted(false);
+    if (!src) return;
+    const mark = () => setStarted(true);
+    const nodes = [slotARef.current, slotBRef.current].filter(Boolean) as HTMLVideoElement[];
+    for (const n of nodes) n.addEventListener("playing", mark);
+    return () => {
+      for (const n of nodes) n.removeEventListener("playing", mark);
+    };
+  }, [src]);
+
   const showPoster = !src || Boolean(fatalError);
+  /* Primeiro clique: mostra o carregamento até o stream aquecer. */
+  const starting = Boolean(src) && !started && !fatalError;
+  const showBuffer = Boolean(src) && !fatalError && (starting || buffering || reconnecting);
+
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgba(0,200,255,0.5)]">
@@ -84,13 +101,21 @@ export default function ChannelPreview({
           </span>
         ) : null}
 
-        {src && buffering && !fatalError ? (
-          <span className="absolute left-3 top-3 h-5 w-5 animate-spin rounded-full border-2 border-vexia-cyan/30 border-t-vexia-cyan" />
+        {showBuffer ? (
+          <span className="absolute inset-0 grid place-items-center bg-black/45 backdrop-blur-[2px]">
+            <span className="flex flex-col items-center gap-2">
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgba(0,200,255,0.45)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
+                {reconnecting ? "Reconectando" : starting ? "Iniciando prévia" : "Carregando buffer"}
+              </span>
+            </span>
+          </span>
         ) : null}
 
         <span className="absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          {fatalError ? "Sinal indisponível" : "Ao vivo"}
+          {fatalError ? "Sinal indisponível" : starting ? "Aquecendo" : "Ao vivo"}
         </span>
+
       </button>
 
       <button

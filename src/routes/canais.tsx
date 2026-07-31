@@ -21,6 +21,8 @@ import { SmartImage } from "../components/vexia/SmartImage";
 import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { programProgress } from "../lib/epg";
+import { readLastChannel, writeLastChannel } from "../lib/last-channel";
+
 
 /** Hora no formato 20:30. */
 function formatClock(ms: number) {
@@ -71,10 +73,18 @@ function ChannelsPage() {
   const [listsOpen, setListsOpen] = useState(false);
   /** A prévia começa muda (regra de autoplay dos navegadores/TVs). */
   const [previewMuted, setPreviewMuted] = useState(true);
+  /** Estado salvo do último canal (id + se estava em tela cheia). */
+  const [lastChannel] = useState(() => readLastChannel());
+  const restoredRef = useRef(false);
+  /** Evita disparar duas navegações se o clique repetir muito rápido. */
+  const openingRef = useRef(false);
 
   /** Abre o canal em tela cheia, reaproveitando o stream já aquecido na prévia. */
   const openFullscreen = useCallback(
     (ch: PlaylistChannel) => {
+      if (openingRef.current) return;
+      openingRef.current = true;
+      writeLastChannel(ch.id, true);
       setStreamHandoff("live", ch.id, ch.url);
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
@@ -84,11 +94,17 @@ function ChannelsPage() {
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
   const onChannelClick = useCallback(
     (ch: PlaylistChannel) => {
-      if (selected?.id === ch.id) openFullscreen(ch);
-      else setSelected(ch);
+      if (selected?.id === ch.id) {
+        openFullscreen(ch);
+        return;
+      }
+      // Nunca recria a prévia para o mesmo canal: só troca quando o id muda.
+      setSelected((cur) => (cur?.id === ch.id ? cur : ch));
+      writeLastChannel(ch.id, false);
     },
     [selected, openFullscreen],
   );
+
 
   const favs = useMemo(
     () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
@@ -136,8 +152,20 @@ function ChannelsPage() {
 
 
   useEffect(() => {
-    setSelected((cur) => (cur && list.some((c) => c.id === cur.id) ? cur : (list[0] ?? null)));
-  }, [list]);
+    setSelected((cur) => {
+      if (cur && list.some((c) => c.id === cur.id)) return cur;
+      // Ao voltar para a página, retoma o último canal usado, se ainda existir.
+      if (!restoredRef.current && lastChannel) {
+        const saved = list.find((c) => c.id === lastChannel.id);
+        if (saved) {
+          restoredRef.current = true;
+          return saved;
+        }
+      }
+      return list[0] ?? null;
+    });
+  }, [list, lastChannel]);
+
 
   const shell = (children: React.ReactNode) => (
     <main
@@ -333,6 +361,23 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="space-y-4">
+        {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && openFullscreen(selected)}
+            className="vexia-focus flex w-full items-center justify-between gap-3 rounded-xl border border-vexia-cyan/40 bg-black/60 px-4 py-2.5 text-left backdrop-blur-xl"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-vexia-text">
+              Você estava assistindo em tela cheia
+            </span>
+            <span className="text-[11px] font-black uppercase tracking-[0.14em] text-vexia-cyan">
+              Retomar
+            </span>
+          </button>
+        ) : null}
+
         <ChannelPreview
           key={selected?.id ?? "none"}
           src={selected?.url ?? null}
@@ -342,6 +387,7 @@ function ChannelsPage() {
           onToggleMuted={() => setPreviewMuted((m) => !m)}
           onOpenFullscreen={() => selected && openFullscreen(selected)}
         />
+
 
         <div>
           <h2 className="text-xl font-black text-vexia-text">{selected?.name ?? "—"}</h2>
@@ -375,11 +421,8 @@ function ChannelsPage() {
             type="button"
             data-nav-row={4}
             tabIndex={0}
-            onClick={() => {
-              if (!selected) return;
-              setStreamHandoff("live", selected.id, selected.url);
-              void navigate({ to: "/player", search: { type: "live", id: selected.id } });
-            }}
+            onClick={() => selected && openFullscreen(selected)}
+
             className="vexia-focus inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-vexia-purple to-vexia-purple/70 px-6 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-white shadow-[0_10px_26px_-12px_rgba(123,47,190,0.9)]"
           >
             <Play className="h-4 w-4" aria-hidden /> Assistir
