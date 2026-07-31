@@ -226,15 +226,22 @@ function FiltersPage() {
         })}
       </div>
 
-      {/* Prévia do resultado */}
-      <section className="mt-3 min-h-0 flex-1 space-y-1.5 px-5 md:px-8">
-        <div className="flex items-center justify-between">
+      {/* Resultado — sempre aqui na própria tela de filtros */}
+      <section
+        ref={resultsRef}
+        className="no-scrollbar mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto px-5 md:px-8"
+      >
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-            Prévia do resultado
+            {applied ? `Resultado (${results.length})` : "Prévia do resultado"}
           </h2>
-          {isBusy && (
-            <span className="text-[10px] font-bold text-vexia-purple-soft animate-pulse">
-              {loading ? "Carregando lista…" : `Enriquecendo ${tmdbProgress}%`}
+          {isBusy ? (
+            <span className="animate-pulse text-[10px] font-bold text-vexia-purple-soft">
+              {loading ? "Carregando lista…" : `Verificando ${tmdbProgress}%`}
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold text-vexia-text/50">
+              Conferidos {pool.length} de {localBase.length} títulos
             </span>
           )}
         </div>
@@ -248,11 +255,26 @@ function FiltersPage() {
             ))}
           </div>
         ) : preview.length > 0 ? (
-          <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
-            {preview.map(({ item, kind }) => (
-              <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+              {preview.map(({ item, kind }) => (
+                <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
+              ))}
+            </div>
+            {applied && pool.length < localBase.length ? (
+              <div className="flex justify-center pb-2 pt-1">
+                <button
+                  type="button"
+                  data-nav-row={95}
+                  tabIndex={0}
+                  onClick={() => setLimit((l) => l + STEP)}
+                  className="vexia-focus rounded-full border border-vexia-purple/50 bg-black/50 px-6 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-vexia-cyan"
+                >
+                  Ver mais resultados
+                </button>
+              </div>
+            ) : null}
+          </>
         ) : (
           <EmptyFilterResults
             noun="resultado"
@@ -262,6 +284,7 @@ function FiltersPage() {
           />
         )}
       </section>
+
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 overflow-hidden border-t border-white/10 bg-black/90 px-3 py-2 backdrop-blur sm:gap-4 sm:px-5 md:px-8">
         <p className="shrink-0 text-[9px] font-bold uppercase tracking-[0.16em] text-vexia-cyan sm:text-[10px]">
