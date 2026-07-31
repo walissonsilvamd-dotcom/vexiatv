@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Volume2, VolumeX } from "lucide-react";
 import { useResilientPlayer } from "../../hooks/useResilientPlayer";
 import { playableStreamUrl } from "../../lib/stream-url";
 import { SmartImage } from "./SmartImage";
@@ -14,15 +13,11 @@ export default function ChannelPreview({
   src,
   name,
   logo,
-  muted,
-  onToggleMuted,
   onOpenFullscreen,
 }: {
   src: string | null;
   name: string;
   logo?: string;
-  muted: boolean;
-  onToggleMuted: () => void;
   onOpenFullscreen: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -34,12 +29,13 @@ export default function ChannelPreview({
   // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
   const playable = src ? playableStreamUrl(src) : "";
 
-  const { activeSlot, buffering, reconnecting, fatalError, mutedByAutoplay } = useResilientPlayer({
+  const { activeSlot, buffering, reconnecting, fatalError } = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
     src: playable,
     live: true,
+    standby: false,
   });
 
   useEffect(() => {
@@ -53,16 +49,17 @@ export default function ChannelPreview({
     };
   }, [playable]);
 
-  /* Aplica o som pedido direto no elemento (o atributo React pode chegar tarde). */
+  /* A prévia sempre usa som; o segundo elemento fica silencioso enquanto inativo. */
   useEffect(() => {
     const active = activeSlot === "a" ? slotARef.current : slotBRef.current;
     const standby = activeSlot === "a" ? slotBRef.current : slotARef.current;
     if (standby) standby.muted = true;
     if (active) {
-      active.muted = muted;
-      if (!muted) active.volume = 1;
+      active.muted = false;
+      active.volume = 1;
+      void active.play().catch(() => undefined);
     }
-  }, [muted, activeSlot, started]);
+  }, [activeSlot, started]);
 
   const showPoster = !playable || Boolean(fatalError);
   /* Primeiro clique: mostra o carregamento até o stream aquecer. */
@@ -136,18 +133,6 @@ export default function ChannelPreview({
         </span>
       </div>
 
-      <button
-        type="button"
-        aria-label={muted ? "Ativar som da prévia" : "Silenciar prévia"}
-        onClick={onToggleMuted}
-        className="vexia-focus absolute bottom-2 right-2 z-10 grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-black/70 text-vexia-text"
-      >
-        {muted || mutedByAutoplay ? (
-          <VolumeX className="h-4 w-4" aria-hidden />
-        ) : (
-          <Volume2 className="h-4 w-4" aria-hidden />
-        )}
-      </button>
     </div>
   );
 }

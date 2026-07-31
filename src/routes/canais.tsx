@@ -87,8 +87,6 @@ function ChannelsPage() {
   const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
-  /** A prévia toca com som normal; se o navegador bloquear, o hook cai para mudo. */
-  const [previewMuted, setPreviewMuted] = useState(false);
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
   const restoredRef = useRef(false);
@@ -411,12 +409,9 @@ function ChannelsPage() {
         ) : null}
 
         <ChannelPreview
-          key={selected?.id ?? "none"}
           src={selected?.url ?? null}
           name={selected?.name ?? "Canal"}
           logo={selected?.logo}
-          muted={previewMuted}
-          onToggleMuted={() => setPreviewMuted((m) => !m)}
           onOpenFullscreen={() => selected && openFullscreen(selected)}
         />
 
