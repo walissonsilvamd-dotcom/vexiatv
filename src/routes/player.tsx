@@ -216,6 +216,7 @@ function PlayerPage() {
   const pendingResumeRef = useRef<number | null>(null);
 
   const [confirmForget, setConfirmForget] = useState(false);
+  const { settings } = useSettings();
   /* Ajustes → Player de Vídeo: "externo" abre o link em outro aplicativo. */
   const [internalOverride, setInternalOverride] = useState(false);
   const externalGate = settings.player === "external" && !internalOverride;
@@ -625,7 +626,6 @@ function PlayerPage() {
 
   /* ── Preferências de legenda vindas de Ajustes ─────────────────
      Só faz efeito quando a lista carregada realmente traz legendas. */
-  const { settings } = useSettings();
   const subsAutoRef = useRef<string>("");
   /** Escolha manual feita no player tem prioridade sobre a preferência de Ajustes. */
   const subsManualRef = useRef(false);
