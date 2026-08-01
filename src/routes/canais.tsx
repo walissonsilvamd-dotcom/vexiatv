@@ -23,7 +23,7 @@ import { VirtualizedList } from "../components/VirtualizedGrid";
 import { SmartImage } from "../components/vexia/SmartImage";
 import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
-import { programProgress } from "../lib/epg";
+
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
