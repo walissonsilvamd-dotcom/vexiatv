@@ -450,8 +450,8 @@ function ChannelsPage() {
               }}
               className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                 isActive
-                  ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.85),inset_0_1px_0_rgba(255,255,255,0.2)]"
-                  : "border-white/10 bg-vexia-card text-vexia-text hover:border-vexia-purple/40"
+                  ? "border-vexia-purple/60 bg-vexia-purple text-white shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                  : "border-white/[0.07] bg-black/45 text-vexia-text hover:border-vexia-purple/40 hover:bg-vexia-purple/20"
               }`}
             >
               <Tv className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
