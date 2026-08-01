@@ -260,6 +260,20 @@ function PlayerPage() {
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
   const kindLabel = type === "live" ? "AO VIVO" : type === "movie" ? "FILME" : "SÉRIE";
 
+  /* Modo de imagem salvo no aparelho. */
+  useEffect(() => {
+    setFit(readFitMode());
+  }, []);
+  const applyFit = useCallback((mode: FitMode) => {
+    setFit(mode);
+    saveFitMode(mode);
+  }, []);
+  const cycleFit = useCallback(() => {
+    const i = FIT_MODES.findIndex((m) => m.id === fit);
+    const next = FIT_MODES[(i + 1) % FIT_MODES.length]!;
+    applyFit(next.id);
+  }, [fit, applyFit]);
+
   useEffect(() => {
     if (resilientPlayer.mutedByAutoplay) setMuted(true);
   }, [resilientPlayer.mutedByAutoplay]);
@@ -346,9 +360,21 @@ function PlayerPage() {
       if (watchMetaRef.current?.name && type !== "live") {
         completeWatch(watchMetaRef.current.kind, watchMetaRef.current.name);
       }
+      // Repetir: mesmo item, ou temporada voltando ao primeiro episódio.
+      if (repeat === "one") {
+        video.currentTime = 0;
+        void video.play().catch(() => undefined);
+        return;
+      }
       if (nextEpisode) {
         setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
         navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true });
+        return;
+      }
+      if (repeat === "season" && episodes[0]) {
+        const first = episodes[0];
+        setStreamHandoff("series", id, first.url, first.id);
+        navigate({ to: "/player", search: { type, id, ep: first.id }, viewTransition: true });
       }
     };
     video.addEventListener("timeupdate", onTime);
@@ -367,7 +393,7 @@ function PlayerPage() {
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("ended", onEnded);
     };
-  }, [type, id, nextEpisode, navigate, activeSlot]);
+  }, [type, id, nextEpisode, navigate, activeSlot, repeat, episodes]);
 
   /* ── Retomada automática: agenda a posição salva deste conteúdo/episódio ── */
   useEffect(() => {
