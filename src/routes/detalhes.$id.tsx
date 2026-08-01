@@ -31,23 +31,28 @@ import { useMovieInfo } from "../hooks/useMovieInfo";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
 export const Route = createFileRoute("/detalhes/$id")({
-  head: () => ({
-    meta: [
-      { title: "VÉXIA TV — Detalhes do título" },
-      {
-        name: "description",
-        content:
-          "Ficha completa do título da sua lista M3U no VÉXIA TV: sinopse, elenco, temporadas e recomendações.",
-      },
-      { property: "og:title", content: "VÉXIA TV — Detalhes do título" },
-      {
-        property: "og:description",
-        content: "Sinopse, elenco, temporadas e recomendações no VÉXIA TV.",
-      },
-      { property: "og:type", content: "video.movie" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://vexiatv.lovable.app/detalhes/${params.id}`;
+    return {
+      meta: [
+        { title: "VÉXIA TV — Detalhes do título" },
+        {
+          name: "description",
+          content:
+            "Ficha completa do título da sua lista M3U no VÉXIA TV: sinopse, elenco, temporadas e recomendações.",
+        },
+        { property: "og:title", content: "VÉXIA TV — Detalhes do título" },
+        {
+          property: "og:description",
+          content: "Sinopse, elenco, temporadas e recomendações no VÉXIA TV.",
+        },
+        { property: "og:type", content: "video.movie" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: DetailsPage,
 });
 
