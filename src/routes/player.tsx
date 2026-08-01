@@ -595,15 +595,47 @@ function PlayerPage() {
     ping();
   }, [ping]);
 
+  /**
+   * Seek acumulado: cada toque no D-pad soma no alvo e mostra o tempo destino;
+   * o salto real só acontece quando o cliente para de apertar (SEEK_COMMIT_MS).
+   * Evita 5 buscas seguidas no servidor ao avançar 2 minutos.
+   */
+  const seekCommit = useRef<number | undefined>(undefined);
   const seekBy = useCallback(
     (delta: number) => {
       const video = videoRef.current;
       if (!video) return;
-      video.currentTime = Math.max(0, video.currentTime + delta);
+      const base = seekPreview ?? video.currentTime;
+      const limit = Number.isFinite(video.duration) && video.duration > 0 ? video.duration - 1 : Infinity;
+      const target = Math.min(Math.max(0, base + delta), limit);
+      setSeekPreview(target);
+      window.clearTimeout(seekCommit.current);
+      seekCommit.current = window.setTimeout(() => {
+        const el = videoRef.current;
+        if (el) el.currentTime = target;
+        setSeekPreview(null);
+      }, SEEK_COMMIT_MS);
       ping();
     },
-    [ping],
+    [ping, seekPreview],
   );
+
+  useEffect(() => () => window.clearTimeout(seekCommit.current), []);
+
+  /* Zapping instantâneo: aquece o manifesto dos canais vizinhos da lista. */
+  useEffect(() => {
+    if (type !== "live" || zapChannels.length < 2) return;
+    const i = zapChannels.findIndex((c) => c.id === id);
+    if (i < 0) return;
+    const warm = window.setTimeout(() => {
+      for (const dir of [1, -1]) {
+        const neighbour = zapChannels[(i + dir + zapChannels.length) % zapChannels.length];
+        prefetchStream(neighbour?.url);
+      }
+    }, 1500);
+    return () => window.clearTimeout(warm);
+  }, [type, zapChannels, id]);
+
 
   const goBack = useCallback(() => {
     if (menu) return setMenu(null);
