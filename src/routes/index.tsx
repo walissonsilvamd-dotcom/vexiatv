@@ -1,8 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import splashAsset from "../assets/splash-clean.jpeg.asset.json";
-import { SplashLogo } from "../components/vexia/SplashLogo";
-import { SLOGAN } from "../data/vexia-catalog";
+import splashAsset from "../assets/splash-vexia.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,108 +34,52 @@ function SplashScreen() {
   return (
     <div
       className={[
-        "vexia-overscan fixed inset-0 grid place-items-center overflow-hidden bg-vexia-bg",
+        "fixed inset-0 overflow-hidden bg-vexia-bg",
         "animate-[vexia-fade_700ms_ease-out]",
         exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
       ].join(" ")}
     >
-      {/* Luzes ambiente: halo roxo respirando + aurora ciano girando lentamente. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2"
-      >
-        <div
-          className="absolute inset-0 rounded-full animate-[splash-breathe_9s_ease-in-out_infinite]"
-          style={{
-            background:
-              "radial-gradient(circle, color-mix(in oklab, var(--vexia-purple) 22%, transparent) 0%, transparent 68%)",
-            filter: "blur(60px)",
-          }}
-        />
-        <div
-          className="absolute inset-0 rounded-full mix-blend-screen animate-[splash-aurora_26s_linear_infinite]"
-          style={{
-            background:
-              "conic-gradient(from 0deg, color-mix(in oklab, var(--vexia-purple) 22%, transparent), color-mix(in oklab, var(--vexia-cyan) 16%, transparent), color-mix(in oklab, var(--vexia-purple) 22%, transparent))",
-            filter: "blur(110px)",
-          }}
-        />
-      </div>
+      <h1 className="sr-only">VÉXIA TV — carregando</h1>
 
-      {/* Textura sutil de pontos — acabamento premium. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.035]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 2px 2px, #fff 1px, transparent 0)",
-          backgroundSize: "40px 40px",
-        }}
+      {/* Splash oficial em tela cheia. */}
+      <img
+        src={splashAsset.url}
+        alt="VÉXIA TV"
+        className="absolute inset-0 h-full w-full object-cover"
+        fetchPriority="high"
       />
 
-      <div className="relative flex h-full w-full max-w-full flex-col items-center justify-center gap-[clamp(1rem,3vmin,2rem)] text-center">
-        <h1 className="sr-only">VÉXIA TV</h1>
-
-        {/* Logo: entrada cinematográfica (aproxima, ganha foco e assenta). */}
-        <div className="relative mx-auto max-w-full animate-[splash-logo-reveal_1200ms_cubic-bezier(0.22,1,0.36,1)_both]">
-          <SplashLogo className="mx-auto h-[min(42vh,46vmin)] max-w-[88%] object-contain animate-[splash-logo-glow_5s_ease-in-out_600ms_infinite]" />
-        </div>
-
-
-        {/* Filete de luz que se abre sob a logo — acabamento sóbrio, sem pulsar. */}
+      {/* Loader: cobre o círculo estático da arte e gira enquanto o app carrega. */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-[82.3%] -translate-x-1/2 -translate-y-1/2"
+      >
+        {/* Máscara suave para o círculo impresso não aparecer atrás. */}
         <div
-          aria-hidden
-          className="h-px w-[min(34vmin,60%)] origin-center animate-[splash-rule_1200ms_cubic-bezier(0.16,1,0.3,1)_600ms_both]"
+          className="absolute left-1/2 top-1/2 h-[16vmin] w-[16vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
           style={{
             background:
-              "linear-gradient(90deg, transparent, color-mix(in oklab, var(--vexia-purple) 80%, transparent) 35%, color-mix(in oklab, var(--vexia-cyan) 70%, transparent) 65%, transparent)",
+              "radial-gradient(circle, rgba(4,6,18,0.98) 0%, rgba(4,6,18,0.9) 45%, transparent 72%)",
           }}
         />
-
         <div
-          className="h-[clamp(2.25rem,6vmin,3.5rem)] w-[clamp(2.25rem,6vmin,3.5rem)] rounded-full animate-[splash-spin_1s_linear_infinite]"
+          className="relative h-[5.2vmin] w-[5.2vmin] min-h-[26px] min-w-[26px] animate-[splash-spin_1100ms_linear_infinite]"
           style={{
             background:
-              "conic-gradient(from 0deg, var(--vexia-purple) 0deg, var(--vexia-purple-soft) 140deg, transparent 300deg)",
+              "conic-gradient(from 0deg, var(--vexia-cyan), var(--vexia-purple), var(--vexia-cyan))",
             WebkitMask:
-              "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
-            mask: "radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 4px))",
+              "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
+            mask: "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
+            WebkitMaskComposite: "source-in",
+            maskComposite: "intersect",
+            filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--vexia-cyan) 55%, transparent))",
           }}
         />
-
-        <p className="text-[clamp(0.7rem,1.6vmin,1rem)] font-medium tracking-[0.4em] text-vexia-muted">
-          CARREGANDO
-        </p>
       </div>
-
-      <p className="absolute bottom-[max(var(--vexia-overscan-y),env(safe-area-inset-bottom))] left-1/2 w-full -translate-x-1/2 px-[var(--vexia-overscan-x)] text-center text-[clamp(0.6rem,1.3vmin,0.85rem)] tracking-[0.3em] text-vexia-cyan">
-        {SLOGAN}
-      </p>
 
       <style>{`
         @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes splash-logo-reveal {
-          0%   { opacity: 0; transform: scale(0.86) translateY(20px); filter: blur(12px); }
-          60%  { opacity: 1; transform: scale(1.02) translateY(0); filter: blur(0.4px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-        }
-        @keyframes splash-logo-glow {
-          0%, 100% { filter: drop-shadow(0 0 12px color-mix(in oklab, var(--vexia-purple) 42%, transparent)); }
-          50%      { filter: drop-shadow(0 0 22px color-mix(in oklab, var(--vexia-cyan) 38%, transparent)); }
-        }
-        @keyframes splash-breathe {
-          0%, 100% { opacity: 0.28; transform: scale(1); }
-          50%      { opacity: 0.48; transform: scale(1.05); }
-        }
-        @keyframes splash-aurora {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-        @keyframes splash-rule {
-          from { opacity: 0; transform: scaleX(0.2); }
-          to   { opacity: 0.85; transform: scaleX(1); }
-        }
         @keyframes splash-cinematic-exit {
           0%   { opacity: 1; transform: scale(1); filter: blur(0); }
           40%  { opacity: 0.75; transform: scale(1.02); filter: blur(2px); }
