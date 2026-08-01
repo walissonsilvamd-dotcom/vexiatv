@@ -18,7 +18,8 @@ import {
   Wifi,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import {

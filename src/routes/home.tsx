@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
