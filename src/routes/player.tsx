@@ -827,6 +827,14 @@ function PlayerPage() {
             subs.select(t.id);
           },
         })),
+        {
+          label: extSubsUrl ? "Legenda externa (trocar)" : "Carregar legenda externa…",
+          active: Boolean(extSubsUrl),
+          select: () => {
+            setMenu(null);
+            setExtSubsOpen(true);
+          },
+        },
       ];
     }
 
