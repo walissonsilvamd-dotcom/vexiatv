@@ -60,9 +60,95 @@ function qualityOf(name: string) {
   return m ? m[1].toUpperCase() : "";
 }
 
+/**
+ * Linha da lista de canais — memoizada.
+ *
+ * O APK base refazia a lista inteira (notifyDataSetChanged) a cada troca de
+ * seleção, o que reacende todos os logos. Aqui cada linha só re-renderiza
+ * quando o que ELA mostra muda: nome, logo, favorito, foco ou programa no ar.
+ */
+const ChannelRow = memo(function ChannelRow({
+  ch,
+  index,
+  isActive,
+  isFav,
+  nowTitle,
+  onSelect,
+  onToggleFav,
+}: {
+  ch: PlaylistChannel;
+  index: number;
+  isActive: boolean;
+  isFav: boolean;
+  nowTitle: string;
+  onSelect: (ch: PlaylistChannel) => void;
+  onToggleFav: (ch: PlaylistChannel) => void;
+}) {
+  const quality = qualityOf(ch.name);
+  return (
+    <div className="group relative mb-1.5">
+      <button
+        type="button"
+        data-nav-row={2}
+        tabIndex={0}
+        onClick={() => onSelect(ch)}
+        className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
+          isActive
+            ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgb(var(--vexia-secondary-rgb)/0.6)]"
+            : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
+        }`}
+      >
+        <span
+          className={`w-7 shrink-0 text-right text-xs font-bold ${isActive ? "text-white" : "text-vexia-muted"}`}
+        >
+          {index + 1}
+        </span>
+        <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-black/70">
+          {ch.logo ? (
+            <SmartImage
+              src={ch.logo}
+              role="logo"
+              alt=""
+              className="h-full w-full object-contain p-0.5"
+              fallback={<Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />}
+            />
+          ) : (
+            <Tv className="h-4 w-4 text-vexia-cyan" aria-hidden />
+          )}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+          <span
+            className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
+          >
+            {nowTitle || ch.group}
+            {quality ? ` • ${quality}` : ""}
+          </span>
+        </span>
+      </button>
+      <button
+        type="button"
+        onClick={() => onToggleFav(ch)}
+        aria-label={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+        className={`absolute right-2.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border transition-all ${
+          isFav
+            ? "border-vexia-purple/60 bg-vexia-purple shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]"
+            : "border-vexia-cyan/40 bg-black/50 hover:border-vexia-cyan"
+        }`}
+      >
+        <Heart
+          className={`h-3.5 w-3.5 ${isFav ? "fill-current text-vexia-text" : "text-vexia-cyan"}`}
+          aria-hidden
+        />
+      </button>
+    </div>
+  );
+});
+
 function ChannelsPage() {
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
+
   const navigate = useNavigate();
   const { channels: allChannels, data, hasContent } = usePlaylist();
   /* Ajustes → Controle dos Pais / Ocultar Categorias. */
