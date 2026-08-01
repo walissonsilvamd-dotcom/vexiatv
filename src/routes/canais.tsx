@@ -1,7 +1,7 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Play, Search, Tv } from "lucide-react";
+import { FolderPlus, Heart, Lock, Play, Search, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
