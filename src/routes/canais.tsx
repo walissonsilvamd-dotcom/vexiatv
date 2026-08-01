@@ -356,7 +356,7 @@ function ChannelsPage() {
       className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         height: "100dvh",
-        backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
+        backgroundImage: `linear-gradient(rgba(9,2,26,0.52), rgba(4,0,14,0.68)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
