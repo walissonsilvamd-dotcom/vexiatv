@@ -45,6 +45,59 @@ export function engineOrder(src: string): PlaybackEngine[] {
   return ["native", "mpegts.js", "hls.js"];
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Formato do stream ao vivo (TS ⇄ HLS)
+ *
+ * Painéis Xtream entregam o MESMO canal em dois formatos:
+ *   .../live/usuario/senha/12345.ts     (MPEG-TS)
+ *   .../live/usuario/senha/12345.m3u8   (HLS)
+ * Em muitos servidores um dos dois falha (ou trava) enquanto o outro roda liso.
+ * Por isso a cadeia de recuperação não troca apenas de MOTOR: quando os motores
+ * do formato atual se esgotam, o app tenta o mesmo canal no outro formato.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type PlaybackCandidate = { src: string; engine: PlaybackEngine };
+
+const PROXY_PREFIX = "/api/public/stream?url=";
+const LIVE_PATH = /(\/live\/[^/]+\/[^/]+\/\d+)\.(ts|m3u8)(\?.*)?$/i;
+
+/** Aplica uma transformação na URL real, mesmo quando ela passa pelo proxy. */
+function mapRealUrl(src: string, map: (real: string) => string | null): string | null {
+  if (src.startsWith(PROXY_PREFIX)) {
+    const inner = decodeURIComponent(src.slice(PROXY_PREFIX.length));
+    const mapped = map(inner);
+    return mapped ? `${PROXY_PREFIX}${encodeURIComponent(mapped)}` : null;
+  }
+  return map(src);
+}
+
+/** Mesmo canal no formato alternativo (.ts ⇄ .m3u8), ou null quando não se aplica. */
+export function alternateFormat(src: string): string | null {
+  return mapRealUrl(src, (real) => {
+    const match = real.match(LIVE_PATH);
+    if (!match) return null;
+    const [, path, ext, query = ""] = match;
+    const other = ext.toLowerCase() === "ts" ? "m3u8" : "ts";
+    return `${real.slice(0, real.indexOf(match[0]))}${path}.${other}${query}`;
+  });
+}
+
+/**
+ * Cadeia completa de tentativas: todos os motores do formato atual e, em
+ * seguida, os do formato alternativo. É isso que garante canal no ar mesmo
+ * quando o servidor entrega um dos formatos quebrado.
+ */
+export function candidateOrder(src: string): PlaybackCandidate[] {
+  const primary = engineOrder(src).map((engine) => ({ src, engine }));
+  const other = alternateFormat(src);
+  if (!other) return primary;
+  const fallback = engineOrder(other)
+    .slice(0, 2)
+    .map((engine) => ({ src: other, engine }));
+  return [...primary, ...fallback];
+}
+
+
 /**
  * Pré-carrega o motor de reprodução (e abre a conexão com o servidor de
  * stream) ANTES do clique. Assim, ao escolher o episódio, não há espera para
