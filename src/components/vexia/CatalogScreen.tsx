@@ -334,8 +334,8 @@ export function CatalogScreen(props: {
 
                       className={`vexia-focus flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         active
-                          ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)]"
-                          : "bg-[#1A1A1A]/70 font-medium text-vexia-text hover:bg-white/10"
+                          ? "bg-vexia-purple font-bold text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.65)]"
+                          : "bg-white/[0.04] font-medium text-vexia-text hover:bg-vexia-purple/20"
                       }`}
                     >
                       <span className="truncate">{cat}</span>
