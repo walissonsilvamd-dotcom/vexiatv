@@ -136,8 +136,8 @@ const ChannelRow = memo(function ChannelRow({
         onClick={() => onSelect(ch)}
         className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
           isActive
-            ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgb(var(--vexia-secondary-rgb)/0.6)]"
-            : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
+            ? "scale-[1.02] border-vexia-purple/70 bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.75)]"
+            : "border-white/[0.06] bg-black/45 hover:border-vexia-purple/40 hover:bg-vexia-purple/15"
         }`}
       >
         <span
@@ -356,7 +356,7 @@ function ChannelsPage() {
       className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         height: "100dvh",
-        backgroundImage: `linear-gradient(rgba(5,5,5,0.86), rgba(5,5,5,0.94)), url(${nebula.url})`,
+        backgroundImage: `linear-gradient(rgba(9,2,26,0.52), rgba(4,0,14,0.68)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
@@ -450,8 +450,8 @@ function ChannelsPage() {
               }}
               className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                 isActive
-                  ? "border-vexia-purple/60 bg-gradient-to-r from-vexia-purple to-vexia-purple/70 text-white shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.85),inset_0_1px_0_rgba(255,255,255,0.2)]"
-                  : "border-white/10 bg-vexia-card text-vexia-text hover:border-vexia-purple/40"
+                  ? "border-vexia-purple/60 bg-vexia-purple text-white shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                  : "border-white/[0.07] bg-black/45 text-vexia-text hover:border-vexia-purple/40 hover:bg-vexia-purple/20"
               }`}
             >
               <Tv className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
