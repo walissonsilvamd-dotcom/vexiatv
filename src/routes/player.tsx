@@ -224,6 +224,8 @@ function PlayerPage() {
 
   const [confirmForget, setConfirmForget] = useState(false);
   const { settings } = useSettings();
+  /* Passo de avanço/retrocesso vindo de Ajustes (5s a 30s). */
+  const seekStep = settings.seekStep;
   /* Ajustes → Player de Vídeo: "externo" abre o link em outro aplicativo. */
   const [internalOverride, setInternalOverride] = useState(false);
   const externalGate = settings.player === "external" && !internalOverride;
@@ -786,9 +788,6 @@ function PlayerPage() {
   } vexia-subs-${settings.subtitleColor} ${
     settings.subtitleBackdrop ? "vexia-subs-box" : "vexia-subs-clean"
   }`;
-
-  /* Passo de avanço vindo de Ajustes (5s a 30s). */
-  const seekStep = settings.seekStep;
 
 
   type MenuOption = { label: string; active: boolean; select: () => void };
