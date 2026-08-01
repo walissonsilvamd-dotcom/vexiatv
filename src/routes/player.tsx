@@ -49,6 +49,15 @@ import {
   SUBTITLE_OFFSET_STEP,
 } from "../lib/subtitle-prefs";
 import { createSubtitleOffsetController } from "../lib/subtitle-offset";
+import {
+  attachExternalSubtitle,
+  clearExternalSubtitle,
+  getExternalSubtitle,
+  setExternalSubtitle,
+  toVttBlobUrl,
+  type ExternalSubtitleHandle,
+} from "../lib/external-subtitles";
+import { ExternalSubsDialog } from "../components/vexia/ExternalSubsDialog";
 import { playableStreamUrl } from "../lib/stream-url";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
