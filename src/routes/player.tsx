@@ -173,7 +173,8 @@ function PlayerPage() {
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
-  const [quality, setQuality] = useState("Auto");
+  /** Alvo pendente do seek acumulado (D-pad) — só vira seek real ao soltar. */
+  const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const [speed, setSpeed] = useState(1);
   const [mediaReady, setMediaReady] = useState(false);
 
