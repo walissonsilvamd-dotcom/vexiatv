@@ -160,6 +160,64 @@ function qualityCap(preview = false): number | null {
   return cap; // auto e original usam tudo o que a lista oferecer
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Perfil de desempenho (Ajustes → Reprodução)
+ *
+ * Smart TV barata engasga com buffer grande e ABR agressiva; internet boa
+ * aproveita o contrário. O perfil ajusta buffer, estimativa inicial de banda e
+ * o quanto a ABR pode subir de faixa.
+ * ──────────────────────────────────────────────────────────────────────────── */
+type Tuning = {
+  bufferScale: number;
+  bandwidthEstimate: number;
+  capToPlayerSize: boolean;
+  stashScale: number;
+};
+
+function tuningFor(preview: boolean): Tuning {
+  if (preview) {
+    return { bufferScale: 1, bandwidthEstimate: 800_000, capToPlayerSize: true, stashScale: 1 };
+  }
+  switch (readSettings().perfProfile) {
+    case "eco":
+      // Aparelho fraco: buffer curto (menos RAM/decoder) e faixa contida.
+      return { bufferScale: 0.6, bandwidthEstimate: 2_000_000, capToPlayerSize: true, stashScale: 0.5 };
+    case "smooth":
+      // Internet boa: buffer generoso, quase nunca rebuffera.
+      return { bufferScale: 1.8, bandwidthEstimate: 12_000_000, capToPlayerSize: false, stashScale: 2 };
+    default:
+      return { bufferScale: 1, bandwidthEstimate: 8_000_000, capToPlayerSize: false, stashScale: 1 };
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Pré-carregamento de manifesto (zapping instantâneo)
+ *
+ * Ao abrir um canal, os vizinhos da lista têm o manifesto/primeiros bytes
+ * buscados em segundo plano. Quando o cliente aperta Canal +/−, o servidor já
+ * respondeu uma vez e a conexão está quente: a troca fica quase imediata.
+ * ──────────────────────────────────────────────────────────────────────────── */
+const prefetched = new Set<string>();
+
+export function prefetchStream(src?: string | null): void {
+  if (typeof window === "undefined" || !src) return;
+  if (prefetched.has(src)) return;
+  prefetched.add(src);
+  if (prefetched.size > 60) prefetched.clear();
+  warmEngines(src);
+  const controller = new AbortController();
+  const stop = window.setTimeout(() => controller.abort(), 2_500);
+  void fetch(src, {
+    method: "GET",
+    signal: controller.signal,
+    headers: sourceKind(src) === "hls" ? {} : { Range: "bytes=0-65535" },
+  })
+    .then((response) => response.body?.cancel().catch(() => undefined))
+    .catch(() => undefined)
+    .finally(() => window.clearTimeout(stop));
+}
+
+
 export async function attachEngine(
   video: HTMLVideoElement,
   engine: PlaybackEngine,
