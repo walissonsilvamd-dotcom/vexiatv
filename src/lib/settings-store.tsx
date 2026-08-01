@@ -40,6 +40,14 @@ export type VexiaSettings = {
   subtitlesEnabled: boolean;
   subtitleSize: SubtitleSize;
   subtitleColor: SubtitleColor;
+  /** Caixa escura atrás da legenda: ajuda em cenas claras. */
+  subtitleBackdrop: boolean;
+  /** Segundos que os botões de avanço/retrocesso pulam no player. */
+  seekStep: SeekStep;
+  /** Picture-in-Picture: janela flutuante ao sair do player. */
+  pipEnabled: boolean;
+  /** Pergunta antes de sair do aplicativo. */
+  confirmExit: boolean;
 };
 
 export const DEFAULT_SETTINGS: VexiaSettings = {
@@ -60,6 +68,10 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   subtitlesEnabled: false,
   subtitleSize: "medium",
   subtitleColor: "white",
+  subtitleBackdrop: true,
+  seekStep: 10,
+  pipEnabled: false,
+  confirmExit: true,
 };
 
 export type HistoryKind = "movie" | "series";
