@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Star } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 import { preloadImages } from "../../lib/image";
+import { cancelDetailPrefetch, prefetchDetail } from "../../lib/detail-prefetch";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
