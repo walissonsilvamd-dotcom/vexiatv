@@ -118,6 +118,7 @@ const ChannelRow = memo(function ChannelRow({
   index,
   isActive,
   isFav,
+  isLocked,
   nowTitle,
   onSelect,
   onToggleFav,
@@ -126,6 +127,7 @@ const ChannelRow = memo(function ChannelRow({
   index: number;
   isActive: boolean;
   isFav: boolean;
+  isLocked: boolean;
   nowTitle: string;
   onSelect: (ch: PlaylistChannel) => void;
   onToggleFav: (ch: PlaylistChannel) => void;
