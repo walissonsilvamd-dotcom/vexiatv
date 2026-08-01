@@ -10,6 +10,7 @@ import type { MediaItem } from "../data/vexia";
 import { detectAudio } from "./filters-store";
 import type { ParsedPlaylist, PlaylistChannel, PlaylistEpisode, PlaylistSeries } from "./m3u";
 import { stableId } from "../utils/hash";
+import { cachedInfo } from "./xtream-info-cache";
 
 export type XtreamCreds = {
   /** http(s)://host[:porta] */
@@ -252,9 +253,13 @@ type SeriesInfo = {
   >;
 };
 
-const episodeCache = new Map<string, PlaylistEpisode[]>();
-
-/** Busca (e memoriza) os episódios de uma série pelo painel Xtream. */
+/**
+ * Busca os episódios de uma série pelo painel Xtream.
+ *
+ * O resultado normalizado fica em cache persistente (localStorage, TTL 12h),
+ * como no APK base: voltar para a mesma série não refaz a requisição, e o
+ * carrossel/temporadas aparecem instantaneamente.
+ */
 export async function fetchXtreamEpisodes(
   playlistUrl: string,
   seriesId: number,
@@ -262,34 +267,103 @@ export async function fetchXtreamEpisodes(
 ): Promise<PlaylistEpisode[]> {
   const creds = xtreamCreds(playlistUrl);
   if (!creds || !seriesId) return [];
-  const key = `${creds.base}|${seriesId}`;
-  const cached = episodeCache.get(key);
-  if (cached) return cached;
 
-  const info = await getJson<SeriesInfo>(
-    apiUrl(creds, "get_series_info", `&series_id=${seriesId}`),
-    signal,
-  );
+  return cachedInfo<PlaylistEpisode[]>(`sr|${creds.base}|${seriesId}`, async () => {
+    const info = await getJson<SeriesInfo>(
+      apiUrl(creds, "get_series_info", `&series_id=${seriesId}`),
+      signal,
+    );
 
-  const out: PlaylistEpisode[] = [];
-  for (const [seasonKey, list] of Object.entries(info.episodes ?? {})) {
-    const season = num(seasonKey) || 1;
-    for (const ep of list ?? []) {
-      const ext = ep.container_extension || "mp4";
-      const url = `${creds.base}/series/${creds.username}/${creds.password}/${ep.id}.${ext}`;
-      out.push({
-        id: stableId("ep", String(seriesId), url),
-        season,
-        number: num(ep.episode_num),
-        title: ep.info?.name || ep.title || `Episódio ${num(ep.episode_num)}`,
-        url,
-        thumb: ep.info?.movie_image || ep.info?.cover_big || "",
-        runtimeMin: ep.info?.duration_secs ? Math.round(ep.info.duration_secs / 60) : 0,
-        overview: ep.info?.plot || "",
-      });
+    const out: PlaylistEpisode[] = [];
+    for (const [seasonKey, list] of Object.entries(info.episodes ?? {})) {
+      const season = num(seasonKey) || 1;
+      for (const ep of list ?? []) {
+        const ext = ep.container_extension || "mp4";
+        const url = `${creds.base}/series/${creds.username}/${creds.password}/${ep.id}.${ext}`;
+        out.push({
+          id: stableId("ep", String(seriesId), url),
+          season,
+          number: num(ep.episode_num),
+          title: ep.info?.name || ep.title || `Episódio ${num(ep.episode_num)}`,
+          url,
+          thumb: ep.info?.movie_image || ep.info?.cover_big || "",
+          runtimeMin: ep.info?.duration_secs ? Math.round(ep.info.duration_secs / 60) : 0,
+          overview: ep.info?.plot || "",
+        });
+      }
     }
-  }
-  out.sort((a, b) => a.season - b.season || a.number - b.number);
-  episodeCache.set(key, out);
-  return out;
+    out.sort((a, b) => a.season - b.season || a.number - b.number);
+    return out;
+  });
+}
+
+export type XtreamVodInfo = {
+  plot: string;
+  cover: string;
+  backdrop: string;
+  rating: number;
+  runtimeMin: number;
+  genre: string;
+  cast: string;
+  director: string;
+  releaseDate: string;
+};
+
+type VodInfoResponse = {
+  info?: {
+    plot?: string;
+    description?: string;
+    movie_image?: string;
+    cover_big?: string;
+    backdrop_path?: string[];
+    rating?: string | number;
+    duration_secs?: number;
+    genre?: string;
+    cast?: string;
+    actors?: string;
+    director?: string;
+    releasedate?: string;
+    releaseDate?: string;
+  };
+};
+
+/**
+ * Detalhes de um filme pelo painel (`get_vod_info`), em cache persistente.
+ * Usado tanto na tela de detalhes quanto no prefetch por foco.
+ */
+export async function fetchXtreamVodInfo(
+  playlistUrl: string,
+  streamId: number,
+  signal?: AbortSignal,
+): Promise<XtreamVodInfo | null> {
+  const creds = xtreamCreds(playlistUrl);
+  if (!creds || !streamId) return null;
+
+  return cachedInfo<XtreamVodInfo | null>(`vd|${creds.base}|${streamId}`, async () => {
+    const data = await getJson<VodInfoResponse>(
+      apiUrl(creds, "get_vod_info", `&vod_id=${streamId}`),
+      signal,
+    );
+    const info = data.info;
+    if (!info) return null;
+    return {
+      plot: info.plot || info.description || "",
+      cover: info.movie_image || info.cover_big || "",
+      backdrop: info.backdrop_path?.[0] || "",
+      rating: num(info.rating),
+      runtimeMin: info.duration_secs ? Math.round(info.duration_secs / 60) : 0,
+      genre: info.genre || "",
+      cast: info.cast || info.actors || "",
+      director: info.director || "",
+      releaseDate: info.releasedate || info.releaseDate || "",
+    };
+  });
+}
+
+
+/** Extrai o stream_id de uma URL de filme/série gerada pelo painel. */
+export function xtreamStreamId(url: string | undefined | null): number {
+  if (!url) return 0;
+  const m = url.match(/\/(\d+)\.[a-z0-9]+(?:\?|$)/i);
+  return m ? Number(m[1]) : 0;
 }

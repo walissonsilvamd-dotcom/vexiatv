@@ -15,6 +15,7 @@ import { StorageErrorDialog } from "../components/StorageErrorDialog";
 import { matchesLegacyId } from "../utils/hash";
 import { fetchPlaylistAccount, isAccountExpired, type PlaylistAccount } from "./xtream";
 import { fetchXtreamCatalog, xtreamCreds } from "./xtream-catalog";
+import { setPrefetchSource } from "./detail-prefetch";
 import type { MediaItem } from "../data/vexia";
 import { diffPlaylists, type PlaylistDiff } from "./playlist-diff";
 import { useSettings } from "./settings-store";
@@ -247,6 +248,10 @@ export function PlaylistProvider({ children }: { children: React.ReactNode }) {
    * frequente.
    */
   const storedUrl = stored?.url;
+  /* O prefetch de detalhes precisa saber qual lista está ativa. */
+  useEffect(() => {
+    setPrefetchSource(storedUrl ?? "");
+  }, [storedUrl]);
   useEffect(() => {
     if (!storedUrl) return;
     let alive = true;

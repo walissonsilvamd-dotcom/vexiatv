@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Star } from "lucide-react";
 import { memo, useEffect, useState } from "react";
 import { preloadImages } from "../../lib/image";
+import { cancelDetailPrefetch, prefetchDetail } from "../../lib/detail-prefetch";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
@@ -52,8 +53,28 @@ function PosterCardBase({
         tabIndex={0}
         title={active.title}
         aria-label={active.title}
+        /* Prefetch no foco: quando o cliente para no card, os detalhes
+           (episódios / info do filme) já são buscados em segundo plano. */
+        onFocus={() => prefetchDetail({
+          id: item.id,
+          kind,
+          seriesId: (item as { seriesId?: number }).seriesId,
+          streamUrl: (item as { streamUrl?: string }).streamUrl,
+          poster: active.poster,
+          backdrop: active.backdrop,
+        })}
+        onMouseEnter={() => prefetchDetail({
+          id: item.id,
+          kind,
+          seriesId: (item as { seriesId?: number }).seriesId,
+          streamUrl: (item as { streamUrl?: string }).streamUrl,
+          poster: active.poster,
+          backdrop: active.backdrop,
+        })}
+        onBlur={cancelDetailPrefetch}
         className="vexia-card-focus block scroll-m-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)]"
       >
+
 
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {showPoster ? (
