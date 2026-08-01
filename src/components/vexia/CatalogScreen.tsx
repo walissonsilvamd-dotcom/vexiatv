@@ -196,7 +196,9 @@ export function CatalogScreen(props: {
       className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         height: "100dvh",
-        backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
+        /* Nebulosa roxa à mostra (como no mockup): véu leve só para garantir
+           leitura do texto, sem apagar a cor do fundo. */
+        backgroundImage: `linear-gradient(rgba(9,2,26,0.52), rgba(4,0,14,0.68)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -250,7 +252,7 @@ export function CatalogScreen(props: {
           <aside
             ref={asideRef}
             onMouseEnter={() => setRailed(false)}
-            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-vexia-purple/30 bg-gradient-to-b from-[#0B0118]/92 to-[#050008]/94 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-28px_rgb(var(--vexia-primary-rgb)/0.55)]">
             {railed ? (
               /* Trilho: seta ESQUERDA nos cards cai aqui e reabre o painel. */
               <button
@@ -332,8 +334,8 @@ export function CatalogScreen(props: {
 
                       className={`vexia-focus flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
                         active
-                          ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/60 font-bold text-white shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)]"
-                          : "bg-[#1A1A1A]/70 font-medium text-vexia-text hover:bg-white/10"
+                          ? "bg-vexia-purple font-bold text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.65)]"
+                          : "bg-white/[0.04] font-medium text-vexia-text hover:bg-vexia-purple/20"
                       }`}
                     >
                       <span className="truncate">{cat}</span>
