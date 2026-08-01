@@ -104,6 +104,8 @@ const QUALITIES = [
 
 function SettingsPage() {
   const navigate = useNavigate();
+  const pageRef = useRef<HTMLElement>(null);
+  useSpatialNav(pageRef);
   const { settings, set, toggle, history, clearHistory, formatTime } = useSettings();
   const { history: watchHistory } = useWatchHistory();
   const [historyOn, setHistoryOn] = useState(true);
