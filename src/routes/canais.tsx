@@ -473,11 +473,12 @@ function ChannelsPage() {
         ) : null}
 
         <ChannelPreview
-          src={selected?.url ?? null}
-          name={selected?.name ?? "Canal"}
-          logo={selected?.logo}
+          src={previewChannel?.url ?? null}
+          name={previewChannel?.name ?? selected?.name ?? "Canal"}
+          logo={previewChannel?.logo ?? selected?.logo}
           onOpenFullscreen={openSelectedFullscreen}
         />
+
 
 
         <div>
