@@ -256,24 +256,25 @@ export async function attachEngine(
       return { hlsApi: null, destroy: () => undefined };
     }
     const maxHeight = qualityCap(preview);
+    const tuning = tuningFor(preview);
+    const scale = (seconds: number) => Math.round(seconds * tuning.bufferScale);
     const instance = new Hls({
       lowLatencyMode: live && !preview,
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
-      // Fora da prévia buscamos SEMPRE a melhor faixa que a banda aguenta:
-      // não limitamos pelo tamanho do elemento e já estimamos banda alta, então
-      // o filme abre na melhor imagem e a ABR só desce se realmente precisar.
-      capLevelToPlayerSize: preview,
-      abrEwmaDefaultEstimate: preview ? 800_000 : 8_000_000,
+      // Fora da prévia buscamos a melhor faixa que a banda aguenta; o perfil de
+      // desempenho decide o quanto a ABR pode ousar e o tamanho do buffer.
+      capLevelToPlayerSize: preview || tuning.capToPlayerSize,
+      abrEwmaDefaultEstimate: tuning.bandwidthEstimate,
       // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
       startLevel: preview ? 0 : -1,
       // Começa a tocar com o mínimo de dados possível.
       maxStarvationDelay: 2,
       maxLoadingDelay: 2,
-      backBufferLength: preview ? 6 : live ? 20 : 90,
-      maxBufferLength: preview ? 6 : live ? 30 : 60,
-      maxMaxBufferLength: preview ? 12 : live ? 60 : 120,
+      backBufferLength: preview ? 6 : scale(live ? 20 : 90),
+      maxBufferLength: preview ? 6 : scale(live ? 30 : 60),
+      maxMaxBufferLength: preview ? 12 : scale(live ? 60 : 120),
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 1,
       nudgeOffset: 0.1,
