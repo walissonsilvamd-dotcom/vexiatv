@@ -83,6 +83,7 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   seekStep: 10,
   pipEnabled: false,
   confirmExit: true,
+  perfProfile: "balanced",
 };
 
 export type HistoryKind = "movie" | "series";
