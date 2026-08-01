@@ -947,7 +947,24 @@ function PlayerPage() {
   type MenuOption = { label: string; active: boolean; select: () => void };
   const menuOptions: MenuOption[] = useMemo(() => {
     if (menu === "quality") {
-      return QUALITIES.map((q) => ({ label: q, active: q === quality, select: () => setQuality(q) }));
+      // Faixas reais do manifesto; "Auto" devolve o controle para a ABR.
+      return [
+        {
+          label: qualityLevels.activeLabel ? `Auto · ${qualityLevels.activeLabel}` : "Auto",
+          active: qualityLevels.selected === QUALITY_AUTO,
+          select: () => qualityLevels.select(QUALITY_AUTO),
+        },
+        ...[...qualityLevels.levels]
+          .sort((a, b) => b.height - a.height || b.bitrate - a.bitrate)
+          .map((level) => ({
+            label:
+              level.bitrate > 0
+                ? `${level.label} · ${(level.bitrate / 1_000_000).toFixed(1)} Mb/s`
+                : level.label,
+            active: qualityLevels.selected === level.id,
+            select: () => qualityLevels.select(level.id),
+          })),
+      ];
     }
     if (menu === "speed") {
       return SPEEDS.map((s) => ({
