@@ -23,15 +23,57 @@ import { VirtualizedList } from "../components/VirtualizedGrid";
 import { SmartImage } from "../components/vexia/SmartImage";
 import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
-import { programProgress } from "../lib/epg";
+
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
+import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
+import { CatchupDialog } from "../components/vexia/CatchupDialog";
 
 
 /** Hora no formato 20:30. */
 function formatClock(ms: number) {
   return new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
+
+/**
+ * EPG curta direto do painel (`get_short_epg`) — usada só quando o XMLTV não
+ * tem dados do canal focado. É o caminho leve do APK base: uma requisição
+ * pequena por canal, com cache de 5 min.
+ */
+function useShortEpg(channel: PlaylistChannel | null, enabled: boolean) {
+  const { source } = usePlaylist();
+  const url = source?.url ?? "";
+  const streamId = liveStreamId(channel?.url);
+  const [data, setData] = useState<{ now?: EpgEntry; next?: EpgEntry }>({});
+
+  useEffect(() => {
+    if (!enabled || !url || !streamId) {
+      setData({});
+      return;
+    }
+    const ctrl = new AbortController();
+    // Espera o zapping parar antes de consultar o painel.
+    const timer = setTimeout(() => {
+      fetchShortEpg(url, streamId, ctrl.signal)
+        .then((list) => {
+          const now = Date.now();
+          setData({
+            now: list.find((e) => e.start <= now && e.stop > now),
+            next: list.find((e) => e.start > now),
+          });
+        })
+        .catch(() => setData({}));
+    }, 320);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+  }, [enabled, url, streamId]);
+
+  return data;
+}
+
+
 
 
 export const Route = createFileRoute("/canais")({
@@ -171,9 +213,17 @@ function ChannelsPage() {
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
-  const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
+  const xmltvEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
+  /**
+   * Fallback do APK base: quando o XMLTV não cobre o canal, o painel responde
+   * `get_short_epg` só do canal focado — resposta minúscula e instantânea.
+   */
+  const shortEpg = useShortEpg(selected, !xmltvEpg.now);
+  const selectedEpg = xmltvEpg.now ? xmltvEpg : shortEpg;
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
+  const [catchupOpen, setCatchupOpen] = useState(false);
+
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
   const restoredRef = useRef(false);
@@ -497,7 +547,18 @@ function ChannelsPage() {
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
-                  style={{ width: `${Math.round(programProgress(selectedEpg.now, minuteTick) * 100)}%` }}
+                  style={{
+                    width: `${Math.round(
+                      Math.min(
+                        1,
+                        Math.max(
+                          0,
+                          (minuteTick - selectedEpg.now.start) /
+                            Math.max(1, selectedEpg.now.stop - selectedEpg.now.start),
+                        ),
+                      ) * 100,
+                    )}%`,
+                  }}
                 />
               </div>
               <p className="mt-1.5 text-[11px] text-vexia-muted">
@@ -537,8 +598,20 @@ function ChannelsPage() {
           >
             Procurar
           </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => setCatchupOpen(true)}
+            className="vexia-focus rounded-xl border border-vexia-purple/50 bg-vexia-card px-6 py-2.5 text-xs font-black uppercase tracking-[0.12em] text-vexia-cyan"
+          >
+            Replay
+          </button>
         </div>
       </section>
+
+      <CatchupDialog open={catchupOpen} channel={selected} onClose={() => setCatchupOpen(false)} />
     </div>,
+
   );
 }
