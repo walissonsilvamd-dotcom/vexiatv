@@ -1,12 +1,13 @@
 import { DEFAULT_XTREAM_SERVER, resolveServer } from "@/lib/iptv-config";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import nebulaAsset from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { DEVICE_KEY, DEVICE_MAC } from "../data/vexia-catalog";
 import { usePlaylist } from "../lib/playlist-store";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 import {
   buildXtreamUrl,
   isLikelyPlaylistUrl,
@@ -39,6 +40,10 @@ export const Route = createFileRoute("/listas")({
 
 function ListsPage() {
   const navigate = useNavigate();
+  /* Navegação por controle (D-pad): todo elemento clicável desta tela recebe
+     data-nav-row + tabIndex, então o foco anda com as setas do controle. */
+  const scopeRef = useRef<HTMLElement | null>(null);
+  useSpatialNav(scopeRef);
   const { ready, source, data, loading, error, loadFromUrl, reload, clear, account, expired } =
     usePlaylist();
 
@@ -144,7 +149,7 @@ function ListsPage() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-vexia-bg text-vexia-text">
+    <main ref={scopeRef} className="relative min-h-screen overflow-hidden bg-vexia-bg text-vexia-text">
       <img
         src={nebulaAsset.url}
         alt=""
@@ -161,6 +166,8 @@ function ListsPage() {
           <button
             type="button"
             onClick={() => navigate({ to: "/home" })}
+              data-nav-row={1}
+              tabIndex={0}
             aria-label="Voltar"
             className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-full border border-vexia-purple/50 bg-black/50"
           >
@@ -182,7 +189,9 @@ function ListsPage() {
               <button
                 type="button"
                 onClick={openForm}
-                className="vexia-focus group flex flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-purple/40 bg-vexia-card/80 px-6 py-10 text-center shadow-[0_0_40px_-18px_var(--vexia-purple)] backdrop-blur-sm"
+                className="vexia-focus group
+              data-nav-row={2}
+              tabIndex={0} flex flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-purple/40 bg-vexia-card/80 px-6 py-10 text-center shadow-[0_0_40px_-18px_var(--vexia-purple)] backdrop-blur-sm"
               >
                 <span className="grid h-16 w-16 place-items-center rounded-full bg-vexia-purple/90">
                   <Plus className="h-8 w-8 text-white" aria-hidden />
@@ -250,6 +259,8 @@ function ListsPage() {
                     <button
                       type="button"
                       onClick={() => void reload()}
+              data-nav-row={3}
+              tabIndex={0}
                       disabled={loading}
                       className="vexia-focus flex flex-1 items-center justify-center gap-2 rounded-full bg-vexia-purple px-4 py-2 text-[11px] font-bold tracking-[0.14em] disabled:opacity-60"
                     >
@@ -263,7 +274,9 @@ function ListsPage() {
                     <button
                       type="button"
                       onClick={openForm}
-                      className="vexia-focus flex flex-1 items-center justify-center gap-2 rounded-full border border-vexia-cyan/50 px-4 py-2 text-[11px] font-bold tracking-[0.14em]"
+                      className="vexia-focus flex flex-1
+              data-nav-row={3}
+              tabIndex={0} items-center justify-center gap-2 rounded-full border border-vexia-cyan/50 px-4 py-2 text-[11px] font-bold tracking-[0.14em]"
                     >
                       <Pencil className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
                       EDITAR
@@ -271,6 +284,8 @@ function ListsPage() {
                     <button
                       type="button"
                       onClick={clear}
+              data-nav-row={3}
+              tabIndex={0}
                       aria-label="Remover lista"
                       className="vexia-focus grid h-9 w-9 place-items-center rounded-full border border-white/20"
                     >
@@ -324,6 +339,8 @@ function ListsPage() {
               <button
                 type="button"
                 onClick={() => (source ? setForm(false) : void navigate({ to: "/home" }))}
+              data-nav-row={1}
+              tabIndex={0}
                 aria-label="Voltar"
                 className="vexia-focus grid h-11 w-11 shrink-0 place-items-center rounded-full border border-vexia-purple/50 bg-black/50"
               >
@@ -371,6 +388,8 @@ function ListsPage() {
                   <button
                     type="button"
                     onClick={pairing.refresh}
+              data-nav-row={2}
+              tabIndex={0}
                     className="vexia-focus rounded-full border border-vexia-purple/60 px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-white/85"
                   >
                     NOVO CÓDIGO
@@ -378,6 +397,8 @@ function ListsPage() {
                   <button
                     type="button"
                     onClick={() => setQrDialog(true)}
+              data-nav-row={2}
+              tabIndex={0}
                     className="vexia-focus rounded-full border border-vexia-cyan/60 px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-vexia-cyan"
                   >
                     COLAR LINK MANUALMENTE
@@ -404,6 +425,8 @@ function ListsPage() {
                       <input
                         value={server}
                         onChange={(e) => setServer(e.target.value)}
+              data-nav-row={3}
+              tabIndex={0}
                         onPaste={(e) => {
                           if (applyPaste(e.clipboardData.getData("text"), "server"))
                             e.preventDefault();
@@ -426,6 +449,8 @@ function ListsPage() {
                     <input
                       value={user}
                       onChange={(e) => setUser(e.target.value)}
+              data-nav-row={4}
+              tabIndex={0}
                       onPaste={(e) => {
                         if (applyPaste(e.clipboardData.getData("text"), "user")) e.preventDefault();
                       }}
@@ -441,6 +466,8 @@ function ListsPage() {
                     <input
                       type="password"
                       value={pass}
+              data-nav-row={5}
+              tabIndex={0}
                       onChange={(e) => setPass(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
@@ -457,7 +484,9 @@ function ListsPage() {
                     type="button"
                     onClick={() => submit()}
                     disabled={loading}
-                    className="vexia-focus w-full rounded-full bg-vexia-purple px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
+                    className="vexia-focus w-full rounded-full bg-vexia-purple
+              data-nav-row={6}
+              tabIndex={0} px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
                   >
                     ENTRAR
                   </button>
@@ -468,6 +497,8 @@ function ListsPage() {
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
+              data-nav-row={7}
+              tabIndex={0}
                     onPaste={(e) => {
                       if (applyPaste(e.clipboardData.getData("text"), "url")) e.preventDefault();
                     }}
@@ -485,7 +516,9 @@ function ListsPage() {
                     type="button"
                     onClick={() => submit()}
                     disabled={loading}
-                    className="vexia-focus mt-3 w-full rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-sm font-bold tracking-[0.12em] text-vexia-cyan disabled:opacity-60"
+                    className="vexia-focus mt-3 w-full
+              data-nav-row={8}
+              tabIndex={0} rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-sm font-bold tracking-[0.12em] text-vexia-cyan disabled:opacity-60"
                   >
                     CARREGAR LINK
                   </button>
