@@ -15,9 +15,14 @@ const DEFAULT: LiveFormat = "ts";
 
 let cached: LiveFormat | null = null;
 
+const PROXY_PREFIX = "/api/public/stream?url=";
+
 /** Extrai o formato de uma URL de canal ao vivo (null quando não se aplica). */
 export function formatOf(url: string): LiveFormat | null {
-  const path = url.split("?")[0].toLowerCase();
+  const real = url.startsWith(PROXY_PREFIX)
+    ? decodeURIComponent(url.slice(PROXY_PREFIX.length))
+    : url;
+  const path = real.split("?")[0].toLowerCase();
   if (path.endsWith(".m3u8")) return "m3u8";
   if (path.endsWith(".ts")) return "ts";
   return null;
