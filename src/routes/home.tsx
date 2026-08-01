@@ -193,6 +193,24 @@ function HomePage() {
     rowRef.current?.querySelector<HTMLElement>("[data-tile]")?.focus();
   }, []);
 
+  /**
+   * Tecla Voltar do controle na Home: em vez de sair direto, pergunta.
+   * Pode ser desligado em Ajustes › Reprodução.
+   */
+  useEffect(() => {
+    if (!settings.confirmExit) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Backspace" && e.key !== "BrowserBack" && e.key !== "Escape") return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      e.preventDefault();
+      setExitOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [settings.confirmExit]);
+
+
   const openTile = (tile: Tile) => {
     if (tile.action === "lists") setListsOpen(true);
     else if (tile.to) navigate({ to: tile.to });
