@@ -281,6 +281,14 @@ function ChannelsPage() {
   }, [openFullscreen]);
 
   /**
+   * Zapping: a prévia só sobe quando o cliente PARA no canal (180 ms).
+   * Assim, passar rápido pela lista com o controle não abre e fecha um stream
+   * por linha — a navegação fica lisa e a banda vai toda para o canal escolhido.
+   */
+  const previewChannel = useDebounce(selected, 180);
+
+
+  /**
    * Prefetch do próximo canal da lista: só o manifesto (poucos KB) e apenas se
    * o cliente parar por um instante — troca instantânea sem gastar banda.
    */
