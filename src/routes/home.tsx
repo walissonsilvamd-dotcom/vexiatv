@@ -93,6 +93,8 @@ const TILES: Tile[] = [
 function HomePage() {
   const navigate = useNavigate();
   const rowRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLElement>(null);
+  useSpatialNav(pageRef);
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
