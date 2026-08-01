@@ -610,7 +610,40 @@ function PlayerPage() {
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Tela bloqueada: ignora tudo; destrava com OK/Enter duas vezes.
+      if (locked) {
+        e.preventDefault();
+        if (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause") {
+          const now = Date.now();
+          if (now - unlockTapRef.current < 1500) {
+            setLocked(false);
+            setLockHint(false);
+            unlockTapRef.current = 0;
+            return;
+          }
+          unlockTapRef.current = now;
+        }
+        setLockHint(true);
+        return;
+      }
       ping();
+      // Canal + / − do controle (e PageUp/PageDown em teclado).
+      if (
+        e.key === "ChannelUp" ||
+        e.key === "ChannelDown" ||
+        e.key === "PageUp" ||
+        e.key === "PageDown"
+      ) {
+        e.preventDefault();
+        stepChannel(e.key === "ChannelUp" || e.key === "PageUp" ? -1 : 1);
+        return;
+      }
+      // Lista de zapping sobre o vídeo (canais ao vivo).
+      if (type === "live" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+        e.preventDefault();
+        setZapOpen(e.key === "ArrowRight");
+        return;
+      }
       if (fatalError && (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause")) {
         e.preventDefault();
         retryStream();
@@ -694,7 +727,26 @@ function PlayerPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
+  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream, locked, stepChannel]);
+
+  /* Dica do bloqueio desaparece sozinha. */
+  useEffect(() => {
+    if (!lockHint) return;
+    const t = window.setTimeout(() => setLockHint(false), 2600);
+    return () => window.clearTimeout(t);
+  }, [lockHint]);
+
+  /* ── Autoplay do próximo episódio nos últimos segundos ── */
+  const nextDismissedRef = useRef(false);
+  useEffect(() => {
+    nextDismissedRef.current = false;
+    setNextPrompt(false);
+  }, [episode?.id]);
+  useEffect(() => {
+    if (type !== "series" || !nextEpisode || !duration || nextDismissedRef.current) return;
+    const left = duration - current;
+    setNextPrompt(left > 0 && left <= 12);
+  }, [type, nextEpisode, duration, current]);
 
   useEffect(() => {
     menuOpenRef.current = menu !== null;
