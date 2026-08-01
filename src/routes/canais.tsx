@@ -33,6 +33,46 @@ function formatClock(ms: number) {
   return new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
+/**
+ * EPG curta direto do painel (`get_short_epg`) — usada só quando o XMLTV não
+ * tem dados do canal focado. É o caminho leve do APK base: uma requisição
+ * pequena por canal, com cache de 5 min.
+ */
+function useShortEpg(channel: PlaylistChannel | null, enabled: boolean) {
+  const { source } = usePlaylist();
+  const url = source?.url ?? "";
+  const streamId = liveStreamId(channel?.url);
+  const [data, setData] = useState<{ now?: EpgEntry; next?: EpgEntry }>({});
+
+  useEffect(() => {
+    if (!enabled || !url || !streamId) {
+      setData({});
+      return;
+    }
+    const ctrl = new AbortController();
+    // Espera o zapping parar antes de consultar o painel.
+    const timer = setTimeout(() => {
+      fetchShortEpg(url, streamId, ctrl.signal)
+        .then((list) => {
+          const now = Date.now();
+          setData({
+            now: list.find((e) => e.start <= now && e.stop > now),
+            next: list.find((e) => e.start > now),
+          });
+        })
+        .catch(() => setData({}));
+    }, 320);
+    return () => {
+      clearTimeout(timer);
+      ctrl.abort();
+    };
+  }, [enabled, url, streamId]);
+
+  return data;
+}
+
+
+
 
 export const Route = createFileRoute("/canais")({
   head: () => ({
