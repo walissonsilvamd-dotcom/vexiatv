@@ -547,7 +547,18 @@ function ChannelsPage() {
               <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
-                  style={{ width: `${Math.round(programProgress(selectedEpg.now, minuteTick) * 100)}%` }}
+                  style={{
+                    width: `${Math.round(
+                      Math.min(
+                        1,
+                        Math.max(
+                          0,
+                          (minuteTick - selectedEpg.now.start) /
+                            Math.max(1, selectedEpg.now.stop - selectedEpg.now.start),
+                        ),
+                      ) * 100,
+                    )}%`,
+                  }}
                 />
               </div>
               <p className="mt-1.5 text-[11px] text-vexia-muted">
