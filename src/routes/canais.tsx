@@ -681,11 +681,48 @@ function ChannelsPage() {
           >
             Replay
           </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => setGroupsOpen(true)}
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl border border-vexia-cyan/40 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            <FolderPlus className="h-4 w-4" aria-hidden /> Grupos
+          </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && toggleChannelLock(selected.id)}
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl border border-vexia-purple/50 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            <Lock className="h-4 w-4" aria-hidden />
+            {selected && locks.locked(selected.id) ? "Destrancar canal" : "Trancar canal"}
+          </button>
         </div>
       </section>
 
       <CatchupDialog open={catchupOpen} channel={selected} onClose={() => setCatchupOpen(false)} />
+      <GroupsDialog
+        open={groupsOpen}
+        onClose={() => setGroupsOpen(false)}
+        channelId={selected?.id}
+        channelName={selected?.name}
+      />
+      <ChannelPinPrompt
+        open={Boolean(pendingLocked)}
+        channelId={pendingLocked?.id}
+        channelName={pendingLocked?.name}
+        onClose={() => setPendingLocked(null)}
+        onUnlocked={() => {
+          const ch = pendingLocked;
+          setPendingLocked(null);
+          if (ch) openFullscreen(ch);
+        }}
+      />
     </div>,
+
 
   );
 }
