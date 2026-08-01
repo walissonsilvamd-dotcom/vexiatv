@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   Clapperboard,
   Clock,
@@ -44,8 +45,12 @@ export const Route = createFileRoute("/home")({
       { property: "og:title", content: "VÉXIA TV — Home" },
       { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/home" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/home" }],
   }),
   component: HomePage,
 });
@@ -267,6 +272,7 @@ function HomePage() {
             : "flex flex-col items-center justify-center"
         }`}
       >
+        <h1 className="sr-only">VÉXIA TV — Início</h1>
         <VexiaLogo
           className={
             hasContent
@@ -289,9 +295,9 @@ function HomePage() {
             <span>{now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
           </div>
 
-          <h1 className="mt-[0.8vh] text-[clamp(1.1rem,2.4vw,2.3rem)] font-black leading-[1.05] tracking-tight [text-shadow:0_3px_16px_rgba(0,0,0,0.95)]">
+          <h2 className="mt-[0.8vh] text-[clamp(1.1rem,2.4vw,2.3rem)] font-black leading-[1.05] tracking-tight [text-shadow:0_3px_16px_rgba(0,0,0,0.95)]">
             {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
-          </h1>
+          </h2>
 
           <div className="mt-[0.6vh] flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
             <span>{HERO.release}</span>

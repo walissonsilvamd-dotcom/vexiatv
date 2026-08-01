@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SeriesRouteImport } from './routes/series'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as ParearRouteImport } from './routes/parear'
@@ -29,6 +30,11 @@ import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 import { Route as ApiPublicStreamRouteImport } from './routes/api/public/stream'
 import { Route as ApiPublicPlaylistRouteImport } from './routes/api/public/playlist'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SeriesRoute = SeriesRouteImport.update({
   id: '/series',
   path: '/series',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/parear'
     | '/player'
     | '/series'
+    | '/sitemap.xml'
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/parear'
     | '/player'
     | '/series'
+    | '/sitemap.xml'
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/parear'
     | '/player'
     | '/series'
+    | '/sitemap.xml'
     | '/detalhes/$id'
     | '/serie/$id'
     | '/api/public/playlist'
@@ -271,6 +283,7 @@ export interface RootRouteChildren {
   ParearRoute: typeof ParearRoute
   PlayerRoute: typeof PlayerRoute
   SeriesRoute: typeof SeriesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
   SerieIdRoute: typeof SerieIdRoute
   ApiPublicPlaylistRoute: typeof ApiPublicPlaylistRoute
@@ -279,6 +292,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/series': {
       id: '/series'
       path: '/series'
@@ -431,6 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParearRoute: ParearRoute,
   PlayerRoute: PlayerRoute,
   SeriesRoute: SeriesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   DetalhesIdRoute: DetalhesIdRoute,
   SerieIdRoute: SerieIdRoute,
   ApiPublicPlaylistRoute: ApiPublicPlaylistRoute,

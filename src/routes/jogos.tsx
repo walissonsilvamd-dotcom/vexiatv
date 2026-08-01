@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { useMemo, useRef, useState } from "react";
 import { Trophy, Play, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
@@ -28,8 +29,12 @@ export const Route = createFileRoute("/jogos")({
         content: "Veja os jogos no ar agora nos canais de esporte da sua lista.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/jogos" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/jogos" }],
   }),
   component: JogosPage,
 });
@@ -117,6 +122,7 @@ function JogosPage() {
         </div>
       ) : (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-[4vw] pb-6">
+          <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {games.length === 0 ? (
             <p className="py-16 text-center text-sm text-vexia-muted">
               Nenhum canal de esportes encontrado na sua lista.

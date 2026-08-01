@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   ArrowLeft,
   CalendarDays,
@@ -45,8 +46,12 @@ export const Route = createFileRoute("/filtros")({
         content: "Filtros cumulativos sobre a sua lista M3U, enriquecidos pelo TMDB.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/filtros" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/filtros" }],
   }),
   component: FiltersPage,
 });

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { ArrowLeft, Check, Clapperboard, Library, RotateCcw, Tv } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -32,8 +33,12 @@ export const Route = createFileRoute("/carregando")({
         content: "Preparando sua biblioteca de canais, filmes e séries.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/carregando" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/carregando" }],
   }),
   component: CarregandoPage,
 });

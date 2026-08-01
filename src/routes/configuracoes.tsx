@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   ArrowLeft,
   Captions,
@@ -77,8 +78,12 @@ export const Route = createFileRoute("/configuracoes")({
       { property: "og:title", content: "VÉXIA TV — Ajustes" },
       { property: "og:description", content: "Todas as preferências do VÉXIA TV em um só lugar." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/configuracoes" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/configuracoes" }],
   }),
   component: SettingsPage,
 });

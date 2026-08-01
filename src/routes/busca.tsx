@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { Film, Search, Tv2, Clapperboard } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
@@ -28,8 +29,12 @@ export const Route = createFileRoute("/busca")({
         content: "Um só campo para encontrar filmes, séries e canais da sua lista.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/busca" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/busca" }],
   }),
   component: SearchPage,
 });

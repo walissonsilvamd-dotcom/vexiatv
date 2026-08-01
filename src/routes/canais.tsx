@@ -1,4 +1,5 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FolderPlus, Heart, Lock, Play, Search, Tv } from "lucide-react";
@@ -92,8 +93,12 @@ export const Route = createFileRoute("/canais")({
       { property: "og:title", content: "VÉXIA TV — Canais" },
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/canais" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/canais" }],
   }),
   component: ChannelsPage,
 });
@@ -550,6 +555,7 @@ function ChannelsPage() {
       <section
         className={`min-h-0 border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar overflow-y-auto"}`}
       >
+        <h2 className="sr-only">Lista de canais</h2>
         {useVirtual ? (
           <VirtualizedList
             items={list}
@@ -587,6 +593,7 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="no-scrollbar min-h-0 space-y-3 overflow-y-auto">
+        <h2 className="sr-only">Prévia do canal selecionado</h2>
         {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
           <button
             type="button"

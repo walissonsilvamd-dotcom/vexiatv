@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { CatalogScreen } from "../components/vexia/CatalogScreen";
 import { usePlaylist } from "../lib/playlist-store";
 
@@ -10,8 +11,12 @@ export const Route = createFileRoute("/filmes")({
       { property: "og:title", content: "VÉXIA TV — Filmes" },
       { property: "og:description", content: "Catálogo de filmes do VÉXIA TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/filmes" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/filmes" }],
   }),
   component: MoviesPage,
 });

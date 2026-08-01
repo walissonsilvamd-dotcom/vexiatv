@@ -1,4 +1,5 @@
 import { DEFAULT_XTREAM_SERVER, resolveServer } from "@/lib/iptv-config";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Loader2, Pencil, Plus, RefreshCw, Trash2 } from "lucide-react";
@@ -32,8 +33,12 @@ export const Route = createFileRoute("/listas")({
       { property: "og:title", content: "VÉXIA TV — Listas" },
       { property: "og:description", content: "Gerencie suas fontes de conteúdo IPTV no VÉXIA TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/listas" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/listas" }],
   }),
   component: ListsPage,
 });

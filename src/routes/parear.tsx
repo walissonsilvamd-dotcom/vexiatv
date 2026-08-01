@@ -1,4 +1,5 @@
 import { resolveServer } from "@/lib/iptv-config";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -22,8 +23,12 @@ export const Route = createFileRoute("/parear")({
         content: "Pareamento por QR Code: envie sua lista IPTV do celular para a TV.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/parear" },
+      { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/parear" }],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
     c: typeof search.c === "string" ? search.c : undefined,
