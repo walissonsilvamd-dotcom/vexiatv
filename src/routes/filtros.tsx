@@ -87,7 +87,11 @@ function FiltersPage() {
     [movies, series, filters],
   );
 
-  const pool = useMemo(() => localBase.slice(0, limit), [localBase, limit]);
+  /* Sem prévia: nada é verificado/baixado antes de APLICAR (leve no APK). */
+  const pool = useMemo(
+    () => (applied ? localBase.slice(0, limit) : []),
+    [applied, localBase, limit],
+  );
   const poolMovies = useMemo(
     () => pool.filter((p) => p.kind === "movie").map((p) => p.item),
     [pool],
