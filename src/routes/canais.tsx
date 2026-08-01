@@ -598,8 +598,20 @@ function ChannelsPage() {
           >
             Procurar
           </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => setCatchupOpen(true)}
+            className="vexia-focus rounded-xl border border-vexia-purple/50 bg-vexia-card px-6 py-2.5 text-xs font-black uppercase tracking-[0.12em] text-vexia-cyan"
+          >
+            Replay
+          </button>
         </div>
       </section>
+
+      <CatchupDialog open={catchupOpen} channel={selected} onClose={() => setCatchupOpen(false)} />
     </div>,
+
   );
 }
