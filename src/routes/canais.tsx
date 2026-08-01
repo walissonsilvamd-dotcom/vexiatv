@@ -171,9 +171,17 @@ function ChannelsPage() {
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
-  const selectedEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
+  const xmltvEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
+  /**
+   * Fallback do APK base: quando o XMLTV não cobre o canal, o painel responde
+   * `get_short_epg` só do canal focado — resposta minúscula e instantânea.
+   */
+  const shortEpg = useShortEpg(selected, !xmltvEpg.now);
+  const selectedEpg = xmltvEpg.now ? xmltvEpg : shortEpg;
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
+  const [catchupOpen, setCatchupOpen] = useState(false);
+
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
   const restoredRef = useRef(false);
