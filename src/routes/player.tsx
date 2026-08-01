@@ -1796,7 +1796,10 @@ function PlayerPage() {
         engine={engine}
         standbyEngine={standbyEngine}
         attempt={attempt}
+        hlsApi={hlsApi}
+        qualityLabel={qualityLevels.currentLabel}
       />
+
 
       <NextEpisodePrompt
         open={nextPrompt && Boolean(nextEpisode)}
