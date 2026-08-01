@@ -673,6 +673,11 @@ function SettingsPage() {
             onSelect={() => set("subtitleColor", color)}
           />
         ))}
+        <SwitchRow
+          label="Caixa escura atrás do texto"
+          active={settings.subtitleBackdrop}
+          onToggle={() => toggle("subtitleBackdrop")}
+        />
         <div
           className="rounded-xl border border-white/10 bg-black/60 p-4 text-center font-bold"
           style={{
@@ -681,9 +686,49 @@ function SettingsPage() {
               settings.subtitleSize === "small" ? 12 : settings.subtitleSize === "large" ? 22 : 16,
           }}
         >
-          Prévia da legenda
+          <span
+            style={{
+              background: settings.subtitleBackdrop ? "rgba(0,0,0,0.55)" : "transparent",
+              textShadow: "0 2px 6px rgba(0,0,0,0.9)",
+              padding: "2px 8px",
+              borderRadius: 4,
+            }}
+          >
+            Prévia da legenda
+          </span>
         </div>
       </SettingsModal>
+
+      {/* ---------- REPRODUÇÃO ---------- */}
+      <SettingsModal
+        open={dialog === "playback"}
+        title="Reprodução"
+        subtitle="Passo de avanço, janela flutuante e confirmação de saída."
+        onClose={close}
+      >
+        <p className="pt-1 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+          Avançar / voltar
+        </p>
+        {([5, 10, 15, 30] as const).map((step) => (
+          <OptionRow
+            key={step}
+            label={`${step} segundos`}
+            selected={settings.seekStep === step}
+            onSelect={() => set("seekStep", step)}
+          />
+        ))}
+        <SwitchRow
+          label="Janela flutuante (PiP)"
+          active={settings.pipEnabled}
+          onToggle={() => toggle("pipEnabled")}
+        />
+        <SwitchRow
+          label="Confirmar antes de sair do app"
+          active={settings.confirmExit}
+          onToggle={() => toggle("confirmExit")}
+        />
+      </SettingsModal>
+
 
       <QrPlaylistDialog
         open={dialog === "playlist"}
