@@ -30,8 +30,10 @@ export const Route = createFileRoute("/historico")({
         content: "Tudo o que você assistiu, com progresso salvo no aparelho.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/historico" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/historico" }],
   }),
   component: HistoryPage,
 });

@@ -22,8 +22,10 @@ export const Route = createFileRoute("/parear")({
         content: "Pareamento por QR Code: envie sua lista IPTV do celular para a TV.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/parear" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/parear" }],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
     c: typeof search.c === "string" ? search.c : undefined,

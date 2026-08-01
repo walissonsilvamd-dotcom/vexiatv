@@ -28,8 +28,10 @@ export const Route = createFileRoute("/busca")({
         content: "Um só campo para encontrar filmes, séries e canais da sua lista.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/busca" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/busca" }],
   }),
   component: SearchPage,
 });

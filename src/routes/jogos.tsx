@@ -28,8 +28,10 @@ export const Route = createFileRoute("/jogos")({
         content: "Veja os jogos no ar agora nos canais de esporte da sua lista.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/jogos" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/jogos" }],
   }),
   component: JogosPage,
 });

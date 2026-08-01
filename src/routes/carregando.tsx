@@ -32,8 +32,10 @@ export const Route = createFileRoute("/carregando")({
         content: "Preparando sua biblioteca de canais, filmes e séries.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/carregando" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/carregando" }],
   }),
   component: CarregandoPage,
 });

@@ -11,9 +11,11 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Player de streaming para Smart TV." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: splashAsset.url },
+      { property: "og:url", content: "https://vexiatv.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: splashAsset.url },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/" }],
   }),
   component: SplashScreen,
 });

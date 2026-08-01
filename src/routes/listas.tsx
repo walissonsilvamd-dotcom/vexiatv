@@ -32,8 +32,10 @@ export const Route = createFileRoute("/listas")({
       { property: "og:title", content: "VÉXIA TV — Listas" },
       { property: "og:description", content: "Gerencie suas fontes de conteúdo IPTV no VÉXIA TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/listas" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/listas" }],
   }),
   component: ListsPage,
 });

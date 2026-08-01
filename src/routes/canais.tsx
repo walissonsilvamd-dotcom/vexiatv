@@ -92,8 +92,10 @@ export const Route = createFileRoute("/canais")({
       { property: "og:title", content: "VÉXIA TV — Canais" },
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/canais" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/canais" }],
   }),
   component: ChannelsPage,
 });

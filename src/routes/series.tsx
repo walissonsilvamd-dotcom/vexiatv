@@ -13,8 +13,10 @@ export const Route = createFileRoute("/series")({
       { property: "og:title", content: "VÉXIA TV — Séries" },
       { property: "og:description", content: "Catálogo de séries do VÉXIA TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/series" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/series" }],
   }),
   component: SeriesPage,
 });

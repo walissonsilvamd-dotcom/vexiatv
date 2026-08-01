@@ -25,8 +25,10 @@ export const Route = createFileRoute("/favoritos")({
         content: "Acesso rápido aos conteúdos que você marcou com o coração.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/favoritos" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/favoritos" }],
   }),
   component: FavoritesPage,
 });

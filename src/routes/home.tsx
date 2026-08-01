@@ -44,8 +44,10 @@ export const Route = createFileRoute("/home")({
       { property: "og:title", content: "VÉXIA TV — Home" },
       { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/home" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/home" }],
   }),
   component: HomePage,
 });

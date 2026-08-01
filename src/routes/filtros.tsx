@@ -45,8 +45,10 @@ export const Route = createFileRoute("/filtros")({
         content: "Filtros cumulativos sobre a sua lista M3U, enriquecidos pelo TMDB.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/filtros" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/filtros" }],
   }),
   component: FiltersPage,
 });

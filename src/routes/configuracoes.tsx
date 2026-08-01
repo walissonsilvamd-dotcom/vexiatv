@@ -77,8 +77,10 @@ export const Route = createFileRoute("/configuracoes")({
       { property: "og:title", content: "VÉXIA TV — Ajustes" },
       { property: "og:description", content: "Todas as preferências do VÉXIA TV em um só lugar." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://vexiatv.lovable.app/configuracoes" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/configuracoes" }],
   }),
   component: SettingsPage,
 });
