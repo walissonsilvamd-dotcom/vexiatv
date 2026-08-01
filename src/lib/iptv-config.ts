@@ -5,7 +5,7 @@
  * (get.php) usando este endereço. Para trocar de painel, mude só esta linha.
  * Ex.: "http://meupainel.com:8080"
  */
-export const DEFAULT_XTREAM_SERVER = "";
+export const DEFAULT_XTREAM_SERVER = "http://doplay.sbs";
 
 /** Servidor a usar: o informado (colado/QR) ou o padrão do app. */
 export function resolveServer(server?: string) {
