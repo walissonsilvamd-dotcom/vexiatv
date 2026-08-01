@@ -196,7 +196,9 @@ export function CatalogScreen(props: {
       className="vexia-safe relative flex h-screen max-h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         height: "100dvh",
-        backgroundImage: `linear-gradient(rgba(5,5,5,0.82), rgba(5,5,5,0.92)), url(${nebula.url})`,
+        /* Nebulosa roxa à mostra (como no mockup): véu leve só para garantir
+           leitura do texto, sem apagar a cor do fundo. */
+        backgroundImage: `linear-gradient(rgba(9,2,26,0.52), rgba(4,0,14,0.68)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
