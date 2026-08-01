@@ -24,6 +24,13 @@ import {
   Volume2,
   VolumeX,
   WifiOff,
+  Lock,
+  Repeat,
+  Activity,
+  Moon,
+  Crop,
+  ListVideo,
+  SkipForward as SkipIntroIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -77,6 +84,13 @@ import {
 
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
+import { ChannelZapList } from "../components/vexia/ChannelZapList";
+import { PlayerEpgBar } from "../components/vexia/PlayerEpgBar";
+import { NextEpisodePrompt } from "../components/vexia/NextEpisodePrompt";
+import { PlayerStats } from "../components/vexia/PlayerStats";
+import { useSleepTimer, SLEEP_OPTIONS } from "../hooks/use-sleep-timer";
+import { FIT_MODES, fitLabel, fitStyle, readFitMode, saveFitMode, type FitMode } from "../lib/fit-modes";
+import { useFavorites, channelFavorite, mediaFavorite } from "../lib/favorites-store";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
 
@@ -143,9 +157,18 @@ function PlayerPage() {
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
-  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "subsDelay" | "speed">(
-    null,
-  );
+  const [menu, setMenu] = useState<
+    null | "quality" | "audio" | "subs" | "subsDelay" | "speed" | "fit" | "sleep" | "repeat"
+  >(null);
+  /* Extras do player: modo de imagem, zapping, bloqueio, info e repetição. */
+  const [fit, setFit] = useState<FitMode>("contain");
+  const [zapOpen, setZapOpen] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [lockHint, setLockHint] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [repeat, setRepeat] = useState<"off" | "one" | "season">("off");
+  const [nextPrompt, setNextPrompt] = useState(false);
+  const unlockTapRef = useRef(0);
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
@@ -205,6 +228,8 @@ function PlayerPage() {
     live: type === "live",
   });
   const {
+    engine,
+    standbyEngine,
     activeSlot,
     hlsApi,
     reconnecting,
