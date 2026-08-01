@@ -80,7 +80,7 @@ function DetailsPage() {
   const { data: enriched } = useTmdbItem(raw ?? null, kind);
   /* Filmes: completa sinopse/nota/duração com os dados do painel (cache +
      prefetch por foco, então normalmente já está pronto ao abrir). */
-  const vodInfo = useMovieInfo(!isSeries ? (raw as MediaItem | null) : null, !isSeries);
+  const vodInfo = useMovieInfo(!isSeries ? (raw ?? null) : null, !isSeries);
   const base = enriched ?? raw;
   const item = base
     ? {
