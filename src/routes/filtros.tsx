@@ -87,7 +87,11 @@ function FiltersPage() {
     [movies, series, filters],
   );
 
-  const pool = useMemo(() => localBase.slice(0, limit), [localBase, limit]);
+  /* Sem prévia: nada é verificado/baixado antes de APLICAR (leve no APK). */
+  const pool = useMemo(
+    () => (applied ? localBase.slice(0, limit) : []),
+    [applied, localBase, limit],
+  );
   const poolMovies = useMemo(
     () => pool.filter((p) => p.kind === "movie").map((p) => p.item),
     [pool],
@@ -117,7 +121,7 @@ function FiltersPage() {
     total: totalSeries,
   } = useTmdbHeroesStatus(poolSeries, "series");
 
-  const isBusy = loading || pendingMovies || pendingSeries;
+  const isBusy = applied && (loading || pendingMovies || pendingSeries);
   const tmdbProgress = Math.round(
     ((settledMovies + settledSeries) / (totalMovies + totalSeries || 1)) * 100,
   );
@@ -130,10 +134,6 @@ function FiltersPage() {
     return list.filter(({ item, kind }) => matchesFilters(item, kind, filters));
   }, [richMovies, richSeries, filters]);
 
-  const preview = useMemo(
-    () => (applied ? results : results.slice(0, 16)),
-    [applied, results],
-  );
 
   const apply = () => {
     // Canais não têm card de pôster: esse tipo continua abrindo a tela de canais.
@@ -226,64 +226,73 @@ function FiltersPage() {
         })}
       </div>
 
-      {/* Resultado — sempre aqui na própria tela de filtros */}
-      <section
-        ref={resultsRef}
-        className="no-scrollbar mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto px-5 md:px-8"
-      >
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-            {applied ? `Resultado (${results.length})` : "Prévia do resultado"}
-          </h2>
-          {isBusy ? (
-            <span className="animate-pulse text-[10px] font-bold text-vexia-purple-soft">
-              {loading ? "Carregando lista…" : `Verificando ${tmdbProgress}%`}
-            </span>
-          ) : (
-            <span className="text-[10px] font-bold text-vexia-text/50">
-              Conferidos {pool.length} de {localBase.length} títulos
-            </span>
-          )}
-        </div>
-        {isBusy ? (
-          <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                className="aspect-[2/3] rounded-xl border border-vexia-purple/20 bg-white/10"
-              />
-            ))}
+      {/* Resultado — só depois de APLICAR (sem prévia, para não pesar no APK) */}
+      {applied ? (
+        <section
+          ref={resultsRef}
+          className="no-scrollbar mt-3 min-h-0 flex-1 space-y-1.5 overflow-y-auto px-5 md:px-8"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
+              Resultado ({results.length})
+            </h2>
+            {isBusy ? (
+              <span className="animate-pulse text-[10px] font-bold text-vexia-purple-soft">
+                {loading ? "Carregando lista…" : `Verificando ${tmdbProgress}%`}
+              </span>
+            ) : (
+              <span className="text-[10px] font-bold text-vexia-text/50">
+                Conferidos {pool.length} de {localBase.length} títulos
+              </span>
+            )}
           </div>
-        ) : preview.length > 0 ? (
-          <>
+          {isBusy ? (
             <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
-              {preview.map(({ item, kind }) => (
-                <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
+              {Array.from({ length: 16 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  className="aspect-[2/3] rounded-xl border border-vexia-purple/20 bg-white/10"
+                />
               ))}
             </div>
-            {applied && pool.length < localBase.length ? (
-              <div className="flex justify-center pb-2 pt-1">
-                <button
-                  type="button"
-                  data-nav-row={95}
-                  tabIndex={0}
-                  onClick={() => setLimit((l) => l + STEP)}
-                  className="vexia-focus rounded-full border border-vexia-purple/50 bg-black/50 px-6 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-vexia-cyan"
-                >
-                  Ver mais resultados
-                </button>
+          ) : results.length > 0 ? (
+            <>
+              <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+                {results.map(({ item, kind }) => (
+                  <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
+                ))}
               </div>
-            ) : null}
-          </>
-        ) : (
-          <EmptyFilterResults
-            noun="resultado"
-            hasFilters={active > 0}
-            hasQuery={undefined}
-            onClear={() => clear()}
-          />
-        )}
-      </section>
+              {pool.length < localBase.length ? (
+                <div className="flex justify-center pb-2 pt-1">
+                  <button
+                    type="button"
+                    data-nav-row={95}
+                    tabIndex={0}
+                    onClick={() => setLimit((l) => l + STEP)}
+                    className="vexia-focus rounded-full border border-vexia-purple/50 bg-black/50 px-6 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-vexia-cyan"
+                  >
+                    Ver mais resultados
+                  </button>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <EmptyFilterResults
+              noun="resultado"
+              hasFilters={active > 0}
+              hasQuery={undefined}
+              onClear={() => clear()}
+            />
+          )}
+        </section>
+      ) : (
+        <section className="mt-3 flex flex-1 items-center justify-center px-5 text-center md:px-8">
+          <p className="max-w-md text-[11px] font-bold uppercase tracking-[0.18em] text-vexia-text/50">
+            Escolha os filtros e toque em <span className="text-vexia-cyan">APLICAR</span> para
+            carregar os resultados
+          </p>
+        </section>
+      )}
 
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 overflow-hidden border-t border-white/10 bg-black/90 px-3 py-2 backdrop-blur sm:gap-4 sm:px-5 md:px-8">
