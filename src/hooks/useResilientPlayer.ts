@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 
+import { rememberLiveFormat } from "../lib/live-format";
 import type { HlsLike } from "./useMediaTracks";
 import {
   attachEngine,
@@ -493,7 +494,7 @@ export function useResilientPlayer({
       attachWatchdog();
       timers.startup = setTimeout(
         () => startNext(`${selected.engine} • startup-timeout`),
-        STARTUP_TIMEOUT_MS,
+        preview ? 3_200 : STARTUP_TIMEOUT_MS,
       );
       try {
         const instance = await attachEngine(video, selected.engine, {
@@ -525,6 +526,8 @@ export function useResilientPlayer({
       const onPlaying = () => {
         lastProgressAt = Date.now();
         setBuffering(false);
+        // Memoriza o container que entrou no ar (.ts/.m3u8) para o próximo zap.
+        if (live) rememberLiveFormat(order[activeIndex]?.src ?? "");
         setReconnecting(false);
         setFatalError(null);
         clearTimeout(timers.startup);

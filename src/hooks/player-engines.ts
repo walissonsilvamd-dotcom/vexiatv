@@ -1,4 +1,5 @@
 import { readSettings } from "../lib/settings-store";
+import { formatOf, preferredLiveFormat } from "../lib/live-format";
 import type { HlsLike } from "./useMediaTracks";
 
 export type PlaybackEngine = "hls.js" | "mpegts.js" | "native";
@@ -82,10 +83,14 @@ export function alternateFormat(src: string): string | null {
   });
 }
 
+
 /**
  * Cadeia completa de tentativas: todos os motores do formato atual e, em
  * seguida, os do formato alternativo. É isso que garante canal no ar mesmo
  * quando o servidor entrega um dos formatos quebrado.
+ *
+ * Ao vivo, o formato que funcionou por último (memorizado) vai na frente: o
+ * zapping não gasta tempo tentando o container que aquele painel entrega ruim.
  */
 export function candidateOrder(src: string): PlaybackCandidate[] {
   const primary = engineOrder(src).map((engine) => ({ src, engine }));
@@ -94,8 +99,14 @@ export function candidateOrder(src: string): PlaybackCandidate[] {
   const fallback = engineOrder(other)
     .slice(0, 2)
     .map((engine) => ({ src: other, engine }));
+  const current = formatOf(src);
+  // Servidor já provou preferir o outro container: começa por ele.
+  if (current && preferredLiveFormat() !== current) {
+    return [...engineOrder(other).map((engine) => ({ src: other, engine })), ...primary];
+  }
   return [...primary, ...fallback];
 }
+
 
 
 /**
