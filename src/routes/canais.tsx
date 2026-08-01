@@ -439,6 +439,7 @@ function ChannelsPage() {
       index={i}
       isActive={selected?.id === ch.id}
       isFav={favs.includes(ch.id)}
+      isLocked={locks.locked(ch.id)}
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
       onToggleFav={toggleFav}
