@@ -18,6 +18,13 @@ export type SubtitleSize = "small" | "medium" | "large";
 export type SubtitleColor = "white" | "yellow";
 /** Passo de avanço/retrocesso do player, em segundos. */
 export type SeekStep = 5 | 10 | 15 | 30;
+/**
+ * Perfil de desempenho do player:
+ * - "eco": buffers curtos e qualidade contida — TVs e boxes fracos.
+ * - "balanced": padrão.
+ * - "smooth": buffer grande e qualidade agressiva — internet boa.
+ */
+export type PerfProfile = "eco" | "balanced" | "smooth";
 
 export type VexiaSettings = {
   // Controle dos pais
