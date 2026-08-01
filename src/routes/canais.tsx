@@ -313,14 +313,22 @@ function ChannelsPage() {
 
   const list = useMemo(() => {
     const searched = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : channels;
+    // Categorias do tipo "grp:<id>" são grupos criados pelo próprio usuário.
+    const group = category.startsWith("grp:")
+      ? groups.find((g) => g.id === category.slice(4))
+      : undefined;
     const base = searched.filter(
       (c) =>
         (category === "Todos" ||
-          (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
+          (group
+            ? group.items.includes(c.id)
+            : category === "Favoritos"
+              ? favs.includes(c.id)
+              : c.category === category)) &&
         matchesChannel(c.name, c.category, filters),
     );
     return sortChannels(base, sort);
-  }, [channels, index, debouncedQuery, category, favs, filters, sort]);
+  }, [channels, index, debouncedQuery, category, favs, filters, sort, groups]);
 
 
   useEffect(() => {
