@@ -296,10 +296,10 @@ function SettingsPage() {
                 </span>
 
                 <div className="relative z-10 w-full min-w-0">
-                  <p className="truncate text-[11px] font-extrabold uppercase tracking-wide text-white drop-shadow">
+                  <p className="break-words text-[11px] font-extrabold uppercase leading-tight tracking-tight text-white drop-shadow">
                     {item.label}
                   </p>
-                  <p className="truncate text-[10px] font-medium text-vexia-cyan/70">
+                  <p className="break-words text-[10px] font-medium leading-tight text-vexia-cyan/70">
                     {isToggle ? (active ? "Ativado" : "Desativado") : item.sub}
                   </p>
                 </div>
