@@ -855,6 +855,24 @@ function PlayerPage() {
     else void el.requestFullscreen?.();
   };
 
+  /**
+   * Picture-in-Picture: janelinha flutuante que continua tocando enquanto o
+   * usuário navega. Só aparece quando o aparelho suporta o recurso.
+   */
+  const pipSupported =
+    typeof document !== "undefined" && Boolean(document.pictureInPictureEnabled);
+
+  const togglePip = async () => {
+    const video = videoRef.current;
+    if (!video || !pipSupported) return;
+    try {
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await video.requestPictureInPicture();
+    } catch {
+      /* alguns aparelhos recusam PiP durante DRM/live: ignoramos */
+    }
+  };
+
   const onSurfaceTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const now = Date.now();
     const rect = e.currentTarget.getBoundingClientRect();
