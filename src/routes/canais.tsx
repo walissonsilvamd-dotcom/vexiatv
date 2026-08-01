@@ -227,6 +227,13 @@ function ChannelsPage() {
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const [catchupOpen, setCatchupOpen] = useState(false);
+  const [groupsOpen, setGroupsOpen] = useState(false);
+
+  /* Grupos personalizados ("Meus grupos") e cadeado por canal. */
+  const { groups } = useGroups();
+  const locks = useChannelLocks();
+  /** Canal esperando PIN antes de abrir. */
+  const [pendingLocked, setPendingLocked] = useState<PlaylistChannel | null>(null);
 
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
