@@ -99,6 +99,8 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
+  /* Confirmação de saída (padrão dos apps de TV): Voltar na Home pergunta antes. */
+  const [exitOpen, setExitOpen] = useState(false);
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
 
@@ -520,6 +522,19 @@ function HomePage() {
       </footer>
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+
+      <ConfirmDialog
+        open={exitOpen}
+        title="Sair do VÉXIA TV?"
+        message="Você voltará para a tela inicial do aparelho."
+        confirmLabel="SAIR"
+        onConfirm={() => {
+          setExitOpen(false);
+          // Em TV/TV Box o app roda em WebView: fechar a janela encerra a sessão.
+          window.close();
+        }}
+        onCancel={() => setExitOpen(false)}
+      />
 
       <ConfirmDialog
         open={pendingRemove !== null}
