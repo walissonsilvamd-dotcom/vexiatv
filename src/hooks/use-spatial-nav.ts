@@ -116,7 +116,7 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
     let lastKeyAt = 0;
 
     const collect = (root: ParentNode) =>
-      Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter((el) => {
+      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => {
         if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0;
@@ -191,7 +191,7 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
             };
             const retry = (attempt: number) => {
               const list = Array.from(
-                (scopeRef?.current ?? document).querySelectorAll<HTMLElement>("[data-nav-row]"),
+                (scopeRef?.current ?? document).querySelectorAll<HTMLElement>(FOCUSABLE),
               ).filter((el) => el.offsetParent !== null);
               const t = pickFrom(moved, list, dir);
               if (t) focus(t);
