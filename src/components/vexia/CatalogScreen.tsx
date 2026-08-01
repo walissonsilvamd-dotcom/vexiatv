@@ -252,7 +252,7 @@ export function CatalogScreen(props: {
           <aside
             ref={asideRef}
             onMouseEnter={() => setRailed(false)}
-            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#141414]/90 to-[#0A0A0A]/90 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(0,0,0,1)]">
+            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-vexia-purple/30 bg-gradient-to-b from-[#0B0118]/92 to-[#050008]/94 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-28px_rgb(var(--vexia-primary-rgb)/0.55)]">
             {railed ? (
               /* Trilho: seta ESQUERDA nos cards cai aqui e reabre o painel. */
               <button
