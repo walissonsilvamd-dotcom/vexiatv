@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Captions,
+  PictureInPicture2,
   Clock,
   Eraser,
   Globe,
@@ -42,6 +43,7 @@ import {
 
 type Dialog =
   | null
+  | "playback"
   | "parental"
   | "playlist"
   | "language"
@@ -230,6 +232,13 @@ function SettingsPage() {
       label: "Legendas",
       sub: settings.subtitlesEnabled ? "Ativas" : "Desativadas",
       dialog: "captions",
+    },
+    {
+      kind: "action",
+      icon: PictureInPicture2,
+      label: "Reprodução",
+      sub: `Avanço ${settings.seekStep}s${settings.pipEnabled ? " • PiP" : ""}`,
+      dialog: "playback",
     },
   ];
 
