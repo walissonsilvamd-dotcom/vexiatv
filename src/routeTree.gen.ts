@@ -13,6 +13,7 @@ import { Route as SeriesRouteImport } from './routes/series'
 import { Route as PlayerRouteImport } from './routes/player'
 import { Route as ParearRouteImport } from './routes/parear'
 import { Route as ListasRouteImport } from './routes/listas'
+import { Route as JogosRouteImport } from './routes/jogos'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FiltrosRouteImport } from './routes/filtros'
@@ -46,6 +47,11 @@ const ParearRoute = ParearRouteImport.update({
 const ListasRoute = ListasRouteImport.update({
   id: '/listas',
   path: '/listas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JogosRoute = JogosRouteImport.update({
+  id: '/jogos',
+  path: '/jogos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
+  '/jogos': typeof JogosRoute
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
+  '/jogos': typeof JogosRoute
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
+  '/jogos': typeof JogosRoute
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/historico'
     | '/home'
+    | '/jogos'
     | '/listas'
     | '/parear'
     | '/player'
@@ -213,6 +223,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/historico'
     | '/home'
+    | '/jogos'
     | '/listas'
     | '/parear'
     | '/player'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/filtros'
     | '/historico'
     | '/home'
+    | '/jogos'
     | '/listas'
     | '/parear'
     | '/player'
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   FiltrosRoute: typeof FiltrosRoute
   HistoricoRoute: typeof HistoricoRoute
   HomeRoute: typeof HomeRoute
+  JogosRoute: typeof JogosRoute
   ListasRoute: typeof ListasRoute
   ParearRoute: typeof ParearRoute
   PlayerRoute: typeof PlayerRoute
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/listas'
       fullPath: '/listas'
       preLoaderRoute: typeof ListasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jogos': {
+      id: '/jogos'
+      path: '/jogos'
+      fullPath: '/jogos'
+      preLoaderRoute: typeof JogosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -406,6 +426,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiltrosRoute: FiltrosRoute,
   HistoricoRoute: HistoricoRoute,
   HomeRoute: HomeRoute,
+  JogosRoute: JogosRoute,
   ListasRoute: ListasRoute,
   ParearRoute: ParearRoute,
   PlayerRoute: PlayerRoute,

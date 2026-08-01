@@ -11,6 +11,7 @@ import {
   Heart,
   Loader2,
   Maximize,
+  PictureInPicture2,
   Pause,
   Play,
   Rewind,
@@ -49,6 +50,15 @@ import {
   SUBTITLE_OFFSET_STEP,
 } from "../lib/subtitle-prefs";
 import { createSubtitleOffsetController } from "../lib/subtitle-offset";
+import {
+  attachExternalSubtitle,
+  clearExternalSubtitle,
+  getExternalSubtitle,
+  setExternalSubtitle,
+  toVttBlobUrl,
+  type ExternalSubtitleHandle,
+} from "../lib/external-subtitles";
+import { ExternalSubsDialog } from "../components/vexia/ExternalSubsDialog";
 import { playableStreamUrl } from "../lib/stream-url";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
@@ -215,6 +225,8 @@ function PlayerPage() {
 
   const [confirmForget, setConfirmForget] = useState(false);
   const { settings } = useSettings();
+  /* Passo de avanço/retrocesso vindo de Ajustes (5s a 30s). */
+  const seekStep = settings.seekStep;
   /* Ajustes → Player de Vídeo: "externo" abre o link em outro aplicativo. */
   const [internalOverride, setInternalOverride] = useState(false);
   const externalGate = settings.player === "external" && !internalOverride;
@@ -553,10 +565,10 @@ function PlayerPage() {
           toggle();
           break;
         case "ArrowRight":
-          if (type !== "live") seekBy(10);
+          if (type !== "live") seekBy(seekStep);
           break;
         case "ArrowLeft":
-          if (type !== "live") seekBy(-10);
+          if (type !== "live") seekBy(-seekStep);
           break;
         case "ArrowUp":
           setMenu((m) => (m ? null : "quality"));
@@ -699,6 +711,66 @@ function PlayerPage() {
     setSubtitleOffset(prefKey, next);
   };
 
+  /* ── Legenda externa (.srt/.vtt) por arquivo ou link ───────────── */
+  const [extSubsOpen, setExtSubsOpen] = useState(false);
+  const [extSubsUrl, setExtSubsUrl] = useState<string | null>(null);
+  const extHandleRef = useRef<ExternalSubtitleHandle | null>(null);
+  const extBlobRef = useRef<string | null>(null);
+
+  /** Anexa a legenda externa ao vídeo ativo. Devolve mensagem de erro ou null. */
+  const useExternalSubtitle = useCallback(
+    async (source: string | File) => {
+      const video = videoRef.current;
+      if (!video) return "Player ainda carregando, tente de novo.";
+      try {
+        const blobUrl = await toVttBlobUrl(source);
+        extHandleRef.current?.remove();
+        if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+        extBlobRef.current = blobUrl;
+        extHandleRef.current = attachExternalSubtitle(
+          video,
+          blobUrl,
+          typeof source === "string" ? "Legenda externa" : source.name,
+        );
+        setExtSubsUrl(typeof source === "string" ? source : source.name);
+        if (typeof source === "string") setExternalSubtitle(prefKey, source);
+        offsetCtlRef.current?.refresh();
+        return null;
+      } catch {
+        return "Não foi possível ler essa legenda (verifique o link ou o arquivo).";
+      }
+    },
+    [prefKey],
+  );
+
+  const dropExternalSubtitle = useCallback(() => {
+    extHandleRef.current?.remove();
+    extHandleRef.current = null;
+    if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+    extBlobRef.current = null;
+    setExtSubsUrl(null);
+    clearExternalSubtitle(prefKey);
+  }, [prefKey]);
+
+  // Ao abrir um conteúdo que já tinha legenda externa por link, reanexa sozinho.
+  useEffect(() => {
+    if (!mediaReady) return;
+    const saved = getExternalSubtitle(prefKey);
+    if (!saved) return;
+    void useExternalSubtitle(saved.url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefKey, mediaReady]);
+
+  // Limpa o blob ao sair da tela.
+  useEffect(
+    () => () => {
+      extHandleRef.current?.remove();
+      if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+    },
+    [],
+  );
+
+
   /* Ao voltar pelo histórico (bfcache), reaplica faixa, estilo e atraso. */
   useEffect(() => {
     const restore = () => {
@@ -714,7 +786,9 @@ function PlayerPage() {
 
   const subsClass = `vexia-subs vexia-subs-${
     settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
-  } vexia-subs-${settings.subtitleColor}`;
+  } vexia-subs-${settings.subtitleColor} ${
+    settings.subtitleBackdrop ? "vexia-subs-box" : "vexia-subs-clean"
+  }`;
 
 
   type MenuOption = { label: string; active: boolean; select: () => void };
@@ -758,13 +832,21 @@ function PlayerPage() {
             subs.select(t.id);
           },
         })),
+        {
+          label: extSubsUrl ? "Legenda externa (trocar)" : "Carregar legenda externa…",
+          active: Boolean(extSubsUrl),
+          select: () => {
+            setMenu(null);
+            setExtSubsOpen(true);
+          },
+        },
       ];
     }
 
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset]);
+  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
 
 
   const toggleFullscreen = () => {
@@ -774,12 +856,30 @@ function PlayerPage() {
     else void el.requestFullscreen?.();
   };
 
+  /**
+   * Picture-in-Picture: janelinha flutuante que continua tocando enquanto o
+   * usuário navega. Só aparece quando o aparelho suporta o recurso.
+   */
+  const pipSupported =
+    typeof document !== "undefined" && Boolean(document.pictureInPictureEnabled);
+
+  const togglePip = async () => {
+    const video = videoRef.current;
+    if (!video || !pipSupported) return;
+    try {
+      if (document.pictureInPictureElement) await document.exitPictureInPicture();
+      else await video.requestPictureInPicture();
+    } catch {
+      /* alguns aparelhos recusam PiP durante DRM/live: ignoramos */
+    }
+  };
+
   const onSurfaceTap = (e: React.MouseEvent<HTMLDivElement>) => {
     const now = Date.now();
     const rect = e.currentTarget.getBoundingClientRect();
     const right = e.clientX - rect.left > rect.width / 2;
     if (now - lastTap.current < 320 && type !== "live") {
-      seekBy(right ? 10 : -10);
+      seekBy(right ? seekStep : -seekStep);
       lastTap.current = 0;
       return;
     }
@@ -1081,6 +1181,16 @@ function PlayerPage() {
               <Volume2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             )}
           </button>
+          {settings.pipEnabled && pipSupported ? (
+            <button
+              type="button"
+              onClick={() => void togglePip()}
+              aria-label="Janela flutuante"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+            >
+              <PictureInPicture2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={toggleFullscreen}
@@ -1158,8 +1268,8 @@ function PlayerPage() {
           {type !== "live" ? (
             <button
               type="button"
-              onClick={() => seekBy(-10)}
-              aria-label="Voltar 10 segundos"
+              onClick={() => seekBy(-seekStep)}
+              aria-label={`Voltar ${seekStep} segundos`}
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
               <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
@@ -1180,8 +1290,8 @@ function PlayerPage() {
           {type !== "live" ? (
             <button
               type="button"
-              onClick={() => seekBy(10)}
-              aria-label="Avançar 10 segundos"
+              onClick={() => seekBy(seekStep)}
+              aria-label={`Avançar ${seekStep} segundos`}
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
@@ -1361,6 +1471,15 @@ function PlayerPage() {
       ) : null}
 
       </section>
+
+      <ExternalSubsDialog
+        open={extSubsOpen}
+        onClose={() => setExtSubsOpen(false)}
+        onPick={useExternalSubtitle}
+        onClear={dropExternalSubtitle}
+        current={extSubsUrl}
+      />
+
 
       </div>
       </div>

@@ -1,7 +1,7 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Heart, Play, Search, Tv } from "lucide-react";
+import { FolderPlus, Heart, Lock, Play, Search, Tv } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -28,6 +28,10 @@ import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
+import { GroupsDialog } from "../components/vexia/GroupsDialog";
+import { ChannelPinPrompt } from "../components/vexia/ChannelPinPrompt";
+import { useGroups } from "../lib/groups-store";
+import { toggleChannelLock, useChannelLocks } from "../lib/channel-lock";
 
 
 /** Hora no formato 20:30. */
@@ -114,6 +118,7 @@ const ChannelRow = memo(function ChannelRow({
   index,
   isActive,
   isFav,
+  isLocked,
   nowTitle,
   onSelect,
   onToggleFav,
@@ -122,6 +127,7 @@ const ChannelRow = memo(function ChannelRow({
   index: number;
   isActive: boolean;
   isFav: boolean;
+  isLocked: boolean;
   nowTitle: string;
   onSelect: (ch: PlaylistChannel) => void;
   onToggleFav: (ch: PlaylistChannel) => void;
@@ -159,7 +165,12 @@ const ChannelRow = memo(function ChannelRow({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+          <span className="flex items-center gap-1.5">
+            {isLocked ? (
+              <Lock className="h-3 w-3 shrink-0 text-vexia-cyan" aria-label="Canal bloqueado" />
+            ) : null}
+            <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+          </span>
           <span
             className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
           >
@@ -223,6 +234,13 @@ function ChannelsPage() {
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const [catchupOpen, setCatchupOpen] = useState(false);
+  const [groupsOpen, setGroupsOpen] = useState(false);
+
+  /* Grupos personalizados ("Meus grupos") e cadeado por canal. */
+  const { groups } = useGroups();
+  const locks = useChannelLocks();
+  /** Canal esperando PIN antes de abrir. */
+  const [pendingLocked, setPendingLocked] = useState<PlaylistChannel | null>(null);
 
   /** Estado salvo do último canal (id + se estava em tela cheia). */
   const [lastChannel] = useState(() => readLastChannel());
@@ -234,12 +252,18 @@ function ChannelsPage() {
   const openFullscreen = useCallback(
     (ch: PlaylistChannel) => {
       if (openingRef.current) return;
+      // Canal trancado só abre depois do PIN.
+      if (locks.blocked(ch.id)) {
+        setPendingLocked(ch);
+        return;
+      }
       openingRef.current = true;
       writeLastChannel(ch.id, true);
       setStreamHandoff("live", ch.id, ch.url);
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
-    [navigate],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, locks.blocked],
   );
 
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
@@ -296,14 +320,22 @@ function ChannelsPage() {
 
   const list = useMemo(() => {
     const searched = debouncedQuery.trim() ? queryIndex(index, debouncedQuery) : channels;
+    // Categorias do tipo "grp:<id>" são grupos criados pelo próprio usuário.
+    const group = category.startsWith("grp:")
+      ? groups.find((g) => g.id === category.slice(4))
+      : undefined;
     const base = searched.filter(
       (c) =>
         (category === "Todos" ||
-          (category === "Favoritos" ? favs.includes(c.id) : c.category === category)) &&
+          (group
+            ? group.items.includes(c.id)
+            : category === "Favoritos"
+              ? favs.includes(c.id)
+              : c.category === category)) &&
         matchesChannel(c.name, c.category, filters),
     );
     return sortChannels(base, sort);
-  }, [channels, index, debouncedQuery, category, favs, filters, sort]);
+  }, [channels, index, debouncedQuery, category, favs, filters, sort, groups]);
 
 
   useEffect(() => {
@@ -412,6 +444,7 @@ function ChannelsPage() {
       index={i}
       isActive={selected?.id === ch.id}
       isFav={favs.includes(ch.id)}
+      isLocked={locks.locked(ch.id)}
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
       onToggleFav={toggleFav}
@@ -462,7 +495,56 @@ function ChannelsPage() {
             </button>
           );
         })}
+
+        {/* Meus grupos: categorias montadas pelo usuário */}
+        {groups.length ? (
+          <>
+            <p className="px-3 pb-1 pt-3 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-muted">
+              Meus grupos
+            </p>
+            {groups.map((g) => {
+              const key = `grp:${g.id}`;
+              const isActive = category === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  data-nav-row={1}
+                  tabIndex={0}
+                  onClick={() => {
+                    setCategory(key);
+                    setLimit(PAGE);
+                  }}
+                  className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
+                    isActive
+                      ? "border-vexia-purple/60 bg-vexia-purple text-white shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.2)]"
+                      : "border-white/[0.07] bg-black/45 text-vexia-text hover:border-vexia-purple/40 hover:bg-vexia-purple/20"
+                  }`}
+                >
+                  <FolderPlus className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
+                  <span className="min-w-0 flex-1 truncate">{g.name.toUpperCase()}</span>
+                  <span
+                    className={`text-[11px] ${isActive ? "text-white/80" : "text-vexia-muted"}`}
+                  >
+                    {g.items.length}
+                  </span>
+                </button>
+              );
+            })}
+          </>
+        ) : null}
+
+        <button
+          type="button"
+          data-nav-row={1}
+          tabIndex={0}
+          onClick={() => setGroupsOpen(true)}
+          className="vexia-focus mt-2 flex w-full items-center gap-2.5 rounded-xl border border-vexia-cyan/30 bg-black/40 px-3 py-2.5 text-left text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+        >
+          <FolderPlus className="h-4 w-4 shrink-0" aria-hidden /> Gerenciar grupos
+        </button>
       </aside>
+
 
       {/* Coluna 2 — lista de canais */}
       <section
@@ -523,7 +605,9 @@ function ChannelsPage() {
         ) : null}
 
         <ChannelPreview
-          src={previewChannel?.url ?? null}
+          src={
+            previewChannel && locks.blocked(previewChannel.id) ? null : previewChannel?.url ?? null
+          }
           name={previewChannel?.name ?? selected?.name ?? "Canal"}
           logo={previewChannel?.logo ?? selected?.logo}
           onOpenFullscreen={openSelectedFullscreen}
@@ -607,11 +691,48 @@ function ChannelsPage() {
           >
             Replay
           </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => setGroupsOpen(true)}
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl border border-vexia-cyan/40 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            <FolderPlus className="h-4 w-4" aria-hidden /> Grupos
+          </button>
+          <button
+            type="button"
+            data-nav-row={4}
+            tabIndex={0}
+            onClick={() => selected && toggleChannelLock(selected.id)}
+            className="vexia-focus inline-flex items-center gap-2 rounded-xl border border-vexia-purple/50 bg-vexia-card px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-vexia-text"
+          >
+            <Lock className="h-4 w-4" aria-hidden />
+            {selected && locks.locked(selected.id) ? "Destrancar canal" : "Trancar canal"}
+          </button>
         </div>
       </section>
 
       <CatchupDialog open={catchupOpen} channel={selected} onClose={() => setCatchupOpen(false)} />
+      <GroupsDialog
+        open={groupsOpen}
+        onClose={() => setGroupsOpen(false)}
+        channelId={selected?.id}
+        channelName={selected?.name}
+      />
+      <ChannelPinPrompt
+        open={Boolean(pendingLocked)}
+        channelId={pendingLocked?.id}
+        channelName={pendingLocked?.name}
+        onClose={() => setPendingLocked(null)}
+        onUnlocked={() => {
+          const ch = pendingLocked;
+          setPendingLocked(null);
+          if (ch) openFullscreen(ch);
+        }}
+      />
     </div>,
+
 
   );
 }

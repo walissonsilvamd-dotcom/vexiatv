@@ -7,6 +7,7 @@ import {
   Move,
   PlayCircle,
   Settings,
+  Trophy,
   SlidersHorizontal,
   Star,
   Tv,
@@ -88,6 +89,7 @@ const TILES: Tile[] = [
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
   { label: "LISTAS", icon: ListVideo, to: "/listas" },
+  { label: "JOGOS", icon: Trophy, to: "/jogos" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
 
@@ -99,6 +101,8 @@ function HomePage() {
   const [active, setActive] = useState(0);
   const [listsOpen, setListsOpen] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
+  /* Confirmação de saída (padrão dos apps de TV): Voltar na Home pergunta antes. */
+  const [exitOpen, setExitOpen] = useState(false);
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
 
@@ -190,6 +194,26 @@ function HomePage() {
   useEffect(() => {
     rowRef.current?.querySelector<HTMLElement>("[data-tile]")?.focus();
   }, []);
+
+  /**
+   * Tecla Voltar do controle na Home: em vez de sair direto, pergunta.
+   * Pode ser desligado em Ajustes › Reprodução.
+   */
+  useEffect(() => {
+    if (!settings.confirmExit) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Backspace" && e.key !== "BrowserBack" && e.key !== "Escape") return;
+      // Deixa os diálogos abertos tratarem o próprio Voltar.
+      if (exitOpen || pendingRemove || listsOpen) return;
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      e.preventDefault();
+      setExitOpen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [settings.confirmExit, exitOpen, pendingRemove, listsOpen]);
+
 
   const openTile = (tile: Tile) => {
     if (tile.action === "lists") setListsOpen(true);
@@ -520,6 +544,19 @@ function HomePage() {
       </footer>
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+
+      <ConfirmDialog
+        open={exitOpen}
+        title="Sair do VÉXIA TV?"
+        message="Você voltará para a tela inicial do aparelho."
+        confirmLabel="SAIR"
+        onConfirm={() => {
+          setExitOpen(false);
+          // Em TV/TV Box o app roda em WebView: fechar a janela encerra a sessão.
+          window.close();
+        }}
+        onCancel={() => setExitOpen(false)}
+      />
 
       <ConfirmDialog
         open={pendingRemove !== null}

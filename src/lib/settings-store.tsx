@@ -16,6 +16,8 @@ export type PlayerMode = "internal" | "external";
 export type TimeFormat = "24h" | "12h";
 export type SubtitleSize = "small" | "medium" | "large";
 export type SubtitleColor = "white" | "yellow";
+/** Passo de avanço/retrocesso do player, em segundos. */
+export type SeekStep = 5 | 10 | 15 | 30;
 
 export type VexiaSettings = {
   // Controle dos pais
@@ -40,6 +42,14 @@ export type VexiaSettings = {
   subtitlesEnabled: boolean;
   subtitleSize: SubtitleSize;
   subtitleColor: SubtitleColor;
+  /** Caixa escura atrás da legenda: ajuda em cenas claras. */
+  subtitleBackdrop: boolean;
+  /** Segundos que os botões de avanço/retrocesso pulam no player. */
+  seekStep: SeekStep;
+  /** Picture-in-Picture: janela flutuante ao sair do player. */
+  pipEnabled: boolean;
+  /** Pergunta antes de sair do aplicativo. */
+  confirmExit: boolean;
 };
 
 export const DEFAULT_SETTINGS: VexiaSettings = {
@@ -60,6 +70,10 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   subtitlesEnabled: false,
   subtitleSize: "medium",
   subtitleColor: "white",
+  subtitleBackdrop: true,
+  seekStep: 10,
+  pipEnabled: false,
+  confirmExit: true,
 };
 
 export type HistoryKind = "movie" | "series";
