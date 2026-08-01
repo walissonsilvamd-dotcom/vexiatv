@@ -708,6 +708,66 @@ function PlayerPage() {
     setSubtitleOffset(prefKey, next);
   };
 
+  /* ── Legenda externa (.srt/.vtt) por arquivo ou link ───────────── */
+  const [extSubsOpen, setExtSubsOpen] = useState(false);
+  const [extSubsUrl, setExtSubsUrl] = useState<string | null>(null);
+  const extHandleRef = useRef<ExternalSubtitleHandle | null>(null);
+  const extBlobRef = useRef<string | null>(null);
+
+  /** Anexa a legenda externa ao vídeo ativo. Devolve mensagem de erro ou null. */
+  const useExternalSubtitle = useCallback(
+    async (source: string | File) => {
+      const video = videoRef.current;
+      if (!video) return "Player ainda carregando, tente de novo.";
+      try {
+        const blobUrl = await toVttBlobUrl(source);
+        extHandleRef.current?.remove();
+        if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+        extBlobRef.current = blobUrl;
+        extHandleRef.current = attachExternalSubtitle(
+          video,
+          blobUrl,
+          typeof source === "string" ? "Legenda externa" : source.name,
+        );
+        setExtSubsUrl(typeof source === "string" ? source : source.name);
+        if (typeof source === "string") setExternalSubtitle(prefKey, source);
+        offsetCtlRef.current?.refresh();
+        return null;
+      } catch {
+        return "Não foi possível ler essa legenda (verifique o link ou o arquivo).";
+      }
+    },
+    [prefKey],
+  );
+
+  const dropExternalSubtitle = useCallback(() => {
+    extHandleRef.current?.remove();
+    extHandleRef.current = null;
+    if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+    extBlobRef.current = null;
+    setExtSubsUrl(null);
+    clearExternalSubtitle(prefKey);
+  }, [prefKey]);
+
+  // Ao abrir um conteúdo que já tinha legenda externa por link, reanexa sozinho.
+  useEffect(() => {
+    if (!mediaReady) return;
+    const saved = getExternalSubtitle(prefKey);
+    if (!saved) return;
+    void useExternalSubtitle(saved.url);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prefKey, mediaReady]);
+
+  // Limpa o blob ao sair da tela.
+  useEffect(
+    () => () => {
+      extHandleRef.current?.remove();
+      if (extBlobRef.current) URL.revokeObjectURL(extBlobRef.current);
+    },
+    [],
+  );
+
+
   /* Ao voltar pelo histórico (bfcache), reaplica faixa, estilo e atraso. */
   useEffect(() => {
     const restore = () => {
