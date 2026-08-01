@@ -119,6 +119,7 @@ function JogosPage() {
         </div>
       ) : (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-[4vw] pb-6">
+          <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {games.length === 0 ? (
             <p className="py-16 text-center text-sm text-vexia-muted">
               Nenhum canal de esportes encontrado na sua lista.

@@ -552,6 +552,7 @@ function ChannelsPage() {
       <section
         className={`min-h-0 border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar overflow-y-auto"}`}
       >
+        <h2 className="sr-only">Lista de canais</h2>
         {useVirtual ? (
           <VirtualizedList
             items={list}
@@ -589,6 +590,7 @@ function ChannelsPage() {
 
       {/* Coluna 3 — prévia do canal */}
       <section className="no-scrollbar min-h-0 space-y-3 overflow-y-auto">
+        <h2 className="sr-only">Prévia do canal selecionado</h2>
         {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
           <button
             type="button"
