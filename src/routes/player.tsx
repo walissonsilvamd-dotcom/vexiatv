@@ -780,8 +780,10 @@ function PlayerPage() {
   };
 
   /* ── Faixas reais de áudio e legenda (hls.js ou player nativo) ── */
-  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
+  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady, `${type}:${id}`);
   const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
+  /* ── Qualidade REAL do manifesto (Auto/ABR + faixas do stream) ── */
+  const qualityLevels = useQualityLevels(hlsApi, mediaReady);
 
   /* ── Preferências de legenda vindas de Ajustes ─────────────────
      Só faz efeito quando a lista carregada realmente traz legendas. */
