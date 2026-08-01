@@ -726,6 +726,24 @@ function SettingsPage() {
             onSelect={() => set("seekStep", step)}
           />
         ))}
+        {/* Perfil de desempenho: quanto o player pode encher o buffer/qualidade. */}
+        <p className="pt-3 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+          Desempenho do player
+        </p>
+        {(
+          [
+            ["eco", "Econômico — TV/box mais fraco"],
+            ["balanced", "Equilibrado (recomendado)"],
+            ["smooth", "Fluido — internet boa"],
+          ] as const
+        ).map(([value, label]) => (
+          <OptionRow
+            key={value}
+            label={label}
+            selected={settings.perfProfile === value}
+            onSelect={() => set("perfProfile", value)}
+          />
+        ))}
         <SwitchRow
           label="Janela flutuante (PiP)"
           active={settings.pipEnabled}
@@ -736,6 +754,7 @@ function SettingsPage() {
           active={settings.confirmExit}
           onToggle={() => toggle("confirmExit")}
         />
+
       </SettingsModal>
 
 
