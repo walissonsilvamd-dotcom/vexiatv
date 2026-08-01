@@ -28,6 +28,10 @@ import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
+import { GroupsDialog } from "../components/vexia/GroupsDialog";
+import { ChannelPinPrompt } from "../components/vexia/ChannelPinPrompt";
+import { useGroups } from "../lib/groups-store";
+import { toggleChannelLock, useChannelLocks } from "../lib/channel-lock";
 
 
 /** Hora no formato 20:30. */
