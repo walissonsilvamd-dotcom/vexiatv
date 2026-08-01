@@ -50,6 +50,8 @@ export type VexiaSettings = {
   pipEnabled: boolean;
   /** Pergunta antes de sair do aplicativo. */
   confirmExit: boolean;
+  /** Perfil de desempenho do player (buffer e agressividade da qualidade). */
+  perfProfile: PerfProfile;
 };
 
 export const DEFAULT_SETTINGS: VexiaSettings = {
