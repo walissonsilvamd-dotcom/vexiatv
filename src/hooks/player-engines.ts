@@ -83,12 +83,6 @@ export function alternateFormat(src: string): string | null {
   });
 }
 
-/** URL real por trás do proxy (quando houver). */
-function realUrl(src: string): string {
-  return src.startsWith(PROXY_PREFIX)
-    ? decodeURIComponent(src.slice(PROXY_PREFIX.length))
-    : src;
-}
 
 /**
  * Cadeia completa de tentativas: todos os motores do formato atual e, em
