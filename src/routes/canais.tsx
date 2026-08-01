@@ -26,6 +26,8 @@ import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { programProgress } from "../lib/epg";
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
+import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
+import { CatchupDialog } from "../components/vexia/CatchupDialog";
 
 
 /** Hora no formato 20:30. */
