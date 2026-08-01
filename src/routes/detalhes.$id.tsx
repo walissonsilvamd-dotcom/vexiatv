@@ -27,6 +27,7 @@ import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
 import { countriesLabel } from "../lib/country";
 
 
+import { useMovieInfo } from "../hooks/useMovieInfo";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 
 export const Route = createFileRoute("/detalhes/$id")({
@@ -77,7 +78,18 @@ function DetailsPage() {
   const fav = has(isSeries ? "series" : "movie", raw?.title ?? "");
   const kind: "movie" | "series" = isSeries ? "series" : "movie";
   const { data: enriched } = useTmdbItem(raw ?? null, kind);
-  const item = enriched ?? raw;
+  /* Filmes: completa sinopse/nota/duração com os dados do painel (cache +
+     prefetch por foco, então normalmente já está pronto ao abrir). */
+  const vodInfo = useMovieInfo(!isSeries ? (raw as MediaItem | null) : null, !isSeries);
+  const base = enriched ?? raw;
+  const item = base
+    ? {
+        ...base,
+        overview: base.overview || vodInfo?.plot || "",
+        rating: base.rating > 0 ? base.rating : (vodInfo?.rating ?? 0),
+        runtime: base.runtime || (vodInfo?.runtimeMin ? `${vodInfo.runtimeMin}min` : base.runtime),
+      }
+    : base;
   const { entryFor, resume } = useProgress(item?.id);
 
   const seasons = useMemo(() => {
