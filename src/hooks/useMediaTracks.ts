@@ -132,7 +132,12 @@ export function useAudioTracks(
     (id: number) => {
       setSelected(id);
       const track = tracks.find((t) => t.id === id);
-      if (track) writePref(AUDIO_PREF_KEY, track.lang || track.label);
+      if (track) {
+        const value = track.lang || track.label;
+        writePref(AUDIO_PREF_KEY, value);
+        // Memória por conteúdo: este título/canal reabre já com esta faixa.
+        if (scopedKey) writePref(scopedKey, value);
+      }
       if (hls && hls.audioTracks?.length) {
         hls.audioTrack = id;
         return;
@@ -144,22 +149,22 @@ export function useAudioTracks(
         }
       }
     },
-    [hls, video, tracks],
+    [hls, video, tracks, scopedKey],
   );
 
-  /* Aplica automaticamente a última escolha do usuário. */
+  /* Aplica automaticamente a escolha deste conteúdo e, se não houver, a última global. */
   const [applied, setApplied] = useState(false);
   useEffect(() => {
     if (applied || tracks.length === 0) return;
-    const pref = readPref(AUDIO_PREF_KEY);
+    const pref = (scopedKey ? readPref(scopedKey) : null) ?? readPref(AUDIO_PREF_KEY);
     if (pref) {
       const match = tracks.find((t) => t.lang === pref || t.label === pref);
       if (match && match.id !== selected) select(match.id);
     }
     setApplied(true);
-  }, [tracks, applied, selected, select]);
+  }, [tracks, applied, selected, select, scopedKey]);
 
-  useEffect(() => setApplied(false), [video]);
+  useEffect(() => setApplied(false), [video, scopedKey]);
 
   const currentLabel =
     tracks.find((t) => t.id === selected)?.label ?? (tracks.length ? tracks[0].label : "Original");
