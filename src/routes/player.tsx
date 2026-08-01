@@ -1331,7 +1331,10 @@ function PlayerPage() {
             ) : (
               <span className="text-vexia-cyan">{kindLabel}</span>
             )}
-            <span className="text-vexia-cyan">• {quality === "Auto" ? "1080p" : quality}</span>
+            {/* Resolução medida de verdade, não um rótulo fixo. */}
+            <span className="text-vexia-cyan">
+              • {qualityLevels.activeLabel ?? (videoRef.current?.videoHeight ? `${videoRef.current.videoHeight}p` : "auto")}
+            </span>
             {type === "live" ? (
               <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
             ) : null}
