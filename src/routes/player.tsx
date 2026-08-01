@@ -950,6 +950,33 @@ function PlayerPage() {
         select: () => applySpeed(s),
       }));
     }
+    if (menu === "fit") {
+      return FIT_MODES.map((m) => ({
+        label: m.label,
+        active: m.id === fit,
+        select: () => applyFit(m.id),
+      }));
+    }
+    if (menu === "sleep") {
+      return SLEEP_OPTIONS.map((m) => ({
+        label: m === 0 ? "Desligado" : `${m} min`,
+        active: m === sleep.minutes,
+        select: () => sleep.setMinutes(m),
+      }));
+    }
+    if (menu === "repeat") {
+      return (
+        [
+          { id: "off", label: "Não repetir" },
+          { id: "one", label: "Repetir este" },
+          { id: "season", label: "Repetir temporada" },
+        ] as const
+      ).map((r) => ({
+        label: r.label,
+        active: r.id === repeat,
+        select: () => setRepeat(r.id),
+      }));
+    }
     if (menu === "audio") {
       return audio.tracks.map((t) => ({
         label: t.label,
@@ -993,7 +1020,7 @@ function PlayerPage() {
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
+  }, [menu, quality, speed, fit, applyFit, repeat, sleep.minutes, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
 
 
   const toggleFullscreen = () => {
@@ -1092,6 +1119,7 @@ function PlayerPage() {
                 activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
               playsInline
+              style={fitStyle(fit)}
               muted={activeSlot === "a" ? muted : true}
             />
             <video
@@ -1100,6 +1128,7 @@ function PlayerPage() {
                 activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
               playsInline
+              style={fitStyle(fit)}
               muted={activeSlot === "b" ? muted : true}
             />
 
@@ -1306,13 +1335,16 @@ function PlayerPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setFav((f) => !f)}
+            onClick={() => {
+              if (favInput) toggleFav(favInput);
+              setFav((f) => !f);
+            }}
             aria-label="Favoritar"
-            aria-pressed={fav}
-            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
+            aria-pressed={isFav}
+            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${isFav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
           >
             <Heart
-              className={`h-3.5 w-3.5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
+              className={`h-3.5 w-3.5 ${isFav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
               aria-hidden
             />
           </button>
@@ -1338,6 +1370,36 @@ function PlayerPage() {
               <PictureInPicture2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
+          {type === "live" && zapChannels.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => setZapOpen((v) => !v)}
+              aria-label="Trocar de canal"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+            >
+              <ListVideo className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setStatsOpen((v) => !v)}
+            aria-label="Info técnica"
+            aria-pressed={statsOpen}
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+          >
+            <Activity className={`h-4 w-4 ${statsOpen ? "text-vexia-purple-soft" : "text-vexia-cyan"}`} aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLocked(true);
+              setLockHint(true);
+            }}
+            aria-label="Bloquear tela"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+          >
+            <Lock className="h-4 w-4 text-vexia-cyan" aria-hidden />
+          </button>
           <button
             type="button"
             onClick={toggleFullscreen}
