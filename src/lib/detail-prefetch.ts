@@ -45,7 +45,7 @@ export function cancelDetailPrefetch() {
 
 async function run(target: PrefetchTarget) {
   const art = [target.backdrop, target.poster].filter(Boolean) as string[];
-  if (art.length) preloadImages(art.slice(0, 1), "hero");
+  if (art.length) preloadImages(art.slice(0, 1), "backdrop");
 
   if (!playlistUrl) return;
   try {
