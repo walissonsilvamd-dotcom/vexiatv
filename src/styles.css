@@ -688,11 +688,20 @@ body {
 }
 
 
-/* ── Legendas do player: tamanho e cor vindos de Ajustes ── */
+/* ── Legendas do player: tamanho, cor e fundo vindos de Ajustes ── */
 video.vexia-subs::cue {
-  background: rgba(0, 0, 0, 0.55);
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
   font-weight: 700;
+}
+/* Caixa escura atrás do texto (padrão) ou legenda "limpa" só com sombra. */
+video.vexia-subs-box::cue {
+  background: rgba(0, 0, 0, 0.55);
+}
+video.vexia-subs-clean::cue {
+  background: transparent;
+  text-shadow:
+    0 0 4px rgba(0, 0, 0, 1),
+    0 2px 8px rgba(0, 0, 0, 0.95);
 }
 video.vexia-subs-sm::cue {
   font-size: 70%;
