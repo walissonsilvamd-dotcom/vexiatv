@@ -24,6 +24,13 @@ import {
   Volume2,
   VolumeX,
   WifiOff,
+  Lock,
+  Repeat,
+  Activity,
+  Moon,
+  Crop,
+  ListVideo,
+  SkipForward as SkipIntroIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -77,6 +84,13 @@ import {
 
 type PlayerSearch = { type: "live" | "movie" | "series"; id: string; ep?: string };
 
+import { ChannelZapList } from "../components/vexia/ChannelZapList";
+import { PlayerEpgBar } from "../components/vexia/PlayerEpgBar";
+import { NextEpisodePrompt } from "../components/vexia/NextEpisodePrompt";
+import { PlayerStats } from "../components/vexia/PlayerStats";
+import { useSleepTimer, SLEEP_OPTIONS } from "../hooks/use-sleep-timer";
+import { FIT_MODES, fitLabel, fitStyle, readFitMode, saveFitMode, type FitMode } from "../lib/fit-modes";
+import { useFavorites, channelFavorite, mediaFavorite } from "../lib/favorites-store";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
 
@@ -143,9 +157,18 @@ function PlayerPage() {
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
   const [fav, setFav] = useState(false);
-  const [menu, setMenu] = useState<null | "quality" | "audio" | "subs" | "subsDelay" | "speed">(
-    null,
-  );
+  const [menu, setMenu] = useState<
+    null | "quality" | "audio" | "subs" | "subsDelay" | "speed" | "fit" | "sleep" | "repeat"
+  >(null);
+  /* Extras do player: modo de imagem, zapping, bloqueio, info e repetição. */
+  const [fit, setFit] = useState<FitMode>("contain");
+  const [zapOpen, setZapOpen] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [lockHint, setLockHint] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const [repeat, setRepeat] = useState<"off" | "one" | "season">("off");
+  const [nextPrompt, setNextPrompt] = useState(false);
+  const unlockTapRef = useRef(0);
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
@@ -205,6 +228,8 @@ function PlayerPage() {
     live: type === "live",
   });
   const {
+    engine,
+    standbyEngine,
     activeSlot,
     hlsApi,
     reconnecting,
@@ -234,6 +259,20 @@ function PlayerPage() {
   const title =
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
   const kindLabel = type === "live" ? "AO VIVO" : type === "movie" ? "FILME" : "SÉRIE";
+
+  /* Modo de imagem salvo no aparelho. */
+  useEffect(() => {
+    setFit(readFitMode());
+  }, []);
+  const applyFit = useCallback((mode: FitMode) => {
+    setFit(mode);
+    saveFitMode(mode);
+  }, []);
+  const cycleFit = useCallback(() => {
+    const i = FIT_MODES.findIndex((m) => m.id === fit);
+    const next = FIT_MODES[(i + 1) % FIT_MODES.length]!;
+    applyFit(next.id);
+  }, [fit, applyFit]);
 
   useEffect(() => {
     if (resilientPlayer.mutedByAutoplay) setMuted(true);
@@ -321,9 +360,21 @@ function PlayerPage() {
       if (watchMetaRef.current?.name && type !== "live") {
         completeWatch(watchMetaRef.current.kind, watchMetaRef.current.name);
       }
+      // Repetir: mesmo item, ou temporada voltando ao primeiro episódio.
+      if (repeat === "one") {
+        video.currentTime = 0;
+        void video.play().catch(() => undefined);
+        return;
+      }
       if (nextEpisode) {
         setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
         navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true });
+        return;
+      }
+      if (repeat === "season" && episodes[0]) {
+        const first = episodes[0];
+        setStreamHandoff("series", id, first.url, first.id);
+        navigate({ to: "/player", search: { type, id, ep: first.id }, viewTransition: true });
       }
     };
     video.addEventListener("timeupdate", onTime);
@@ -342,7 +393,7 @@ function PlayerPage() {
       video.removeEventListener("playing", onPlaying);
       video.removeEventListener("ended", onEnded);
     };
-  }, [type, id, nextEpisode, navigate, activeSlot]);
+  }, [type, id, nextEpisode, navigate, activeSlot, repeat, episodes]);
 
   /* ── Retomada automática: agenda a posição salva deste conteúdo/episódio ── */
   useEffect(() => {
@@ -474,6 +525,50 @@ function PlayerPage() {
     };
   }, [type, progressKey, title, episode, watchMeta]);
 
+  /* ── Sleep timer: pausa quando o tempo acaba ── */
+  const onSleepExpire = useCallback(() => {
+    videoRef.current?.pause();
+  }, []);
+  const sleep = useSleepTimer(onSleepExpire);
+
+  /* ── Favoritar direto do player ── */
+  const { has: hasFav, toggle: toggleFav } = useFavorites();
+  const favInput = useMemo(() => {
+    if (channel) return channelFavorite(channel);
+    if (movie) return mediaFavorite(movie, "movie");
+    if (serie) return mediaFavorite(serie, "series");
+    return null;
+  }, [channel, movie, serie]);
+  const isFav = favInput ? hasFav(favInput.kind, favInput.name) : false;
+
+  /* ── Zapping: canais na mesma categoria do canal atual ── */
+  const zapChannels = useMemo(() => {
+    if (type !== "live") return [];
+    const cat = channel?.category;
+    const same = cat ? channels.filter((c) => c.category === cat) : channels;
+    return same.length > 1 ? same : channels;
+  }, [type, channel, channels]);
+
+  const openChannel = useCallback(
+    (ch: { id: string; url: string }) => {
+      setStreamHandoff("live", ch.id, ch.url);
+      setZapOpen(false);
+      void navigate({ to: "/player", search: { type: "live", id: ch.id }, viewTransition: true });
+    },
+    [navigate],
+  );
+
+  /** Canal + / − do controle: pula direto para o vizinho da lista. */
+  const stepChannel = useCallback(
+    (dir: 1 | -1) => {
+      if (type !== "live" || zapChannels.length < 2) return;
+      const i = zapChannels.findIndex((c) => c.id === id);
+      const next = zapChannels[(i + dir + zapChannels.length) % zapChannels.length];
+      if (next) openChannel(next);
+    },
+    [type, zapChannels, id, openChannel],
+  );
+
   const ping = useCallback(() => {
     setShowControls(true);
     window.clearTimeout(hideTimer.current);
@@ -515,7 +610,40 @@ function PlayerPage() {
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Tela bloqueada: ignora tudo; destrava com OK/Enter duas vezes.
+      if (locked) {
+        e.preventDefault();
+        if (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause") {
+          const now = Date.now();
+          if (now - unlockTapRef.current < 1500) {
+            setLocked(false);
+            setLockHint(false);
+            unlockTapRef.current = 0;
+            return;
+          }
+          unlockTapRef.current = now;
+        }
+        setLockHint(true);
+        return;
+      }
       ping();
+      // Canal + / − do controle (e PageUp/PageDown em teclado).
+      if (
+        e.key === "ChannelUp" ||
+        e.key === "ChannelDown" ||
+        e.key === "PageUp" ||
+        e.key === "PageDown"
+      ) {
+        e.preventDefault();
+        stepChannel(e.key === "ChannelUp" || e.key === "PageUp" ? -1 : 1);
+        return;
+      }
+      // Lista de zapping sobre o vídeo (canais ao vivo).
+      if (type === "live" && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+        e.preventDefault();
+        setZapOpen(e.key === "ArrowRight");
+        return;
+      }
       if (fatalError && (e.key === "Enter" || e.key === " " || e.key === "MediaPlayPause")) {
         e.preventDefault();
         retryStream();
@@ -599,7 +727,26 @@ function PlayerPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream]);
+  }, [ping, toggle, seekBy, goBack, type, fatalError, retryStream, locked, stepChannel]);
+
+  /* Dica do bloqueio desaparece sozinha. */
+  useEffect(() => {
+    if (!lockHint) return;
+    const t = window.setTimeout(() => setLockHint(false), 2600);
+    return () => window.clearTimeout(t);
+  }, [lockHint]);
+
+  /* ── Autoplay do próximo episódio nos últimos segundos ── */
+  const nextDismissedRef = useRef(false);
+  useEffect(() => {
+    nextDismissedRef.current = false;
+    setNextPrompt(false);
+  }, [episode?.id]);
+  useEffect(() => {
+    if (type !== "series" || !nextEpisode || !duration || nextDismissedRef.current) return;
+    const left = duration - current;
+    setNextPrompt(left > 0 && left <= 12);
+  }, [type, nextEpisode, duration, current]);
 
   useEffect(() => {
     menuOpenRef.current = menu !== null;
@@ -803,6 +950,33 @@ function PlayerPage() {
         select: () => applySpeed(s),
       }));
     }
+    if (menu === "fit") {
+      return FIT_MODES.map((m) => ({
+        label: m.label,
+        active: m.id === fit,
+        select: () => applyFit(m.id),
+      }));
+    }
+    if (menu === "sleep") {
+      return SLEEP_OPTIONS.map((m) => ({
+        label: m === 0 ? "Desligado" : `${m} min`,
+        active: m === sleep.minutes,
+        select: () => sleep.setMinutes(m),
+      }));
+    }
+    if (menu === "repeat") {
+      return (
+        [
+          { id: "off", label: "Não repetir" },
+          { id: "one", label: "Repetir este" },
+          { id: "season", label: "Repetir temporada" },
+        ] as const
+      ).map((r) => ({
+        label: r.label,
+        active: r.id === repeat,
+        select: () => setRepeat(r.id),
+      }));
+    }
     if (menu === "audio") {
       return audio.tracks.map((t) => ({
         label: t.label,
@@ -846,7 +1020,7 @@ function PlayerPage() {
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
+  }, [menu, quality, speed, fit, applyFit, repeat, sleep.minutes, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
 
 
   const toggleFullscreen = () => {
@@ -945,6 +1119,7 @@ function PlayerPage() {
                 activeSlot === "a" ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
               playsInline
+              style={fitStyle(fit)}
               muted={activeSlot === "a" ? muted : true}
             />
             <video
@@ -953,6 +1128,7 @@ function PlayerPage() {
                 activeSlot === "b" ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
               playsInline
+              style={fitStyle(fit)}
               muted={activeSlot === "b" ? muted : true}
             />
 
@@ -1159,13 +1335,16 @@ function PlayerPage() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setFav((f) => !f)}
+            onClick={() => {
+              if (favInput) toggleFav(favInput);
+              setFav((f) => !f);
+            }}
             aria-label="Favoritar"
-            aria-pressed={fav}
-            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${fav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
+            aria-pressed={isFav}
+            className={`vexia-focus grid h-7 w-7 place-items-center rounded-full border ${isFav ? "border-vexia-purple" : "border-vexia-cyan/70"}`}
           >
             <Heart
-              className={`h-3.5 w-3.5 ${fav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
+              className={`h-3.5 w-3.5 ${isFav ? "fill-current text-vexia-purple-soft" : "text-vexia-cyan"}`}
               aria-hidden
             />
           </button>
@@ -1191,6 +1370,36 @@ function PlayerPage() {
               <PictureInPicture2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
+          {type === "live" && zapChannels.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => setZapOpen((v) => !v)}
+              aria-label="Trocar de canal"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+            >
+              <ListVideo className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setStatsOpen((v) => !v)}
+            aria-label="Info técnica"
+            aria-pressed={statsOpen}
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+          >
+            <Activity className={`h-4 w-4 ${statsOpen ? "text-vexia-purple-soft" : "text-vexia-cyan"}`} aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setLocked(true);
+              setLockHint(true);
+            }}
+            aria-label="Bloquear tela"
+            className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+          >
+            <Lock className="h-4 w-4 text-vexia-cyan" aria-hidden />
+          </button>
           <button
             type="button"
             onClick={toggleFullscreen}
@@ -1212,6 +1421,9 @@ function PlayerPage() {
         onFocusCapture={ping}
         className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 pb-3 transition-opacity duration-200 md:px-6 ${overlay}`}
       >
+
+        {/* Guia rápido: no ar agora / a seguir (canais com EPG) */}
+        {type === "live" ? <PlayerEpgBar tvgId={channel?.tvgId} /> : null}
 
         {/* Barra de progresso / atraso */}
         {type === "live" ? (
@@ -1297,6 +1509,17 @@ function PlayerPage() {
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
+          {type !== "live" ? (
+            <button
+              type="button"
+              onClick={() => seekBy(85)}
+              aria-label="Pular abertura"
+              title="Pular abertura (+85s)"
+              className="vexia-focus flex h-7 items-center gap-1 rounded-full border border-white/15 px-2 text-[10px] font-bold text-vexia-cyan"
+            >
+              <SkipIntroIcon className="h-3.5 w-3.5" aria-hidden /> ABERTURA
+            </button>
+          ) : null}
           {type === "series" ? (
             <button
               type="button"
@@ -1330,6 +1553,23 @@ function PlayerPage() {
                 label: subs.currentLabel,
               },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
+              { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
+              { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
+              ...(type === "series"
+                ? ([
+                    {
+                      key: "repeat",
+                      icon: Repeat,
+                      title: "Repetir",
+                      label:
+                        repeat === "off"
+                          ? "Não"
+                          : repeat === "one"
+                            ? "Este"
+                            : "Temporada",
+                    },
+                  ] as const)
+                : []),
             ] as const
           ).map((opt) => {
             const open = menu === opt.key;
@@ -1471,6 +1711,74 @@ function PlayerPage() {
       ) : null}
 
       </section>
+
+      <ChannelZapList
+        open={zapOpen && type === "live"}
+        channels={zapChannels}
+        currentId={id}
+        onPick={openChannel}
+        onClose={() => setZapOpen(false)}
+      />
+
+      <PlayerStats
+        open={statsOpen}
+        video={videoRef.current}
+        engine={engine}
+        standbyEngine={standbyEngine}
+        attempt={attempt}
+      />
+
+      <NextEpisodePrompt
+        open={nextPrompt && Boolean(nextEpisode)}
+        label={
+          nextEpisode
+            ? `T${nextEpisode.season}E${nextEpisode.number}${nextEpisode.title ? ` • ${nextEpisode.title}` : ""}`
+            : ""
+        }
+        onPlay={() => {
+          if (!nextEpisode) return;
+          setNextPrompt(false);
+          setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
+          void navigate({
+            to: "/player",
+            search: { type: "series", id, ep: nextEpisode.id },
+            viewTransition: true,
+          });
+        }}
+        onCancel={() => {
+          nextDismissedRef.current = true;
+          setNextPrompt(false);
+        }}
+      />
+
+      {/* ── Tela bloqueada ── */}
+      {locked ? (
+        <div
+          className="absolute inset-0 z-[60]"
+          onClick={() => setLockHint(true)}
+          role="presentation"
+        >
+          <div className="absolute right-5 top-5 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5">
+            <Lock className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
+            <span className="text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
+              TELA BLOQUEADA
+            </span>
+          </div>
+          {lockHint ? (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 rounded-full border border-vexia-purple/50 bg-black/85 px-4 py-2 text-[11px] font-bold text-white">
+              Aperte OK duas vezes para desbloquear
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* ── Sleep timer ativo ── */}
+      {sleep.minutes > 0 ? (
+        <div className="pointer-events-none absolute right-5 top-20 z-30 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1">
+          <Moon className="h-3 w-3 text-vexia-cyan" aria-hidden />
+          <span className="text-[10px] font-bold tabular-nums text-vexia-cyan">{sleep.label}</span>
+        </div>
+      ) : null}
 
       <ExternalSubsDialog
         open={extSubsOpen}
