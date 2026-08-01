@@ -11,6 +11,7 @@ import {
   Heart,
   Loader2,
   Maximize,
+  PictureInPicture2,
   Pause,
   Play,
   Rewind,
@@ -1180,6 +1181,16 @@ function PlayerPage() {
               <Volume2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
             )}
           </button>
+          {settings.pipEnabled && pipSupported ? (
+            <button
+              type="button"
+              onClick={() => void togglePip()}
+              aria-label="Janela flutuante"
+              className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
+            >
+              <PictureInPicture2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={toggleFullscreen}
