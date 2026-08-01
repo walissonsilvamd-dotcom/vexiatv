@@ -562,10 +562,10 @@ function PlayerPage() {
           toggle();
           break;
         case "ArrowRight":
-          if (type !== "live") seekBy(10);
+          if (type !== "live") seekBy(seekStep);
           break;
         case "ArrowLeft":
-          if (type !== "live") seekBy(-10);
+          if (type !== "live") seekBy(-seekStep);
           break;
         case "ArrowUp":
           setMenu((m) => (m ? null : "quality"));
@@ -783,7 +783,12 @@ function PlayerPage() {
 
   const subsClass = `vexia-subs vexia-subs-${
     settings.subtitleSize === "small" ? "sm" : settings.subtitleSize === "large" ? "lg" : "md"
-  } vexia-subs-${settings.subtitleColor}`;
+  } vexia-subs-${settings.subtitleColor} ${
+    settings.subtitleBackdrop ? "vexia-subs-box" : "vexia-subs-clean"
+  }`;
+
+  /* Passo de avanço vindo de Ajustes (5s a 30s). */
+  const seekStep = settings.seekStep;
 
 
   type MenuOption = { label: string; active: boolean; select: () => void };
@@ -856,7 +861,7 @@ function PlayerPage() {
     const rect = e.currentTarget.getBoundingClientRect();
     const right = e.clientX - rect.left > rect.width / 2;
     if (now - lastTap.current < 320 && type !== "live") {
-      seekBy(right ? 10 : -10);
+      seekBy(right ? seekStep : -seekStep);
       lastTap.current = 0;
       return;
     }
@@ -1235,8 +1240,8 @@ function PlayerPage() {
           {type !== "live" ? (
             <button
               type="button"
-              onClick={() => seekBy(-10)}
-              aria-label="Voltar 10 segundos"
+              onClick={() => seekBy(-seekStep)}
+              aria-label={`Voltar ${seekStep} segundos`}
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
               <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
@@ -1257,8 +1262,8 @@ function PlayerPage() {
           {type !== "live" ? (
             <button
               type="button"
-              onClick={() => seekBy(10)}
-              aria-label="Avançar 10 segundos"
+              onClick={() => seekBy(seekStep)}
+              aria-label={`Avançar ${seekStep} segundos`}
               className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
             >
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
