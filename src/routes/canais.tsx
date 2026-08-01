@@ -245,12 +245,18 @@ function ChannelsPage() {
   const openFullscreen = useCallback(
     (ch: PlaylistChannel) => {
       if (openingRef.current) return;
+      // Canal trancado só abre depois do PIN.
+      if (locks.blocked(ch.id)) {
+        setPendingLocked(ch);
+        return;
+      }
       openingRef.current = true;
       writeLastChannel(ch.id, true);
       setStreamHandoff("live", ch.id, ch.url);
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
-    [navigate],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, locks.blocked],
   );
 
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
