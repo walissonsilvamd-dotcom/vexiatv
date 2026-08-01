@@ -114,6 +114,46 @@ function DetailsPage() {
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const activeSeason = seasons.find((s) => s.number === selectedSeason) ?? null;
 
+  // SEO real da ficha: título/sinopse/imagem e schema Movie ou TVSeries.
+  const seoTitle = item ? `${item.title}${item.year ? ` (${item.year})` : ""} — VÉXIA TV` : undefined;
+  const seoDesc = item
+    ? (item.overview || `Assista ${item.title} no VÉXIA TV: ficha, elenco e recomendações.`).slice(0, 158)
+    : undefined;
+  const seoJsonLd = useMemo(() => {
+    if (!item) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": isSeries ? "TVSeries" : "Movie",
+      name: item.title,
+      description: item.overview || undefined,
+      image: item.poster || item.backdrop || undefined,
+      genre: item.genres?.length ? item.genres : undefined,
+      ...(item.year ? { datePublished: String(item.year) } : {}),
+      ...(isSeries && seasons.length ? { numberOfSeasons: seasons.length } : {}),
+      ...(item.rating > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: item.rating,
+              bestRating: 10,
+              ratingCount: 1,
+            },
+          }
+        : {}),
+    };
+  }, [item, isSeries, seasons.length]);
+
+  useDynamicSeo({
+    title: seoTitle,
+    description: seoDesc,
+    image: item?.backdrop || item?.poster,
+    url: `https://vexiatv.lovable.app/detalhes/${id}`,
+    jsonLd: seoJsonLd,
+    jsonLdId: "vexia-detalhes-jsonld",
+  });
+
+
+
 
   // Recomendações relevantes: sempre relacionadas ao que está sendo assistido.
   // Pontuamos gêneros em comum, categoria da lista, franquia, proximidade de ano
