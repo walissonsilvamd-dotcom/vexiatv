@@ -18,7 +18,8 @@ import {
   Wifi,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
 import {
@@ -103,6 +104,8 @@ const QUALITIES = [
 
 function SettingsPage() {
   const navigate = useNavigate();
+  const pageRef = useRef<HTMLElement>(null);
+  useSpatialNav(pageRef);
   const { settings, set, toggle, history, clearHistory, formatTime } = useSettings();
   const { history: watchHistory } = useWatchHistory();
   const [historyOn, setHistoryOn] = useState(true);
@@ -231,7 +234,7 @@ function SettingsPage() {
   ];
 
   return (
-    <main className="vexia-safe min-h-screen bg-vexia-bg pb-28 text-vexia-text">
+    <main ref={pageRef} className="vexia-safe min-h-screen bg-vexia-bg pb-28 text-vexia-text">
       <div className="px-[4vw] pt-5">
         <TopNav active="Ajustes" className="w-fit" />
       </div>

@@ -107,6 +107,21 @@ function scrollableParent(el: HTMLElement): HTMLElement | null {
   return found;
 }
 
+/**
+ * Alvos do D-pad: além dos elementos marcados com `data-nav-row`, qualquer
+ * controle nativamente focável entra na navegação. Assim TODAS as páginas
+ * respondem ao controle remoto sem precisar marcar item por item.
+ */
+const FOCUSABLE = [
+  "[data-nav-row]",
+  "button:not([disabled])",
+  "a[href]",
+  "input:not([type='hidden']):not([disabled])",
+  "textarea:not([disabled])",
+  "select:not([disabled])",
+  "[role='button']",
+  "[tabindex]",
+].join(",");
 
 export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
@@ -116,8 +131,10 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
     let lastKeyAt = 0;
 
     const collect = (root: ParentNode) =>
-      Array.from(root.querySelectorAll<HTMLElement>("[data-nav-row]")).filter((el) => {
+      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => {
         if (el.offsetParent === null || el.hasAttribute("disabled")) return false;
+        if (el.getAttribute("tabindex") === "-1") return false;
+        if (el.getAttribute("aria-hidden") === "true") return false;
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0;
       });
@@ -191,7 +208,7 @@ export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
             };
             const retry = (attempt: number) => {
               const list = Array.from(
-                (scopeRef?.current ?? document).querySelectorAll<HTMLElement>("[data-nav-row]"),
+                (scopeRef?.current ?? document).querySelectorAll<HTMLElement>(FOCUSABLE),
               ).filter((el) => el.offsetParent !== null);
               const t = pickFrom(moved, list, dir);
               if (t) focus(t);

@@ -189,9 +189,9 @@ function ListsPage() {
               <button
                 type="button"
                 onClick={openForm}
-                className="vexia-focus group
-              data-nav-row={2}
-              tabIndex={0} flex flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-purple/40 bg-vexia-card/80 px-6 py-10 text-center shadow-[0_0_40px_-18px_var(--vexia-purple)] backdrop-blur-sm"
+                data-nav-row={2}
+                tabIndex={0}
+                className="vexia-focus group flex flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-purple/40 bg-vexia-card/80 px-6 py-10 text-center shadow-[0_0_40px_-18px_var(--vexia-purple)] backdrop-blur-sm"
               >
                 <span className="grid h-16 w-16 place-items-center rounded-full bg-vexia-purple/90">
                   <Plus className="h-8 w-8 text-white" aria-hidden />
@@ -274,9 +274,9 @@ function ListsPage() {
                     <button
                       type="button"
                       onClick={openForm}
-                      className="vexia-focus flex flex-1
-              data-nav-row={3}
-              tabIndex={0} items-center justify-center gap-2 rounded-full border border-vexia-cyan/50 px-4 py-2 text-[11px] font-bold tracking-[0.14em]"
+                      data-nav-row={3}
+                      tabIndex={0}
+                      className="vexia-focus flex flex-1 items-center justify-center gap-2 rounded-full border border-vexia-cyan/50 px-4 py-2 text-[11px] font-bold tracking-[0.14em]"
                     >
                       <Pencil className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
                       EDITAR
@@ -484,9 +484,9 @@ function ListsPage() {
                     type="button"
                     onClick={() => submit()}
                     disabled={loading}
-                    className="vexia-focus w-full rounded-full bg-vexia-purple
-              data-nav-row={6}
-              tabIndex={0} px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
+                    data-nav-row={6}
+                    tabIndex={0}
+                    className="vexia-focus w-full rounded-full bg-vexia-purple px-6 py-3 text-base font-bold tracking-[0.1em] shadow-[0_0_40px_-12px_var(--vexia-purple)] disabled:opacity-60"
                   >
                     ENTRAR
                   </button>
@@ -516,9 +516,9 @@ function ListsPage() {
                     type="button"
                     onClick={() => submit()}
                     disabled={loading}
-                    className="vexia-focus mt-3 w-full
-              data-nav-row={8}
-              tabIndex={0} rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-sm font-bold tracking-[0.12em] text-vexia-cyan disabled:opacity-60"
+                    data-nav-row={8}
+                    tabIndex={0}
+                    className="vexia-focus mt-3 w-full rounded-full border border-vexia-cyan/60 px-6 py-2.5 text-sm font-bold tracking-[0.12em] text-vexia-cyan disabled:opacity-60"
                   >
                     CARREGAR LINK
                   </button>
