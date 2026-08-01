@@ -136,8 +136,8 @@ const ChannelRow = memo(function ChannelRow({
         onClick={() => onSelect(ch)}
         className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
           isActive
-            ? "scale-[1.02] border-vexia-purple/70 bg-gradient-to-r from-vexia-purple to-vexia-purple/60 shadow-[0_0_22px_-6px_rgb(var(--vexia-secondary-rgb)/0.6)]"
-            : "border-white/5 bg-vexia-card hover:border-vexia-purple/40"
+            ? "scale-[1.02] border-vexia-purple/70 bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.75)]"
+            : "border-white/[0.06] bg-black/45 hover:border-vexia-purple/40 hover:bg-vexia-purple/15"
         }`}
       >
         <span
