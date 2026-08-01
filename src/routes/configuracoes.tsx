@@ -267,8 +267,8 @@ function SettingsPage() {
         </p>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-3 px-[4vw] pb-3">
-        <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 px-[4vw] pb-2">
+        <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
           {ITEMS.map((item) => {
             const Icon = item.icon;
             const isToggle = item.kind === "toggle";
@@ -286,13 +286,13 @@ function SettingsPage() {
                     setDialog(item.dialog);
                   }
                 }}
-                className="group vexia-focus relative flex min-h-0 flex-col items-start justify-between gap-1.5 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-2.5 text-left shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgb(var(--vexia-primary-rgb)/0.35)] focus:scale-[1.03] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
+                className="group vexia-focus relative flex min-h-0 flex-col items-start justify-between gap-1 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-2 text-left shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgb(var(--vexia-primary-rgb)/0.35)] focus:scale-[1.03] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
               >
                 <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                 <span className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-vexia-purple/10 opacity-60 blur-2xl transition-opacity group-hover:opacity-100" />
 
-                <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-vexia-purple/25 to-vexia-purple/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] ring-1 ring-vexia-purple/20 transition-all group-hover:from-vexia-purple/40 group-hover:shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.35)]">
-                  <Icon className="h-5 w-5 text-vexia-purple" aria-hidden strokeWidth={1.5} />
+                <span className="relative grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-vexia-purple/25 to-vexia-purple/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] ring-1 ring-vexia-purple/20 transition-all group-hover:from-vexia-purple/40 group-hover:shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.35)]">
+                  <Icon className="h-4 w-4 text-vexia-purple" aria-hidden strokeWidth={1.5} />
                 </span>
 
                 <div className="relative z-10 w-full min-w-0">
@@ -306,7 +306,7 @@ function SettingsPage() {
 
                 {isToggle ? (
                   <span
-                    className={`relative z-10 flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-all duration-300 ${
+                    className={`relative z-10 flex h-4 w-8 shrink-0 items-center rounded-full p-0.5 transition-all duration-300 ${
                       active
                         ? "bg-gradient-to-r from-vexia-purple to-vexia-purple/70 shadow-[0_0_12px_rgb(var(--vexia-primary-rgb)/0.55)]"
                         : "bg-white/10"
@@ -314,8 +314,8 @@ function SettingsPage() {
                     aria-hidden
                   >
                     <span
-                      className={`h-4 w-4 rounded-full shadow-md transition-all duration-300 ${
-                        active ? "translate-x-4 bg-white" : "bg-white/70"
+                      className={`h-3 w-3 rounded-full shadow-md transition-all duration-300 ${
+                        active ? "translate-x-3.5 bg-white" : "bg-white/70"
                       }`}
                     />
                   </span>
@@ -325,7 +325,7 @@ function SettingsPage() {
           })}
         </div>
 
-        <section className="shrink-0 rounded-2xl border border-white/10 bg-gradient-to-br from-[#181818] to-[#0E0E0E] px-3 py-2 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)]">
+        <section className="shrink-0 rounded-2xl border border-white/10 bg-gradient-to-br from-[#181818] to-[#0E0E0E] px-3 py-1.5 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)]">
           <div className="grid grid-cols-2 items-center gap-2 sm:grid-cols-4">
             <div className="min-w-0 rounded-xl bg-black/30 px-2 py-1.5 text-center">
               <p className="text-[9px] font-bold uppercase tracking-widest text-[#9CA3AF]">MAC</p>
