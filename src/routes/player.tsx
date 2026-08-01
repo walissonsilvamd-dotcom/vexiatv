@@ -1218,9 +1218,21 @@ function PlayerPage() {
       {/* Aviso discreto de reconexão (sem spinner cobrindo o filme). */}
       {reconnecting && !fatalError && (
         <div className="pointer-events-none absolute left-5 top-20 z-30 rounded-full bg-black/70 px-3 py-1 text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
-          {recoveryCycle > 0 ? "RECONECTANDO…" : "TROCANDO MOTOR…"}
+          {recoveryCycle > 0 ? `RECONECTANDO ${Math.min(recoveryCycle, 5)}/5…` : "TROCANDO MOTOR…"}
         </div>
       )}
+
+      {/* Seek acumulado: mostra o destino enquanto o cliente segura o D-pad. */}
+      {seekPreview !== null && (
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-vexia-cyan/40 bg-black/80 px-6 py-3 text-2xl font-black tabular-nums text-white shadow-[0_0_30px_rgba(0,200,255,0.35)]">
+          {clock(seekPreview)}
+          <span className="ml-2 text-sm font-bold text-vexia-cyan">
+            {seekPreview - (videoRef.current?.currentTime ?? 0) >= 0 ? "+" : "−"}
+            {Math.abs(Math.round(seekPreview - (videoRef.current?.currentTime ?? 0)))}s
+          </span>
+        </div>
+      )}
+
 
       {!src && !expired ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
