@@ -7,6 +7,7 @@ import {
   Move,
   PlayCircle,
   Settings,
+  Trophy,
   SlidersHorizontal,
   Star,
   Tv,
@@ -88,6 +89,7 @@ const TILES: Tile[] = [
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
   { label: "LISTAS", icon: ListVideo, to: "/listas" },
+  { label: "JOGOS", icon: Trophy, to: "/jogos" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
 
@@ -201,6 +203,8 @@ function HomePage() {
     if (!settings.confirmExit) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Backspace" && e.key !== "BrowserBack" && e.key !== "Escape") return;
+      // Deixa os diálogos abertos tratarem o próprio Voltar.
+      if (exitOpen || pendingRemove || listsOpen) return;
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       e.preventDefault();
@@ -208,7 +212,7 @@ function HomePage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [settings.confirmExit]);
+  }, [settings.confirmExit, exitOpen, pendingRemove, listsOpen]);
 
 
   const openTile = (tile: Tile) => {
