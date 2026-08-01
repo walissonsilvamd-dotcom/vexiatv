@@ -5,6 +5,7 @@ import { ArrowLeft, Play } from "lucide-react";
 import { PosterArt } from "../components/vexia/PosterArt";
 import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
 import { countriesLabel } from "../lib/country";
+import { useDynamicSeo } from "../lib/dynamic-seo";
 
 import { useMemo, useRef } from "react";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
@@ -19,19 +20,24 @@ import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { SmartImage } from "../components/vexia/SmartImage";
 
 export const Route = createFileRoute("/serie/$id")({
-  head: () => ({
-    meta: [
-      { title: "VÉXIA TV — Episódios" },
-      {
-        name: "description",
-        content: "Temporadas e episódios da série carregada da sua lista M3U no VÉXIA TV.",
-      },
-      { property: "og:title", content: "VÉXIA TV — Episódios" },
-      { property: "og:description", content: "Temporadas e episódios da série no VÉXIA TV." },
-      { property: "og:type", content: "video.tv_show" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: ({ params }) => {
+    const url = `https://vexiatv.lovable.app/serie/${params.id}`;
+    return {
+      meta: [
+        { title: "VÉXIA TV — Episódios" },
+        {
+          name: "description",
+          content: "Temporadas e episódios da série carregada da sua lista M3U no VÉXIA TV.",
+        },
+        { property: "og:title", content: "VÉXIA TV — Episódios" },
+        { property: "og:description", content: "Temporadas e episódios da série no VÉXIA TV." },
+        { property: "og:type", content: "video.tv_show" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: EpisodesPage,
 });
 
@@ -58,6 +64,42 @@ function EpisodesPage() {
       .sort((a, b) => a[0] - b[0])
       .map(([number, episodes]) => ({ number, episodes }));
   }, [serie, epList]);
+
+  const seoJsonLd = useMemo(() => {
+    if (!serie) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "TVSeries",
+      name: serie.title,
+      description: serie.overview || undefined,
+      image: serie.poster || serie.backdrop || undefined,
+      genre: serie.genres?.length ? serie.genres : undefined,
+      ...(seasons.length ? { numberOfSeasons: seasons.length } : {}),
+      ...(epList.length ? { numberOfEpisodes: epList.length } : {}),
+      ...(serie.rating > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: serie.rating,
+              bestRating: 10,
+              ratingCount: 1,
+            },
+          }
+        : {}),
+    };
+  }, [serie, seasons.length, epList.length]);
+
+  useDynamicSeo({
+    title: serie ? `${serie.title} — Episódios | VÉXIA TV` : undefined,
+    description: serie
+      ? (serie.overview ||
+          `Todas as temporadas e episódios de ${serie.title} no VÉXIA TV.`).slice(0, 158)
+      : undefined,
+    image: serie?.backdrop || serie?.poster,
+    url: `https://vexiatv.lovable.app/serie/${id}`,
+    jsonLd: seoJsonLd,
+    jsonLdId: "vexia-serie-jsonld",
+  });
 
   if (!serie) {
     return (
