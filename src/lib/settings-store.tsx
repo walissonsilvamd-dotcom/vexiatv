@@ -16,6 +16,8 @@ export type PlayerMode = "internal" | "external";
 export type TimeFormat = "24h" | "12h";
 export type SubtitleSize = "small" | "medium" | "large";
 export type SubtitleColor = "white" | "yellow";
+/** Passo de avanço/retrocesso do player, em segundos. */
+export type SeekStep = 5 | 10 | 15 | 30;
 
 export type VexiaSettings = {
   // Controle dos pais
