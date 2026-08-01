@@ -4,9 +4,10 @@ import type { HlsLike } from "./useMediaTracks";
 import {
   attachEngine,
   warmEngines,
-  engineOrder,
+  candidateOrder,
   playWithAutoplayFallback,
   type EngineHandles,
+  type PlaybackCandidate,
   type PlaybackEngine,
 } from "./player-engines";
 
@@ -144,11 +145,13 @@ export function useResilientPlayer({
     const elementFor = (slot: PlayerSlot) => (slot === "a" ? slotA : slotB);
     const other = (slot: PlayerSlot): PlayerSlot => (slot === "a" ? "b" : "a");
 
-    const order = (() => {
-      const normal = engineOrder(src);
+    const order: PlaybackCandidate[] = (() => {
+      const normal = candidateOrder(src);
       const forced = forceEngineRef.current;
       forceEngineRef.current = null;
-      return forced ? [forced, ...normal.filter((item) => item !== forced)] : normal;
+      if (!forced) return normal;
+      const first = normal.filter((item) => item.engine === forced);
+      return [...first, ...normal.filter((item) => item.engine !== forced)];
     })();
 
     const clearActiveTimers = () => {
@@ -251,7 +254,7 @@ export function useResilientPlayer({
       const selected = order[standbyIndex];
       standbyOk = false;
       setStandbyReady(false);
-      setStandbyEngine(selected);
+      setStandbyEngine(selected.engine);
       resetSlot(slot);
       const video = elementFor(slot);
       video.muted = true;
@@ -277,8 +280,8 @@ export function useResilientPlayer({
       };
       video.addEventListener("playing", markReady);
 
-      void attachEngine(video, selected, {
-        src,
+      void attachEngine(video, selected.engine, {
+        src: selected.src,
         live,
         preview,
         onReadyToPlay: () => {
@@ -353,7 +356,7 @@ export function useResilientPlayer({
 
       videoRef.current = newVideo;
       setActiveSlot(newSlot);
-      setEngine(order[activeIndex]);
+      setEngine(order[activeIndex].engine);
       setStandbyReady(false);
       setStandbyEngine(null);
       setFatalError(null);
@@ -483,18 +486,18 @@ export function useResilientPlayer({
       const video = elementFor(slot);
       videoRef.current = video;
       setActiveSlot(slot);
-      setEngine(selected);
+      setEngine(selected.engine);
       setAttempt(0);
       setBuffering(true);
       setReconnecting(activeIndex > 0 || cycleRef.current > 0);
       attachWatchdog();
       timers.startup = setTimeout(
-        () => startNext(`${selected} • startup-timeout`),
+        () => startNext(`${selected.engine} • startup-timeout`),
         STARTUP_TIMEOUT_MS,
       );
       try {
-        const instance = await attachEngine(video, selected, {
-          src,
+        const instance = await attachEngine(video, selected.engine, {
+          src: selected.src,
           live,
           preview,
           onReadyToPlay: () => void startAutoplay(),
@@ -510,7 +513,7 @@ export function useResilientPlayer({
         // A reserva começa assim que o motor principal está ligado.
         scheduleStandby();
       } catch (error) {
-        startNext(`${selected} • ${error instanceof Error ? error.message : String(error)}`);
+        startNext(`${selected.engine} • ${error instanceof Error ? error.message : String(error)}`);
       }
     }
 
@@ -620,7 +623,7 @@ export function useResilientPlayer({
 
       if (idle > STALL_TIMEOUT_MS) {
         nudges = 0;
-        startNext(`${order[activeIndex]} • stream-stalled`);
+        startNext(`${order[activeIndex].engine} • stream-stalled`);
         return;
       }
 
