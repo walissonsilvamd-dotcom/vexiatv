@@ -525,6 +525,50 @@ function PlayerPage() {
     };
   }, [type, progressKey, title, episode, watchMeta]);
 
+  /* ── Sleep timer: pausa quando o tempo acaba ── */
+  const onSleepExpire = useCallback(() => {
+    videoRef.current?.pause();
+  }, []);
+  const sleep = useSleepTimer(onSleepExpire);
+
+  /* ── Favoritar direto do player ── */
+  const { has: hasFav, toggle: toggleFav } = useFavorites();
+  const favInput = useMemo(() => {
+    if (channel) return channelFavorite(channel);
+    if (movie) return mediaFavorite(movie, "movie");
+    if (serie) return mediaFavorite(serie, "series");
+    return null;
+  }, [channel, movie, serie]);
+  const isFav = favInput ? hasFav(favInput.kind, favInput.name) : false;
+
+  /* ── Zapping: canais na mesma categoria do canal atual ── */
+  const zapChannels = useMemo(() => {
+    if (type !== "live") return [];
+    const cat = channel?.category;
+    const same = cat ? channels.filter((c) => c.category === cat) : channels;
+    return same.length > 1 ? same : channels;
+  }, [type, channel, channels]);
+
+  const openChannel = useCallback(
+    (ch: { id: string; url: string }) => {
+      setStreamHandoff("live", ch.id, ch.url);
+      setZapOpen(false);
+      void navigate({ to: "/player", search: { type: "live", id: ch.id }, viewTransition: true });
+    },
+    [navigate],
+  );
+
+  /** Canal + / − do controle: pula direto para o vizinho da lista. */
+  const stepChannel = useCallback(
+    (dir: 1 | -1) => {
+      if (type !== "live" || zapChannels.length < 2) return;
+      const i = zapChannels.findIndex((c) => c.id === id);
+      const next = zapChannels[(i + dir + zapChannels.length) % zapChannels.length];
+      if (next) openChannel(next);
+    },
+    [type, zapChannels, id, openChannel],
+  );
+
   const ping = useCallback(() => {
     setShowControls(true);
     window.clearTimeout(hideTimer.current);
