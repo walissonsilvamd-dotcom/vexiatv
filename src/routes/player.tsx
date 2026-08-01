@@ -93,6 +93,8 @@ import { FIT_MODES, fitLabel, fitStyle, readFitMode, saveFitMode, type FitMode }
 import { useFavorites, channelFavorite, mediaFavorite } from "../lib/favorites-store";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
+import { useQualityLevels, QUALITY_AUTO } from "../hooks/use-quality-levels";
+import { prefetchStream } from "../hooks/player-engines";
 
 export const Route = createFileRoute("/player")({
   ssr: false,
