@@ -10,6 +10,7 @@ import type { MediaItem } from "../data/vexia";
 import { detectAudio } from "./filters-store";
 import type { ParsedPlaylist, PlaylistChannel, PlaylistEpisode, PlaylistSeries } from "./m3u";
 import { stableId } from "../utils/hash";
+import { cachedInfo } from "./xtream-info-cache";
 
 export type XtreamCreds = {
   /** http(s)://host[:porta] */
@@ -359,3 +360,10 @@ export async function fetchXtreamVodInfo(
   });
 }
 
+
+/** Extrai o stream_id de uma URL de filme/série gerada pelo painel. */
+export function xtreamStreamId(url: string | undefined | null): number {
+  if (!url) return 0;
+  const m = url.match(/\/(\d+)\.[a-z0-9]+(?:\?|$)/i);
+  return m ? Number(m[1]) : 0;
+}
