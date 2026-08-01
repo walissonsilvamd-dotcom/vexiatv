@@ -1422,6 +1422,9 @@ function PlayerPage() {
         className={`absolute inset-x-0 bottom-0 z-40 space-y-1 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-4 pt-3 pb-3 transition-opacity duration-200 md:px-6 ${overlay}`}
       >
 
+        {/* Guia rápido: no ar agora / a seguir (canais com EPG) */}
+        {type === "live" ? <PlayerEpgBar tvgId={channel?.tvgId} /> : null}
+
         {/* Barra de progresso / atraso */}
         {type === "live" ? (
           <div className="flex items-center gap-3 text-xs font-medium">
@@ -1506,6 +1509,17 @@ function PlayerPage() {
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
           ) : null}
+          {type !== "live" ? (
+            <button
+              type="button"
+              onClick={() => seekBy(85)}
+              aria-label="Pular abertura"
+              title="Pular abertura (+85s)"
+              className="vexia-focus flex h-7 items-center gap-1 rounded-full border border-white/15 px-2 text-[10px] font-bold text-vexia-cyan"
+            >
+              <SkipIntroIcon className="h-3.5 w-3.5" aria-hidden /> ABERTURA
+            </button>
+          ) : null}
           {type === "series" ? (
             <button
               type="button"
@@ -1539,6 +1553,23 @@ function PlayerPage() {
                 label: subs.currentLabel,
               },
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
+              { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
+              { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
+              ...(type === "series"
+                ? ([
+                    {
+                      key: "repeat",
+                      icon: Repeat,
+                      title: "Repetir",
+                      label:
+                        repeat === "off"
+                          ? "Não"
+                          : repeat === "one"
+                            ? "Este"
+                            : "Temporada",
+                    },
+                  ] as const)
+                : []),
             ] as const
           ).map((opt) => {
             const open = menu === opt.key;
@@ -1680,6 +1711,74 @@ function PlayerPage() {
       ) : null}
 
       </section>
+
+      <ChannelZapList
+        open={zapOpen && type === "live"}
+        channels={zapChannels}
+        currentId={id}
+        onPick={openChannel}
+        onClose={() => setZapOpen(false)}
+      />
+
+      <PlayerStats
+        open={statsOpen}
+        video={videoRef.current}
+        engine={engine}
+        standbyEngine={standbyEngine}
+        attempt={attempt}
+      />
+
+      <NextEpisodePrompt
+        open={nextPrompt && Boolean(nextEpisode)}
+        label={
+          nextEpisode
+            ? `T${nextEpisode.season}E${nextEpisode.number}${nextEpisode.title ? ` • ${nextEpisode.title}` : ""}`
+            : ""
+        }
+        onPlay={() => {
+          if (!nextEpisode) return;
+          setNextPrompt(false);
+          setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id);
+          void navigate({
+            to: "/player",
+            search: { type: "series", id, ep: nextEpisode.id },
+            viewTransition: true,
+          });
+        }}
+        onCancel={() => {
+          nextDismissedRef.current = true;
+          setNextPrompt(false);
+        }}
+      />
+
+      {/* ── Tela bloqueada ── */}
+      {locked ? (
+        <div
+          className="absolute inset-0 z-[60]"
+          onClick={() => setLockHint(true)}
+          role="presentation"
+        >
+          <div className="absolute right-5 top-5 flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5">
+            <Lock className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
+            <span className="text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
+              TELA BLOQUEADA
+            </span>
+          </div>
+          {lockHint ? (
+            <div className="absolute bottom-16 left-1/2 -translate-x-1/2 rounded-full border border-vexia-purple/50 bg-black/85 px-4 py-2 text-[11px] font-bold text-white">
+              Aperte OK duas vezes para desbloquear
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* ── Sleep timer ativo ── */}
+      {sleep.minutes > 0 ? (
+        <div className="pointer-events-none absolute right-5 top-20 z-30 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1">
+          <Moon className="h-3 w-3 text-vexia-cyan" aria-hidden />
+          <span className="text-[10px] font-bold tabular-nums text-vexia-cyan">{sleep.label}</span>
+        </div>
+      ) : null}
 
       <ExternalSubsDialog
         open={extSubsOpen}
