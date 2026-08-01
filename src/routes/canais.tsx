@@ -165,7 +165,12 @@ const ChannelRow = memo(function ChannelRow({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+          <span className="flex items-center gap-1.5">
+            {isLocked ? (
+              <Lock className="h-3 w-3 shrink-0 text-vexia-cyan" aria-label="Canal bloqueado" />
+            ) : null}
+            <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+          </span>
           <span
             className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
           >
