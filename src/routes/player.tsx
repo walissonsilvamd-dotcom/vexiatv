@@ -1439,6 +1439,15 @@ function PlayerPage() {
 
       </section>
 
+      <ExternalSubsDialog
+        open={extSubsOpen}
+        onClose={() => setExtSubsOpen(false)}
+        onPick={useExternalSubtitle}
+        onClear={dropExternalSubtitle}
+        current={extSubsUrl}
+      />
+
+
       </div>
       </div>
 
