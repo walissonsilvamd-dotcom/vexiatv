@@ -93,6 +93,8 @@ import { FIT_MODES, fitLabel, fitStyle, readFitMode, saveFitMode, type FitMode }
 import { useFavorites, channelFavorite, mediaFavorite } from "../lib/favorites-store";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
+import { useQualityLevels, QUALITY_AUTO } from "../hooks/use-quality-levels";
+import { prefetchStream } from "../hooks/player-engines";
 
 export const Route = createFileRoute("/player")({
   ssr: false,
@@ -134,7 +136,8 @@ function fmt(sec: number) {
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
+/** Debounce do seek acumulado no D-pad: um único salto ao soltar o botão. */
+const SEEK_COMMIT_MS = 380;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
@@ -172,7 +175,8 @@ function PlayerPage() {
   const menuOpenRef = useRef(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerOpenRef = useRef(false);
-  const [quality, setQuality] = useState("Auto");
+  /** Alvo pendente do seek acumulado (D-pad) — só vira seek real ao soltar. */
+  const [seekPreview, setSeekPreview] = useState<number | null>(null);
   const [speed, setSpeed] = useState(1);
   const [mediaReady, setMediaReady] = useState(false);
 
@@ -591,15 +595,47 @@ function PlayerPage() {
     ping();
   }, [ping]);
 
+  /**
+   * Seek acumulado: cada toque no D-pad soma no alvo e mostra o tempo destino;
+   * o salto real só acontece quando o cliente para de apertar (SEEK_COMMIT_MS).
+   * Evita 5 buscas seguidas no servidor ao avançar 2 minutos.
+   */
+  const seekCommit = useRef<number | undefined>(undefined);
   const seekBy = useCallback(
     (delta: number) => {
       const video = videoRef.current;
       if (!video) return;
-      video.currentTime = Math.max(0, video.currentTime + delta);
+      const base = seekPreview ?? video.currentTime;
+      const limit = Number.isFinite(video.duration) && video.duration > 0 ? video.duration - 1 : Infinity;
+      const target = Math.min(Math.max(0, base + delta), limit);
+      setSeekPreview(target);
+      window.clearTimeout(seekCommit.current);
+      seekCommit.current = window.setTimeout(() => {
+        const el = videoRef.current;
+        if (el) el.currentTime = target;
+        setSeekPreview(null);
+      }, SEEK_COMMIT_MS);
       ping();
     },
-    [ping],
+    [ping, seekPreview],
   );
+
+  useEffect(() => () => window.clearTimeout(seekCommit.current), []);
+
+  /* Zapping instantâneo: aquece o manifesto dos canais vizinhos da lista. */
+  useEffect(() => {
+    if (type !== "live" || zapChannels.length < 2) return;
+    const i = zapChannels.findIndex((c) => c.id === id);
+    if (i < 0) return;
+    const warm = window.setTimeout(() => {
+      for (const dir of [1, -1]) {
+        const neighbour = zapChannels[(i + dir + zapChannels.length) % zapChannels.length];
+        prefetchStream(neighbour?.url);
+      }
+    }, 1500);
+    return () => window.clearTimeout(warm);
+  }, [type, zapChannels, id]);
+
 
   const goBack = useCallback(() => {
     if (menu) return setMenu(null);
@@ -778,8 +814,10 @@ function PlayerPage() {
   };
 
   /* ── Faixas reais de áudio e legenda (hls.js ou player nativo) ── */
-  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady);
+  const audio = useAudioTracks(videoRef.current, hlsApi, mediaReady, `${type}:${id}`);
   const subs = useSubtitleTracks(videoRef.current, hlsApi, mediaReady);
+  /* ── Qualidade REAL do manifesto (Auto/ABR + faixas do stream) ── */
+  const qualityLevels = useQualityLevels(hlsApi, mediaReady);
 
   /* ── Preferências de legenda vindas de Ajustes ─────────────────
      Só faz efeito quando a lista carregada realmente traz legendas. */
@@ -941,7 +979,24 @@ function PlayerPage() {
   type MenuOption = { label: string; active: boolean; select: () => void };
   const menuOptions: MenuOption[] = useMemo(() => {
     if (menu === "quality") {
-      return QUALITIES.map((q) => ({ label: q, active: q === quality, select: () => setQuality(q) }));
+      // Faixas reais do manifesto; "Auto" devolve o controle para a ABR.
+      return [
+        {
+          label: qualityLevels.activeLabel ? `Auto · ${qualityLevels.activeLabel}` : "Auto",
+          active: qualityLevels.selected === QUALITY_AUTO,
+          select: () => qualityLevels.select(QUALITY_AUTO),
+        },
+        ...[...qualityLevels.levels]
+          .sort((a, b) => b.height - a.height || b.bitrate - a.bitrate)
+          .map((level) => ({
+            label:
+              level.bitrate > 0
+                ? `${level.label} · ${(level.bitrate / 1_000_000).toFixed(1)} Mb/s`
+                : level.label,
+            active: qualityLevels.selected === level.id,
+            select: () => qualityLevels.select(level.id),
+          })),
+      ];
     }
     if (menu === "speed") {
       return SPEEDS.map((s) => ({
@@ -1020,7 +1075,7 @@ function PlayerPage() {
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, fit, applyFit, repeat, sleep.minutes, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
+  }, [menu, qualityLevels, speed, fit, applyFit, repeat, sleep.minutes, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
 
 
   const toggleFullscreen = () => {
@@ -1163,9 +1218,21 @@ function PlayerPage() {
       {/* Aviso discreto de reconexão (sem spinner cobrindo o filme). */}
       {reconnecting && !fatalError && (
         <div className="pointer-events-none absolute left-5 top-20 z-30 rounded-full bg-black/70 px-3 py-1 text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
-          {recoveryCycle > 0 ? "RECONECTANDO…" : "TROCANDO MOTOR…"}
+          {recoveryCycle > 0 ? `RECONECTANDO ${Math.min(recoveryCycle, 5)}/5…` : "TROCANDO MOTOR…"}
         </div>
       )}
+
+      {/* Seek acumulado: mostra o destino enquanto o cliente segura o D-pad. */}
+      {seekPreview !== null && (
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-vexia-cyan/40 bg-black/80 px-6 py-3 text-2xl font-black tabular-nums text-white shadow-[0_0_30px_rgba(0,200,255,0.35)]">
+          {fmt(seekPreview)}
+          <span className="ml-2 text-sm font-bold text-vexia-cyan">
+            {seekPreview - (videoRef.current?.currentTime ?? 0) >= 0 ? "+" : "−"}
+            {Math.abs(Math.round(seekPreview - (videoRef.current?.currentTime ?? 0)))}s
+          </span>
+        </div>
+      )}
+
 
       {!src && !expired ? (
         <div className="absolute inset-0 z-40 grid place-items-center bg-black/85 text-center">
@@ -1308,7 +1375,10 @@ function PlayerPage() {
             ) : (
               <span className="text-vexia-cyan">{kindLabel}</span>
             )}
-            <span className="text-vexia-cyan">• {quality === "Auto" ? "1080p" : quality}</span>
+            {/* Resolução medida de verdade, não um rótulo fixo. */}
+            <span className="text-vexia-cyan">
+              • {qualityLevels.activeLabel ?? (videoRef.current?.videoHeight ? `${videoRef.current.videoHeight}p` : "auto")}
+            </span>
             {type === "live" ? (
               <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
             ) : null}
@@ -1544,7 +1614,7 @@ function PlayerPage() {
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
           {(
             [
-              { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: quality },
+              { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
               {
                 key: "subs",
@@ -1726,7 +1796,10 @@ function PlayerPage() {
         engine={engine}
         standbyEngine={standbyEngine}
         attempt={attempt}
+        hlsApi={hlsApi}
+        qualityLabel={qualityLevels.currentLabel}
       />
+
 
       <NextEpisodePrompt
         open={nextPrompt && Boolean(nextEpisode)}

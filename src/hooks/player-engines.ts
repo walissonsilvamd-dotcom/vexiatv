@@ -160,6 +160,64 @@ function qualityCap(preview = false): number | null {
   return cap; // auto e original usam tudo o que a lista oferecer
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Perfil de desempenho (Ajustes → Reprodução)
+ *
+ * Smart TV barata engasga com buffer grande e ABR agressiva; internet boa
+ * aproveita o contrário. O perfil ajusta buffer, estimativa inicial de banda e
+ * o quanto a ABR pode subir de faixa.
+ * ──────────────────────────────────────────────────────────────────────────── */
+type Tuning = {
+  bufferScale: number;
+  bandwidthEstimate: number;
+  capToPlayerSize: boolean;
+  stashScale: number;
+};
+
+function tuningFor(preview: boolean): Tuning {
+  if (preview) {
+    return { bufferScale: 1, bandwidthEstimate: 800_000, capToPlayerSize: true, stashScale: 1 };
+  }
+  switch (readSettings().perfProfile) {
+    case "eco":
+      // Aparelho fraco: buffer curto (menos RAM/decoder) e faixa contida.
+      return { bufferScale: 0.6, bandwidthEstimate: 2_000_000, capToPlayerSize: true, stashScale: 0.5 };
+    case "smooth":
+      // Internet boa: buffer generoso, quase nunca rebuffera.
+      return { bufferScale: 1.8, bandwidthEstimate: 12_000_000, capToPlayerSize: false, stashScale: 2 };
+    default:
+      return { bufferScale: 1, bandwidthEstimate: 8_000_000, capToPlayerSize: false, stashScale: 1 };
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Pré-carregamento de manifesto (zapping instantâneo)
+ *
+ * Ao abrir um canal, os vizinhos da lista têm o manifesto/primeiros bytes
+ * buscados em segundo plano. Quando o cliente aperta Canal +/−, o servidor já
+ * respondeu uma vez e a conexão está quente: a troca fica quase imediata.
+ * ──────────────────────────────────────────────────────────────────────────── */
+const prefetched = new Set<string>();
+
+export function prefetchStream(src?: string | null): void {
+  if (typeof window === "undefined" || !src) return;
+  if (prefetched.has(src)) return;
+  prefetched.add(src);
+  if (prefetched.size > 60) prefetched.clear();
+  warmEngines(src);
+  const controller = new AbortController();
+  const stop = window.setTimeout(() => controller.abort(), 2_500);
+  void fetch(src, {
+    method: "GET",
+    signal: controller.signal,
+    headers: sourceKind(src) === "hls" ? {} : { Range: "bytes=0-65535" },
+  })
+    .then((response) => response.body?.cancel().catch(() => undefined))
+    .catch(() => undefined)
+    .finally(() => window.clearTimeout(stop));
+}
+
+
 export async function attachEngine(
   video: HTMLVideoElement,
   engine: PlaybackEngine,
@@ -198,24 +256,25 @@ export async function attachEngine(
       return { hlsApi: null, destroy: () => undefined };
     }
     const maxHeight = qualityCap(preview);
+    const tuning = tuningFor(preview);
+    const scale = (seconds: number) => Math.round(seconds * tuning.bufferScale);
     const instance = new Hls({
       lowLatencyMode: live && !preview,
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
-      // Fora da prévia buscamos SEMPRE a melhor faixa que a banda aguenta:
-      // não limitamos pelo tamanho do elemento e já estimamos banda alta, então
-      // o filme abre na melhor imagem e a ABR só desce se realmente precisar.
-      capLevelToPlayerSize: preview,
-      abrEwmaDefaultEstimate: preview ? 800_000 : 8_000_000,
+      // Fora da prévia buscamos a melhor faixa que a banda aguenta; o perfil de
+      // desempenho decide o quanto a ABR pode ousar e o tamanho do buffer.
+      capLevelToPlayerSize: preview || tuning.capToPlayerSize,
+      abrEwmaDefaultEstimate: tuning.bandwidthEstimate,
       // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
       startLevel: preview ? 0 : -1,
       // Começa a tocar com o mínimo de dados possível.
       maxStarvationDelay: 2,
       maxLoadingDelay: 2,
-      backBufferLength: preview ? 6 : live ? 20 : 90,
-      maxBufferLength: preview ? 6 : live ? 30 : 60,
-      maxMaxBufferLength: preview ? 12 : live ? 60 : 120,
+      backBufferLength: preview ? 6 : scale(live ? 20 : 90),
+      maxBufferLength: preview ? 6 : scale(live ? 30 : 60),
+      maxMaxBufferLength: preview ? 12 : scale(live ? 60 : 120),
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 1,
       nudgeOffset: 0.1,
@@ -261,14 +320,17 @@ export async function attachEngine(
     onFatal("mpegts-not-supported");
     return { hlsApi: null, destroy: () => undefined };
   }
+  const tsTuning = tuningFor(preview);
   const player = mpegts.createPlayer(
     { type: "mpegts", isLive: live, url: src },
     {
       enableWorker: true,
       enableStashBuffer: true,
-      stashInitialSize: preview ? 96 * 1024 : live ? 256 * 1024 : 1024 * 1024,
+      stashInitialSize: Math.round(
+        (preview ? 96 * 1024 : live ? 256 * 1024 : 1024 * 1024) * tsTuning.stashScale,
+      ),
       lazyLoad: !live,
-      lazyLoadMaxDuration: live ? 30 : 180,
+      lazyLoadMaxDuration: Math.round((live ? 30 : 180) * tsTuning.bufferScale),
       lazyLoadRecoverDuration: live ? 10 : 30,
       liveBufferLatencyChasing: live,
       liveBufferLatencyMaxLatency: preview ? 2 : 3,

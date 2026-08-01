@@ -610,11 +610,40 @@ export function useResilientPlayer({
 
     attachWatchdog();
     /* ── Vigia de travamento em escala: cutucão → reserva quente → troca de motor ── */
+    // Relógio próprio do vídeo: alguns streams continuam "baixando" (progress
+    // segue disparando) mas a imagem congela. Comparar currentTime a cada tick
+    // pega esse caso, que antes passava batido e ficava parado até o cliente sair.
+    let lastClock = -1;
+    let clockFrozenSince = 0;
     timers.stall = setInterval(() => {
       if (disposed) return;
       const video = elementFor(activeSlotLocal);
       if (video.ended) return;
       const idle = Date.now() - lastProgressAt;
+
+      if (!video.paused) {
+        if (Math.abs(video.currentTime - lastClock) < 0.02) {
+          if (clockFrozenSince === 0) clockFrozenSince = Date.now();
+        } else {
+          clockFrozenSince = 0;
+        }
+        lastClock = video.currentTime;
+        // Imagem congelada sem nenhum erro do motor: força a recuperação.
+        if (clockFrozenSince > 0 && Date.now() - clockFrozenSince > STALL_TIMEOUT_MS) {
+          clockFrozenSince = 0;
+          nudges = 0;
+          if (standbyOk && promoteStandby()) return;
+          startNext(`${order[activeIndex].engine} • clock-frozen`);
+          return;
+        }
+        if (clockFrozenSince > 0 && Date.now() - clockFrozenSince > SOFT_STALL_MS) {
+          prewarmStandby();
+        }
+      } else {
+        clockFrozenSince = 0;
+        lastClock = video.currentTime;
+      }
+
 
       // Pausa não solicitada (aba, foco, decoder): tenta voltar a tocar sozinho.
       if (video.paused) {
