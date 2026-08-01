@@ -293,7 +293,6 @@ function FiltersPage() {
           </p>
         </section>
       )}
-      </section>
 
 
       <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-2 overflow-hidden border-t border-white/10 bg-black/90 px-3 py-2 backdrop-blur sm:gap-4 sm:px-5 md:px-8">
