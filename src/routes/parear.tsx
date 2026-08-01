@@ -1,4 +1,5 @@
 import { resolveServer } from "@/lib/iptv-config";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -23,7 +24,9 @@ export const Route = createFileRoute("/parear")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/parear" },
+      { property: "og:image", content: ogImage.url },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/parear" }],
   }),

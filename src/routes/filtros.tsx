@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   ArrowLeft,
   CalendarDays,
@@ -46,7 +47,9 @@ export const Route = createFileRoute("/filtros")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/filtros" },
+      { property: "og:image", content: ogImage.url },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/filtros" }],
   }),

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { Heart, HeartOff, Search, Star } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
@@ -26,7 +27,9 @@ export const Route = createFileRoute("/favoritos")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/favoritos" },
+      { property: "og:image", content: ogImage.url },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/favoritos" }],
   }),

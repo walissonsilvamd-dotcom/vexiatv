@@ -1,4 +1,5 @@
 import { setStreamHandoff } from "../lib/stream-handoff";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FolderPlus, Heart, Lock, Play, Search, Tv } from "lucide-react";
@@ -93,7 +94,9 @@ export const Route = createFileRoute("/canais")({
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/canais" },
+      { property: "og:image", content: ogImage.url },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/canais" }],
   }),

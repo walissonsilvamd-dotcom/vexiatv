@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   Clapperboard,
   Clock,
@@ -45,7 +46,9 @@ export const Route = createFileRoute("/home")({
       { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/home" },
+      { property: "og:image", content: ogImage.url },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: ogImage.url },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/home" }],
   }),
