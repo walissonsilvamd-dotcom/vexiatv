@@ -320,14 +320,17 @@ export async function attachEngine(
     onFatal("mpegts-not-supported");
     return { hlsApi: null, destroy: () => undefined };
   }
+  const tsTuning = tuningFor(preview);
   const player = mpegts.createPlayer(
     { type: "mpegts", isLive: live, url: src },
     {
       enableWorker: true,
       enableStashBuffer: true,
-      stashInitialSize: preview ? 96 * 1024 : live ? 256 * 1024 : 1024 * 1024,
+      stashInitialSize: Math.round(
+        (preview ? 96 * 1024 : live ? 256 * 1024 : 1024 * 1024) * tsTuning.stashScale,
+      ),
       lazyLoad: !live,
-      lazyLoadMaxDuration: live ? 30 : 180,
+      lazyLoadMaxDuration: Math.round((live ? 30 : 180) * tsTuning.bufferScale),
       lazyLoadRecoverDuration: live ? 10 : 30,
       liveBufferLatencyChasing: live,
       liveBufferLatencyMaxLatency: preview ? 2 : 3,
