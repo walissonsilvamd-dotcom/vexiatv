@@ -525,6 +525,8 @@ export function useResilientPlayer({
       const onPlaying = () => {
         lastProgressAt = Date.now();
         setBuffering(false);
+        // Memoriza o container que entrou no ar (.ts/.m3u8) para o próximo zap.
+        if (live) rememberLiveFormat(order[activeIndex]?.src ?? "");
         setReconnecting(false);
         setFatalError(null);
         clearTimeout(timers.startup);
