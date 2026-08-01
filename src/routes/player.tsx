@@ -841,7 +841,7 @@ function PlayerPage() {
 
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset]);
+  }, [menu, quality, speed, audio.tracks, audio.selected, subs.tracks, subs.selected, prefKey, subsOffset, extSubsUrl]);
 
 
   const toggleFullscreen = () => {
