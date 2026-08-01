@@ -99,7 +99,7 @@ export function candidateOrder(src: string): PlaybackCandidate[] {
   const fallback = engineOrder(other)
     .slice(0, 2)
     .map((engine) => ({ src: other, engine }));
-  const current = formatOf(realUrl(src));
+  const current = formatOf(src);
   // Servidor já provou preferir o outro container: começa por ele.
   if (current && preferredLiveFormat() !== current) {
     return [...engineOrder(other).map((engine) => ({ src: other, engine })), ...primary];
