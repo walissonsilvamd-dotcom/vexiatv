@@ -194,22 +194,21 @@ function HomePage() {
   };
 
   return (
-    <main className="relative bg-vexia-bg text-vexia-text">
+    <main ref={pageRef} className="relative bg-vexia-bg text-vexia-text">
     <section
       className="relative flex h-screen w-full flex-col overflow-hidden"
       onKeyDown={(e) => {
+        // O tratamento manual vale só quando o foco está na fileira de blocos.
+        // Fora dela (menu superior, carrossel, cards) quem manda é a
+        // navegação espacial, para o controle andar por toda a tela.
+        const target = e.target as HTMLElement | null;
+        if (!target?.closest?.("[data-tile]")) return;
         if (e.key === "ArrowRight") {
           e.preventDefault();
           focusTile(active + 1);
         } else if (e.key === "ArrowLeft") {
           e.preventDefault();
           focusTile(active - 1);
-        } else if (e.key === "ArrowUp") {
-          e.preventDefault();
-          if (slides.length > 1) setSlide((s) => (s - 1 + slides.length) % slides.length);
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault();
-          if (slides.length > 1) setSlide((s) => (s + 1) % slides.length);
         }
       }}
     >
