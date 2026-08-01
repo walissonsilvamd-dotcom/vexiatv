@@ -121,7 +121,7 @@ function FiltersPage() {
     total: totalSeries,
   } = useTmdbHeroesStatus(poolSeries, "series");
 
-  const isBusy = loading || pendingMovies || pendingSeries;
+  const isBusy = applied && (loading || pendingMovies || pendingSeries);
   const tmdbProgress = Math.round(
     ((settledMovies + settledSeries) / (totalMovies + totalSeries || 1)) * 100,
   );
@@ -134,10 +134,6 @@ function FiltersPage() {
     return list.filter(({ item, kind }) => matchesFilters(item, kind, filters));
   }, [richMovies, richSeries, filters]);
 
-  const preview = useMemo(
-    () => (applied ? results : results.slice(0, 16)),
-    [applied, results],
-  );
 
   const apply = () => {
     // Canais não têm card de pôster: esse tipo continua abrindo a tela de canais.
