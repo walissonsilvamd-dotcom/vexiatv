@@ -597,7 +597,9 @@ function ChannelsPage() {
         ) : null}
 
         <ChannelPreview
-          src={previewChannel?.url ?? null}
+          src={
+            previewChannel && locks.blocked(previewChannel.id) ? null : previewChannel?.url ?? null
+          }
           name={previewChannel?.name ?? selected?.name ?? "Canal"}
           logo={previewChannel?.logo ?? selected?.logo}
           onOpenFullscreen={openSelectedFullscreen}
