@@ -74,7 +74,14 @@ export function useAudioTracks(
   video: HTMLVideoElement | null,
   hls: HlsLike | null,
   ready: boolean,
+  /**
+   * Chave do conteúdo (canal/título). Quando informada, a faixa escolhida é
+   * lembrada para AQUELE conteúdo — séries mantêm o mesmo áudio entre episódios
+   * sem alterar a preferência dos outros títulos.
+   */
+  prefKey?: string,
 ) {
+  const scopedKey = prefKey ? `${AUDIO_PREF_KEY}:${prefKey}` : null;
   const [tracks, setTracks] = useState<Track[]>([]);
   const [selected, setSelected] = useState<number>(-1);
 
