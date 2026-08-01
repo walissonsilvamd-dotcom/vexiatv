@@ -134,7 +134,8 @@ function fmt(sec: number) {
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const QUALITIES = ["Auto", "4K", "FHD", "HD", "SD"];
+/** Debounce do seek acumulado no D-pad: um único salto ao soltar o botão. */
+const SEEK_COMMIT_MS = 380;
 
 function PlayerPage() {
   const { type, id, ep } = Route.useSearch();
