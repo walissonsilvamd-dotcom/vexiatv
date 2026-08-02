@@ -658,12 +658,16 @@ function ChannelsPage() {
 
         <ChannelPreview
           src={
-            previewChannel && locks.blocked(previewChannel.id) ? null : previewChannel?.url ?? null
+            previewChannel &&
+            (adultBlocked(previewChannel) || locks.blocked(previewChannel.id))
+              ? null
+              : previewChannel?.url ?? null
           }
           name={previewChannel?.name ?? selected?.name ?? "Canal"}
           logo={previewChannel?.logo ?? selected?.logo}
           onOpenFullscreen={openSelectedFullscreen}
         />
+
 
 
 
