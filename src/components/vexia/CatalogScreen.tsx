@@ -38,10 +38,10 @@ const VIRTUALIZE_FROM = 30;
 /* Colunas fluidas: cards nunca ficam gigantes em telas grandes,
    mantendo ~5 cards por linha e 2,5 cards visíveis na altura. */
 const GRID_CLASS =
-  "grid gap-4 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(140px,13vw,180px),1fr))]";
+  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(96px,13vw,180px),1fr))]";
 /* Painel recolhido: o espaço liberado entra mais um card por linha. */
 const GRID_CLASS_WIDE =
-  "grid gap-4 p-1 [grid-template-columns:repeat(auto-fill,minmax(clamp(130px,11vw,165px),1fr))]";
+  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(96px,11vw,165px),1fr))]";
 
 
 export function CatalogScreen(props: {
@@ -204,10 +204,10 @@ export function CatalogScreen(props: {
       }}
     >
       {/* Barra superior — compacta, para sobrar espaço à lista e aos cards */}
-      <header className="flex h-12 shrink-0 items-center gap-2 px-4 md:gap-3 md:px-6">
+      <header className="flex shrink-0 flex-wrap items-center gap-2 px-3 py-2 md:h-12 md:flex-nowrap md:gap-3 md:px-6 md:py-0">
         <TopNav active={activeTab} />
 
-        <label className="relative min-w-0 flex-1 max-w-xs shrink">
+        <label className="relative order-last min-w-0 w-full flex-1 shrink md:order-none md:max-w-xs md:w-auto">
           <Search
             className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden
@@ -228,7 +228,7 @@ export function CatalogScreen(props: {
 
         <div className="shrink-0"><SortControl navRow={0} /></div>
 
-        <div className="ml-auto shrink-0">
+        <div className="ml-auto hidden shrink-0 sm:block">
           <VexiaLogo className="h-8" />
         </div>
       </header>
@@ -242,7 +242,7 @@ export function CatalogScreen(props: {
             if (gridWrapRef.current?.contains(t)) setRailed(true);
             else if (asideRef.current?.contains(t)) setRailed(false);
           }}
-          className={`grid min-h-0 flex-1 gap-4 px-5 pb-3 transition-[grid-template-columns] duration-300 ease-out md:px-7 ${
+          className={`grid min-h-0 flex-1 gap-3 px-3 pb-3 sm:gap-4 sm:px-5 transition-[grid-template-columns] duration-300 ease-out md:px-7 ${
             railed
               ? "lg:grid-cols-[3.25rem_minmax(0,1fr)]"
               : "lg:grid-cols-[clamp(220px,20vw,300px)_minmax(0,1fr)]"
@@ -252,7 +252,7 @@ export function CatalogScreen(props: {
           <aside
             ref={asideRef}
             onMouseEnter={() => setRailed(false)}
-            className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-vexia-purple/30 bg-gradient-to-b from-[#0B0118]/92 to-[#050008]/94 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-28px_rgb(var(--vexia-primary-rgb)/0.55)]">
+            className="flex max-h-[34vh] min-h-0 flex-col overflow-hidden rounded-2xl border border-vexia-purple/30 lg:max-h-none bg-gradient-to-b from-[#0B0118]/92 to-[#050008]/94 p-2.5 backdrop-blur-xl shadow-[0_20px_60px_-28px_rgb(var(--vexia-primary-rgb)/0.55)]">
             {railed ? (
               /* Trilho: seta ESQUERDA nos cards cai aqui e reabre o painel. */
               <button
