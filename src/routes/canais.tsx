@@ -329,10 +329,14 @@ function ChannelsPage() {
   }, [channels]);
 
   const rawCategories = data?.channelCategories ?? ["Todos"];
-  const categories = useMemo(
-    () => (blockAdult ? rawCategories.filter((cat) => !isAdultText(cat)) : rawCategories),
-    [rawCategories, blockAdult],
-  );
+  /** Categorias adultas somem (com PIN ativo) ou vão para o fim da barra. */
+  const categories = useMemo(() => {
+    if (blockAdult) return rawCategories.filter((cat) => !isAdultText(cat));
+    const safe = rawCategories.filter((cat) => !isAdultText(cat));
+    const adult = rawCategories.filter((cat) => isAdultText(cat));
+    return adult.length ? [...safe, ...adult] : rawCategories;
+  }, [rawCategories, blockAdult]);
+
   const { filters } = useFilters();
   const { sort } = useSort();
 
