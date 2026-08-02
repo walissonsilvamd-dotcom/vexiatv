@@ -217,14 +217,36 @@ function ChannelsPage() {
   const unlockedAdult = useParentalUnlocked();
   const [pinOpen, setPinOpen] = useState(false);
   const blockAdult = settings.parentalEnabled && !unlockedAdult;
-  const channels = useMemo(
-    () =>
-      blockAdult
-        ? allChannels.filter((c) => !isAdultText(c.name, c.category, c.group))
-        : allChannels,
-    [allChannels, blockAdult],
+  /** Canal é adulto quando nome, categoria ou grupo indicam conteúdo +18. */
+  const isAdultChannel = useCallback(
+    (c: PlaylistChannel) => isAdultText(c.name, c.category, c.group),
+    [],
   );
-  const hasBlockedChannels = blockAdult && channels.length !== allChannels.length;
+  /**
+   * Conteúdo adulto NUNCA vem na frente:
+   * - com Controle dos Pais ligado (e sem PIN) ele é removido da lista;
+   * - sem o controle, ele continua visível mas sempre no FIM da lista, então o
+   *   app nunca abre num canal adulto ao carregar a lista.
+   */
+  const channels = useMemo(() => {
+    if (blockAdult) return allChannels.filter((c) => !isAdultChannel(c));
+    const safe: PlaylistChannel[] = [];
+    const adult: PlaylistChannel[] = [];
+    for (const c of allChannels) (isAdultChannel(c) ? adult : safe).push(c);
+    return adult.length ? [...safe, ...adult] : allChannels;
+  }, [allChannels, blockAdult, isAdultChannel]);
+  const hasAdultChannels = useMemo(
+    () => allChannels.some((c) => isAdultChannel(c)),
+    [allChannels, isAdultChannel],
+  );
+  /** Enquanto o PIN não é digitado, todo canal adulto fica fechado. */
+  const adultBlocked = useCallback(
+    (c: PlaylistChannel | null | undefined) =>
+      Boolean(c) && !unlockedAdult && isAdultChannel(c as PlaylistChannel),
+    [unlockedAdult, isAdultChannel],
+  );
+  const hasBlockedChannels = hasAdultChannels && !unlockedAdult;
+
   const { has, toggle } = useFavorites();
 
   const [category, setCategory] = useState("Todos");
