@@ -11,9 +11,7 @@ import type { HlsLike } from "./useMediaTracks";
  * há nada fresco guardado. Efeito prático: na troca de canal o motor já começa
  * a pedir segmentos em vez de esperar o manifesto.
  * ──────────────────────────────────────────────────────────────────────────── */
-type LoaderCtor = new (config: unknown) => {
-  load: (context: any, config: any, callbacks: any) => void;
-};
+type LoaderCtor = new (config: any) => any;
 
 function cachedLoader(Base: LoaderCtor): LoaderCtor {
   return class CachedManifestLoader extends Base {
