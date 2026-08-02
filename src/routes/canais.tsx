@@ -33,6 +33,7 @@ import { GroupsDialog } from "../components/vexia/GroupsDialog";
 import { ChannelPinPrompt } from "../components/vexia/ChannelPinPrompt";
 import { useGroups } from "../lib/groups-store";
 import { toggleChannelLock, useChannelLocks } from "../lib/channel-lock";
+import { BRAND } from "../lib/brand";
 
 
 /** Hora no formato 20:30. */
@@ -84,13 +85,13 @@ function useShortEpg(channel: PlaylistChannel | null, enabled: boolean) {
 export const Route = createFileRoute("/canais")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Canais ao vivo" },
+      { title: `${BRAND.name} — Canais ao vivo` },
       {
         name: "description",
         content:
           "Canais ao vivo da sua lista M3U/HLS com categorias automáticas, prévia e favoritos.",
       },
-      { property: "og:title", content: "VÉXIA TV — Canais" },
+      { property: "og:title", content: `${BRAND.name} — Canais` },
       { property: "og:description", content: "Canais ao vivo organizados por categoria." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/canais" },

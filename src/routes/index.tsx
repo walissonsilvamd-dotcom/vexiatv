@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import splashAsset from "../assets/splash-vexia.jpg.asset.json";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Carregando" },
-      { name: "description", content: "VÉXIA TV — player de streaming para Smart TV." },
-      { property: "og:title", content: "VÉXIA TV" },
+      { title: `${BRAND.name} — Carregando` },
+      { name: "description", content: `${BRAND.name} — player de streaming para Smart TV.` },
+      { property: "og:title", content: `${BRAND.name}` },
       { property: "og:description", content: "Player de streaming para Smart TV." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: `https://vexiatv.lovable.app${splashAsset.url}` },
@@ -41,12 +42,12 @@ function SplashScreen() {
         exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
       ].join(" ")}
     >
-      <h1 className="sr-only">VÉXIA TV — carregando</h1>
+      <h1 className="sr-only">{BRAND.name} — carregando</h1>
 
       {/* Splash oficial em tela cheia. */}
       <img
         src={splashAsset.url}
-        alt="VÉXIA TV"
+        alt={`${BRAND.name}`}
         className="absolute inset-0 h-full w-full object-cover"
         fetchPriority="high"
       />

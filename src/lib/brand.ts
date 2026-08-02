@@ -9,7 +9,10 @@ import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
  * Todo o app (botões, glows, bordas, degradês, player, filtros) segue junto.
  */
 export const BRAND = {
+  /** Nome completo do app — usado em títulos, SEO e textos. */
   name: "VÉXIA TV",
+  /** Nome curto (sem "TV") — usado em textos internos e nomes de canais demo. */
+  shortName: "VÉXIA",
   logoUrl: logoAsset.url,
 } as const;
 

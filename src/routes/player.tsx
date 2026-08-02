@@ -95,6 +95,7 @@ import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
 import { useQualityLevels, QUALITY_AUTO } from "../hooks/use-quality-levels";
 import { prefetchStream } from "../hooks/player-engines";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/player")({
   ssr: false,
@@ -108,13 +109,13 @@ export const Route = createFileRoute("/player")({
   }),
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Player" },
+      { title: `${BRAND.name} — Player` },
       {
         name: "description",
         content:
-          "Player VÉXIA TV com suporte a HLS, canais ao vivo, filmes e séries, com progresso salvo e controles para TV.",
+          `Player ${BRAND.name} com suporte a HLS, canais ao vivo, filmes e séries, com progresso salvo e controles para TV.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Player" },
+      { property: "og:title", content: `${BRAND.name} — Player` },
       {
         property: "og:description",
         content: "Reprodução de canais ao vivo, filmes e séries direto da sua lista.",

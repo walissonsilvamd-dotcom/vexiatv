@@ -1,4 +1,5 @@
 import { SPLASH_BRAND } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Contorno escuro (4 direções + halo) para separar a logo de fundos claros
@@ -29,7 +30,7 @@ export function SplashLogo({ className = "h-40" }: { className?: string }) {
         <img
           key={url}
           src={url}
-          alt="VÉXIA TV"
+          alt={`${BRAND.name}`}
           loading="eager"
           decoding="async"
           fetchPriority="high"

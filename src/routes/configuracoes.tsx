@@ -65,18 +65,19 @@ type Item =
   | { kind: "action"; icon: LucideIcon; label: string; sub: string; dialog: Exclude<Dialog, null> };
 
 import { TopNav } from "../components/vexia/TopNav";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Ajustes" },
+      { title: `${BRAND.name} — Ajustes` },
       {
         name: "description",
         content:
-          "Ajustes do VÉXIA TV: controle dos pais, listas, idioma, player, legendas, histórico e dados do dispositivo.",
+          `Ajustes do ${BRAND.name}: controle dos pais, listas, idioma, player, legendas, histórico e dados do dispositivo.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Ajustes" },
-      { property: "og:description", content: "Todas as preferências do VÉXIA TV em um só lugar." },
+      { property: "og:title", content: `${BRAND.name} — Ajustes` },
+      { property: "og:description", content: `Todas as preferências do ${BRAND.name} em um só lugar.` },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/configuracoes" },
       { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
@@ -173,7 +174,7 @@ function SettingsPage() {
       kind: "action",
       icon: Layout,
       label: "Estilo de Interface",
-      sub: settings.displayMode === "horizontal" ? "VÉXIA Dark • Horizontal" : "VÉXIA Dark • Vertical",
+      sub: settings.displayMode === "horizontal" ? `${BRAND.shortName} Dark • Horizontal` : `${BRAND.shortName} Dark • Vertical`,
       dialog: "interface",
     },
     { kind: "toggle", icon: EyeOff, label: "Ocultar Categorias", sub: (v) => v, key: "hideCategories" },
@@ -226,7 +227,7 @@ function SettingsPage() {
       kind: "action",
       icon: PlayCircle,
       label: "Player de Vídeo",
-      sub: settings.player === "internal" ? "Player interno VÉXIA" : "Player externo",
+      sub: settings.player === "internal" ? `Player interno ${BRAND.shortName}` : "Player externo",
       dialog: "player",
     },
     { kind: "toggle", icon: RefreshCw, label: "Atualização Automática", sub: (v) => v, key: "autoUpdate" },
@@ -356,7 +357,7 @@ function SettingsPage() {
             <div className="flex min-w-0 items-center justify-center gap-1.5">
               <MonitorPlay className="h-3.5 w-3.5 shrink-0 text-vexia-muted" aria-hidden />
               <p className="truncate text-[10px] font-bold tracking-widest text-vexia-muted">
-                VÉXIA TV 1.0
+                {BRAND.name} 1.0
               </p>
             </div>
           </div>
@@ -445,7 +446,7 @@ function SettingsPage() {
         onClose={close}
       >
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tema</p>
-        <OptionRow label="VÉXIA Dark" hint="Tema padrão do aplicativo" selected onSelect={() => {}} />
+        <OptionRow label={`${BRAND.shortName} Dark`} hint="Tema padrão do aplicativo" selected onSelect={() => {}} />
         <p className="pt-2 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Modo de exibição</p>
         <OptionRow
           label="Horizontal"
@@ -528,7 +529,7 @@ function SettingsPage() {
       <SettingsModal
         open={dialog === "historyOff"}
         title="Histórico de Reprodução"
-        subtitle="Controle se o VÉXIA TV deve salvar o progresso do que você assiste."
+        subtitle={`Controle se o ${BRAND.name} deve salvar o progresso do que você assiste.`}
         onClose={close}
       >
         <SwitchRow
@@ -596,7 +597,7 @@ function SettingsPage() {
         onClose={close}
       >
         <OptionRow
-          label="Player interno VÉXIA"
+          label={`Player interno ${BRAND.shortName}`}
           hint="Recomendado — suporte a HLS e legendas"
           selected={settings.player === "internal"}
           onSelect={() => set("player", "internal")}

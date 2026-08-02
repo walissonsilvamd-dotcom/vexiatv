@@ -15,17 +15,18 @@ import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { clearCompleted, useWatchHistory, type WatchKind } from "../lib/history-store";
 import { clearProgress } from "../lib/progress-store";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/historico")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Histórico" },
+      { title: `${BRAND.name} — Histórico` },
       {
         name: "description",
         content:
-          "Histórico de reprodução do VÉXIA TV: continue filmes, séries e canais exatamente de onde parou.",
+          `Histórico de reprodução do ${BRAND.name}: continue filmes, séries e canais exatamente de onde parou.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Histórico" },
+      { property: "og:title", content: `${BRAND.name} — Histórico` },
       {
         property: "og:description",
         content: "Tudo o que você assistiu, com progresso salvo no aparelho.",
@@ -183,7 +184,7 @@ function HistoryPage() {
               <History className="mb-3 h-10 w-10 text-vexia-purple" aria-hidden />
               <p className="text-lg font-black">Nada por aqui ainda</p>
               <p className="mt-1 max-w-sm text-sm text-vexia-text/60">
-                Ao assistir filmes, séries ou canais, o VÉXIA TV guarda o progresso aqui para você
+                Ao assistir filmes, séries ou canais, o {BRAND.name} guarda o progresso aqui para você
                 continuar de onde parou.
               </p>
             </div>

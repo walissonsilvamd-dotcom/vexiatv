@@ -83,15 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "VÉXIA TV — Player IPTV para Smart TV e TV Box" },
+      { title: `${BRAND.name} — Player IPTV para Smart TV e TV Box` },
       {
         name: "description",
         content:
-          "VÉXIA TV é o player de streaming para Smart TV e TV Box: carregue sua lista M3U/Xtream e assista filmes, séries e canais ao vivo com navegação por controle remoto.",
+          `${BRAND.name} é o player de streaming para Smart TV e TV Box: carregue sua lista M3U/Xtream e assista filmes, séries e canais ao vivo com navegação por controle remoto.`,
       },
-      { name: "author", content: "VÉXIA TV" },
+      { name: "author", content: `${BRAND.name}` },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "VÉXIA TV" },
+      { property: "og:site_name", content: `${BRAND.name}` },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     scripts: [
@@ -100,13 +100,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "VÉXIA TV",
+          name: `${BRAND.name}`,
           url: "https://vexiatv.lovable.app",
           description:
             "Player de streaming para Smart TV e TV Box com filmes, séries e canais ao vivo a partir da sua lista M3U/Xtream.",
           publisher: {
             "@type": "Organization",
-            name: "VÉXIA TV",
+            name: `${BRAND.name}`,
             url: "https://vexiatv.lovable.app",
             logo: BRAND.logoUrl,
           },

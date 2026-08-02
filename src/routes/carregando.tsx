@@ -10,6 +10,7 @@ import {
   usePlaylist,
   type PlaylistCounts,
 } from "../lib/playlist-store";
+import { BRAND } from "../lib/brand";
 
 type LoadingSearch = { url: string; name?: string };
 
@@ -21,13 +22,13 @@ export const Route = createFileRoute("/carregando")({
   }),
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Carregando sua lista" },
+      { title: `${BRAND.name} — Carregando sua lista` },
       {
         name: "description",
         content:
-          "O VÉXIA TV está conectando ao servidor, criando categorias e organizando canais, filmes e séries da sua lista.",
+          `O ${BRAND.name} está conectando ao servidor, criando categorias e organizando canais, filmes e séries da sua lista.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Carregando sua lista" },
+      { property: "og:title", content: `${BRAND.name} — Carregando sua lista` },
       {
         property: "og:description",
         content: "Preparando sua biblioteca de canais, filmes e séries.",
@@ -201,7 +202,7 @@ function CarregandoPage() {
             </h1>
             <p className="mt-2 text-[clamp(0.9rem,1.3vw,1.15rem)] font-medium text-vexia-cyan">
               {phase === "success"
-                ? "Preparando sua experiência VÉXIA..."
+                ? `Preparando sua experiência ${BRAND.shortName}...`
                 : `${PLAYLIST_STAGES[stage] ?? PLAYLIST_STAGES[0]}...${
                     tryCount && tryCount.n > 1
                       ? ` • Tentando conectar (tentativa ${tryCount.n}/${tryCount.total})`
