@@ -228,7 +228,7 @@ function HomePage() {
   return (
     <main ref={pageRef} className="relative bg-vexia-bg text-vexia-text">
     <section
-      className="relative flex h-screen w-full flex-col overflow-hidden"
+      className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto md:h-screen md:overflow-hidden"
       onKeyDown={(e) => {
         // O tratamento manual vale só quando o foco está na fileira de blocos.
         // Fora dela (menu superior, carrossel, cards) quem manda é a
