@@ -53,6 +53,35 @@ export function prefetchChannel(url: string | null | undefined) {
   }, 600);
 }
 
+const focusInflight = new Map<string, AbortController>();
+
+/**
+ * Prefetch IMEDIATO do canal em foco (sem espera). Busca só o manifesto, então
+ * quando a prévia monta o motor já tem a playlist em cache HTTP: abre na hora.
+ */
+export function prefetchChannelNow(url: string | null | undefined) {
+  if (typeof window === "undefined" || !url) return;
+  warmEngines(url);
+  if (prepared.has(url)) return;
+  const playable = playableStreamUrl(url);
+  if (!playable || !isManifest(playable)) return;
+  prepared.add(url);
+  for (const [key, ctrl] of focusInflight) {
+    if (key !== url) {
+      ctrl.abort();
+      focusInflight.delete(key);
+    }
+  }
+  const controller = new AbortController();
+  focusInflight.set(url, controller);
+  fetch(playable, { signal: controller.signal, mode: "cors", credentials: "omit" })
+    .then((r) => r.text())
+    .catch(() => undefined)
+    .finally(() => {
+      if (focusInflight.get(url) === controller) focusInflight.delete(url);
+    });
+}
+
 /** Cancela qualquer preparação pendente (saída da tela de canais). */
 export function cancelChannelPrefetch() {
   if (pending) {

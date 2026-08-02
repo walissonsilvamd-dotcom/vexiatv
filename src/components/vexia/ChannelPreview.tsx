@@ -145,7 +145,7 @@ function ChannelPreviewBase({
             <span className="flex flex-col items-center gap-2">
               <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
               <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
-                {reconnecting ? "Reconectando" : starting ? "Iniciando prévia" : "Carregando buffer"}
+                {reconnecting ? "Reconectando" : ""}
               </span>
             </span>
           </span>
@@ -160,7 +160,7 @@ function ChannelPreviewBase({
         />
 
         <span className="pointer-events-none absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          {fatalError ? "Sinal indisponível" : starting ? "Aquecendo" : "Ao vivo"}
+          {fatalError ? "Sinal indisponível" : "Ao vivo"}
         </span>
       </div>
 

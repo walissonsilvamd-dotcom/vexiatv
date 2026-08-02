@@ -26,8 +26,7 @@ import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
-import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
-import { warmEngines } from "../hooks/player-engines";
+import { cancelChannelPrefetch, prefetchChannel, prefetchChannelNow } from "../lib/stream-prefetch";
 
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
@@ -419,7 +418,7 @@ function ChannelsPage() {
    * Assim, passar rápido pela lista com o controle não abre e fecha um stream
    * por linha — a navegação fica lisa e a banda vai toda para o canal escolhido.
    */
-  const previewChannel = useDebounce(selected, 180);
+  const previewChannel = useDebounce(selected, 110);
 
 
   /**
@@ -428,7 +427,7 @@ function ChannelsPage() {
    * stream começa praticamente na hora (sem custo de banda de vídeo).
    */
   useEffect(() => {
-    if (selected?.url) warmEngines(selected.url);
+    if (selected?.url) prefetchChannelNow(selected.url);
   }, [selected?.url]);
 
   /**
