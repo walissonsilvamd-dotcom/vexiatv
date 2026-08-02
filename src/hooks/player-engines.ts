@@ -318,6 +318,8 @@ export async function attachEngine(
     const tuning = tuningFor(preview);
     const scale = (seconds: number) => Math.round(seconds * tuning.bufferScale);
     const instance = new Hls({
+      // Serve manifesto do cache do prefetch: a prévia não espera a rede.
+      loader: cachedLoader(Hls.DefaultConfig.loader as unknown as LoaderCtor) as any,
       lowLatencyMode: live && !preview,
       enableWorker: true,
       startFragPrefetch: true,
