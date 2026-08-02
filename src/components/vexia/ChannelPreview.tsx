@@ -153,10 +153,6 @@ function ChannelPreviewBase({
           onClick={onOpenFullscreen}
           className="vexia-focus absolute inset-0 h-full w-full"
         />
-
-        <span className="pointer-events-none absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          {fatalError ? "Sinal indisponível" : "Ao vivo"}
-        </span>
       </div>
 
     </div>
