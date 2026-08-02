@@ -282,6 +282,11 @@ function ChannelsPage() {
   const openFullscreen = useCallback(
     (ch: PlaylistChannel) => {
       if (openingRef.current) return;
+      // Canal adulto: só toca depois do PIN do Controle dos pais.
+      if (adultBlocked(ch)) {
+        setPinOpen(true);
+        return;
+      }
       // Canal trancado só abre depois do PIN.
       if (locks.blocked(ch.id)) {
         setPendingLocked(ch);
@@ -293,8 +298,9 @@ function ChannelsPage() {
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [navigate, locks.blocked],
+    [navigate, locks.blocked, adultBlocked],
   );
+
 
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
   const onChannelClick = useCallback(
