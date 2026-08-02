@@ -7,6 +7,7 @@ import { Check, Loader2 } from "lucide-react";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { checkPairSession, submitPairPlaylist } from "../lib/pair.functions";
 import { buildXtreamUrl } from "../lib/playlist-input";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/parear")({
   head: () => ({

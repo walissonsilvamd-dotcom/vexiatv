@@ -1,6 +1,7 @@
 import hero1 from "../assets/hero-1.jpg";
 import hero2 from "../assets/hero-2.jpg";
 import hero3 from "../assets/hero-3.jpg";
+import { BRAND } from "../lib/brand";
 
 /**
  * Dados fictícios apenas para o protótipo visual.

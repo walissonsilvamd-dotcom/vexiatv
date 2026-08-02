@@ -30,6 +30,7 @@ import { useDynamicSeo } from "../lib/dynamic-seo";
 
 import { useMovieInfo } from "../hooks/useMovieInfo";
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/detalhes/$id")({
   head: ({ params }) => {

@@ -10,6 +10,7 @@ import { usePlaylist } from "../lib/playlist-store";
 import { matchFavorite, useFavorites, type Favorite, type FavoriteKind } from "../lib/favorites-store";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({

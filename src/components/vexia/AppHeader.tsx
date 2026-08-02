@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { VexiaLogo } from "./VexiaLogo";
+import { BRAND } from "../../lib/brand";
 
 export function AppHeader({ showFilters = true }: { showFilters?: boolean }) {
   return (

@@ -13,6 +13,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { usePlaylist } from "../lib/playlist-store";
 import { setStreamHandoff } from "../lib/stream-handoff";
 import { buildSearchIndex, queryIndex } from "../utils/search-index";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/busca")({
   head: () => ({

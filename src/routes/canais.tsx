@@ -33,6 +33,7 @@ import { GroupsDialog } from "../components/vexia/GroupsDialog";
 import { ChannelPinPrompt } from "../components/vexia/ChannelPinPrompt";
 import { useGroups } from "../lib/groups-store";
 import { toggleChannelLock, useChannelLocks } from "../lib/channel-lock";
+import { BRAND } from "../lib/brand";
 
 
 /** Hora no formato 20:30. */

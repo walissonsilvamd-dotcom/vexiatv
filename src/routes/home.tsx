@@ -33,6 +33,7 @@ import type { ResolvedWatch } from "../components/vexia/WatchCard";
 import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { preloadImage, preloadImages } from "../lib/image";
 import { SmartImage } from "../components/vexia/SmartImage";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/home")({
   head: () => ({

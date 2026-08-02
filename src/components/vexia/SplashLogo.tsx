@@ -1,4 +1,5 @@
 import { SPLASH_BRAND } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Contorno escuro (4 direções + halo) para separar a logo de fundos claros

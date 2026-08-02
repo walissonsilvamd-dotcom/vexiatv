@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { CatalogScreen } from "../components/vexia/CatalogScreen";
 import { usePlaylist } from "../lib/playlist-store";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/filmes")({
   head: () => ({

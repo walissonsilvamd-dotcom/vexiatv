@@ -65,6 +65,7 @@ type Item =
   | { kind: "action"; icon: LucideIcon; label: string; sub: string; dialog: Exclude<Dialog, null> };
 
 import { TopNav } from "../components/vexia/TopNav";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({

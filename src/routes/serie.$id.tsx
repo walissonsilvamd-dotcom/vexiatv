@@ -18,6 +18,7 @@ import { TopNav } from "../components/vexia/TopNav";
 
 import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { SmartImage } from "../components/vexia/SmartImage";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/serie/$id")({
   head: ({ params }) => {

@@ -21,6 +21,7 @@ import { formatExpiry, formatRemaining } from "../lib/xtream";
 
 
 import { TopNav } from "../components/vexia/TopNav";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/listas")({
   head: () => ({

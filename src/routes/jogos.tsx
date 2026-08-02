@@ -13,6 +13,7 @@ import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { usePlaylist } from "../lib/playlist-store";
 import { setStreamHandoff } from "../lib/stream-handoff";
 import type { PlaylistChannel } from "../lib/m3u";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({

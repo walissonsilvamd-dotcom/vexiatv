@@ -10,6 +10,7 @@ import {
   usePlaylist,
   type PlaylistCounts,
 } from "../lib/playlist-store";
+import { BRAND } from "../lib/brand";
 
 type LoadingSearch = { url: string; name?: string };
 

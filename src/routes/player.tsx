@@ -95,6 +95,7 @@ import { useSeriesEpisodes } from "../hooks/useSeriesEpisodes";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
 import { useQualityLevels, QUALITY_AUTO } from "../hooks/use-quality-levels";
 import { prefetchStream } from "../hooks/player-engines";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/player")({
   ssr: false,

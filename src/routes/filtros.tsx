@@ -30,6 +30,7 @@ import {
 import { usePlaylist } from "../lib/playlist-store";
 import { useTmdbHeroesStatus } from "../lib/use-tmdb";
 import { Skeleton } from "../components/ui/skeleton";
+import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/filtros")({
   head: () => ({
