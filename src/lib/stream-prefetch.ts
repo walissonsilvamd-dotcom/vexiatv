@@ -8,6 +8,7 @@
  */
 
 import { warmEngines } from "../hooks/player-engines";
+import { peekManifest, putChannelMeta, putManifest } from "./manifest-cache";
 import { playableStreamUrl } from "./stream-url";
 
 const prepared = new Set<string>();
@@ -46,6 +47,7 @@ export function prefetchChannel(url: string | null | undefined) {
     inflight = controller;
     fetch(playable, { signal: controller.signal, mode: "cors", credentials: "omit" })
       .then((r) => r.text())
+      .then((text) => putManifest(playable, text))
       .catch(() => undefined)
       .finally(() => {
         if (inflight === controller) inflight = null;
@@ -91,9 +93,14 @@ async function warmBytes(url: string, signal: AbortSignal) {
 export function prefetchChannelNow(url: string | null | undefined) {
   if (typeof window === "undefined" || !url) return;
   warmEngines(url);
-  if (prepared.has(url)) return;
   const playable = playableStreamUrl(url);
   if (!playable) return;
+  // Manifesto ainda fresco em memória: não há nada a buscar de novo.
+  if (isManifest(playable)) {
+    if (peekManifest(playable)) return;
+  } else if (prepared.has(url)) {
+    return;
+  }
   prepared.add(url);
   for (const [key, ctrl] of focusInflight) {
     if (key !== url) {
@@ -110,6 +117,7 @@ export function prefetchChannelNow(url: string | null | undefined) {
   };
 
   if (!isManifest(playable)) {
+    putChannelMeta(playable, { kind: "progressive" });
     // Progressivo/TS: um Range curto abre DNS/TLS e já traz o início do vídeo.
     warmBytes(playable, signal).catch(() => undefined).finally(done);
     return;
@@ -119,13 +127,18 @@ export function prefetchChannelNow(url: string | null | undefined) {
     const text = await fetch(playable, { signal, mode: "cors", credentials: "omit" }).then((r) =>
       r.text(),
     );
+    // Guarda ANTES de aquecer segmentos: se a prévia abrir agora, já usa o cache.
+    putManifest(playable, text);
+    putChannelMeta(playable, { kind: "hls" });
     const first = firstUri(text, playable);
     if (!first) return;
     if (isManifest(first)) {
       // Master playlist: desce um nível e aquece o primeiro segmento da variante.
+      putChannelMeta(playable, { variant: first });
       const media = await fetch(first, { signal, mode: "cors", credentials: "omit" }).then((r) =>
         r.text(),
       );
+      putManifest(first, media);
       const seg = firstUri(media, first);
       if (seg) await warmBytes(seg, signal);
       return;
