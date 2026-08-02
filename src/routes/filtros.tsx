@@ -34,13 +34,13 @@ import { Skeleton } from "../components/ui/skeleton";
 export const Route = createFileRoute("/filtros")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Filtros inteligentes" },
+      { title: `${BRAND.name} — Filtros inteligentes` },
       {
         name: "description",
         content:
-          "Refine o catálogo do VÉXIA TV por tipo, gênero, ano, país, áudio, nota TMDB, duração e lançamento.",
+          `Refine o catálogo do ${BRAND.name} por tipo, gênero, ano, país, áudio, nota TMDB, duração e lançamento.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Filtros inteligentes" },
+      { property: "og:title", content: `${BRAND.name} — Filtros inteligentes` },
       {
         property: "og:description",
         content: "Filtros cumulativos sobre a sua lista M3U, enriquecidos pelo TMDB.",

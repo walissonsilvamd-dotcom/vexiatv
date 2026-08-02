@@ -11,13 +11,13 @@ import { buildXtreamUrl } from "../lib/playlist-input";
 export const Route = createFileRoute("/parear")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Enviar lista para a TV" },
+      { title: `${BRAND.name} — Enviar lista para a TV` },
       {
         name: "description",
         content:
-          "Cole o link da sua lista M3U ou HLS no celular e envie direto para a sua Smart TV com o VÉXIA TV.",
+          `Cole o link da sua lista M3U ou HLS no celular e envie direto para a sua Smart TV com o ${BRAND.name}.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Enviar lista para a TV" },
+      { property: "og:title", content: `${BRAND.name} — Enviar lista para a TV` },
       {
         property: "og:description",
         content: "Pareamento por QR Code: envie sua lista IPTV do celular para a TV.",

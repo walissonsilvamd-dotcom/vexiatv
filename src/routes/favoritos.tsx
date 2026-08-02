@@ -14,13 +14,13 @@ import { PosterArt } from "../components/vexia/PosterArt";
 export const Route = createFileRoute("/favoritos")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Favoritos" },
+      { title: `${BRAND.name} — Favoritos` },
       {
         name: "description",
         content:
-          "Seus canais, filmes e séries favoritos do VÉXIA TV salvos no aparelho e sempre à mão.",
+          `Seus canais, filmes e séries favoritos do ${BRAND.name} salvos no aparelho e sempre à mão.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Favoritos" },
+      { property: "og:title", content: `${BRAND.name} — Favoritos` },
       {
         property: "og:description",
         content: "Acesso rápido aos conteúdos que você marcou com o coração.",

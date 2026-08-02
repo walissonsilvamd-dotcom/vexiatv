@@ -37,14 +37,14 @@ import { SmartImage } from "../components/vexia/SmartImage";
 export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Home" },
+      { title: `${BRAND.name} — Home` },
       {
         name: "description",
         content:
-          "Home do VÉXIA TV: destaque em tela cheia com canais, filmes, séries, jogos, listas e ajustes.",
+          `Home do ${BRAND.name}: destaque em tela cheia com canais, filmes, séries, jogos, listas e ajustes.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Home" },
-      { property: "og:description", content: "Home do VÉXIA TV para Android TV e Smart TV." },
+      { property: "og:title", content: `${BRAND.name} — Home` },
+      { property: "og:description", content: `Home do ${BRAND.name} para Android TV e Smart TV.` },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/home" },
       { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },
@@ -555,7 +555,7 @@ function HomePage() {
 
       <ConfirmDialog
         open={exitOpen}
-        title="Sair do VÉXIA TV?"
+        title=`Sair do ${BRAND.name}?`
         message="Você voltará para a tela inicial do aparelho."
         confirmLabel="SAIR"
         onConfirm={() => {

@@ -25,13 +25,13 @@ import { TopNav } from "../components/vexia/TopNav";
 export const Route = createFileRoute("/listas")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Listas" },
+      { title: `${BRAND.name} — Listas` },
       {
         name: "description",
-        content: "Gerencie suas listas M3U no VÉXIA TV: adicione, atualize e edite suas fontes de canais, filmes e séries.",
+        content: `Gerencie suas listas M3U no ${BRAND.name}: adicione, atualize e edite suas fontes de canais, filmes e séries.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Listas" },
-      { property: "og:description", content: "Gerencie suas fontes de conteúdo IPTV no VÉXIA TV." },
+      { property: "og:title", content: `${BRAND.name} — Listas` },
+      { property: "og:description", content: `Gerencie suas fontes de conteúdo IPTV no ${BRAND.name}.` },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/listas" },
       { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },

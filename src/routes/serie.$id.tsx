@@ -24,13 +24,13 @@ export const Route = createFileRoute("/serie/$id")({
     const url = `https://vexiatv.lovable.app/serie/${params.id}`;
     return {
       meta: [
-        { title: "VÉXIA TV — Episódios" },
+        { title: `${BRAND.name} — Episódios` },
         {
           name: "description",
-          content: "Temporadas e episódios da série carregada da sua lista M3U no VÉXIA TV.",
+          content: `Temporadas e episódios da série carregada da sua lista M3U no ${BRAND.name}.`,
         },
-        { property: "og:title", content: "VÉXIA TV — Episódios" },
-        { property: "og:description", content: "Temporadas e episódios da série no VÉXIA TV." },
+        { property: "og:title", content: `${BRAND.name} — Episódios` },
+        { property: "og:description", content: `Temporadas e episódios da série no ${BRAND.name}.` },
         { property: "og:type", content: "video.tv_show" },
         { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
@@ -90,10 +90,10 @@ function EpisodesPage() {
   }, [serie, seasons.length, epList.length]);
 
   useDynamicSeo({
-    title: serie ? `${serie.title} — Episódios | VÉXIA TV` : undefined,
+    title: serie ? `${serie.title} — Episódios | ${BRAND.name}` : undefined,
     description: serie
       ? (serie.overview ||
-          `Todas as temporadas e episódios de ${serie.title} no VÉXIA TV.`).slice(0, 158)
+          `Todas as temporadas e episódios de ${serie.title} no ${BRAND.name}.`).slice(0, 158)
       : undefined,
     image: serie?.backdrop || serie?.poster,
     url: `https://vexiatv.lovable.app/serie/${id}`,

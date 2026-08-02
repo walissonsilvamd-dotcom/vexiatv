@@ -19,13 +19,13 @@ import { clearProgress } from "../lib/progress-store";
 export const Route = createFileRoute("/historico")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Histórico" },
+      { title: `${BRAND.name} — Histórico` },
       {
         name: "description",
         content:
-          "Histórico de reprodução do VÉXIA TV: continue filmes, séries e canais exatamente de onde parou.",
+          `Histórico de reprodução do ${BRAND.name}: continue filmes, séries e canais exatamente de onde parou.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Histórico" },
+      { property: "og:title", content: `${BRAND.name} — Histórico` },
       {
         property: "og:description",
         content: "Tudo o que você assistiu, com progresso salvo no aparelho.",

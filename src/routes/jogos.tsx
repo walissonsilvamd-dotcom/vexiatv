@@ -17,13 +17,13 @@ import type { PlaylistChannel } from "../lib/m3u";
 export const Route = createFileRoute("/jogos")({
   head: () => ({
     meta: [
-      { title: "Jogos ao vivo — VÉXIA TV" },
+      { title: `Jogos ao vivo — ${BRAND.name}` },
       {
         name: "description",
         content:
-          "Agenda esportiva do VÉXIA TV: canais de esporte da sua lista com o que está no ar agora e o que vem a seguir.",
+          `Agenda esportiva do ${BRAND.name}: canais de esporte da sua lista com o que está no ar agora e o que vem a seguir.`,
       },
-      { property: "og:title", content: "Jogos ao vivo — VÉXIA TV" },
+      { property: "og:title", content: `Jogos ao vivo — ${BRAND.name}` },
       {
         property: "og:description",
         content: "Veja os jogos no ar agora nos canais de esporte da sua lista.",

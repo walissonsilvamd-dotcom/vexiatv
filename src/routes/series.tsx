@@ -6,13 +6,13 @@ import { usePlaylist } from "../lib/playlist-store";
 export const Route = createFileRoute("/series")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Séries" },
+      { title: `${BRAND.name} — Séries` },
       {
         name: "description",
-        content: "Séries e temporadas da sua lista M3U organizadas no VÉXIA TV.",
+        content: `Séries e temporadas da sua lista M3U organizadas no ${BRAND.name}.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Séries" },
-      { property: "og:description", content: "Catálogo de séries do VÉXIA TV." },
+      { property: "og:title", content: `${BRAND.name} — Séries` },
+      { property: "og:description", content: `Catálogo de séries do ${BRAND.name}.` },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://vexiatv.lovable.app/series" },
       { property: "og:image", content: `https://vexiatv.lovable.app${ogImage.url}` },

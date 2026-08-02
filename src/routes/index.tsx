@@ -5,9 +5,9 @@ import splashAsset from "../assets/splash-vexia.jpg.asset.json";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Carregando" },
-      { name: "description", content: "VÉXIA TV — player de streaming para Smart TV." },
-      { property: "og:title", content: "VÉXIA TV" },
+      { title: `${BRAND.name} — Carregando` },
+      { name: "description", content: `${BRAND.name} — player de streaming para Smart TV.` },
+      { property: "og:title", content: `${BRAND.name}` },
       { property: "og:description", content: "Player de streaming para Smart TV." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: `https://vexiatv.lovable.app${splashAsset.url}` },
@@ -46,7 +46,7 @@ function SplashScreen() {
       {/* Splash oficial em tela cheia. */}
       <img
         src={splashAsset.url}
-        alt="VÉXIA TV"
+        alt=`${BRAND.name}`
         className="absolute inset-0 h-full w-full object-cover"
         fetchPriority="high"
       />

@@ -173,12 +173,12 @@ export const recentSeries = make(
 );
 
 export const channels: Channel[] = [
-  { id: "c1", name: "VÉXIA Cine", category: "Filmes", now: "Sessão da Noite", initials: "VC" },
-  { id: "c2", name: "VÉXIA Sports", category: "Esportes", now: "Rodada ao vivo", initials: "VS" },
-  { id: "c3", name: "VÉXIA News", category: "Notícias", now: "Jornal 20h", initials: "VN" },
-  { id: "c4", name: "VÉXIA Kids", category: "Infantil", now: "Desenhos", initials: "VK" },
-  { id: "c5", name: "VÉXIA Docs", category: "Documentário", now: "Planeta Vivo", initials: "VD" },
-  { id: "c6", name: "VÉXIA Music", category: "Música", now: "Top Hits", initials: "VM" },
-  { id: "c7", name: "VÉXIA Séries", category: "Séries", now: "Maratona", initials: "VE" },
-  { id: "c8", name: "VÉXIA Premium", category: "Premium", now: "Estreia", initials: "VP" },
+  { id: "c1", name: `${BRAND.shortName} Cine`, category: "Filmes", now: "Sessão da Noite", initials: "VC" },
+  { id: "c2", name: `${BRAND.shortName} Sports`, category: "Esportes", now: "Rodada ao vivo", initials: "VS" },
+  { id: "c3", name: `${BRAND.shortName} News`, category: "Notícias", now: "Jornal 20h", initials: "VN" },
+  { id: "c4", name: `${BRAND.shortName} Kids`, category: "Infantil", now: "Desenhos", initials: "VK" },
+  { id: "c5", name: `${BRAND.shortName} Docs`, category: "Documentário", now: "Planeta Vivo", initials: "VD" },
+  { id: "c6", name: `${BRAND.shortName} Music`, category: "Música", now: "Top Hits", initials: "VM" },
+  { id: "c7", name: `${BRAND.shortName} Séries`, category: "Séries", now: "Maratona", initials: "VE" },
+  { id: "c8", name: `${BRAND.shortName} Premium`, category: "Premium", now: "Estreia", initials: "VP" },
 ];

@@ -17,13 +17,13 @@ import { buildSearchIndex, queryIndex } from "../utils/search-index";
 export const Route = createFileRoute("/busca")({
   head: () => ({
     meta: [
-      { title: "VÉXIA TV — Busca global" },
+      { title: `${BRAND.name} — Busca global` },
       {
         name: "description",
         content:
-          "Procure de uma só vez em filmes, séries e canais ao vivo da sua lista no VÉXIA TV.",
+          `Procure de uma só vez em filmes, séries e canais ao vivo da sua lista no ${BRAND.name}.`,
       },
-      { property: "og:title", content: "VÉXIA TV — Busca global" },
+      { property: "og:title", content: `${BRAND.name} — Busca global` },
       {
         property: "og:description",
         content: "Um só campo para encontrar filmes, séries e canais da sua lista.",
@@ -108,7 +108,7 @@ function SearchPage() {
         style={{ backgroundImage: `linear-gradient(rgba(5,5,5,.92),rgba(5,5,5,.97)), url(${nebula.url})` }}
       >
         <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 md:px-10">
-          <Link to="/home" className="vexia-focus rounded-lg" aria-label="VÉXIA TV — início">
+          <Link to="/home" className="vexia-focus rounded-lg" aria-label=`${BRAND.name} — início`>
             <VexiaLogo className="h-12 md:h-14" />
           </Link>
           <TopNav />
