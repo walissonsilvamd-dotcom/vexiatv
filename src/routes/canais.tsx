@@ -26,7 +26,12 @@ import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
-import { cancelChannelPrefetch, prefetchChannel, prefetchChannelNow } from "../lib/stream-prefetch";
+import {
+  cancelChannelPrefetch,
+  prefetchChannel,
+  prefetchChannelNow,
+  prefetchNeighbors,
+} from "../lib/stream-prefetch";
 
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
@@ -431,14 +436,29 @@ function ChannelsPage() {
   }, [selected?.url]);
 
   /**
-   * Prefetch do próximo canal da lista: só o manifesto (poucos KB) e apenas se
-   * o cliente parar por um instante — troca instantânea sem gastar banda.
+   * Prefetch dos vizinhos guiado pelo histórico de navegação: guardamos o
+   * índice anterior para saber se o cliente está descendo ou subindo a lista e
+   * preparamos (manifesto + primeiro segmento) os 2 canais desse lado. Assim o
+   * próximo ↓/↑ abre a prévia na hora. Parado no lugar: prepara os dois lados.
    */
+  const lastIdxRef = useRef<number | null>(null);
   useEffect(() => {
     if (!selected) return;
     const idx = list.findIndex((c) => c.id === selected.id);
-    const next = idx >= 0 ? list[idx + 1] : undefined;
-    prefetchChannel(next?.url);
+    if (idx < 0) return;
+    const prevIdx = lastIdxRef.current;
+    lastIdxRef.current = idx;
+    const dir = prevIdx === null || prevIdx === idx ? 0 : idx > prevIdx ? 1 : -1;
+    const at = (i: number) => list[i]?.url;
+    const targets =
+      dir === 1
+        ? [at(idx + 1), at(idx + 2)]
+        : dir === -1
+          ? [at(idx - 1), at(idx - 2)]
+          : [at(idx + 1), at(idx - 1)];
+    prefetchNeighbors(targets);
+    // Mantém o prefetch leve de manifesto do canal seguinte (baixo custo).
+    prefetchChannel(at(idx + 1));
     return () => cancelChannelPrefetch();
   }, [selected, list]);
 
