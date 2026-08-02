@@ -121,11 +121,11 @@ function ChannelPreviewBase({
                 preview={false}
                 className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 fallback={
-                  <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
+                  <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
                 }
               />
             ) : (
-              <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
             )}
           </span>
         ) : null}
