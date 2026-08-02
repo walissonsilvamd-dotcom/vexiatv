@@ -217,14 +217,36 @@ function ChannelsPage() {
   const unlockedAdult = useParentalUnlocked();
   const [pinOpen, setPinOpen] = useState(false);
   const blockAdult = settings.parentalEnabled && !unlockedAdult;
-  const channels = useMemo(
-    () =>
-      blockAdult
-        ? allChannels.filter((c) => !isAdultText(c.name, c.category, c.group))
-        : allChannels,
-    [allChannels, blockAdult],
+  /** Canal é adulto quando nome, categoria ou grupo indicam conteúdo +18. */
+  const isAdultChannel = useCallback(
+    (c: PlaylistChannel) => isAdultText(c.name, c.category, c.group),
+    [],
   );
-  const hasBlockedChannels = blockAdult && channels.length !== allChannels.length;
+  /**
+   * Conteúdo adulto NUNCA vem na frente:
+   * - com Controle dos Pais ligado (e sem PIN) ele é removido da lista;
+   * - sem o controle, ele continua visível mas sempre no FIM da lista, então o
+   *   app nunca abre num canal adulto ao carregar a lista.
+   */
+  const channels = useMemo(() => {
+    if (blockAdult) return allChannels.filter((c) => !isAdultChannel(c));
+    const safe: PlaylistChannel[] = [];
+    const adult: PlaylistChannel[] = [];
+    for (const c of allChannels) (isAdultChannel(c) ? adult : safe).push(c);
+    return adult.length ? [...safe, ...adult] : allChannels;
+  }, [allChannels, blockAdult, isAdultChannel]);
+  const hasAdultChannels = useMemo(
+    () => allChannels.some((c) => isAdultChannel(c)),
+    [allChannels, isAdultChannel],
+  );
+  /** Enquanto o PIN não é digitado, todo canal adulto fica fechado. */
+  const adultBlocked = useCallback(
+    (c: PlaylistChannel | null | undefined) =>
+      Boolean(c) && !unlockedAdult && isAdultChannel(c as PlaylistChannel),
+    [unlockedAdult, isAdultChannel],
+  );
+  const hasBlockedChannels = hasAdultChannels && !unlockedAdult;
+
   const { has, toggle } = useFavorites();
 
   const [category, setCategory] = useState("Todos");
@@ -260,6 +282,11 @@ function ChannelsPage() {
   const openFullscreen = useCallback(
     (ch: PlaylistChannel) => {
       if (openingRef.current) return;
+      // Canal adulto: só toca depois do PIN do Controle dos pais.
+      if (adultBlocked(ch)) {
+        setPinOpen(true);
+        return;
+      }
       // Canal trancado só abre depois do PIN.
       if (locks.blocked(ch.id)) {
         setPendingLocked(ch);
@@ -271,8 +298,9 @@ function ChannelsPage() {
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [navigate, locks.blocked],
+    [navigate, locks.blocked, adultBlocked],
   );
+
 
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
   const onChannelClick = useCallback(
@@ -307,10 +335,14 @@ function ChannelsPage() {
   }, [channels]);
 
   const rawCategories = data?.channelCategories ?? ["Todos"];
-  const categories = useMemo(
-    () => (blockAdult ? rawCategories.filter((cat) => !isAdultText(cat)) : rawCategories),
-    [rawCategories, blockAdult],
-  );
+  /** Categorias adultas somem (com PIN ativo) ou vão para o fim da barra. */
+  const categories = useMemo(() => {
+    if (blockAdult) return rawCategories.filter((cat) => !isAdultText(cat));
+    const safe = rawCategories.filter((cat) => !isAdultText(cat));
+    const adult = rawCategories.filter((cat) => isAdultText(cat));
+    return adult.length ? [...safe, ...adult] : rawCategories;
+  }, [rawCategories, blockAdult]);
+
   const { filters } = useFilters();
   const { sort } = useSort();
 
@@ -462,7 +494,7 @@ function ChannelsPage() {
       index={i}
       isActive={selected?.id === ch.id}
       isFav={favs.includes(ch.id)}
-      isLocked={locks.locked(ch.id)}
+      isLocked={locks.locked(ch.id) || adultBlocked(ch)}
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
       onToggleFav={toggleFav}
@@ -626,12 +658,16 @@ function ChannelsPage() {
 
         <ChannelPreview
           src={
-            previewChannel && locks.blocked(previewChannel.id) ? null : previewChannel?.url ?? null
+            previewChannel &&
+            (adultBlocked(previewChannel) || locks.blocked(previewChannel.id))
+              ? null
+              : previewChannel?.url ?? null
           }
           name={previewChannel?.name ?? selected?.name ?? "Canal"}
           logo={previewChannel?.logo ?? selected?.logo}
           onOpenFullscreen={openSelectedFullscreen}
         />
+
 
 
 
