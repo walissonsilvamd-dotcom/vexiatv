@@ -243,7 +243,7 @@ function FavoritesPage() {
         {/* ─── Grade ─── */}
         <section className="min-w-0 flex-1">
           {list.length ? (
-            <div className="grid grid-cols-3 gap-3 md:grid-cols-5 lg:grid-cols-7">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7">
               {list.map((fav) => (
                 <FavoriteCard
                   key={fav.key}

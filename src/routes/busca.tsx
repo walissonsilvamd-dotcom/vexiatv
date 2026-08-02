@@ -155,7 +155,7 @@ function SearchPage() {
                 icon={<Film className="h-4 w-4" aria-hidden />}
                 count={results!.movies.length}
               >
-                <div className="grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-6">
                   {results!.movies.map((item) => (
                     <PosterCard key={item.id} item={item} navRow={2} kind="movie" />
                   ))}
@@ -167,7 +167,7 @@ function SearchPage() {
                 icon={<Clapperboard className="h-4 w-4" aria-hidden />}
                 count={results!.series.length}
               >
-                <div className="grid grid-cols-3 gap-4 md:grid-cols-4 xl:grid-cols-6">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-6">
                   {results!.series.map((item) => (
                     <PosterCard key={item.id} item={item} navRow={3} kind="series" />
                   ))}
@@ -179,7 +179,7 @@ function SearchPage() {
                 icon={<Tv2 className="h-4 w-4" aria-hidden />}
                 count={results!.channels.length}
               >
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                   {results!.channels.map((ch) => (
                     <button
                       key={ch.id}
