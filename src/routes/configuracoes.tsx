@@ -250,12 +250,12 @@ function SettingsPage() {
   return (
     <main
       ref={pageRef}
-      className="vexia-safe flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="vexia-safe flex min-h-[100dvh] flex-col overflow-y-auto bg-vexia-bg text-vexia-text md:h-screen md:overflow-hidden"
     >
-      <div className="shrink-0 px-[4vw] pt-3">
+      <div className="shrink-0 px-3 pt-3 sm:px-[4vw]">
         <TopNav active="Ajustes" className="w-fit" />
       </div>
-      <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-[4vw] py-3">
+      <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-[4vw]">
         <button
           type="button"
           onClick={() => navigate({ to: "/home" })}
@@ -281,8 +281,8 @@ function SettingsPage() {
         </p>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col gap-2 px-[4vw] pb-2">
-        <div className="grid min-h-0 flex-1 auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 px-3 pb-3 sm:px-[4vw] sm:pb-2">
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4 md:auto-rows-fr lg:grid-cols-6">
           {ITEMS.map((item) => {
             const Icon = item.icon;
             const isToggle = item.kind === "toggle";
@@ -300,7 +300,7 @@ function SettingsPage() {
                     setDialog(item.dialog);
                   }
                 }}
-                className="group vexia-focus relative flex min-h-0 flex-col items-start justify-between gap-1 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-2 text-left shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgb(var(--vexia-primary-rgb)/0.35)] focus:scale-[1.03] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
+                className="group vexia-focus relative flex min-h-[88px] flex-col items-start justify-between gap-1.5 overflow-hidden rounded-2xl md:min-h-0 md:gap-1 border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#141414] p-3 text-left md:p-2 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-vexia-purple/40 hover:shadow-[0_12px_32px_-8px_rgb(var(--vexia-primary-rgb)/0.35)] focus:scale-[1.03] focus:border-vexia-cyan/60 focus:shadow-[0_0_30px_rgb(var(--vexia-secondary-rgb)/0.25)]"
               >
                 <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                 <span className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-vexia-purple/10 opacity-60 blur-2xl transition-opacity group-hover:opacity-100" />
