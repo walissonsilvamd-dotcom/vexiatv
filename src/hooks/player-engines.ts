@@ -1,6 +1,67 @@
 import { readSettings } from "../lib/settings-store";
 import { formatOf, preferredLiveFormat } from "../lib/live-format";
+import { peekManifest, putManifest } from "../lib/manifest-cache";
 import type { HlsLike } from "./useMediaTracks";
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Loader com cache de manifesto
+ *
+ * O prefetch de foco guarda o texto do manifesto em memória. Este loader serve
+ * playlist/variante direto do cache (0 ms de rede) e só cai na rede quando não
+ * há nada fresco guardado. Efeito prático: na troca de canal o motor já começa
+ * a pedir segmentos em vez de esperar o manifesto.
+ * ──────────────────────────────────────────────────────────────────────────── */
+type LoaderCtor = new (config: unknown) => {
+  load: (context: any, config: any, callbacks: any) => void;
+};
+
+function cachedLoader(Base: LoaderCtor): LoaderCtor {
+  return class CachedManifestLoader extends Base {
+    load(context: any, config: any, callbacks: any) {
+      const isPlaylist = context?.type === "manifest" || context?.type === "level";
+      const url: string | undefined = context?.url;
+      const cached = isPlaylist && url ? peekManifest(url) : null;
+      if (cached) {
+        const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+        const size = cached.length;
+        const stats = {
+          aborted: false,
+          loaded: size,
+          retry: 0,
+          total: size,
+          chunkCount: 0,
+          bwEstimate: 0,
+          loading: { start: now, first: now, end: now },
+          parsing: { start: now, end: now },
+          buffering: { start: now, first: now, end: now },
+        };
+        // assíncrono por segurança: o hls.js espera o callback fora do load().
+        setTimeout(() => {
+          try {
+            callbacks.onSuccess({ url, data: cached }, stats, context, null);
+          } catch {
+            /* instância destruída no meio da troca de canal */
+          }
+        }, 0);
+        return;
+      }
+      // Sem cache: rede normal, e guardamos o resultado para a próxima troca.
+      const onSuccess = callbacks?.onSuccess;
+      if (isPlaylist && onSuccess) {
+        callbacks = {
+          ...callbacks,
+          onSuccess: (response: any, stats: any, ctx: any, networkDetails: any) => {
+            if (typeof response?.data === "string" && ctx?.url) {
+              putManifest(ctx.url, response.data);
+            }
+            onSuccess(response, stats, ctx, networkDetails);
+          },
+        };
+      }
+      super.load(context, config, callbacks);
+    }
+  } as unknown as LoaderCtor;
+}
 
 export type PlaybackEngine = "hls.js" | "mpegts.js" | "native";
 
