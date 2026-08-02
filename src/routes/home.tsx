@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type React from "react";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   Clapperboard,
@@ -342,7 +343,7 @@ function HomePage() {
       </header>
 
       {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-end px-[5vw] pb-[1.5vh]">
+      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-4 sm:px-[5vw] md:justify-end md:pb-[1.5vh]">
         {slides.length > 1 ? (
           <div className="flex items-center gap-2">
             {slides.map((s, i) => (
@@ -375,7 +376,7 @@ function HomePage() {
 
       {/* Retomada automática da última sessão */}
       {lastSession ? (
-        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
           <button
             type="button"
             onClick={() =>
@@ -388,7 +389,7 @@ function HomePage() {
                 },
               })
             }
-            className="group flex w-full items-center gap-[1.2vw] rounded-2xl border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
+            className="group flex w-full items-center gap-3 rounded-2xl md:gap-[1.2vw] border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
             style={{ boxShadow: "0 0 26px rgb(var(--vexia-primary-rgb)/0.35)" }}
           >
             {lastSession.poster ? (
@@ -396,7 +397,7 @@ function HomePage() {
                 src={lastSession.poster}
                 alt={`Capa de ${lastSession.title}`}
                 loading="lazy"
-                className="h-[7vh] w-[5vh] shrink-0 rounded-lg object-cover"
+                className="h-14 w-10 shrink-0 rounded-lg object-cover md:h-[7vh] md:w-[5vh]"
               />
             ) : null}
             <span className="min-w-0 flex-1">
@@ -429,7 +430,7 @@ function HomePage() {
                   clearLastSession();
                 }
               }}
-              className="shrink-0 rounded-full border border-white/15 px-[0.9vw] py-[0.5vh] text-[clamp(0.5rem,0.65vw,0.7rem)] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+              className="shrink-0 rounded-full border border-white/15 px-3 py-1.5 md:px-[0.9vw] md:py-[0.5vh] text-[clamp(0.5rem,0.65vw,0.7rem)] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               Dispensar
             </span>
@@ -439,7 +440,7 @@ function HomePage() {
 
       {/* Continuar assistindo (histórico local) */}
       {continueList.length > 0 ? (
-        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
           <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]">
             Continuar assistindo
           </h2>
@@ -463,8 +464,8 @@ function HomePage() {
       {/* Menu de blocos */}
       <nav
         ref={rowRef}
-        className="relative z-10 grid shrink-0 gap-[1.1vw] px-[5vw]"
-        style={{ gridTemplateColumns: `repeat(${tiles.length}, minmax(0, 1fr))` }}
+        className="relative z-10 grid shrink-0 grid-cols-3 gap-2.5 px-4 sm:grid-cols-4 sm:px-[5vw] md:gap-[1.1vw] md:[grid-template-columns:repeat(var(--vexia-tiles),minmax(0,1fr))]"
+        style={{ "--vexia-tiles": tiles.length } as React.CSSProperties}
       >
         {tiles.map((tile, i) => {
           const Icon = tile.icon;
@@ -478,7 +479,7 @@ function HomePage() {
               onFocus={() => setActive(i)}
               onMouseEnter={() => setActive(i)}
               onClick={() => openTile(tile)}
-              className={`group relative flex aspect-[5/4] max-h-[15vh] w-full flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
+              className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
                   ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgb(var(--vexia-primary-rgb)/0.55),0_0_30px_-6px_rgb(var(--vexia-secondary-rgb)/0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-vexia-cyan/50 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
