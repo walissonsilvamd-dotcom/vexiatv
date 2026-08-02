@@ -8,6 +8,7 @@
  */
 
 import { warmEngines } from "../hooks/player-engines";
+import { peekManifest, putChannelMeta, putManifest } from "./manifest-cache";
 import { playableStreamUrl } from "./stream-url";
 
 const prepared = new Set<string>();
