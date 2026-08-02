@@ -27,6 +27,8 @@ import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
 import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
+import { warmEngines } from "../hooks/player-engines";
+
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
 import { GroupsDialog } from "../components/vexia/GroupsDialog";
@@ -377,6 +379,15 @@ function ChannelsPage() {
 
 
   /**
+   * Aquecimento imediato do canal focado: DNS/TLS + biblioteca do motor já
+   * resolvidos durante os 180 ms de debounce, então quando a prévia monta o
+   * stream começa praticamente na hora (sem custo de banda de vídeo).
+   */
+  useEffect(() => {
+    if (selected?.url) warmEngines(selected.url);
+  }, [selected?.url]);
+
+  /**
    * Prefetch do próximo canal da lista: só o manifesto (poucos KB) e apenas se
    * o cliente parar por um instante — troca instantânea sem gastar banda.
    */
@@ -387,6 +398,7 @@ function ChannelsPage() {
     prefetchChannel(next?.url);
     return () => cancelChannelPrefetch();
   }, [selected, list]);
+
 
   const shell = (children: React.ReactNode) => (
     <main
