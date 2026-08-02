@@ -419,7 +419,7 @@ function ChannelsPage() {
    * Assim, passar rápido pela lista com o controle não abre e fecha um stream
    * por linha — a navegação fica lisa e a banda vai toda para o canal escolhido.
    */
-  const previewChannel = useDebounce(selected, 180);
+  const previewChannel = useDebounce(selected, 110);
 
 
   /**
@@ -428,7 +428,7 @@ function ChannelsPage() {
    * stream começa praticamente na hora (sem custo de banda de vídeo).
    */
   useEffect(() => {
-    if (selected?.url) warmEngines(selected.url);
+    if (selected?.url) prefetchChannelNow(selected.url);
   }, [selected?.url]);
 
   /**
