@@ -1,6 +1,7 @@
 import { ExternalLink, MonitorPlay } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EXTERNAL_APPS, openInExternalPlayer, type ExternalApp } from "../../lib/external-player";
+import { BRAND } from "../../lib/brand";
 
 /**
  * Overlay exibido quando o usuário escolheu "Player externo" em Ajustes.
@@ -68,7 +69,7 @@ export function ExternalPlayerGate({
             onClick={onUseInternal}
             className="vexia-card-focus flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-vexia-purple to-vexia-purple-soft px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-[0_0_24px_rgb(var(--vexia-primary-rgb)/0.5)]"
           >
-            <MonitorPlay className="h-4 w-4" /> Usar player VÉXIA
+            <MonitorPlay className="h-4 w-4" /> Usar player {BRAND.shortName}
           </button>
           <button
             type="button"

@@ -42,7 +42,7 @@ function SplashScreen() {
         exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
       ].join(" ")}
     >
-      <h1 className="sr-only">VÉXIA TV — carregando</h1>
+      <h1 className="sr-only">{BRAND.name} — carregando</h1>
 
       {/* Splash oficial em tela cheia. */}
       <img

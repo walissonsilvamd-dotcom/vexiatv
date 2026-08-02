@@ -274,7 +274,7 @@ function HomePage() {
             : "flex flex-col items-center justify-center"
         }`}
       >
-        <h1 className="sr-only">VÉXIA TV — Início</h1>
+        <h1 className="sr-only">{BRAND.name} — Início</h1>
         <VexiaLogo
           className={
             hasContent

@@ -357,7 +357,7 @@ function SettingsPage() {
             <div className="flex min-w-0 items-center justify-center gap-1.5">
               <MonitorPlay className="h-3.5 w-3.5 shrink-0 text-vexia-muted" aria-hidden />
               <p className="truncate text-[10px] font-bold tracking-widest text-vexia-muted">
-                VÉXIA TV 1.0
+                {BRAND.name} 1.0
               </p>
             </div>
           </div>

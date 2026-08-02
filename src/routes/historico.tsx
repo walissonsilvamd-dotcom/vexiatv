@@ -184,7 +184,7 @@ function HistoryPage() {
               <History className="mb-3 h-10 w-10 text-vexia-purple" aria-hidden />
               <p className="text-lg font-black">Nada por aqui ainda</p>
               <p className="mt-1 max-w-sm text-sm text-vexia-text/60">
-                Ao assistir filmes, séries ou canais, o VÉXIA TV guarda o progresso aqui para você
+                Ao assistir filmes, séries ou canais, o {BRAND.name} guarda o progresso aqui para você
                 continuar de onde parou.
               </p>
             </div>
