@@ -142,12 +142,7 @@ function ChannelPreviewBase({
 
         {showBuffer ? (
           <span className="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-200">
-            <span className="flex flex-col items-center gap-2">
-              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
-                {reconnecting ? "Reconectando" : ""}
-              </span>
-            </span>
+            <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
           </span>
         ) : null}
 
