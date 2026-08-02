@@ -1,4 +1,4 @@
-import logoAsset from "../assets/vexia-logo-tv.png.asset.json";
+import logoAsset from "../assets/vexia-logo-v2.png.asset.json";
 
 /**
  * IDENTIDADE DA MARCA — ponto único de troca.
