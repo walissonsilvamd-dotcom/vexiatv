@@ -188,7 +188,7 @@ function HistoryPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-7">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-7">
               {list.map((entry) => (
                 <WatchCard
                   key={entry.key}

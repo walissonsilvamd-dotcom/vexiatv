@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import type React from "react";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import {
   Clapperboard,
@@ -228,7 +229,7 @@ function HomePage() {
   return (
     <main ref={pageRef} className="relative bg-vexia-bg text-vexia-text">
     <section
-      className="relative flex h-screen w-full flex-col overflow-hidden"
+      className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto md:h-screen md:overflow-hidden"
       onKeyDown={(e) => {
         // O tratamento manual vale só quando o foco está na fileira de blocos.
         // Fora dela (menu superior, carrossel, cards) quem manda é a
@@ -266,9 +267,9 @@ function HomePage() {
 
       {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
       <header
-        className={`relative z-10 items-start gap-[3vw] px-[5vw] pt-[3vh] ${
+        className={`relative z-10 items-start gap-4 px-4 pt-5 sm:px-[5vw] sm:pt-[3vh] md:gap-[3vw] ${
           hasContent
-            ? "grid grid-cols-[auto_minmax(0,1fr)]"
+            ? "flex flex-col items-center md:grid md:grid-cols-[auto_minmax(0,1fr)]"
             : "flex flex-col items-center justify-center"
         }`}
       >
@@ -276,18 +277,19 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[19vh] max-h-[250px] min-h-[120px] w-auto"
-              : "h-[34vh] max-h-[420px] min-h-[190px] w-auto animate-[vexia-fade-in_700ms_ease-out]"
+              ? "h-[12vh] max-h-[250px] min-h-[80px] w-auto md:h-[19vh] md:min-h-[120px]"
+              : "h-[22vh] max-h-[420px] min-h-[110px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[34vh] md:min-h-[190px]"
           }
         />
 
         {hasContent ? (
         <div
           key={`meta-${HERO.title}`}
-          className="animate-[vexia-hero-in_400ms_ease-out] text-right"
+          className="w-full animate-[vexia-hero-in_400ms_ease-out] text-center md:w-auto md:text-right"
         >
 
-          <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
+
+          <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
             <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
             <span className="tabular-nums">
               {formatTime(now)}
@@ -299,7 +301,7 @@ function HomePage() {
             {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
           </h2>
 
-          <div className="mt-[0.6vh] flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+          <div className="mt-[0.6vh] flex flex-wrap items-center justify-center md:justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
             <span>{HERO.release}</span>
             {HERO.genres.map((g) => (
               <span key={g} className="flex items-center gap-2">
@@ -312,7 +314,7 @@ function HomePage() {
           </div>
 
           {HERO.stars > 0 ? (
-            <div className="mt-[0.6vh] flex items-center justify-end gap-[3px]">
+            <div className="mt-[0.6vh] flex items-center justify-center md:justify-end gap-[3px]">
               {Array.from({ length: 10 }).map((_, i) => (
                 <Star
                   key={i}
@@ -331,7 +333,7 @@ function HomePage() {
           ) : null}
 
           {HERO.overview ? (
-            <p className="ml-auto mt-[0.9vh] line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+            <p className="mx-auto mt-[0.9vh] md:ml-auto md:mr-0 line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
               {HERO.overview}
             </p>
           ) : null}
@@ -341,7 +343,7 @@ function HomePage() {
       </header>
 
       {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-end px-[5vw] pb-[1.5vh]">
+      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-4 sm:px-[5vw] md:justify-end md:pb-[1.5vh]">
         {slides.length > 1 ? (
           <div className="flex items-center gap-2">
             {slides.map((s, i) => (
@@ -374,7 +376,7 @@ function HomePage() {
 
       {/* Retomada automática da última sessão */}
       {lastSession ? (
-        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
           <button
             type="button"
             onClick={() =>
@@ -387,7 +389,7 @@ function HomePage() {
                 },
               })
             }
-            className="group flex w-full items-center gap-[1.2vw] rounded-2xl border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
+            className="group flex w-full items-center gap-3 rounded-2xl md:gap-[1.2vw] border border-vexia-purple/50 bg-black/70 p-[1vh] text-left backdrop-blur-md transition-transform duration-200 hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-vexia-purple-soft"
             style={{ boxShadow: "0 0 26px rgb(var(--vexia-primary-rgb)/0.35)" }}
           >
             {lastSession.poster ? (
@@ -395,7 +397,7 @@ function HomePage() {
                 src={lastSession.poster}
                 alt={`Capa de ${lastSession.title}`}
                 loading="lazy"
-                className="h-[7vh] w-[5vh] shrink-0 rounded-lg object-cover"
+                className="h-14 w-10 shrink-0 rounded-lg object-cover md:h-[7vh] md:w-[5vh]"
               />
             ) : null}
             <span className="min-w-0 flex-1">
@@ -428,7 +430,7 @@ function HomePage() {
                   clearLastSession();
                 }
               }}
-              className="shrink-0 rounded-full border border-white/15 px-[0.9vw] py-[0.5vh] text-[clamp(0.5rem,0.65vw,0.7rem)] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
+              className="shrink-0 rounded-full border border-white/15 px-3 py-1.5 md:px-[0.9vw] md:py-[0.5vh] text-[clamp(0.5rem,0.65vw,0.7rem)] font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-foreground"
             >
               Dispensar
             </span>
@@ -438,7 +440,7 @@ function HomePage() {
 
       {/* Continuar assistindo (histórico local) */}
       {continueList.length > 0 ? (
-        <section className="relative z-10 shrink-0 px-[5vw] pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
           <h2 className="mb-[0.8vh] text-[clamp(0.6rem,0.85vw,0.85rem)] font-black uppercase tracking-[0.2em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]">
             Continuar assistindo
           </h2>
@@ -462,8 +464,8 @@ function HomePage() {
       {/* Menu de blocos */}
       <nav
         ref={rowRef}
-        className="relative z-10 grid shrink-0 gap-[1.1vw] px-[5vw]"
-        style={{ gridTemplateColumns: `repeat(${tiles.length}, minmax(0, 1fr))` }}
+        className="relative z-10 grid shrink-0 grid-cols-3 gap-2.5 px-4 sm:grid-cols-4 sm:px-[5vw] md:gap-[1.1vw] md:[grid-template-columns:repeat(var(--vexia-tiles),minmax(0,1fr))]"
+        style={{ "--vexia-tiles": tiles.length } as React.CSSProperties}
       >
         {tiles.map((tile, i) => {
           const Icon = tile.icon;
@@ -477,7 +479,7 @@ function HomePage() {
               onFocus={() => setActive(i)}
               onMouseEnter={() => setActive(i)}
               onClick={() => openTile(tile)}
-              className={`group relative flex aspect-[5/4] max-h-[15vh] w-full flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
+              className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
                   ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgb(var(--vexia-primary-rgb)/0.55),0_0_30px_-6px_rgb(var(--vexia-secondary-rgb)/0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-vexia-cyan/50 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
@@ -525,7 +527,7 @@ function HomePage() {
       </nav>
 
       {/* Rodapé de ajuda */}
-      <footer className="relative z-10 flex shrink-0 flex-wrap items-center justify-center gap-x-7 gap-y-2 px-[5vw] py-[2.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
+      <footer className="relative z-10 hidden shrink-0 flex-wrap items-center justify-center gap-x-7 md:flex gap-y-2 px-[5vw] py-[2.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
         <span className="flex items-center gap-2">
           <Move className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden /> Navegar
         </span>

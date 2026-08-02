@@ -14,7 +14,7 @@ export function AppHeader({ showFilters = true }: { showFilters?: boolean }) {
             to="/filtros"
             data-nav-row={0}
             tabIndex={0}
-            className="vexia-focus grid h-10 w-10 place-items-center rounded-full border border-vexia-cyan/40 bg-vexia-card"
+            className="vexia-focus grid h-11 w-11 place-items-center md:h-10 md:w-10 rounded-full border border-vexia-cyan/40 bg-vexia-card"
             aria-label="Filtros"
           >
             <SlidersHorizontal className="h-4 w-4 text-vexia-cyan" aria-hidden />
@@ -24,7 +24,7 @@ export function AppHeader({ showFilters = true }: { showFilters?: boolean }) {
           to="/busca"
           data-nav-row={0}
           tabIndex={0}
-          className="vexia-focus grid h-10 w-10 place-items-center rounded-full border border-vexia-cyan/40 bg-vexia-card"
+          className="vexia-focus grid h-11 w-11 place-items-center md:h-10 md:w-10 rounded-full border border-vexia-cyan/40 bg-vexia-card"
           aria-label="Buscar"
         >
           <Search className="h-4 w-4 text-vexia-cyan" aria-hidden />

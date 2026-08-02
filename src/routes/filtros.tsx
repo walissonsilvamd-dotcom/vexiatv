@@ -164,7 +164,7 @@ function FiltersPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-5 py-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between md:px-8">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 py-2 sm:px-5 sm:flex sm:flex-wrap sm:items-center sm:justify-between md:px-8">
         <div className="flex min-w-0 items-center gap-2">
           <Link
             to="/home"
@@ -180,7 +180,7 @@ function FiltersPage() {
         </div>
       </header>
 
-      <div className="grid gap-x-4 gap-y-1 px-5 md:px-8 xl:grid-cols-2">
+      <div className="grid gap-x-4 gap-y-1 px-3 sm:px-5 md:px-8 xl:grid-cols-2">
         <div className="col-span-full mb-1 flex items-center justify-between">
           <button
             type="button"
@@ -252,7 +252,7 @@ function FiltersPage() {
             )}
           </div>
           {isBusy ? (
-            <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-8 xl:grid-cols-10">
               {Array.from({ length: 16 }).map((_, i) => (
                 <Skeleton
                   key={i}
@@ -262,7 +262,7 @@ function FiltersPage() {
             </div>
           ) : results.length > 0 ? (
             <>
-              <div className="grid grid-cols-4 gap-2 md:grid-cols-8 xl:grid-cols-10">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-8 xl:grid-cols-10">
                 {results.map(({ item, kind }) => (
                   <PosterCard key={`${kind}-${item.id}`} item={item} navRow={90} kind={kind} />
                 ))}

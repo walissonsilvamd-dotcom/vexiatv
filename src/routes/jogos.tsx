@@ -100,14 +100,14 @@ function JogosPage() {
   return (
     <main
       ref={scopeRef as unknown as React.RefObject<HTMLElement>}
-      className="vexia-safe flex h-screen flex-col overflow-hidden bg-vexia-bg text-vexia-text"
+      className="vexia-safe flex min-h-[100dvh] flex-col md:h-screen md:overflow-hidden bg-vexia-bg text-vexia-text"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,8,0.72), rgba(5,5,8,0.94)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <header className="flex shrink-0 items-center justify-between gap-4 px-[4vw] py-3">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-3">
           <Trophy className="h-6 w-6 text-vexia-cyan" aria-hidden />
           <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text">JOGOS AO VIVO</h1>
@@ -117,11 +117,11 @@ function JogosPage() {
       </header>
 
       {!hasContent ? (
-        <div className="min-h-0 flex-1 px-[4vw] pb-6">
+        <div className="min-h-0 flex-1 px-3 pb-6 sm:px-[4vw]">
           <EmptyPlaylist section="Os jogos ao vivo" onOpenLists={() => setListsOpen(true)} />
         </div>
       ) : (
-        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-[4vw] pb-6">
+        <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-3 pb-6 sm:px-[4vw]">
           <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {games.length === 0 ? (
             <p className="py-16 text-center text-sm text-vexia-muted">

@@ -399,9 +399,9 @@ function ChannelsPage() {
         backgroundAttachment: "fixed",
       }}
     >
-      <header className="flex shrink-0 flex-wrap items-center gap-3 px-6 py-2 md:px-8">
+      <header className="flex shrink-0 flex-wrap items-center gap-2 px-3 py-2 sm:gap-3 md:px-8">
         <TopNav active="Canais" />
-        <label className="relative max-w-xl flex-1">
+        <label className="relative order-last w-full min-w-0 flex-1 sm:order-none sm:w-auto sm:max-w-xl">
           <Search
             className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-vexia-text/50"
             aria-hidden
@@ -459,9 +459,9 @@ function ChannelsPage() {
 
 
   return shell(
-    <div className="grid min-h-0 flex-1 gap-3 px-4 pb-3 md:grid-cols-[220px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
+    <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto px-3 pb-3 md:overflow-hidden md:grid-cols-[220px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
       {/* Coluna 1 — categorias dinâmicas */}
-      <aside className="vexia-scroll min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint]">
+      <aside className="vexia-scroll order-2 max-h-[26vh] min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint] md:order-none md:max-h-none">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
         {hasBlockedChannels ? (
           <button
@@ -553,7 +553,7 @@ function ChannelsPage() {
 
       {/* Coluna 2 — lista de canais */}
       <section
-        className={`min-h-0 border-x border-white/5 px-2 ${useVirtual ? "" : "no-scrollbar overflow-y-auto"}`}
+        className={`order-3 h-[60vh] min-h-0 border-white/5 px-0 md:order-none md:h-auto md:border-x md:px-2 ${useVirtual ? "" : "no-scrollbar overflow-y-auto"}`}
       >
         <h2 className="sr-only">Lista de canais</h2>
         {useVirtual ? (
@@ -592,7 +592,7 @@ function ChannelsPage() {
 
 
       {/* Coluna 3 — prévia do canal */}
-      <section className="no-scrollbar min-h-0 space-y-3 overflow-y-auto">
+      <section className="no-scrollbar order-1 min-h-0 space-y-3 overflow-y-auto md:order-none">
         <h2 className="sr-only">Prévia do canal selecionado</h2>
         {lastChannel?.fullscreen && selected?.id === lastChannel.id ? (
           <button
