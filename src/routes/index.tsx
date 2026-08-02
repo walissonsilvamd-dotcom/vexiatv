@@ -47,7 +47,7 @@ function SplashScreen() {
       {/* Splash oficial em tela cheia. */}
       <img
         src={splashAsset.url}
-        alt=`${BRAND.name}`
+        alt={`${BRAND.name}`}
         className="absolute inset-0 h-full w-full object-cover"
         fetchPriority="high"
       />

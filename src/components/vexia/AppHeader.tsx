@@ -6,7 +6,7 @@ import { BRAND } from "../../lib/brand";
 export function AppHeader({ showFilters = true }: { showFilters?: boolean }) {
   return (
     <header className="flex items-center justify-between gap-4 px-5 py-4 md:px-10">
-      <Link to="/home" className="vexia-focus rounded-lg" aria-label=`${BRAND.name} — início`>
+      <Link to="/home" className="vexia-focus rounded-lg" aria-label={`${BRAND.name} — início`}>
         <VexiaLogo className="h-10 md:h-12" />
       </Link>
       <div className="flex items-center gap-2">

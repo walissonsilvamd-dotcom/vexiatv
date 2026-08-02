@@ -30,7 +30,7 @@ export function SplashLogo({ className = "h-40" }: { className?: string }) {
         <img
           key={url}
           src={url}
-          alt=`${BRAND.name}`
+          alt={`${BRAND.name}`}
           loading="eager"
           decoding="async"
           fetchPriority="high"

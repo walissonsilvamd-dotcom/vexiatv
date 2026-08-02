@@ -446,7 +446,7 @@ function SettingsPage() {
         onClose={close}
       >
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tema</p>
-        <OptionRow label=`${BRAND.shortName} Dark` hint="Tema padrão do aplicativo" selected onSelect={() => {}} />
+        <OptionRow label={`${BRAND.shortName} Dark`} hint="Tema padrão do aplicativo" selected onSelect={() => {}} />
         <p className="pt-2 text-[11px] font-bold uppercase tracking-widest text-[#9CA3AF]">Modo de exibição</p>
         <OptionRow
           label="Horizontal"
@@ -529,7 +529,7 @@ function SettingsPage() {
       <SettingsModal
         open={dialog === "historyOff"}
         title="Histórico de Reprodução"
-        subtitle=`Controle se o ${BRAND.name} deve salvar o progresso do que você assiste.`
+        subtitle={`Controle se o ${BRAND.name} deve salvar o progresso do que você assiste.`}
         onClose={close}
       >
         <SwitchRow
@@ -597,7 +597,7 @@ function SettingsPage() {
         onClose={close}
       >
         <OptionRow
-          label=`Player interno ${BRAND.shortName}`
+          label={`Player interno ${BRAND.shortName}`}
           hint="Recomendado — suporte a HLS e legendas"
           selected={settings.player === "internal"}
           onSelect={() => set("player", "internal")}

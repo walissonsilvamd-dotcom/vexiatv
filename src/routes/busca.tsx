@@ -109,7 +109,7 @@ function SearchPage() {
         style={{ backgroundImage: `linear-gradient(rgba(5,5,5,.92),rgba(5,5,5,.97)), url(${nebula.url})` }}
       >
         <header className="flex flex-wrap items-center justify-between gap-4 px-5 py-5 md:px-10">
-          <Link to="/home" className="vexia-focus rounded-lg" aria-label=`${BRAND.name} — início`>
+          <Link to="/home" className="vexia-focus rounded-lg" aria-label={`${BRAND.name} — início`}>
             <VexiaLogo className="h-12 md:h-14" />
           </Link>
           <TopNav />

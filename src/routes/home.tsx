@@ -556,7 +556,7 @@ function HomePage() {
 
       <ConfirmDialog
         open={exitOpen}
-        title=`Sair do ${BRAND.name}?`
+        title={`Sair do ${BRAND.name}?`}
         message="Você voltará para a tela inicial do aparelho."
         confirmLabel="SAIR"
         onConfirm={() => {
