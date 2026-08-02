@@ -288,7 +288,7 @@ function HomePage() {
         >
 
 
-          <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
+          <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
             <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
             <span className="tabular-nums">
               {formatTime(now)}
@@ -300,7 +300,7 @@ function HomePage() {
             {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
           </h2>
 
-          <div className="mt-[0.6vh] flex flex-wrap items-center justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+          <div className="mt-[0.6vh] flex flex-wrap items-center justify-center md:justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
             <span>{HERO.release}</span>
             {HERO.genres.map((g) => (
               <span key={g} className="flex items-center gap-2">
@@ -313,7 +313,7 @@ function HomePage() {
           </div>
 
           {HERO.stars > 0 ? (
-            <div className="mt-[0.6vh] flex items-center justify-end gap-[3px]">
+            <div className="mt-[0.6vh] flex items-center justify-center md:justify-end gap-[3px]">
               {Array.from({ length: 10 }).map((_, i) => (
                 <Star
                   key={i}
@@ -332,7 +332,7 @@ function HomePage() {
           ) : null}
 
           {HERO.overview ? (
-            <p className="ml-auto mt-[0.9vh] line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+            <p className="mx-auto mt-[0.9vh] md:ml-auto md:mr-0 line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
               {HERO.overview}
             </p>
           ) : null}
@@ -526,7 +526,7 @@ function HomePage() {
       </nav>
 
       {/* Rodapé de ajuda */}
-      <footer className="relative z-10 flex shrink-0 flex-wrap items-center justify-center gap-x-7 gap-y-2 px-[5vw] py-[2.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
+      <footer className="relative z-10 hidden shrink-0 flex-wrap items-center justify-center gap-x-7 md:flex gap-y-2 px-[5vw] py-[2.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
         <span className="flex items-center gap-2">
           <Move className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden /> Navegar
         </span>
