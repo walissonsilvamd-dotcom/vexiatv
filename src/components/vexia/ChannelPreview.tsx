@@ -121,11 +121,11 @@ function ChannelPreviewBase({
                 preview={false}
                 className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 fallback={
-                  <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
+                  <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
                 }
               />
             ) : (
-              <span className="text-xs tracking-[0.3em] text-vexia-muted">PRÉVIA AO VIVO</span>
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
             )}
           </span>
         ) : null}
@@ -142,12 +142,7 @@ function ChannelPreviewBase({
 
         {showBuffer ? (
           <span className="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-200">
-            <span className="flex flex-col items-center gap-2">
-              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-vexia-cyan">
-                {reconnecting ? "Reconectando" : ""}
-              </span>
-            </span>
+            <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
           </span>
         ) : null}
 
@@ -158,10 +153,6 @@ function ChannelPreviewBase({
           onClick={onOpenFullscreen}
           className="vexia-focus absolute inset-0 h-full w-full"
         />
-
-        <span className="pointer-events-none absolute bottom-2 left-3 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.2em] text-vexia-cyan">
-          {fatalError ? "Sinal indisponível" : "Ao vivo"}
-        </span>
       </div>
 
     </div>
