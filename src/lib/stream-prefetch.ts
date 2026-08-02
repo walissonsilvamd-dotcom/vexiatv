@@ -47,6 +47,7 @@ export function prefetchChannel(url: string | null | undefined) {
     inflight = controller;
     fetch(playable, { signal: controller.signal, mode: "cors", credentials: "omit" })
       .then((r) => r.text())
+      .then((text) => putManifest(playable, text))
       .catch(() => undefined)
       .finally(() => {
         if (inflight === controller) inflight = null;
