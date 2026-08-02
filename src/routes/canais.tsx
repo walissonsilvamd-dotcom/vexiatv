@@ -374,8 +374,20 @@ function ChannelsPage() {
               : c.category === category)) &&
         matchesChannel(c.name, c.category, filters),
     );
-    return sortChannels(base, sort);
-  }, [channels, index, debouncedQuery, category, favs, filters, sort, groups]);
+    const sorted = sortChannels(base, sort);
+
+    // A ordenação escolhida pelo cliente (A–Z, recentes etc.) acontece depois
+    // da lista principal e poderia trazer os canais +18 novamente para o topo.
+    // Faça a partição como ÚLTIMA etapa para manter a ordem interna escolhida,
+    // mas garantir que todo conteúdo adulto fique sempre no fim de "Todos".
+    if (category !== "Todos") return sorted;
+    const safe: PlaylistChannel[] = [];
+    const adult: PlaylistChannel[] = [];
+    for (const channel of sorted) {
+      (isAdultChannel(channel) ? adult : safe).push(channel);
+    }
+    return adult.length ? [...safe, ...adult] : sorted;
+  }, [channels, index, debouncedQuery, category, favs, filters, sort, groups, isAdultChannel]);
 
 
   useEffect(() => {

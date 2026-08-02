@@ -9,7 +9,7 @@
 import { useSyncExternalStore } from "react";
 
 const ADULT_RE =
-  /(\badult\b|adulto|xxx|porn|hentai|er[oó]tic|sexy|\+\s?18|18\s?\+|for\s?adults|brazzers)/i;
+  /(\badult\b|adulto|xxx|porn|hentai|er[oó]tic|sexy|\+\s?18|18\s?\+|🔞|for\s?adults|brazzers|playboy|penthouse|hustler|redlight|private\s?(?:tv|spice)?|sextreme|venus\s?xxx)/i;
 
 /** Diz se algum dos textos indica conteúdo adulto. */
 export function isAdultText(...parts: (string | undefined | null)[]) {
