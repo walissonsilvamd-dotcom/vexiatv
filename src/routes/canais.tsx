@@ -26,8 +26,7 @@ import ChannelPreview from "../components/vexia/ChannelPreview";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 
 import { readLastChannel, writeLastChannel } from "../lib/last-channel";
-import { cancelChannelPrefetch, prefetchChannel } from "../lib/stream-prefetch";
-import { warmEngines } from "../hooks/player-engines";
+import { cancelChannelPrefetch, prefetchChannel, prefetchChannelNow } from "../lib/stream-prefetch";
 
 import { fetchShortEpg, liveStreamId, type EpgEntry } from "../lib/xtream-extras";
 import { CatchupDialog } from "../components/vexia/CatchupDialog";
