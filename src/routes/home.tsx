@@ -266,9 +266,9 @@ function HomePage() {
 
       {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
       <header
-        className={`relative z-10 items-start gap-[3vw] px-[5vw] pt-[3vh] ${
+        className={`relative z-10 items-start gap-4 px-4 pt-5 sm:px-[5vw] sm:pt-[3vh] md:gap-[3vw] ${
           hasContent
-            ? "grid grid-cols-[auto_minmax(0,1fr)]"
+            ? "flex flex-col items-center md:grid md:grid-cols-[auto_minmax(0,1fr)]"
             : "flex flex-col items-center justify-center"
         }`}
       >
@@ -276,16 +276,17 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[19vh] max-h-[250px] min-h-[120px] w-auto"
-              : "h-[34vh] max-h-[420px] min-h-[190px] w-auto animate-[vexia-fade-in_700ms_ease-out]"
+              ? "h-[12vh] max-h-[250px] min-h-[80px] w-auto md:h-[19vh] md:min-h-[120px]"
+              : "h-[22vh] max-h-[420px] min-h-[110px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[34vh] md:min-h-[190px]"
           }
         />
 
         {hasContent ? (
         <div
           key={`meta-${HERO.title}`}
-          className="animate-[vexia-hero-in_400ms_ease-out] text-right"
+          className="w-full animate-[vexia-hero-in_400ms_ease-out] text-center md:w-auto md:text-right"
         >
+
 
           <div className="flex items-center justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
             <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
