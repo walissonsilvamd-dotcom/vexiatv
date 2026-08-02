@@ -55,16 +55,45 @@ export function prefetchChannel(url: string | null | undefined) {
 
 const focusInflight = new Map<string, AbortController>();
 
+/** Primeira URI de mídia/variante listada em um manifesto HLS. */
+function firstUri(text: string, base: string): string | null {
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#")) continue;
+    try {
+      return new URL(line, base).toString();
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/** Baixa só o começo do arquivo (o suficiente para a conexão ficar quente). */
+async function warmBytes(url: string, signal: AbortSignal) {
+  const res = await fetch(url, {
+    signal,
+    mode: "cors",
+    credentials: "omit",
+    headers: { Range: "bytes=0-131071" },
+  });
+  await res.body?.cancel().catch(() => undefined);
+}
+
 /**
- * Prefetch IMEDIATO do canal em foco (sem espera). Busca só o manifesto, então
- * quando a prévia monta o motor já tem a playlist em cache HTTP: abre na hora.
+ * Prefetch IMEDIATO do canal em foco (sem espera).
+ *
+ * Vai além do manifesto: resolve a variante e busca os primeiros bytes do
+ * primeiro segmento. Quando a prévia monta o motor, playlist e início de vídeo
+ * já estão em cache HTTP e a conexão está aberta — abre praticamente na hora.
+ * Canais progressivos (.ts) recebem um Range curto com o mesmo efeito.
  */
 export function prefetchChannelNow(url: string | null | undefined) {
   if (typeof window === "undefined" || !url) return;
   warmEngines(url);
   if (prepared.has(url)) return;
   const playable = playableStreamUrl(url);
-  if (!playable || !isManifest(playable)) return;
+  if (!playable) return;
   prepared.add(url);
   for (const [key, ctrl] of focusInflight) {
     if (key !== url) {
@@ -74,12 +103,37 @@ export function prefetchChannelNow(url: string | null | undefined) {
   }
   const controller = new AbortController();
   focusInflight.set(url, controller);
-  fetch(playable, { signal: controller.signal, mode: "cors", credentials: "omit" })
-    .then((r) => r.text())
+  const signal = controller.signal;
+
+  const done = () => {
+    if (focusInflight.get(url) === controller) focusInflight.delete(url);
+  };
+
+  if (!isManifest(playable)) {
+    // Progressivo/TS: um Range curto abre DNS/TLS e já traz o início do vídeo.
+    warmBytes(playable, signal).catch(() => undefined).finally(done);
+    return;
+  }
+
+  (async () => {
+    const text = await fetch(playable, { signal, mode: "cors", credentials: "omit" }).then((r) =>
+      r.text(),
+    );
+    const first = firstUri(text, playable);
+    if (!first) return;
+    if (isManifest(first)) {
+      // Master playlist: desce um nível e aquece o primeiro segmento da variante.
+      const media = await fetch(first, { signal, mode: "cors", credentials: "omit" }).then((r) =>
+        r.text(),
+      );
+      const seg = firstUri(media, first);
+      if (seg) await warmBytes(seg, signal);
+      return;
+    }
+    await warmBytes(first, signal);
+  })()
     .catch(() => undefined)
-    .finally(() => {
-      if (focusInflight.get(url) === controller) focusInflight.delete(url);
-    });
+    .finally(done);
 }
 
 /** Cancela qualquer preparação pendente (saída da tela de canais). */
