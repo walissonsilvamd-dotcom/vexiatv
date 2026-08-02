@@ -418,7 +418,7 @@ function ChannelsPage() {
    * Assim, passar rápido pela lista com o controle não abre e fecha um stream
    * por linha — a navegação fica lisa e a banda vai toda para o canal escolhido.
    */
-  const previewChannel = useDebounce(selected, 110);
+  const previewChannel = useDebounce(selected, 70);
 
 
   /**
