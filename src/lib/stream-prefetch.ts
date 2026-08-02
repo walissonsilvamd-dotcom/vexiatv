@@ -83,12 +83,45 @@ async function warmBytes(url: string, signal: AbortSignal) {
 }
 
 /**
+ * Cadeia de aquecimento de um canal: manifesto → variante → primeiros bytes do
+ * primeiro segmento. Tudo o que é texto vai para o cache de manifesto, então a
+ * prévia abre sem nenhuma ida ao servidor.
+ */
+async function warmChain(playable: string, signal: AbortSignal) {
+  if (!isManifest(playable)) {
+    putChannelMeta(playable, { kind: "progressive" });
+    // Progressivo/TS: um Range curto abre DNS/TLS e já traz o início do vídeo.
+    await warmBytes(playable, signal);
+    return;
+  }
+  const text = await fetch(playable, { signal, mode: "cors", credentials: "omit" }).then((r) =>
+    r.text(),
+  );
+  // Guarda ANTES de aquecer segmentos: se a prévia abrir agora, já usa o cache.
+  putManifest(playable, text);
+  putChannelMeta(playable, { kind: "hls" });
+  const first = firstUri(text, playable);
+  if (!first) return;
+  if (isManifest(first)) {
+    // Master playlist: desce um nível e aquece o primeiro segmento da variante.
+    putChannelMeta(playable, { variant: first });
+    const media = await fetch(first, { signal, mode: "cors", credentials: "omit" }).then((r) =>
+      r.text(),
+    );
+    putManifest(first, media);
+    const seg = firstUri(media, first);
+    if (seg) await warmBytes(seg, signal);
+    return;
+  }
+  await warmBytes(first, signal);
+}
+
+/**
  * Prefetch IMEDIATO do canal em foco (sem espera).
  *
  * Vai além do manifesto: resolve a variante e busca os primeiros bytes do
  * primeiro segmento. Quando a prévia monta o motor, playlist e início de vídeo
  * já estão em cache HTTP e a conexão está aberta — abre praticamente na hora.
- * Canais progressivos (.ts) recebem um Range curto com o mesmo efeito.
  */
 export function prefetchChannelNow(url: string | null | undefined) {
   if (typeof window === "undefined" || !url) return;
@@ -110,43 +143,59 @@ export function prefetchChannelNow(url: string | null | undefined) {
   }
   const controller = new AbortController();
   focusInflight.set(url, controller);
-  const signal = controller.signal;
-
-  const done = () => {
-    if (focusInflight.get(url) === controller) focusInflight.delete(url);
-  };
-
-  if (!isManifest(playable)) {
-    putChannelMeta(playable, { kind: "progressive" });
-    // Progressivo/TS: um Range curto abre DNS/TLS e já traz o início do vídeo.
-    warmBytes(playable, signal).catch(() => undefined).finally(done);
-    return;
-  }
-
-  (async () => {
-    const text = await fetch(playable, { signal, mode: "cors", credentials: "omit" }).then((r) =>
-      r.text(),
-    );
-    // Guarda ANTES de aquecer segmentos: se a prévia abrir agora, já usa o cache.
-    putManifest(playable, text);
-    putChannelMeta(playable, { kind: "hls" });
-    const first = firstUri(text, playable);
-    if (!first) return;
-    if (isManifest(first)) {
-      // Master playlist: desce um nível e aquece o primeiro segmento da variante.
-      putChannelMeta(playable, { variant: first });
-      const media = await fetch(first, { signal, mode: "cors", credentials: "omit" }).then((r) =>
-        r.text(),
-      );
-      putManifest(first, media);
-      const seg = firstUri(media, first);
-      if (seg) await warmBytes(seg, signal);
-      return;
-    }
-    await warmBytes(first, signal);
-  })()
+  warmChain(playable, controller.signal)
     .catch(() => undefined)
-    .finally(done);
+    .finally(() => {
+      if (focusInflight.get(url) === controller) focusInflight.delete(url);
+    });
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Vizinhos prováveis (histórico de navegação)
+ *
+ * A tela informa para onde o cliente está andando na lista (para baixo, para
+ * cima ou parado). Preparamos os canais desse lado — manifesto E primeiros
+ * bytes do primeiro segmento — depois de uma pequena pausa, para que apertar
+ * ↓/↑ de novo abra a prévia sem espera. Se ele continuar andando, cancelamos.
+ * ──────────────────────────────────────────────────────────────────────────── */
+let neighborTimer: ReturnType<typeof setTimeout> | null = null;
+let neighborCtrl: AbortController | null = null;
+
+/** Prepara até 2 canais do lado em que o cliente está navegando. */
+export function prefetchNeighbors(urls: Array<string | null | undefined>) {
+  if (typeof window === "undefined") return;
+  cancelNeighborPrefetch();
+  const targets = urls.filter((u): u is string => Boolean(u)).slice(0, 2);
+  if (!targets.length) return;
+
+  neighborTimer = setTimeout(() => {
+    neighborTimer = null;
+    const controller = new AbortController();
+    neighborCtrl = controller;
+    void (async () => {
+      // Em série: o canal em foco continua com prioridade de banda.
+      for (const url of targets) {
+        if (controller.signal.aborted) return;
+        warmEngines(url);
+        const playable = playableStreamUrl(url);
+        if (!playable) continue;
+        if (isManifest(playable) && peekManifest(playable)) continue;
+        prepared.add(url);
+        await warmChain(playable, controller.signal).catch(() => undefined);
+      }
+    })().finally(() => {
+      if (neighborCtrl === controller) neighborCtrl = null;
+    });
+  }, 320);
+}
+
+export function cancelNeighborPrefetch() {
+  if (neighborTimer) {
+    clearTimeout(neighborTimer);
+    neighborTimer = null;
+  }
+  neighborCtrl?.abort();
+  neighborCtrl = null;
 }
 
 /** Cancela qualquer preparação pendente (saída da tela de canais). */
@@ -157,4 +206,5 @@ export function cancelChannelPrefetch() {
   }
   inflight?.abort();
   inflight = null;
+  cancelNeighborPrefetch();
 }
