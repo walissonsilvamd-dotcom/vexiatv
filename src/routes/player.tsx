@@ -219,9 +219,12 @@ function PlayerPage() {
   const handoffUrl = useMemo(() => getStreamHandoff(type, id, ep), [type, id, ep]);
 
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
+  // O link entregue no clique vem PRIMEIRO: não esperamos a lista de episódios
+  // nem o catálogo terminarem de carregar para começar a tocar.
   const rawSrc = expired
     ? ""
-    : (channel?.url ?? movie?.streamUrl ?? episode?.url ?? handoffUrl ?? "");
+    : (handoffUrl ?? channel?.url ?? movie?.streamUrl ?? episode?.url ?? "");
+
   // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
   const src = useMemo(() => playableStreamUrl(rawSrc), [rawSrc]);
 

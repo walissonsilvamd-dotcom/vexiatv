@@ -98,6 +98,11 @@ function DetailsPage() {
       }
     : base;
   const { entryFor, resume } = useProgress(item?.id);
+  /** Link do item a retomar (episódio salvo ou o filme) — acelera o play. */
+  const resumeUrl = isSeries
+    ? epList.find((e) => e.id === resume?.key.split("::")[1])?.url
+    : (raw as { streamUrl?: string } | undefined)?.streamUrl;
+
 
   const seasons = useMemo(() => {
     const list = epList;
@@ -376,7 +381,13 @@ function DetailsPage() {
                   type="button"
                   data-nav-row={1}
                   tabIndex={0}
-                  onClick={() =>
+                  onFocus={() => warmEngines((raw as { streamUrl?: string })?.streamUrl)}
+                  onMouseEnter={() => warmEngines((raw as { streamUrl?: string })?.streamUrl)}
+                  onClick={() => {
+                    // Entrega o link já conhecido: o player toca na hora.
+                    if (!isSeries) {
+                      setStreamHandoff("movie", item.id, (raw as { streamUrl?: string })?.streamUrl);
+                    }
                     navigate({
                       to: "/player",
                       search: {
@@ -384,13 +395,14 @@ function DetailsPage() {
                         id: item.id,
                         ep: isSeries ? resume?.key.split("::")[1] : undefined,
                       },
-                    })
-                  }
+                    });
+                  }}
                   className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                 >
                   <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
                 </button>
               </div>
+
             )}
 
           </div>
@@ -447,20 +459,25 @@ function DetailsPage() {
                 type="button"
                 data-nav-row={2}
                 tabIndex={0}
-                onClick={() =>
+                onFocus={() => warmEngines(resumeUrl)}
+                onMouseEnter={() => warmEngines(resumeUrl)}
+                onClick={() => {
+                  const epId = isSeries ? resume.key.split("::")[1] : undefined;
+                  setStreamHandoff(isSeries ? "series" : "movie", item.id, resumeUrl, epId);
                   navigate({
                     to: "/player",
                     search: {
                       type: isSeries ? "series" : "movie",
                       id: item.id,
-                      ep: isSeries ? resume.key.split("::")[1] : undefined,
+                      ep: epId,
                     },
-                  })
-                }
+                  });
+                }}
                 className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold tracking-wide text-vexia-text"
               >
                 <Play className="h-4 w-4 fill-current" aria-hidden /> CONTINUAR
               </button>
+
             </div>
           </section>
         ) : null}
