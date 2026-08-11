@@ -454,20 +454,25 @@ function DetailsPage() {
                 type="button"
                 data-nav-row={2}
                 tabIndex={0}
-                onClick={() =>
+                onFocus={() => warmEngines(resumeUrl)}
+                onMouseEnter={() => warmEngines(resumeUrl)}
+                onClick={() => {
+                  const epId = isSeries ? resume.key.split("::")[1] : undefined;
+                  setStreamHandoff(isSeries ? "series" : "movie", item.id, resumeUrl, epId);
                   navigate({
                     to: "/player",
                     search: {
                       type: isSeries ? "series" : "movie",
                       id: item.id,
-                      ep: isSeries ? resume.key.split("::")[1] : undefined,
+                      ep: epId,
                     },
-                  })
-                }
+                  });
+                }}
                 className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-6 py-2 text-xs font-bold tracking-wide text-vexia-text"
               >
                 <Play className="h-4 w-4 fill-current" aria-hidden /> CONTINUAR
               </button>
+
             </div>
           </section>
         ) : null}
