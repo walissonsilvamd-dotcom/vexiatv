@@ -98,6 +98,11 @@ function DetailsPage() {
       }
     : base;
   const { entryFor, resume } = useProgress(item?.id);
+  /** Link do item a retomar (episódio salvo ou o filme) — acelera o play. */
+  const resumeUrl = isSeries
+    ? epList.find((e) => e.id === resume?.key.split("::")[1])?.url
+    : (raw as { streamUrl?: string } | undefined)?.streamUrl;
+
 
   const seasons = useMemo(() => {
     const list = epList;
