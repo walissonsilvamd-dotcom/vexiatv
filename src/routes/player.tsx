@@ -1165,7 +1165,7 @@ function PlayerPage() {
           }, 260);
         }
       }}
-      className="h-screen w-full overflow-hidden bg-black font-sans text-white focus:outline-none"
+      className="h-[100dvh] w-full overflow-hidden bg-black font-sans text-white focus:outline-none"
     >
       {/* Player em tela cheia real: sem bordas, margens ou cantos arredondados. */}
       <div className="relative flex h-full w-full items-center justify-center">
