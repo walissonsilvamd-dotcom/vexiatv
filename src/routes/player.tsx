@@ -309,11 +309,18 @@ function PlayerPage() {
       }
     };
     const id = setTimeout(() => void enter(), 60);
+    /* Se o navegador exigir gesto, entramos no primeiro toque/tecla. */
+    const onGesture = () => void enter();
+    window.addEventListener("pointerdown", onGesture, { once: true });
+    window.addEventListener("keydown", onGesture, { once: true });
     return () => {
       cancelled = true;
       clearTimeout(id);
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
     };
   }, [src]);
+
 
   /* ── Sai da tela cheia ao deixar o player ── */
   useEffect(() => {
