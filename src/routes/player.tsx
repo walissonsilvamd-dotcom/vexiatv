@@ -1160,10 +1160,11 @@ function PlayerPage() {
       }}
       className="h-screen w-full overflow-hidden bg-black font-sans text-white focus:outline-none"
     >
-      {/* Player centralizado e discreto — ocupa até 90% da largura e 78% da altura. */}
-      <div className="relative mx-auto flex h-full w-full max-w-[95vw] items-center justify-center px-4 py-5">
-        <div className="relative w-full max-w-[1600px] rounded-xl bg-black shadow-[0_0_60px_-20px_rgb(var(--vexia-primary-rgb)/0.35)] ring-1 ring-white/10">
-          <div className="relative aspect-video w-full overflow-hidden bg-black">
+      {/* Player em tela cheia real: sem bordas, margens ou cantos arredondados. */}
+      <div className="relative flex h-full w-full items-center justify-center">
+        <div className="relative h-full w-full bg-black">
+          <div className="relative h-full w-full overflow-hidden bg-black">
+
             {externalGate && (
               <ExternalPlayerGate
                 src={src}
