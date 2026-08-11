@@ -376,7 +376,13 @@ function DetailsPage() {
                   type="button"
                   data-nav-row={1}
                   tabIndex={0}
-                  onClick={() =>
+                  onFocus={() => warmEngines((raw as { streamUrl?: string })?.streamUrl)}
+                  onMouseEnter={() => warmEngines((raw as { streamUrl?: string })?.streamUrl)}
+                  onClick={() => {
+                    // Entrega o link já conhecido: o player toca na hora.
+                    if (!isSeries) {
+                      setStreamHandoff("movie", item.id, (raw as { streamUrl?: string })?.streamUrl);
+                    }
                     navigate({
                       to: "/player",
                       search: {
@@ -384,13 +390,14 @@ function DetailsPage() {
                         id: item.id,
                         ep: isSeries ? resume?.key.split("::")[1] : undefined,
                       },
-                    })
-                  }
+                    });
+                  }}
                   className="vexia-focus inline-flex items-center gap-2 rounded-full bg-vexia-purple px-8 py-2.5 text-xs font-bold tracking-wide text-vexia-text shadow-[0_0_24px_-6px_rgb(var(--vexia-primary-rgb)/0.9)]"
                 >
                   <Play className="h-4 w-4 fill-current" aria-hidden /> ASSISTIR
                 </button>
               </div>
+
             )}
 
           </div>
