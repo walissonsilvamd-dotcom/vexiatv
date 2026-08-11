@@ -414,24 +414,24 @@ function DetailsPage() {
         {cast && cast.length > 0 ? (
           <section className="space-y-2">
             <SectionHeading>ELENCO</SectionHeading>
-            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-3 overflow-x-auto pb-1">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-1">
               {cast.map((person) => (
-                <div key={person.name} className="w-[66px] shrink-0 text-center">
+                <div key={person.name} className="w-[108px] shrink-0 text-center">
                   {person.photo ? (
                     <SmartImage
                       src={person.photo}
                       role="logo"
                       alt={person.name}
                       preview={false}
-                      sizes="64px"
-                      className="mx-auto h-14 w-14 rounded-full border-2 border-vexia-purple object-cover"
+                      sizes="96px"
+                      className="mx-auto h-20 w-20 rounded-full border-2 border-vexia-purple object-cover"
                     />
                   ) : (
-                    <span className="mx-auto grid h-14 w-14 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-sm font-black text-vexia-cyan">
+                    <span className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-vexia-purple bg-vexia-card text-base font-black text-vexia-cyan">
                       {person.name.slice(0, 2).toUpperCase()}
                     </span>
                   )}
-                  <p className="mt-1.5 truncate text-[11px] font-medium text-vexia-text">
+                  <p className="mt-2 whitespace-normal break-words text-[11px] font-medium leading-tight text-vexia-text">
                     {person.name}
                   </p>
                 </div>
