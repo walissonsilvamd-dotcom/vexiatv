@@ -739,3 +739,30 @@ video.vexia-subs-yellow::cue {
 [data-vexia-layout="vertical"] .vexia-row-scroll > * {
   scroll-snap-align: start;
 }
+
+/* ── Marquee: nomes longos rolam ao focar em vez de cortar ────────── */
+@utility vexia-marquee {
+  container-type: inline-size;
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, black 0, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 0, black 92%, transparent 100%);
+}
+
+@utility vexia-marquee-text {
+  display: inline-block;
+  white-space: nowrap;
+  min-width: 100%;
+  will-change: transform;
+}
+
+@keyframes vexia-marquee-run {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  88%,
+  100% {
+    transform: translateX(min(0px, calc(100cqw - 100%)));
+  }
+}

@@ -40,6 +40,7 @@ import { ChannelPinPrompt } from "../components/vexia/ChannelPinPrompt";
 import { useGroups } from "../lib/groups-store";
 import { toggleChannelLock, useChannelLocks } from "../lib/channel-lock";
 import { BRAND } from "../lib/brand";
+import { MarqueeText } from "../components/vexia/MarqueeText";
 
 
 /** Hora no formato 20:30. */
@@ -181,7 +182,7 @@ const ChannelRow = memo(function ChannelRow({
             {isLocked ? (
               <Lock className="h-3 w-3 shrink-0 text-vexia-cyan" aria-label="Canal bloqueado" />
             ) : null}
-            <span className="block truncate text-sm font-semibold text-vexia-text">{ch.name}</span>
+            <MarqueeText text={ch.name} className="block text-sm font-semibold text-vexia-text" />
           </span>
           <span
             className={`block truncate text-[11px] font-medium ${isActive ? "text-white/80" : "text-vexia-cyan/80"}`}
@@ -562,14 +563,14 @@ function ChannelsPage() {
                 setCategory(cat);
                 setLimit(PAGE);
               }}
-              className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
+              className={`vexia-focus group flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                 isActive
                   ? "border-vexia-purple/60 bg-vexia-purple text-white shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.2)]"
                   : "border-white/[0.07] bg-black/45 text-vexia-text hover:border-vexia-purple/40 hover:bg-vexia-purple/20"
               }`}
             >
               <Tv className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
-              <span className="min-w-0 flex-1 truncate">{cat.toUpperCase()}</span>
+              <MarqueeText text={cat.toUpperCase()} />
               <span className={`text-[11px] ${isActive ? "text-white/80" : "text-vexia-muted"}`}>
                 {total}
               </span>
@@ -596,14 +597,14 @@ function ChannelsPage() {
                     setCategory(key);
                     setLimit(PAGE);
                   }}
-                  className={`vexia-focus flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
+                  className={`vexia-focus group flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs font-bold transition-all ${
                     isActive
                       ? "border-vexia-purple/60 bg-vexia-purple text-white shadow-[0_0_20px_-4px_rgb(var(--vexia-primary-rgb)/0.9),inset_0_1px_0_rgba(255,255,255,0.2)]"
                       : "border-white/[0.07] bg-black/45 text-vexia-text hover:border-vexia-purple/40 hover:bg-vexia-purple/20"
                   }`}
                 >
                   <FolderPlus className="h-4 w-4 shrink-0 opacity-80" aria-hidden />
-                  <span className="min-w-0 flex-1 truncate">{g.name.toUpperCase()}</span>
+                  <MarqueeText text={g.name.toUpperCase()} />
                   <span
                     className={`text-[11px] ${isActive ? "text-white/80" : "text-vexia-muted"}`}
                   >
