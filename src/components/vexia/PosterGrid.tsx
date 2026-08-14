@@ -42,7 +42,7 @@ function PosterCardBase({
       {/* Tooltip: mostra o nome completo quando o título aparece truncado. */}
       <span
         role="tooltip"
-        className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 hidden max-w-[16rem] -translate-x-1/2 rounded-lg border border-vexia-purple/50 bg-black/95 px-2.5 py-1.5 text-center text-[12px] font-bold leading-snug text-vexia-text shadow-[0_10px_30px_-8px_rgb(var(--vexia-primary-rgb)/0.8)] group-hover:block group-focus-within:block"
+        className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-1.5 hidden max-w-[16rem] -translate-x-1/2 rounded-lg border border-vexia-purple/50 bg-black/95 px-2.5 py-1.5 text-center text-[12px] font-bold leading-snug text-vexia-text shadow-[0_10px_30px_-8px_rgb(var(--vexia-primary-rgb)/0.8)] group-hover:block group-focus-within:block group-active:block [@media(hover:none)]:group-active:block"
       >
         {active.title}
       </span>
