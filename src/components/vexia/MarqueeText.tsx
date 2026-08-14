@@ -19,7 +19,7 @@ export function MarqueeText({ text, className = "", seconds = 7 }: Props) {
       aria-label={text}
     >
       <span
-        className="vexia-marquee-text group-hover:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-focus:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-focus-visible:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-active:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate]"
+        className="vexia-marquee-text group-hover:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-focus:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-focus-visible:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-focus-within:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate] group-active:[animation:vexia-marquee-run_var(--mq)_ease-in-out_infinite_alternate]"
         style={{ ["--mq" as string]: `${seconds}s` }}
       >
         {text}
