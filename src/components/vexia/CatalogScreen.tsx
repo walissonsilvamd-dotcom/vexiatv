@@ -6,6 +6,7 @@ import type { MediaItem } from "../../data/vexia";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
 import { useDebounce } from "../../hooks/useDebounce";
 import { buildSearchIndex, queryIndex } from "../../utils/search-index";
+import { MarqueeText } from "./MarqueeText";
 import { VirtualizedGrid } from "../VirtualizedGrid";
 import {
   activeFilterChips,
