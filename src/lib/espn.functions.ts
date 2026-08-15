@@ -77,8 +77,6 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
       const targetDate = data?.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
       const dateParam = targetDate.replace(/-/g, '');
 
-      // Buscamos várias ligas
-      const dateParam = targetDate.replace(/-/g, '');
 
 
       // Buscamos várias ligas para aumentar a chance de encontrar os jogos da lista
