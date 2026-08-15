@@ -81,9 +81,9 @@ function ChannelPreviewBase({
       // Pequeno atraso para garantir que o motor (hls/ts) anexou o buffer
       const timer = setTimeout(() => {
         if (!active || !playable) return;
-        active.muted = true; // Força mutado para garantir autoplay
         active.play().catch(() => {
-          // Fallback final
+          // Fallback para mutado se o navegador bloquear autoplay com som
+          active.muted = true;
           void active.play().catch(() => undefined);
         });
       }, 50);
