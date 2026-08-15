@@ -100,7 +100,22 @@ function JogosPage() {
 
   /** Canais de esporte da lista, com programa atual e próximo. */
   const games = useMemo(() => {
-    const sports = channels.filter((c) => isSport(c.name, c.category, c.group) && (c.name.toLowerCase().includes("futebol") || c.category.toLowerCase().includes("futebol") || c.group.toLowerCase().includes("futebol")));
+    const sports = channels.filter((c) => {
+      const name = c.name.toLowerCase();
+      const cat = c.category.toLowerCase();
+      const grp = (c.group || "").toLowerCase();
+      
+      // Filtro rigoroso: apenas futebol
+      const isFootball = name.includes("futebol") || name.includes("soccer") || name.includes("brasileir") || name.includes("libertadores") || name.includes("champions") || 
+                        cat.includes("futebol") || cat.includes("soccer") || grp.includes("futebol") || grp.includes("soccer");
+      
+      // Bloqueio explícito de outros esportes comuns em listas de esporte
+      const isOtherSport = name.includes("futsal") || name.includes("nba") || name.includes("nfl") || name.includes("nhl") || name.includes("golfe") || 
+                          name.includes("surfe") || name.includes("tennis") || name.includes("ufc") || name.includes("lutas") || name.includes("basquete") ||
+                          cat.includes("futsal") || cat.includes("nba") || cat.includes("nfl") || grp.includes("nba");
+
+      return isFootball && !isOtherSport;
+    });
     
     // Converte eventos ESPN para nosso formato de placar
     const espnScores = espnEvents.map(event => {
