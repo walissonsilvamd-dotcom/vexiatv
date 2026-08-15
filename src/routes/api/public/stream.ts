@@ -106,7 +106,7 @@ export const Route = createFileRoute("/api/public/stream")({
           parsed.search.toLowerCase().includes(".m3u8");
 
         const headers = new Headers({
-          "Cache-Control": "public, max-age=1, stale-while-revalidate=5",
+          "Cache-Control": "public, max-age=1, stale-while-revalidate=10",
           "Access-Control-Allow-Origin": "*",
         });
 

@@ -81,11 +81,11 @@ function ChannelPreviewBase({
       // Reduzi o delay para play() na prévia para aumentar a percepção de velocidade
       const timer = setTimeout(() => {
         if (!active || !playable) return;
-        active.play().catch(() => {
+        void active.play().catch(() => {
           active.muted = true;
           void active.play().catch(() => undefined);
         });
-      }, 10);
+      }, 0);
       return () => clearTimeout(timer);
     }
   }, [activeSlot, started, playable]);
