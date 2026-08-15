@@ -88,54 +88,60 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
       
       const allEvents: EspnGame[] = [];
       
+      // Executa as buscas em paralelo para não travar o tempo total por uma liga lenta
       const results = await Promise.allSettled(leagues.map(async (league) => {
-        const response = await fetch(
-          `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard`,
-          { 
-            headers: { "Accept": "application/json" },
-            signal: AbortSignal.timeout(8000) 
-          }
-        );
-        
-        if (!response.ok) return [];
-        
-        const data = await response.json();
-        return (data.events || []).map((event: any) => ({
-          id: event.id,
-          name: event.name,
-          shortName: event.shortName,
-          league: {
-            name: data.leagues?.[0]?.name || "",
-            logo: data.leagues?.[0]?.logos?.[0]?.href
-          },
-          date: event.date,
-          status: {
-            type: {
-              name: event.status.type.name,
-              description: event.status.type.description,
-              state: event.status.type.state,
+        try {
+          const response = await fetch(
+            `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard`,
+            { 
+              headers: { "Accept": "application/json" },
+              signal: AbortSignal.timeout(4000) // Timeout mais curto por liga
+            }
+          );
+          
+          if (!response.ok) return [];
+          
+          const data = await response.json();
+          return (data.events || []).map((event: any) => ({
+            id: event.id,
+            name: event.name,
+            shortName: event.shortName,
+            league: {
+              name: data.leagues?.[0]?.name || "",
+              logo: data.leagues?.[0]?.logos?.[0]?.href
             },
-            displayClock: event.status.displayClock,
-            period: event.status.period,
-          },
-          competitors: event.competitions[0].competitors.map((c: any) => ({
-            id: c.id,
-            team: {
-              id: c.team.id,
-              location: c.team.location,
-              name: c.team.name,
-              abbreviation: c.team.abbreviation,
-              displayName: c.team.displayName,
-              logo: c.team.logo,
+            date: event.date,
+            status: {
+              type: {
+                name: event.status.type.name,
+                description: event.status.type.description,
+                state: event.status.type.state,
+              },
+              displayClock: event.status.displayClock,
+              period: event.status.period,
             },
-            score: c.score,
-            homeAway: c.homeAway,
-          })),
-          broadcasts: event.competitions[0].broadcasts?.map((b: any) => ({
-            market: b.market,
-            names: b.names
-          }))
-        }));
+            competitors: event.competitions[0].competitors.map((c: any) => ({
+              id: c.id,
+              team: {
+                id: c.team.id,
+                location: c.team.location,
+                name: c.team.name,
+                abbreviation: c.team.abbreviation,
+                displayName: c.team.displayName,
+                logo: c.team.logo,
+              },
+              score: c.score,
+              homeAway: c.homeAway,
+            })),
+            broadcasts: event.competitions[0].broadcasts?.map((b: any) => ({
+              market: b.market,
+              names: b.names
+            }))
+          }));
+        } catch (e) {
+          // Falha silenciosa por liga para não quebrar a chamada inteira
+          return [];
+        }
       }));
 
       results.forEach(result => {
@@ -147,6 +153,7 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
       return { events: allEvents };
     } catch (error) {
       console.error("Erro fatal ao buscar placares ESPN:", error);
+      // Retorna objeto vazio em vez de lançar erro, evitando o 500
       return { events: [] };
     }
   });
