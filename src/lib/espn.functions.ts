@@ -69,7 +69,7 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  * Busca jogos de futebol na API pública da ESPN.
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
-  .validator((data: any) => z.object({ date: z.string().optional() }).parse(data))
+  .validator((data: unknown) => z.object({ date: z.string().optional() }).parse(data))
   .handler(async ({ data }) => {
     try {
       const targetDate = data.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
