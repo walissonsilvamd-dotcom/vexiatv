@@ -11,7 +11,6 @@ const LOGO_FILTER = [
   "drop-shadow(0 1px 1px rgba(0,0,0,0.85))",
   "drop-shadow(0 -1px 1px rgba(0,0,0,0.85))",
   "drop-shadow(0 4px 12px rgba(0,0,0,0.7))",
-  "drop-shadow(0 0 18px color-mix(in oklab, var(--vexia-purple) 65%, transparent))",
 ].join(" ");
 
 export function VexiaLogo({ className = "h-36 md:h-44" }: { className?: string }) {
