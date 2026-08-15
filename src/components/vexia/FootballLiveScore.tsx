@@ -11,7 +11,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
       {timeLabel && !score.time && (
-        <div className="text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-wider ml-1">
+        <div className="text-[10px] font-bold text-white/70 uppercase tracking-wider ml-1">
           {timeLabel}
         </div>
       )}
@@ -45,7 +45,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             </div>
           )}
           {score.time && (
-            <span className="text-[8px] font-black text-vexia-purple uppercase mt-1 animate-pulse tracking-widest bg-vexia-purple/10 px-1.5 py-0.5 rounded-full border border-vexia-purple/20">
+            <span className="text-[9px] font-black text-white uppercase mt-1 animate-pulse tracking-widest bg-white/10 px-2 py-0.5 rounded-full border border-white/20">
               {score.time}
             </span>
           )}
