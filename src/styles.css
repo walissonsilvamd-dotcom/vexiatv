@@ -363,18 +363,18 @@ body {
   }
   50% {
     transform: scale(1.05);
-    filter: drop-shadow(0 0 26px color-mix(in oklab, var(--vexia-cyan) 65%, transparent));
+    filter: drop-shadow(0 0 26px color-mix(in oklab, white 65%, transparent));
   }
 }
 .vexia-loader-ring {
   border: 2px solid transparent;
   border-top-color: var(--vexia-purple);
-  border-right-color: var(--vexia-cyan);
+  border-right-color: white;
   animation: vexia-ring-spin 2.6s linear infinite;
   box-shadow: 0 0 26px -6px var(--vexia-purple);
 }
 .vexia-loader-ring-2 {
-  border: 1px dashed color-mix(in oklab, var(--vexia-cyan) 55%, transparent);
+  border: 1px dashed color-mix(in oklab, white 55%, transparent);
   animation: vexia-ring-spin-rev 5s linear infinite;
 }
 .vexia-loader-pulse {
@@ -491,7 +491,7 @@ body {
     linear-gradient(
       100deg,
       color-mix(in oklab, var(--vexia-purple) 14%, transparent) 20%,
-      color-mix(in oklab, var(--vexia-cyan) 12%, transparent) 45%,
+      color-mix(in oklab, white 12%, transparent) 45%,
       color-mix(in oklab, var(--vexia-purple) 14%, transparent) 70%
     ),
     #101010;

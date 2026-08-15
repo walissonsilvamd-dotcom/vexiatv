@@ -300,7 +300,7 @@ function HomePage() {
 
 
           <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
-            <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
+            <Clock className="h-3.5 w-3.5 shrink-0 text-white" aria-hidden />
             <span className="tabular-nums">
               {formatTime(now)}
             </span>
@@ -365,20 +365,20 @@ function HomePage() {
                 className={`h-[4px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
                   i === slide
                     ? "w-9 bg-white/25"
-                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-vexia-cyan"
+                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-white shadow-[0_0_10px_white]"
                 }`}
               >
                 {i === slide ? (
                   <span
                     key={`p-${slide}`}
-                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-vexia-cyan shadow-[0_0_10px_var(--vexia-cyan)]"
+                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_10px_white]"
                   />
                 ) : null}
               </button>
             ))}
           </div>
         ) : !hasContent ? (
-          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-vexia-cyan/80">
+          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-white/80">
             Abra LISTAS e carregue sua lista M3U
           </p>
         ) : null}
@@ -409,7 +409,7 @@ function HomePage() {
               onClick={() => openTile(tile)}
               className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(82,0,165,0.55),0_0_30px_-6px_rgba(255,255,255,0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  ? "-translate-y-[0.6vh] scale-[1.04] border-white bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(82,0,165,0.55),0_0_30px_rgba(255,255,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-white/40 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
               }`}
             >
@@ -429,7 +429,7 @@ function HomePage() {
               <Icon
                 className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
                   isActive
-                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_var(--vexia-cyan)]"
+                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_white]"
                     : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 }`}
                 aria-hidden
