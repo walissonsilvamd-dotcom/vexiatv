@@ -1,5 +1,4 @@
 import { FootballScore } from "../../lib/football-score";
-import { Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getCachedTeamLogo } from "../../lib/logo-cache";
 import { Skeleton } from "../ui/skeleton";
@@ -118,7 +117,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
                 }}
               />
             ) : (
-              <Shield className="w-8 h-8 text-white/20" />
+              <FallbackCrest name={score.teamA} />
             )}
           </div>
         </div>
@@ -167,7 +166,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
                 }}
               />
             ) : (
-              <Shield className="w-8 h-8 text-white/20" />
+              <FallbackCrest name={score.teamB} />
             )}
           </div>
           <div className="flex flex-col items-start flex-1 min-w-0">
