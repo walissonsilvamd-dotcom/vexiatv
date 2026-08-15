@@ -105,20 +105,24 @@ function JogosPage() {
       const cat = c.category.toLowerCase();
       const grp = (c.group || "").toLowerCase();
       
-      // Filtro de futebol: incluímos canais de esporte em geral para não perder jogos da ESPN
-      const isSportChannel = name.includes("esporte") || name.includes("sport") || name.includes("premiere") || 
-                            name.includes("espn") || name.includes("tnt") || name.includes("dazn") ||
-                            cat.includes("esporte") || cat.includes("sport") || grp.includes("esporte");
-      
+      // Bloqueio de reprise / replay
+      const isReplay = name.includes("reprise") || name.includes("replay") || name.includes("gravado");
+      if (isReplay) return false;
+
+      // Apenas futebol
       const isFootball = name.includes("futebol") || name.includes("soccer") || name.includes("brasileir") || 
                         name.includes("libertadores") || name.includes("champions") || 
                         cat.includes("futebol") || cat.includes("soccer") || grp.includes("futebol") || grp.includes("soccer");
+      
+      // Canais de esporte que costumam passar futebol
+      const isSportChannel = name.includes("premiere") || name.includes("espn") || name.includes("tnt") || name.includes("dazn") ||
+                            name.includes("sportv") || cat.includes("sport") || grp.includes("esporte");
       
       // Bloqueio explícito de outros esportes
       const isOtherSport = name.includes("futsal") || name.includes("nba") || name.includes("nfl") || name.includes("nhl") || 
                           name.includes("golfe") || name.includes("surfe") || name.includes("tennis") || name.includes("ufc") || 
                           name.includes("lutas") || name.includes("basquete") ||
-                          cat.includes("futsal") || cat.includes("nba") || cat.includes("nfl") || grp.includes("nba");
+                          cat.includes("nba") || cat.includes("nfl");
 
       return (isFootball || isSportChannel) && !isOtherSport;
     });
@@ -241,11 +245,11 @@ function JogosPage() {
             <span className="text-xl font-black text-vexia-primary tracking-tight italic">Flix</span>
           </div>
           <div className="flex items-center gap-3">
-            <Trophy className="h-5 w-5 text-vexia-primary" aria-hidden />
+            <Trophy className="h-5 w-5 text-white" aria-hidden />
             <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text uppercase">JOGOS AO VIVO</h1>
             {loadingEspn && (
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-primary/10 rounded-full border border-vexia-primary/20">
-                <Wifi className="h-3 w-3 text-vexia-primary animate-pulse" />
+                <Wifi className="h-3 w-3 text-white animate-pulse" />
                 <span className="text-[8px] font-bold text-vexia-primary tracking-widest uppercase">API Live</span>
               </div>
             )}
@@ -287,80 +291,7 @@ function JogosPage() {
             ))}
           </div>
 
-          {/* Card de Destaque Principal */}
-          {games.length > 0 && (
-            <div className="mb-8 relative group overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-vexia-primary/20" />
-              <div className="relative p-8 flex flex-col items-center justify-center text-center">
-                <div className="absolute top-6 right-6 px-3 py-1 bg-red-600 rounded-full animate-pulse flex items-center gap-2 shadow-lg shadow-red-600/30">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                  <span className="text-[10px] font-black text-white tracking-widest uppercase">AO VIVO</span>
-                </div>
-                
-                <div className="flex items-center gap-12 mb-6">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                      {games[0].score?.logoA ? (
-                        <img src={games[0].score.logoA} className="w-16 h-16 object-contain" alt="" />
-                      ) : (
-                        <div className="text-4xl font-black text-white/20 italic">{games[0].score?.teamA.substring(0, 1)}</div>
-                      )}
-                    </div>
-                    <span className="text-sm font-black text-white uppercase tracking-tighter max-w-[120px] truncate">
-                      {games[0].score?.teamA || games[0].channels[0].ch.name}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col items-center justify-center">
-                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(82,0,165,0.3)]">
-                      {games[0].score?.isLive ? (
-                        <div className="flex items-center gap-4">
-                          <span className="text-vexia-primary">{games[0].score.scoreA}</span>
-                          <span className="text-white/10 text-2xl font-light">X</span>
-                          <span className="text-vexia-primary">{games[0].score.scoreB}</span>
-                        </div>
-                      ) : (
-                        <span className="text-4xl text-white/20 italic">VS</span>
-                      )}
-                    </div>
-                    {games[0].score?.time && (
-                      <div className="mt-4 px-4 py-1.5 bg-vexia-primary text-white rounded-full text-[10px] font-black tracking-widest uppercase">
-                        {games[0].score.time}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                      {games[0].score?.logoB ? (
-                        <img src={games[0].score.logoB} className="w-16 h-16 object-contain" alt="" />
-                      ) : (
-                        <div className="text-4xl font-black text-white/20 italic">{games[0].score?.teamB.substring(0, 1)}</div>
-                      )}
-                    </div>
-                    <span className="text-sm font-black text-white uppercase tracking-tighter max-w-[120px] truncate">
-                      {games[0].score?.teamB || "Convidado"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-                    <Tv className="w-3.5 h-3.5 text-vexia-primary" />
-                    <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Canais: {games[0].channels.map(c => c.ch.name).join(", ")}</span>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={() => open(games[0])}
-                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-primary text-white rounded-full font-black text-lg tracking-tighter uppercase shadow-[0_0_30px_rgba(82,0,165,0.4)] hover:scale-105 transition-all"
-                >
-                  <Play className="w-6 h-6 fill-current" />
-                  Assistir Agora
-                </button>
-              </div>
-            </div>
-          )}
+          {/* Destaque Removido conforme solicitado */}
 
           <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {games.length === 0 ? (
@@ -369,11 +300,11 @@ function JogosPage() {
                 <Trophy className="w-10 h-10" />
               </div>
               <p className="text-sm font-bold text-vexia-muted max-w-[200px]">
-                ⏳ Buscando jogos ao vivo...
+                ⏳ Buscando jogos de futebol ao vivo...
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {games.map((item, idx) => {
                 const { score, channels: itemChannels } = item;
                 const mainCh = itemChannels[0].ch;
@@ -386,7 +317,7 @@ function JogosPage() {
                     data-nav-row={1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex items-center gap-4 rounded-2xl border border-white/5 bg-[#1A1A1A] p-3 text-left transition-all hover:scale-[1.02] hover:border-vexia-gold/50 group relative"
+                    className="vexia-focus flex flex-col gap-3 rounded-3xl border border-white/10 bg-black/40 p-4 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
                   >
                     <div className="absolute top-2 right-2 flex items-center gap-1.5">
                       {score?.isLive ? (
@@ -404,30 +335,33 @@ function JogosPage() {
                         </div>
                       )}
                     </div>
-                    <div className="relative shrink-0">
-                      <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl border border-white/10 bg-black/70">
-                        {mainCh.logo ? (
-                          <SmartImage
-                            src={mainCh.logo}
-                            role="logo"
-                            alt=""
-                            className="h-full w-full object-contain p-0.5"
-                            fallback={<Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />}
-                          />
-                        ) : (
-                          <Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />
+                    <div className="flex items-center justify-between w-full">
+                      <div className="relative shrink-0">
+                        <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
+                          {mainCh.logo ? (
+                            <SmartImage
+                              src={mainCh.logo}
+                              role="logo"
+                              alt=""
+                              className="h-full w-full object-contain p-1"
+                              fallback={<Tv className="h-5 w-5 text-white" aria-hidden />}
+                            />
+                          ) : (
+                            <Tv className="h-5 w-5 text-white" aria-hidden />
+                          )}
+                        </span>
+                        {item.isGrouped && itemChannels.length > 1 && (
+                          <div className="absolute -bottom-1 -right-1 bg-white text-[7px] font-black px-1.5 py-0.5 text-black rounded-full border border-black shadow-lg uppercase">
+                            +{itemChannels.length - 1}
+                          </div>
                         )}
-                      </span>
-                      {item.isGrouped && itemChannels.length > 1 && (
-                        <div className="absolute -bottom-1 -right-1 bg-vexia-gold text-[8px] font-black px-1.5 py-0.5 text-black rounded-md border border-black shadow-lg">
-                          📺 {itemChannels.length}
-                        </div>
-                      )}
-                    </div>
-                    <span className="min-w-0 flex-1 pr-12">
-                      <div className="text-[10px] font-black text-white/30 tracking-tighter mb-1">
-                        {epg.now ? clock(epg.now.start) : mainCh.name}
                       </div>
+                      <div className="text-[11px] font-black text-white tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                        {epg.now ? clock(epg.now.start) : "AGORA"}
+                      </div>
+                    </div>
+                    
+                    <div className="w-full">
                       {score ? (
                         <FootballLiveScore 
                           score={score} 
@@ -435,19 +369,16 @@ function JogosPage() {
                           timeLabel={item.isGrouped ? `${score.teamA} x ${score.teamB}` : (epg.now ? `${mainCh.name} • AO VIVO` : `${mainCh.name} • ${clock(epg.next!.start)}`)}
                         />
                       ) : (
-                        <>
-                          <span className="block truncate text-sm font-bold text-vexia-text">
+                        <div className="flex flex-col gap-1">
+                          <span className="block truncate text-sm font-black text-white uppercase tracking-tight">
                             {epg.now?.title ?? mainCh.name}
                           </span>
-                          <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
-                            {epg.now
-                              ? `${mainCh.name} • ${clock(epg.now.start)}`
-                              : mainCh.name}
+                          <span className="block truncate text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                            {mainCh.name}
                           </span>
-                        </>
+                        </div>
                       )}
-                    </span>
-                    <Play className="h-4 w-4 shrink-0 text-vexia-cyan opacity-40 group-hover:opacity-100" aria-hidden />
+                    </div>
                   </button>
                 );
               })}
