@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
 /**
  * Interface simplificada para o retorno dos jogos da ESPN.
@@ -39,9 +40,10 @@ export interface EspnGame {
  * Busca detalhes de um jogo específico na ESPN (escalações, gols, eventos).
  */
 export const getEspnGameDetails = createServerFn({ method: "GET" })
-  .inputValidator((id: string) => id)
-  .handler(async ({ data: id }) => {
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
     try {
+      const { id } = data;
       // URL para detalhes do jogo (summary)
       const response = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${id}`,

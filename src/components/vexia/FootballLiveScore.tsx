@@ -21,12 +21,20 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   useEffect(() => {
     async function fetchLogos() {
       if (!logoA && score.teamA) {
-        const logo = await searchTeamLogo({ data: score.teamA });
-        if (logo) setLogoA(logo);
+        try {
+          const logo = await searchTeamLogo({ data: { teamName: score.teamA } });
+          if (logo) setLogoA(logo);
+        } catch (e) {
+          console.error("Falha ao buscar logo A:", e);
+        }
       }
       if (!logoB && score.teamB) {
-        const logo = await searchTeamLogo({ data: score.teamB });
-        if (logo) setLogoB(logo);
+        try {
+          const logo = await searchTeamLogo({ data: { teamName: score.teamB } });
+          if (logo) setLogoB(logo);
+        } catch (e) {
+          console.error("Falha ao buscar logo B:", e);
+        }
       }
     }
     fetchLogos();

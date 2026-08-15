@@ -62,13 +62,13 @@ function JogoDetalhesPage() {
   useEffect(() => {
     if (espnEventId) {
       setLoadingDetails(true);
-      getEspnGameDetails({ data: espnEventId }).then(data => {
+      getEspnGameDetails({ data: { id: espnEventId } }).then(data => {
         setDetails(data);
         setLoadingDetails(false);
       });
       
       const interval = setInterval(() => {
-        getEspnGameDetails({ data: espnEventId }).then(setDetails);
+        getEspnGameDetails({ data: { id: espnEventId } }).then(setDetails);
       }, 60000); // Detalhes a cada 1min
       return () => clearInterval(interval);
     }
@@ -133,11 +133,11 @@ function JogoDetalhesPage() {
         if (!currentScore) return;
         
         if (!currentScore.logoA && currentScore.teamA) {
-          const logo = await searchTeamLogo({ data: currentScore.teamA });
+          const logo = await searchTeamLogo({ data: { teamName: currentScore.teamA } });
           if (logo) setLogoA(logo);
         }
         if (!currentScore.logoB && currentScore.teamB) {
-          const logo = await searchTeamLogo({ data: currentScore.teamB });
+          const logo = await searchTeamLogo({ data: { teamName: currentScore.teamB } });
           if (logo) setLogoB(logo);
         }
       }
