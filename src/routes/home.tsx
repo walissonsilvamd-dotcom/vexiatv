@@ -429,7 +429,7 @@ function HomePage() {
               <Icon
                 className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
                   isActive
-                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_var(--vexia-cyan)]"
+                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_white]"
                     : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgb(var(--vexia-secondary-rgb)/0.35)]"
                 }`}
                 aria-hidden
