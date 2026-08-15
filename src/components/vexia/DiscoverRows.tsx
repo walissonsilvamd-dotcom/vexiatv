@@ -88,13 +88,6 @@ export function DiscoverRows() {
   return (
     <div className="space-y-7 px-[5vw] py-8">
       <Carousel
-        title="Em alta"
-        icon="🔥"
-        items={trending}
-        kind="movie"
-        navRow={ROW}
-      />
-      <Carousel
         title="Melhores avaliados"
         icon="⭐"
         items={topRated}
