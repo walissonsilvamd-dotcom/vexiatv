@@ -73,25 +73,25 @@
 }
 
 :root {
-  --vexia-bg: oklch(0.09 0.012 285);
-  --vexia-surface: oklch(0.15 0.025 288);
-  --vexia-card: oklch(0.19 0.028 288);
-  --vexia-popup: oklch(0.18 0.006 285);
+  --vexia-bg: #0A0A0A;
+  --vexia-surface: #121212;
+  --vexia-card: #1A1A1A;
+  --vexia-popup: #121212;
   /* ============================================================
    * IDENTIDADE VISUAL — trocar apenas estas 4 linhas muda o app inteiro
    * ============================================================ */
-  --vexia-primary: #5200a5;        /* Roxo PipocaFlix (escuro/vibrante) */
-  --vexia-primary-rgb: 82 0 165;   /* mesma cor em RGB */
-  --vexia-secondary: #ffffff;      /* Branco PipocaFlix */
+  --vexia-primary: #FFD700;        /* Dourado UniTV */
+  --vexia-primary-rgb: 255 215 0;   /* mesma cor em RGB */
+  --vexia-secondary: #ffffff;      /* Branco UniTV */
   --vexia-secondary-rgb: 255 255 255;  /* mesma cor em RGB */
 
   /* Derivados automáticos — não precisa mexer */
   --vexia-purple: var(--vexia-primary);
   --vexia-purple-soft: color-mix(in oklab, var(--vexia-primary) 70%, white);
-  --vexia-cyan: var(--vexia-secondary);
-  --vexia-gold: oklch(0.88 0.17 92);
-  --vexia-text: oklch(1 0 0);
-  --vexia-muted: oklch(0.75 0.012 285);
+  --vexia-cyan: #FFD700;
+  --vexia-gold: #FFD700;
+  --vexia-text: #FFFFFF;
+  --vexia-muted: #AAAAAA;
   --radius: 0.625rem;
 
   --background: oklch(1 0 0);
