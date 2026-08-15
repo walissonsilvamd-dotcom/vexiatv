@@ -71,6 +71,23 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
       .trim();
   };
 
+  // Escudo substituto com as iniciais do time (nunca fica vazio)
+  const initials = (name: string) =>
+    cleanTeamName(name)
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase() || "?";
+
+  const FallbackCrest = ({ name }: { name: string }) => (
+    <div className="w-full h-full rounded-full bg-primary/25 border border-white/20 flex items-center justify-center">
+      <span className="text-[13px] font-black text-white tracking-tight">{initials(name)}</span>
+    </div>
+  );
+
+
   return (
     <div className={`flex items-center gap-2 w-full p-1 rounded-xl transition-all ${className}`}>
       {/* Grid Principal - Estilo Compacto */}
