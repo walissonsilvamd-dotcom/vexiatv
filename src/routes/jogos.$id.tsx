@@ -58,13 +58,13 @@ function JogoDetalhesPage() {
   useEffect(() => {
     if (espnEventId) {
       setLoadingDetails(true);
-      getEspnGameDetails(espnEventId).then(data => {
+      getEspnGameDetails({ data: espnEventId }).then(data => {
         setDetails(data);
         setLoadingDetails(false);
       });
       
       const interval = setInterval(() => {
-        getEspnGameDetails(espnEventId).then(setDetails);
+        getEspnGameDetails({ data: espnEventId }).then(setDetails);
       }, 60000); // Detalhes a cada 1min
       return () => clearInterval(interval);
     }

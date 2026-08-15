@@ -40,7 +40,7 @@ export interface EspnGame {
  */
 export const getEspnGameDetails = createServerFn({ method: "GET" })
   .inputValidator((id: string) => id)
-  .handler(async ({ input: id }) => {
+  .handler(async ({ data: id }) => {
     try {
       // URL para detalhes do jogo (summary)
       const response = await fetch(
