@@ -32,14 +32,14 @@ type Options = {
 };
 
 const ENGINE_RETRIES = 1;
-const STARTUP_TIMEOUT_MS = 6_000;
-const STALL_TIMEOUT_MS = 3_000;
+const STARTUP_TIMEOUT_MS = 3_500;
+const STALL_TIMEOUT_MS = 2_000;
 /** Congelamento leve: tenta "cutucar" o stream antes de trocar de motor. */
-const SOFT_STALL_MS = 500;
+const SOFT_STALL_MS = 300;
 /** Troca imediata para a reserva assim que o congelamento passa deste tempo. */
-const INSTANT_SWAP_MS = 300;
-const STALL_CHECK_MS = 200;
-const NUDGE_MAX = 1;
+const INSTANT_SWAP_MS = 200;
+const STALL_CHECK_MS = 150;
+const NUDGE_MAX = 2;
 /** VOD: a reserva fica sempre próxima da posição atual para trocar sem seek. */
 const STANDBY_SYNC_TOLERANCE_S = 4;
 const STANDBY_SYNC_EVERY_MS = 3_000;
@@ -50,10 +50,10 @@ const STANDBY_LEAD_S = 0.6;
  * a banda inteira fica para o vídeo que o cliente está esperando; qualquer
  * sinal de travamento antecipa a reserva na hora (prewarmStandby).
  */
-const STANDBY_WARMUP_MS = 2_500;
+const STANDBY_WARMUP_MS = 800;
 /** Quantas vezes toda a cadeia de motores é repetida automaticamente antes de desistir. */
 const AUTO_CYCLE_MAX = 4;
-const AUTO_CYCLE_BACKOFF_MS = [1_500, 3_000, 6_000, 10_000];
+const AUTO_CYCLE_BACKOFF_MS = [500, 1500, 3000, 5000];
 
 export function useResilientPlayer({
   videoRef,
