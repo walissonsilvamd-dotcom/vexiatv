@@ -1,5 +1,7 @@
 import { FootballScore } from "../../lib/football-score";
 import { Shield } from "lucide-react";
+import { useEffect, useState } from "react";
+import { searchTeamLogo } from "../../lib/team-logos.functions";
 
 interface FootballLiveScoreProps {
   score: FootballScore;
@@ -8,6 +10,28 @@ interface FootballLiveScoreProps {
 }
 
 export function FootballLiveScore({ score, className = "", timeLabel }: FootballLiveScoreProps) {
+  const [logoA, setLogoA] = useState<string | undefined>(score.logoA);
+  const [logoB, setLogoB] = useState<string | undefined>(score.logoB);
+
+  useEffect(() => {
+    setLogoA(score.logoA);
+    setLogoB(score.logoB);
+  }, [score.logoA, score.logoB]);
+
+  useEffect(() => {
+    async function fetchLogos() {
+      if (!logoA && score.teamA) {
+        const logo = await searchTeamLogo({ data: score.teamA });
+        if (logo) setLogoA(logo);
+      }
+      if (!logoB && score.teamB) {
+        const logo = await searchTeamLogo({ data: score.teamB });
+        if (logo) setLogoB(logo);
+      }
+    }
+    fetchLogos();
+  }, [score.teamA, score.teamB]);
+
   return (
     <div className={`flex flex-col gap-1.5 w-full ${className}`}>
       {timeLabel && !score.time && (
@@ -21,9 +45,9 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         <div className="flex items-center justify-between gap-2 w-full">
           {/* Time A */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
-              {score.logoA ? (
-                <img src={score.logoA} alt={score.teamA} className="w-8 h-8 sm:w-9 sm:h-9 object-contain" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
+              {logoA ? (
+                <img src={logoA} alt={score.teamA} className="w-8 h-8 sm:w-9 sm:h-9 object-contain" />
               ) : (
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white/20" />
               )}
@@ -53,9 +77,9 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-tighter leading-tight text-right break-words">
               {score.teamB}
             </span>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-inner">
-              {score.logoB ? (
-                <img src={score.logoB} alt={score.teamB} className="w-8 h-8 sm:w-9 sm:h-9 object-contain" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
+              {logoB ? (
+                <img src={logoB} alt={score.teamB} className="w-8 h-8 sm:w-9 sm:h-9 object-contain" />
               ) : (
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white/20" />
               )}
