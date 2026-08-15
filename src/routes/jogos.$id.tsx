@@ -1,11 +1,11 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
-import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play, Info, Maximize } from "lucide-react";
+import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play, Info, Maximize, Clock, List, Zap } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { getLiveFootballScores, getEspnGameDetails, EspnGame } from "../lib/espn.functions";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { BRAND } from "../lib/brand";
 import { setStreamHandoff } from "../lib/stream-handoff";
@@ -31,10 +31,44 @@ function JogoDetalhesPage() {
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const [espnEvents, setEspnEvents] = useState<EspnGame[]>([]);
+  const [details, setDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
+  const fetchScores = useCallback(async () => {
+    const data = await getLiveFootballScores();
+    setEspnEvents(data.events || []);
+  }, []);
 
   useEffect(() => {
-    getLiveFootballScores().then(data => setEspnEvents(data.events || []));
-  }, []);
+    fetchScores();
+    const interval = setInterval(fetchScores, 30000); // Atualiza a cada 30s
+    return () => clearInterval(interval);
+  }, [fetchScores]);
+
+  const espnEventId = useMemo(() => {
+    if (!channels.find(c => c.id === id)) return null;
+    const ch = channels.find(c => c.id === id)!;
+    const chName = ch.name.toLowerCase();
+    const match = espnEvents.find(event => 
+      event.broadcasts?.[0]?.names.some((b: string) => chName.includes(b.toLowerCase()))
+    );
+    return match?.id;
+  }, [id, channels, espnEvents]);
+
+  useEffect(() => {
+    if (espnEventId) {
+      setLoadingDetails(true);
+      getEspnGameDetails(espnEventId).then(data => {
+        setDetails(data);
+        setLoadingDetails(false);
+      });
+      
+      const interval = setInterval(() => {
+        getEspnGameDetails(espnEventId).then(setDetails);
+      }, 60000); // Detalhes a cada 1min
+      return () => clearInterval(interval);
+    }
+  }, [espnEventId]);
 
   const channel = useMemo(() => channels.find(c => c.id === id), [channels, id]);
   
@@ -124,6 +158,11 @@ function JogoDetalhesPage() {
     setIsPlaying(true);
     setStreamHandoff("live", selectedCh.id, selectedCh.url);
   };
+
+  const [, forceUpdate] = useState({});
+  useEffect(() => {
+    (window as any)._setTab = forceUpdate;
+  }, []);
 
   return (
     <div 
@@ -235,71 +274,135 @@ function JogoDetalhesPage() {
         </div>
 
         {/* Lado Direito: Opções de Canais e Info */}
-        <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0 min-h-0">
-          <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-[2rem] border border-white/10 p-6 flex flex-col min-h-0">
-            <div className="flex items-center gap-2 mb-6 shrink-0">
-              <Info className="w-4 h-4 text-vexia-cyan" />
-              <span className="text-[10px] font-black text-vexia-cyan uppercase tracking-widest">Transmissões Disponíveis</span>
+        <div className="w-full lg:w-96 flex flex-col gap-6 shrink-0 min-h-0">
+          <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-[2rem] border border-white/10 p-6 flex flex-col min-h-0 shadow-glow-purple/5">
+            
+            {/* Abas Internas: Canais / Escalação / Eventos */}
+            <div className="flex bg-white/5 p-1 rounded-2xl mb-6 shrink-0 border border-white/5">
+              {['canais', 'escalação', 'lances'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => { (window as any)._activeTab = tab; forceUpdate({}); }}
+                  className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${
+                    ((window as any)._activeTab || 'canais') === tab 
+                    ? 'bg-vexia-purple text-white shadow-lg' 
+                    : 'text-white/40 hover:text-white/60'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 min-h-0">
-              {[ch, ...alternatives].map((altCh) => {
-                const isCurrent = altCh.id === activeChannel.id;
-                const nameLower = altCh.name.toLowerCase();
-                const label = nameLower.includes("fhd") || nameLower.includes("4k") ? "FHD / 4K" : 
-                             nameLower.includes("hd+") ? "HD+" : 
-                             nameLower.includes("hd") ? "HD" : "SD";
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
+              {((window as any)._activeTab || 'canais') === 'canais' && (
+                <div className="space-y-3">
+                  {[ch, ...alternatives].map((altCh) => {
+                    const isCurrent = altCh.id === activeChannel.id;
+                    const nameLower = altCh.name.toLowerCase();
+                    const label = nameLower.includes("fhd") || nameLower.includes("4k") ? "FHD / 4K" : 
+                                 nameLower.includes("hd+") ? "HD+" : 
+                                 nameLower.includes("hd") ? "HD" : "SD";
 
-                return (
-                  <button
-                    key={altCh.id}
-                    onClick={() => play(altCh)}
-                    className={`vexia-focus w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${
-                      isCurrent 
-                      ? 'bg-vexia-purple/20 border-vexia-purple/50 shadow-lg' 
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className="w-10 h-10 shrink-0 bg-black rounded-xl border border-white/10 flex items-center justify-center overflow-hidden">
-                      {altCh.logo ? (
-                        <img src={altCh.logo} className="w-full h-full object-contain p-1" alt="" />
-                      ) : (
-                        <Tv className="w-5 h-5 text-vexia-cyan/50" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <span className={`block text-xs font-black truncate ${isCurrent ? 'text-white' : 'text-white/70'}`}>
-                        {altCh.name}
-                      </span>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`text-[9px] font-bold px-1.5 rounded-md border ${
-                          isCurrent ? 'bg-vexia-cyan/20 border-vexia-cyan/30 text-vexia-cyan' : 'bg-white/5 border-white/10 text-white/40'
-                        }`}>
-                          {label}
-                        </span>
-                        {isCurrent && isPlaying && (
-                          <span className="text-[8px] font-black text-green-500 uppercase flex items-center gap-1">
-                            <Wifi className="w-2 h-2" /> ONLINE
+                    return (
+                      <button
+                        key={altCh.id}
+                        onClick={() => play(altCh)}
+                        className={`vexia-focus w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
+                          isCurrent 
+                          ? 'bg-vexia-purple/20 border-vexia-purple/50 shadow-lg' 
+                          : 'bg-white/5 border-white/10 hover:bg-white/10'
+                        }`}
+                      >
+                        <div className="w-12 h-12 shrink-0 bg-black rounded-xl border border-white/10 flex items-center justify-center overflow-hidden">
+                          {altCh.logo ? (
+                            <img src={altCh.logo} className="w-full h-full object-contain p-1" alt="" />
+                          ) : (
+                            <Tv className="w-6 h-6 text-white/20" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className={`block text-xs font-black truncate ${isCurrent ? 'text-white' : 'text-white/70'}`}>
+                            {altCh.name}
                           </span>
-                        )}
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${
+                              isCurrent ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 text-white/40'
+                            }`}>
+                              {label}
+                            </span>
+                            {isCurrent && isPlaying && (
+                              <span className="text-[8px] font-black text-green-500 uppercase flex items-center gap-1">
+                                <Zap className="w-2.5 h-2.5 fill-current" /> ONLINE
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {((window as any)._activeTab === 'escalação') && (
+                <div className="space-y-6">
+                  {details?.rosters?.map((roster: any, idx: number) => (
+                    <div key={idx} className="space-y-3">
+                      <div className="flex items-center gap-2 px-2">
+                        <img src={roster.team.logo} className="w-5 h-5 object-contain" alt="" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white">{roster.team.displayName}</span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-1">
+                        {roster.roster.slice(0, 11).map((player: any, pIdx: number) => (
+                          <div key={pIdx} className="flex items-center justify-between p-2 bg-white/5 rounded-lg border border-white/5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[9px] font-bold text-vexia-purple w-4 text-center">{player.jersey}</span>
+                              <span className="text-[11px] font-bold text-white/80">{player.athlete.displayName}</span>
+                            </div>
+                            <span className="text-[8px] font-black text-white/30 uppercase">{player.position.abbreviation}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </button>
-                );
-              })}
+                  )) || (
+                    <div className="py-20 text-center opacity-40">
+                      <List className="w-10 h-10 mx-auto mb-3" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">Escalação indisponível</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {((window as any)._activeTab === 'lances') && (
+                <div className="space-y-4">
+                  {details?.plays?.slice(0, 15).map((play: any, idx: number) => (
+                    <div key={idx} className="flex gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
+                      <div className="shrink-0 w-8 text-center">
+                        <span className="text-[10px] font-black text-vexia-purple">{play.clock.displayValue}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-[11px] font-bold text-white/80 leading-snug">{play.text}</p>
+                      </div>
+                    </div>
+                  )) || (
+                    <div className="py-20 text-center opacity-40">
+                      <Clock className="w-10 h-10 mx-auto mb-3" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">Nenhum lance registrado</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-6 pt-6 border-t border-white/5 shrink-0">
                <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <span className="block text-[9px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-2">Guia de Programação</span>
+                  <span className="block text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Próximo Jogo</span>
                   <p className="text-[11px] font-bold text-white line-clamp-2 leading-snug mb-2">
-                    {epg.now?.title || "Programação indisponível"}
+                    {epg.next?.title || "Fim da transmissão"}
                   </p>
-                  {epg.now && (
+                  {epg.next && (
                     <div className="flex items-center gap-2 text-[9px] text-white/40 font-black uppercase">
-                      <span>{clock(epg.now.start)}</span>
-                      <div className="w-1 h-1 bg-white/20 rounded-full" />
-                      <span>{clock(epg.now.stop)}</span>
+                      <span>{clock(epg.next.start)}</span>
                     </div>
                   )}
                </div>

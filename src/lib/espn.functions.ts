@@ -35,6 +35,29 @@ export interface EspnGame {
     names: string[];
   }>;
 }
+/**
+ * Busca detalhes de um jogo específico na ESPN (escalações, gols, eventos).
+ */
+export const getEspnGameDetails = createServerFn({ method: "GET" })
+  .inputValidator((id: string) => id)
+  .handler(async ({ input: id }) => {
+    try {
+      // URL para detalhes do jogo (summary)
+      const response = await fetch(
+        `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${id}`,
+        { 
+          headers: { "Accept": "application/json" },
+          signal: AbortSignal.timeout(8000)
+        }
+      );
+      
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do jogo ESPN:", error);
+      return null;
+    }
+  });
 
 /**
  * Busca jogos de futebol na API pública da ESPN.
