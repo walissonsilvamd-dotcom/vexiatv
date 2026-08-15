@@ -133,7 +133,7 @@ function JogosPage() {
       );
       
       // Bloqueio explícito de outros esportes para não poluir
-      const otherSports = ["futsal", "nba", "nfl", "nhl", "golfe", "surfe", "tennis", "ufc", "lutas", "basquete"];
+      const otherSports = ["futsal", "nba", "nfl", "nhl", "golfe", "surfe", "tennis", "ufc", "lutas", "basquete", "olimpica", "atp", "wta", "cincinnati", "st. jude"];
       const isOtherSport = otherSports.some(kw => name.includes(kw) || cat.includes(kw));
 
       return isFootball && !isOtherSport;
@@ -174,15 +174,18 @@ function JogosPage() {
       const epg = nowAndNext(guide, ch.tvgId, minuteTick);
       const chName = ch.name.toLowerCase();
       
-      // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos
+      // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos ou de outros esportes
       const nowTitle = epg.now?.title.toLowerCase() || "";
+      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis"].some(kw => nowTitle.includes(kw));
+      
       const isGeneric = nowTitle.includes("programação") || 
                         nowTitle.includes("seu servidor favorito") || 
                         nowTitle === "" || 
                         nowTitle.includes("informação indisponível") ||
                         nowTitle.includes("breve") ||
                         nowTitle.includes("loading") ||
-                        nowTitle.includes("transmissão");
+                        nowTitle.includes("transmissão") ||
+                        isOtherSportProgram;
       
       // 1. Tenta match com ESPN
       const espnMatch = espnScores.find(score => 
