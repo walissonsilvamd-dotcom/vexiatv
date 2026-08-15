@@ -113,8 +113,9 @@ function JogosPage() {
       // Apenas futebol
       const isFootball = name.includes("futebol") || name.includes("soccer") || name.includes("brasileir") || 
                         name.includes("libertadores") || name.includes("champions") || name.includes("copa") ||
+                        name.includes("campeonato") || name.includes("liga") ||
                         cat.includes("futebol") || cat.includes("soccer") || grp.includes("futebol") || grp.includes("soccer") ||
-                        grp.includes("brasileir") || cat.includes("brasileir");
+                        grp.includes("brasileir") || cat.includes("brasileir") || grp.includes("esport");
       
       // Canais de esporte que costumam passar futebol
       const isSportChannel = name.includes("premiere") || name.includes("espn") || name.includes("tnt") || name.includes("dazn") ||
