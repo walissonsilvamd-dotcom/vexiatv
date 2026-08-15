@@ -10,12 +10,13 @@ export type FootballScore = {
   time?: string;
   logoA?: string;
   logoB?: string;
+  isLive: boolean;
 };
 
 // Regex para capturar padrões como "Time A 2 x 1 Time B" ou "Time A 2 - 1 Time B"
 const SCORE_RE = /(.+?)\s+(\d+)\s*(?:x|-)\s*(\d+)\s+(.+)/i;
 // Regex para capturar tempo de jogo (ex: "45'", "2º tempo", "Intervalo")
-const TIME_RE = /(\d+'|\d{1,2}:\d{2}|intervalo|prorrogação|pênaltis)/i;
+const TIME_RE = /(\d+'|\d{1,2}:\d{2}|intervalo|prorrogação|pênaltis|encerrado|fim)/i;
 
 /**
  * Tenta extrair o placar e os times de uma string (geralmente o título do programa no EPG).
@@ -26,8 +27,10 @@ export function extractFootballScore(text: string, description?: string): Footba
 
   const [, teamA, scoreA, scoreB, teamB] = match;
   
-  // Tenta achar o tempo na descrição ou no título
-  const timeMatch = (text + " " + (description || "")).match(TIME_RE);
+  const fullText = (text + " " + (description || "")).toLowerCase();
+  const timeMatch = fullText.match(TIME_RE);
+  
+  const isFinished = fullText.includes("encerrado") || fullText.includes("fim de jogo") || fullText.includes("finalizado");
 
   return {
     teamA: teamA.trim(),
@@ -35,17 +38,13 @@ export function extractFootballScore(text: string, description?: string): Footba
     teamB: teamB.trim(),
     scoreB: parseInt(scoreB, 10),
     time: timeMatch ? timeMatch[0] : undefined,
-    // Em uma implementação real, poderíamos mapear os nomes dos times para URLs de logos conhecidas
-    // Por enquanto usamos fallbacks visuais no componente
+    isLive: !isFinished,
     logoA: getTeamLogoUrl(teamA.trim()),
     logoB: getTeamLogoUrl(teamB.trim()),
   };
 }
 
 function getTeamLogoUrl(teamName: string): string | undefined {
-  // Mapeamento simples ou serviço externo
-  // Exemplo: usar Clearbit ou similar para marcas, mas para times de futebol 
-  // o ideal seria uma base local ou API de esportes.
-  // Por enquanto retornamos undefined para usar o fallback de ícone.
+  // Implementação futura para logos reais
   return undefined; 
 }
