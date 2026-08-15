@@ -35,8 +35,19 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   return (
     <div className={`flex items-center gap-4 w-full p-2 rounded-2xl transition-all ${className}`}>
       {/* Coluna Liga/Status */}
-      <div className="flex flex-col items-center justify-center gap-2 w-20 shrink-0 bg-white/5 p-3 rounded-2xl border border-white/5">
-        <Trophy className="w-6 h-6 text-white/20" />
+      <div className="flex flex-col items-center justify-center gap-2 w-20 shrink-0 bg-white/5 p-3 rounded-2xl border border-white/5 overflow-hidden">
+        {score.leagueLogo ? (
+          <img 
+            src={score.leagueLogo} 
+            alt={score.league} 
+            className="w-8 h-8 object-contain opacity-60"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <Trophy className={`w-6 h-6 text-white/20 ${score.leagueLogo ? 'hidden' : ''}`} />
         {score.league && (
           <span className="text-[8px] font-black text-white/40 uppercase text-center leading-tight">
             {score.league}
@@ -58,7 +69,12 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
           </span>
           <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
             {logoA ? (
-              <img src={logoA} alt={score.teamA} className="w-9 h-9 object-contain" />
+              <img 
+                src={logoA} 
+                alt={score.teamA} 
+                className="w-9 h-9 object-contain"
+                onError={() => setLogoA(undefined)}
+              />
             ) : (
               <Shield className="w-6 h-6 text-white/20" />
             )}
@@ -92,7 +108,12 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         <div className="flex items-center gap-4 flex-1 justify-start pl-4 border-l border-white/5">
           <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
             {logoB ? (
-              <img src={logoB} alt={score.teamB} className="w-9 h-9 object-contain" />
+              <img 
+                src={logoB} 
+                alt={score.teamB} 
+                className="w-9 h-9 object-contain"
+                onError={() => setLogoB(undefined)}
+              />
             ) : (
               <Shield className="w-6 h-6 text-white/20" />
             )}
