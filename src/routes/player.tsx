@@ -300,6 +300,12 @@ function PlayerPage() {
       }) | null;
       if (cancelled || document.fullscreenElement) return;
       try {
+        // Tenta o autoplay real (sem pause) imediatamente
+        if (video) {
+          video.muted = true; // Necessário para autoplay confiável em muitos navegadores
+          void video.play().catch(() => undefined);
+        }
+        
         if (el?.requestFullscreen) await el.requestFullscreen();
         else if (el?.webkitRequestFullscreen) await el.webkitRequestFullscreen();
         else if (el?.msRequestFullscreen) await el.msRequestFullscreen();
@@ -746,9 +752,19 @@ function PlayerPage() {
           if (type !== "live") seekBy(-seekStep);
           break;
         case "ArrowUp":
-          setMenu((m) => (m ? null : "quality"));
+          if (type === "live") {
+            e.preventDefault();
+            stepChannel(-1);
+          } else {
+            setMenu((m) => (m ? null : "quality"));
+          }
           break;
         case "ArrowDown":
+          if (type === "live") {
+            e.preventDefault();
+            stepChannel(1);
+            break;
+          }
           if (menuOpenRef.current) {
             setMenu(null);
             break;
@@ -1516,7 +1532,7 @@ function PlayerPage() {
             <span className="text-vexia-cyan">Atraso do stream: {Math.round(liveDelay)} segundos</span>
           </div>
         ) : (
-          <div className="space-y-1.5">
+          <div className={`space-y-1.5 ${type === 'live' ? 'hidden' : ''}`}>
             <input
               type="range"
               min={0}
@@ -1721,7 +1737,7 @@ function PlayerPage() {
         </div>
 
 
-        {menu ? (
+        {menu && type !== 'live' ? (
           <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-vexia-purple/40 bg-black/85 p-2 shadow-[0_0_22px_-8px_rgb(var(--vexia-primary-rgb)/0.9)]">
             {menuOptions.length === 0 ? (
               <p className="px-2 py-1 text-[10px] font-medium text-white/70">
