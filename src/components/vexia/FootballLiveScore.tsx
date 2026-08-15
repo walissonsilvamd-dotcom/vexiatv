@@ -74,7 +74,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   return (
     <div className={`flex items-center gap-2 w-full p-1 rounded-xl transition-all ${className}`}>
       {/* Grid Principal - Estilo Compacto */}
-      <div className="flex-1 flex items-center bg-black/60 rounded-xl border border-white/10 p-2 shadow-lg backdrop-blur-md relative overflow-hidden">
+      <div className="flex-1 flex items-center bg-black/60 rounded-xl border border-white/10 p-2 shadow-lg backdrop-blur-md relative overflow-hidden min-h-[100px]">
         {/* Fundo decorativo se estiver ao vivo */}
         {score.isLive && (
           <div className="absolute inset-0 bg-white/5 animate-pulse pointer-events-none" />
@@ -82,8 +82,8 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
 
         {/* Time A */}
         <div className="flex items-center gap-3 flex-1 justify-end pr-3 border-r border-white/5">
-          <div className="flex flex-col items-end">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words max-w-[120px]">
+          <div className="flex flex-col items-end flex-1 min-w-0">
+            <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words w-full">
               {cleanTeamName(score.teamA)}
             </span>
           </div>
@@ -152,11 +152,10 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
               <Shield className="w-6 h-6 text-white/20" />
             )}
           </div>
-          <div className="flex flex-col items-start">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words max-w-[120px]">
+          <div className="flex flex-col items-start flex-1 min-w-0">
+            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words w-full">
               {cleanTeamName(score.teamB)}
             </span>
-            {/* Liga removida daqui para não repetir */}
           </div>
         </div>
       </div>
