@@ -371,54 +371,71 @@ function JogosPage() {
                     onClick={() => open(item)}
                     className="vexia-focus flex items-center gap-4 rounded-3xl border border-white/5 bg-black/40 p-2 text-left transition-all hover:border-white/20 hover:bg-white/5 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
                   >
-                    <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2">
-                      <div className="relative">
-                        <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
-                          {mainCh.logo ? (
+                    <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2 min-h-[100px]">
+                      {score?.leagueLogo ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
                             <SmartImage
-                              src={mainCh.logo}
+                              src={score.leagueLogo}
                               role="logo"
                               alt=""
                               className="h-full w-full object-contain p-1"
-                              fallback={<Tv className="h-5 w-5 text-white" aria-hidden />}
+                              fallback={<Trophy className="h-6 w-6 text-white/40" />}
                             />
-                          ) : (
-                            <Tv className="h-5 w-5 text-white" aria-hidden />
-                          )}
-                        </span>
-                        {item.isGrouped && itemChannels.length > 1 && (
-                          <div className="absolute -bottom-1 -right-1 bg-vexia-purple text-[7px] font-black px-1.5 py-0.5 text-white rounded-full border border-black shadow-lg uppercase">
-                            +{itemChannels.length - 1}
+                          </div>
+                          <span className="text-[8px] font-black text-white/60 uppercase text-center leading-[1] max-w-[80px] break-words">
+                            {score.league}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                            <Trophy className="h-6 w-6 text-white/40" />
+                          </div>
+                          <span className="text-[8px] font-black text-white/60 uppercase text-center leading-[1] max-w-[80px] break-words">
+                            {score?.league || "Futebol"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center gap-2 p-2">
+                      {score ? (
+                        <FootballLiveScore score={score} />
+                      ) : (
+                        <div className="flex items-center justify-between w-full bg-white/5 p-3 rounded-xl border border-white/10">
+                          <span className="truncate text-xs font-black text-white uppercase">{epg.now?.title ?? mainCh.name}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center gap-2">
+                          <span className="grid h-6 w-6 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
+                            {mainCh.logo ? (
+                              <SmartImage
+                                src={mainCh.logo}
+                                role="logo"
+                                alt=""
+                                className="h-full w-full object-contain p-1"
+                                fallback={<Tv className="h-3 w-3 text-white" aria-hidden />}
+                              />
+                            ) : (
+                              <Tv className="h-3 w-3 text-white" aria-hidden />
+                            )}
+                          </span>
+                          <span className="text-[9px] font-bold text-white/50 truncate max-w-[120px]">
+                            {mainCh.name}
+                            {item.isGrouped && itemChannels.length > 1 && ` (+${itemChannels.length - 1})`}
+                          </span>
+                        </div>
+                        
+                        {epg.now && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 bg-white/5 rounded-md border border-white/10">
+                            <Clock className="w-2.5 h-2.5 text-vexia-purple" />
+                            <span className="text-[9px] font-black text-white/80">{clock(epg.now.start)}</span>
                           </div>
                         )}
                       </div>
-                      <div className="text-[8px] font-black text-white/40 tracking-widest uppercase text-center max-w-[80px] truncate">
-                        {mainCh.name}
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0 pr-4">
-                      {score ? (
-                        <FootballLiveScore 
-                          score={score} 
-                          className="w-full"
-                          timeLabel={epg.now ? clock(epg.now.start) : "AGORA"}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-between w-full bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <div className="flex flex-col gap-1">
-                            <span className="block truncate text-lg font-black text-white uppercase tracking-tight">
-                              {epg.now?.title ?? mainCh.name}
-                            </span>
-                            <span className="block truncate text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                              PROGRAMAÇÃO ATUAL
-                            </span>
-                          </div>
-                          <div className="text-sm font-black text-vexia-purple bg-vexia-purple/10 px-4 py-2 rounded-xl border border-vexia-purple/20">
-                            {epg.now ? clock(epg.now.start) : "LIVE"}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </button>
                 );
