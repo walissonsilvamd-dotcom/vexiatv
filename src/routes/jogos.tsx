@@ -17,7 +17,8 @@ import { BRAND } from "../lib/brand";
 import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
 import { Skeleton } from "../components/ui/skeleton";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
-import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
+import { getLiveFootballScores } from "../lib/espn.functions";
+import type { EspnGame } from "../lib/espn-types";
 import { prefetchTeamLogos } from "../lib/logo-cache";
 import { GameDetailsDialog } from "../components/vexia/GameDetailsDialog";
 
