@@ -64,16 +64,31 @@ function JogoDetalhesPage() {
       score = extractFootballScore(epg.now.title, epg.now.description);
     }
 
-    return { channel, epg, score, isEspn: !!espnMatch };
-  }, [channel, guide, minuteTick, espnEvents]);
+    // Busca canais alternativos que passam o mesmo jogo
+    const alternatives = channels.filter(c => {
+      if (c.id === channel.id) return false;
+      
+      const cName = c.name.toLowerCase();
+      // Match via ESPN
+      if (espnMatch && espnMatch.broadcasts?.[0]?.names.some(b => cName.includes(b.toLowerCase()))) return true;
+      
+      // Match via EPG (se tiver o mesmo título do programa agora)
+      const cEpg = nowAndNext(guide, c.tvgId, minuteTick);
+      if (epg.now && cEpg.now && cEpg.now.title === epg.now.title) return true;
+      
+      return false;
+    });
+
+    return { channel, epg, score, isEspn: !!espnMatch, alternatives };
+  }, [channel, guide, minuteTick, espnEvents, channels]);
 
   if (!gameData) return null;
 
-  const { channel: ch, epg, score } = gameData;
+  const { channel: ch, epg, score, alternatives } = gameData;
 
-  const play = () => {
-    setStreamHandoff("live", ch.id, ch.url);
-    void navigate({ to: "/player", search: { type: "live", id: ch.id } });
+  const play = (selectedCh = ch) => {
+    setStreamHandoff("live", selectedCh.id, selectedCh.url);
+    void navigate({ to: "/player", search: { type: "live", id: selectedCh.id } });
   };
 
   return (
@@ -195,10 +210,46 @@ function JogoDetalhesPage() {
             </div>
           </div>
 
-          {/* Botão de Ação */}
+          {/* Canais Alternativos (Opções de Qualidade) */}
+          {alternatives.length > 0 && (
+            <div className="w-full">
+              <span className="block text-[10px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-4 text-center">
+                Disponível em outros canais (Qualidades)
+              </span>
+              <div className="flex flex-wrap justify-center gap-3">
+                {[ch, ...alternatives].map((altCh) => {
+                  const nameLower = altCh.name.toLowerCase();
+                  const label = nameLower.includes("fhd") || nameLower.includes("4k") ? "FHD / 4K" : 
+                               nameLower.includes("hd+") ? "HD+" : 
+                               nameLower.includes("hd") ? "HD" : "SD";
+                  
+                  const isCurrent = altCh.id === ch.id;
+
+                  return (
+                    <button
+                      key={altCh.id}
+                      onClick={() => play(altCh)}
+                      className={`vexia-focus px-5 py-3 rounded-2xl border transition-all flex flex-col items-center min-w-[120px] ${
+                        isCurrent 
+                        ? 'bg-vexia-purple/20 border-vexia-purple/50 shadow-[0_0_15px_rgba(123,43,190,0.3)]' 
+                        : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <span className="text-xs font-black text-white truncate max-w-[100px]">{altCh.name}</span>
+                      <span className={`text-[9px] font-bold uppercase mt-1 ${isCurrent ? 'text-vexia-cyan' : 'text-vexia-muted'}`}>
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Botão de Ação Principal */}
           <button 
-            onClick={play}
-            className="vexia-focus mt-6 flex items-center justify-center gap-4 w-full md:w-auto md:px-12 py-5 bg-vexia-purple rounded-[2rem] shadow-[0_0_30px_rgba(123,43,190,0.4)] hover:scale-[1.05] transition-all group"
+            onClick={() => play()}
+            className="vexia-focus mt-8 flex items-center justify-center gap-4 w-full md:w-auto md:px-16 py-5 bg-vexia-purple rounded-[2rem] shadow-[0_0_40px_rgba(123,43,190,0.5)] hover:scale-[1.05] active:scale-95 transition-all group"
           >
             <Play className="w-6 h-6 fill-current group-hover:scale-110 transition-transform" />
             <span className="text-lg font-black uppercase tracking-tighter">Assistir Agora</span>

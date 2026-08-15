@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 
 /**
  * Interface simplificada para o retorno dos jogos da ESPN.
@@ -39,57 +38,68 @@ export interface EspnGame {
 
 /**
  * Busca jogos de futebol na API pública da ESPN.
- * A ESPN fornece um endpoint que não requer chave de API para o dashboard.
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
   .handler(async () => {
     try {
-      const response = await fetch(
-        "https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/scoreboard",
-        { headers: { "Accept": "application/json" } }
-      );
+      // Buscamos várias ligas para aumentar a chance de encontrar os jogos da lista
+      const leagues = ["bra.1", "eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "uefa.champions", "conmebol.libertadores", "conmebol.sudamericana"];
       
-      if (!response.ok) return { events: [] };
+      const allEvents: EspnGame[] = [];
       
-      const data = await response.json();
-      
-      // Mapeia os eventos para o nosso formato simplificado
-      const events: EspnGame[] = (data.events || []).map((event: any) => {
-        return {
-          id: event.id,
-          name: event.name,
-          shortName: event.shortName,
-          date: event.date,
-          status: {
-            type: {
-              name: event.status.type.name,
-              description: event.status.type.description,
-              state: event.status.type.state,
+      await Promise.all(leagues.map(async (league) => {
+        try {
+          const response = await fetch(
+            `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard`,
+            { 
+              headers: { "Accept": "application/json" },
+              signal: AbortSignal.timeout(5000) 
+            }
+          );
+          
+          if (!response.ok) return;
+          
+          const data = await response.json();
+          const events = (data.events || []).map((event: any) => ({
+            id: event.id,
+            name: event.name,
+            shortName: event.shortName,
+            date: event.date,
+            status: {
+              type: {
+                name: event.status.type.name,
+                description: event.status.type.description,
+                state: event.status.type.state,
+              },
+              displayClock: event.status.displayClock,
+              period: event.status.period,
             },
-            displayClock: event.status.displayClock,
-            period: event.status.period,
-          },
-          competitors: event.competitions[0].competitors.map((c: any) => ({
-            id: c.id,
-            team: {
-              id: c.team.id,
-              location: c.team.location,
-              name: c.team.name,
-              abbreviation: c.team.abbreviation,
-              displayName: c.team.displayName,
-              logo: c.team.logo,
-            },
-            score: c.score,
-            homeAway: c.homeAway,
-          })),
-          broadcasts: event.competitions[0].broadcasts?.map((b: any) => ({
-            market: b.market,
-            names: b.names
-          }))
-        };
-      });
+            competitors: event.competitions[0].competitors.map((c: any) => ({
+              id: c.id,
+              team: {
+                id: c.team.id,
+                location: c.team.location,
+                name: c.team.name,
+                abbreviation: c.team.abbreviation,
+                displayName: c.team.displayName,
+                logo: c.team.logo,
+              },
+              score: c.score,
+              homeAway: c.homeAway,
+            })),
+            broadcasts: event.competitions[0].broadcasts?.map((b: any) => ({
+              market: b.market,
+              names: b.names
+            }))
+          }));
+          
+          allEvents.push(...events);
+        } catch (e) {
+          // Falha em uma liga não mata o processo
+        }
+      }));
 
-      return { events };
+      return { events: allEvents };
     } catch (error) {
       console.error("Erro ao buscar placares ESPN:", error);
       return { events: [] };
