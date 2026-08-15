@@ -186,24 +186,33 @@ function JogosPage() {
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      {(epg.now && extractFootballScore(epg.now.title, epg.now.description)) || (epg.next && extractFootballScore(epg.next.title, epg.next.description)) ? (
-                        <FootballLiveScore 
-                          score={extractFootballScore(epg.now?.title || epg.next?.title || "", epg.now?.description || epg.next?.description)!} 
-                          className="mb-1"
-                          timeLabel={epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`}
-                        />
-                      ) : (
-                        <>
-                          <span className="block truncate text-sm font-bold text-vexia-text">
-                            {epg.now?.title ?? ch.name}
-                          </span>
-                          <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
-                            {epg.now
-                              ? `${ch.name} • ${clock(epg.now.start)}`
-                              : ch.name}
-                          </span>
-                        </>
-                      )}
+                      {(() => {
+                        const currentScore = epg.now ? extractFootballScore(epg.now.title, epg.now.description) : null;
+                        const nextScore = epg.next ? extractFootballScore(epg.next.title, epg.next.description) : null;
+                        const score = currentScore || nextScore;
+                        
+                        if (score) {
+                          return (
+                            <FootballLiveScore 
+                              score={score} 
+                              className="mb-1"
+                              timeLabel={epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`}
+                            />
+                          );
+                        }
+                        return (
+                          <>
+                            <span className="block truncate text-sm font-bold text-vexia-text">
+                              {epg.now?.title ?? ch.name}
+                            </span>
+                            <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
+                              {epg.now
+                                ? `${ch.name} • ${clock(epg.now.start)}`
+                                : ch.name}
+                            </span>
+                          </>
+                        );
+                      })()}
                       
                       {epg.now ? (
                         <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10">
