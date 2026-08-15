@@ -64,7 +64,11 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   }, [score.teamA, score.teamB]);
 
   const cleanTeamName = (name: string) => {
-    return name.replace(/(\s|\b)ao vivo(\s|\b)/gi, " ").replace(/\s+/g, " ").trim();
+    return name
+      .replace(/(\s|\b)ao vivo(\s|\b)/gi, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^-+\s*|\s*-+$/g, "") // Remove hífens no início ou fim
+      .trim();
   };
 
   return (
