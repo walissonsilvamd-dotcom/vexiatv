@@ -1,7 +1,7 @@
 import { FootballScore } from "../../lib/football-score";
 import { Shield, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
-import { searchTeamLogo } from "../../lib/team-logos.functions";
+import { getCachedTeamLogo } from "../../lib/logo-cache";
 import { Skeleton } from "../ui/skeleton";
 
 interface FootballLiveScoreProps {
