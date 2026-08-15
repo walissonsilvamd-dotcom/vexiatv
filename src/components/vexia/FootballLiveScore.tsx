@@ -64,7 +64,11 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   }, [score.teamA, score.teamB]);
 
   const cleanTeamName = (name: string) => {
-    return name.replace(/(\s|\b)ao vivo(\s|\b)/gi, " ").replace(/\s+/g, " ").trim();
+    return name
+      .replace(/(\s|\b)ao vivo(\s|\b)/gi, " ")
+      .replace(/\s+/g, " ")
+      .replace(/^-+\s*|\s*-+$/g, "") // Remove hífens no início ou fim
+      .trim();
   };
 
   return (
@@ -79,7 +83,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         {/* Time A */}
         <div className="flex items-center gap-3 flex-1 justify-end pr-3 border-r border-white/5">
           <div className="flex flex-col items-end">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight">
+            <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamA)}
             </span>
             {score.league && (
@@ -144,7 +148,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             )}
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">
+            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamB)}
             </span>
             {score.league && (
