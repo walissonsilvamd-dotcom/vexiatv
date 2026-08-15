@@ -10,9 +10,9 @@ import logoAsset from "../assets/pipoca-flix-logo.png.asset.json";
  */
 export const BRAND = {
   /** Nome completo do app — usado em títulos, SEO e textos. */
-  name: "PipocaFlix",
+  name: "UniTV",
   /** Nome curto (sem "TV") — usado em textos internos e nomes de canais demo. */
-  shortName: "PipocaFlix",
+  shortName: "UniTV",
   logoUrl: logoAsset.url,
 } as const;
 
