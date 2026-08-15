@@ -129,12 +129,15 @@ function JogoDetalhesPage() {
       setLogoB(gameData.score.logoB);
       
       async function fetchLogos() {
-        if (!gameData.score?.logoA && gameData.score?.teamA) {
-          const logo = await searchTeamLogo({ data: gameData.score.teamA });
+        const currentScore = gameData?.score;
+        if (!currentScore) return;
+        
+        if (!currentScore.logoA && currentScore.teamA) {
+          const logo = await searchTeamLogo({ data: currentScore.teamA });
           if (logo) setLogoA(logo);
         }
-        if (!gameData.score?.logoB && gameData.score?.teamB) {
-          const logo = await searchTeamLogo({ data: gameData.score.teamB });
+        if (!currentScore.logoB && currentScore.teamB) {
+          const logo = await searchTeamLogo({ data: currentScore.teamB });
           if (logo) setLogoB(logo);
         }
       }
