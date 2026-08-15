@@ -18,6 +18,7 @@ import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
 import { Skeleton } from "../components/ui/skeleton";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
+import { prefetchTeamLogos } from "../lib/logo-cache";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
