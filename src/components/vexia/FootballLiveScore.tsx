@@ -148,7 +148,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             )}
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight">
+            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamB)}
             </span>
             {score.league && (
