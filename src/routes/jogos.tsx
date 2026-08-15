@@ -89,6 +89,12 @@ function JogosPage() {
         const data = await getLiveFootballScores();
         if (data && data.events) {
           setEspnEvents(data.events);
+          
+          // Pré-carrega logos dos times que estão na lista da ESPN
+          const teamNames = data.events.flatMap(event => 
+            event.competitors.map(c => c.team.displayName)
+          );
+          prefetchTeamLogos(teamNames);
         }
       } catch (e) {
         console.error("ESPN load failed", e);
