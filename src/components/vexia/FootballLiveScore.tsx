@@ -81,15 +81,15 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         )}
 
         {/* Time A */}
-        <div className="flex items-center gap-3 flex-1 justify-end pr-3 border-r border-white/5">
+        <div className="flex items-center gap-4 flex-1 justify-end pr-4 border-r border-white/5">
           <div className="flex flex-col items-end flex-1 min-w-0">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words w-full">
+            <span className="text-[12px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words w-full">
               {cleanTeamName(score.teamA)}
             </span>
           </div>
-          <div className="w-12 h-12 shrink-0 flex items-center justify-center overflow-hidden relative">
+          <div className="w-16 h-16 shrink-0 flex items-center justify-center overflow-hidden relative">
             {loadingA ? (
-              <Skeleton className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+              <Skeleton className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
             ) : logoA ? (
               <img 
                 src={logoA} 
@@ -101,43 +101,44 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
                 }}
               />
             ) : (
-              <Shield className="w-6 h-6 text-white/20" />
+              <Shield className="w-8 h-8 text-white/20" />
             )}
           </div>
         </div>
 
         {/* Centro: Placar e Tempo */}
-        <div className="flex flex-col items-center justify-center px-4 min-w-[70px]">
-          <div className="flex items-center gap-2 font-black text-2xl leading-none tracking-tighter">
-            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+        <div className="flex flex-col items-center justify-center px-6 min-w-[90px]">
+          <div className="flex items-center gap-3 font-black text-3xl leading-none tracking-tighter">
+            <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
               {(score.isLive || (score as any).isFinished) ? score.scoreA : ""}
             </span>
             <div className="flex flex-col items-center">
               {score.isLive ? (
-                <div className="text-[8px] font-black text-red-500 uppercase animate-pulse">
-                  {score.time || "LIVE"}
+                <div className="text-[9px] font-black text-red-500 uppercase animate-pulse flex flex-col items-center">
+                  <span className="bg-red-500 text-white px-1 rounded-[2px] mb-1 scale-75">LIVE</span>
+                  {score.time || "EM ANDAMENTO"}
                 </div>
               ) : (score as any).isFinished ? (
-                <div className="text-[8px] font-black text-white/40 uppercase">
-                  FIM
+                <div className="text-[9px] font-black text-white/40 uppercase">
+                  FINALIZADO
                 </div>
               ) : (
-                <div className="text-xs font-black text-white/60 tracking-widest px-2 py-0.5 bg-white/5 rounded-md border border-white/10">
+                <div className="text-sm font-black text-white/60 tracking-widest px-3 py-1 bg-white/5 rounded-md border border-white/10">
                   VS
                 </div>
               )}
             </div>
-            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+            <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
               {(score.isLive || (score as any).isFinished) ? score.scoreB : ""}
             </span>
           </div>
         </div>
 
         {/* Time B */}
-        <div className="flex items-center gap-3 flex-1 justify-start pl-3 border-l border-white/5">
-          <div className="w-12 h-12 shrink-0 flex items-center justify-center overflow-hidden relative">
+        <div className="flex items-center gap-4 flex-1 justify-start pl-4 border-l border-white/5">
+          <div className="w-16 h-16 shrink-0 flex items-center justify-center overflow-hidden relative">
             {loadingB ? (
-              <Skeleton className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
+              <Skeleton className="w-10 h-10 rounded-full bg-white/10 animate-pulse" />
             ) : logoB ? (
               <img 
                 src={logoB} 
@@ -149,11 +150,11 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
                 }}
               />
             ) : (
-              <Shield className="w-6 h-6 text-white/20" />
+              <Shield className="w-8 h-8 text-white/20" />
             )}
           </div>
           <div className="flex flex-col items-start flex-1 min-w-0">
-            <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words w-full">
+            <span className="text-[12px] font-black text-white uppercase tracking-tighter leading-tight break-words w-full">
               {cleanTeamName(score.teamB)}
             </span>
           </div>
