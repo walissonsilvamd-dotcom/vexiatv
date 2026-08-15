@@ -1407,9 +1407,12 @@ function PlayerPage() {
             <span className="text-vexia-cyan">
               • {qualityLevels.activeLabel ?? (videoRef.current?.videoHeight ? `${videoRef.current.videoHeight}p` : "auto")}
             </span>
-            {type === "live" ? (
-              <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
+            {type === "live" && channel?.tvgId ? (
+              <span className="text-vexia-cyan">• CANAL {channel.tvgId}</span>
             ) : null}
+            <span className="ml-2 text-vexia-cyan tabular-nums">
+              {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
           <h1 className="flex min-w-0 items-center justify-center gap-2 text-sm font-medium text-white md:text-base">
             <span className="truncate">
