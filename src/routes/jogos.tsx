@@ -181,8 +181,7 @@ function JogosPage() {
   }, [channels, guide, minuteTick, espnEvents]);
 
   const open = (ch: PlaylistChannel) => {
-    setStreamHandoff("live", ch.id, ch.url);
-    void navigate({ to: "/player", search: { type: "live", id: ch.id } });
+    void navigate({ to: "/jogos/$id", params: { id: ch.id } });
   };
 
   return (
