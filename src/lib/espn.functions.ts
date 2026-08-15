@@ -81,8 +81,15 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
 
       const leagues = [
         "bra.1", "bra.2", "bra.cup", "bra.nordeste", 
-        "eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "por.1",
-        "arg.1", "mex.1", "uefa.champions", "uefa.europa",
+        "eng.1", "eng.2", "eng.fa", "eng.carabao",
+        "esp.1", "esp.2", "esp.cup",
+        "ita.1", "ita.2", "ita.cup",
+        "ger.1", "ger.2", 
+        "fra.1", "fra.2", "fra.cup",
+        "por.1", "por.2",
+        "ned.1", "ksa.1",
+        "arg.1", "mex.1", 
+        "uefa.champions", "uefa.europa", "uefa.europa.conf",
         "conmebol.libertadores", "conmebol.sudamericana",
         "fifa.world", "conmebol.america", "fifa.friendly"
       ];
