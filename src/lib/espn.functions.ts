@@ -70,16 +70,14 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
   .validator((data: unknown) => {
-    try {
-      return z.object({ date: z.string().optional() }).parse(data);
-    } catch (e) {
-      console.warn("getLiveFootballScores validator failed, using default date", e);
-      return { date: undefined };
-    }
+    return (data as any) || {};
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data }: { data: any }) => {
     try {
-      const targetDate = data.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const targetDate = data?.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const dateParam = targetDate.replace(/-/g, '');
+
+      // Buscamos várias ligas
       const dateParam = targetDate.replace(/-/g, '');
 
 
