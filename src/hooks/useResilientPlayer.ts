@@ -494,7 +494,7 @@ export function useResilientPlayer({
       attachWatchdog();
       timers.startup = setTimeout(
         () => startNext(`${selected.engine} • startup-timeout`),
-        preview ? 3_200 : STARTUP_TIMEOUT_MS,
+        preview ? 6_500 : STARTUP_TIMEOUT_MS,
       );
       try {
         const instance = await attachEngine(video, selected.engine, {
