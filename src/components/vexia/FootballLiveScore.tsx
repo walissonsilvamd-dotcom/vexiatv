@@ -2,6 +2,7 @@ import { FootballScore } from "../../lib/football-score";
 import { Shield, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { searchTeamLogo } from "../../lib/team-logos.functions";
+import { Skeleton } from "../ui/skeleton";
 
 interface FootballLiveScoreProps {
   score: FootballScore;
@@ -12,28 +13,50 @@ interface FootballLiveScoreProps {
 export function FootballLiveScore({ score, className = "", timeLabel }: FootballLiveScoreProps) {
   const [logoA, setLogoA] = useState<string | undefined>(score.logoA);
   const [logoB, setLogoB] = useState<string | undefined>(score.logoB);
+  const [loadingA, setLoadingA] = useState(false);
+  const [loadingB, setLoadingB] = useState(false);
+  const [errorA, setErrorA] = useState(false);
+  const [errorB, setErrorB] = useState(false);
 
   useEffect(() => {
     setLogoA(score.logoA);
     setLogoB(score.logoB);
+    setErrorA(false);
+    setErrorB(false);
   }, [score.logoA, score.logoB]);
 
   useEffect(() => {
     async function fetchLogos() {
-      if (!logoA && score.teamA) {
+      if (!logoA && score.teamA && !errorA) {
+        setLoadingA(true);
         try {
           const logo = await searchTeamLogo({ data: { teamName: score.teamA } });
-          if (logo) setLogoA(logo);
+          if (logo) {
+            setLogoA(logo);
+          } else {
+            setErrorA(true);
+          }
         } catch (e) {
           console.error("Falha ao buscar logo A:", e);
+          setErrorA(true);
+        } finally {
+          setLoadingA(false);
         }
       }
-      if (!logoB && score.teamB) {
+      if (!logoB && score.teamB && !errorB) {
+        setLoadingB(true);
         try {
           const logo = await searchTeamLogo({ data: { teamName: score.teamB } });
-          if (logo) setLogoB(logo);
+          if (logo) {
+            setLogoB(logo);
+          } else {
+            setErrorB(true);
+          }
         } catch (e) {
           console.error("Falha ao buscar logo B:", e);
+          setErrorB(true);
+        } finally {
+          setLoadingB(false);
         }
       }
     }
@@ -75,13 +98,18 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
           <span className="text-sm font-black text-white uppercase tracking-tighter text-right">
             {score.teamA}
           </span>
-          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
-            {logoA ? (
+          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+            {loadingA ? (
+              <Skeleton className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
+            ) : logoA ? (
               <img 
                 src={logoA} 
                 alt={score.teamA} 
                 className="w-9 h-9 object-contain"
-                onError={() => setLogoA(undefined)}
+                onError={() => {
+                  setLogoA(undefined);
+                  setErrorA(true);
+                }}
               />
             ) : (
               <Shield className="w-6 h-6 text-white/20" />
@@ -114,13 +142,18 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
 
         {/* Time B */}
         <div className="flex items-center gap-4 flex-1 justify-start pl-4 border-l border-white/5">
-          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
-            {logoB ? (
+          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+            {loadingB ? (
+              <Skeleton className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
+            ) : logoB ? (
               <img 
                 src={logoB} 
                 alt={score.teamB} 
                 className="w-9 h-9 object-contain"
-                onError={() => setLogoB(undefined)}
+                onError={() => {
+                  setLogoB(undefined);
+                  setErrorB(true);
+                }}
               />
             ) : (
               <Shield className="w-6 h-6 text-white/20" />
