@@ -42,28 +42,18 @@ export const Route = createFileRoute("/jogos")({
 
 /** Palavras que identificam canais/eventos esportivos nas listas IPTV. */
 const SPORT_HINTS = [
-  "sport",
-  "esporte",
-  "espn",
   "premiere",
-  "combate",
   "futebol",
   "fut ",
-  "nba",
-  "nfl",
-  "ufc",
-  "f1",
-  "formula",
+  "soccer",
   "libertadores",
   "champions",
   "brasileir",
-  "copa",
-  "eleven",
-  "dazn",
-  "band sports",
-  "sportv",
   "goltv",
+  "espn",
   "tnt sports",
+  "sportv",
+  "dazn",
 ];
 
 function isSport(...parts: (string | undefined)[]) {
@@ -89,7 +79,22 @@ function JogosPage() {
     const sports = channels.filter((c) => isSport(c.name, c.category, c.group));
     return sports
       .map((ch) => ({ ch, epg: nowAndNext(guide, ch.tvgId, minuteTick) }))
-      // Quem tem jogo identificado no EPG aparece primeiro.
+      // Prioriza quem tem jogo de futebol detectado no EPG agora ou a seguir
+      .filter((item) => {
+        const now = item.epg.now?.title.toLowerCase() || "";
+        const next = item.epg.next?.title.toLowerCase() || "";
+        // Se não tiver EPG, assume que é canal de futebol pelos hints do nome
+        if (!item.epg.now) return true;
+        
+        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x "];
+        const isFootNow = footHints.some(h => now.includes(h));
+        const isFootNext = footHints.some(h => next.includes(h));
+        
+        // Se for canal Premiere ou GolTV, sempre passa
+        const isPremiere = item.ch.name.toLowerCase().includes("premiere") || item.ch.name.toLowerCase().includes("goltv");
+        
+        return isFootNow || isFootNext || isPremiere;
+      })
       .sort((a, b) => Number(Boolean(b.epg.now)) - Number(Boolean(a.epg.now)));
   }, [channels, guide, minuteTick]);
 
