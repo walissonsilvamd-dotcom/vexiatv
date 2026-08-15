@@ -43,7 +43,7 @@ function JogoDetalhesPage() {
     
     // Procura na ESPN
     const espnMatch = espnEvents.find(event => 
-      event.competitions[0].broadcasts?.[0]?.names.some(b => chName.includes(b.toLowerCase()))
+      event.broadcasts?.[0]?.names.some((b: string) => chName.includes(b.toLowerCase()))
     );
 
     let score: FootballScore | null = null;
