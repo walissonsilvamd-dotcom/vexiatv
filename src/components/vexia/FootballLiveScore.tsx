@@ -1,7 +1,7 @@
 import { FootballScore } from "../../lib/football-score";
 import { Shield, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
-import { searchTeamLogo } from "../../lib/team-logos.functions";
+import { getCachedTeamLogo } from "../../lib/logo-cache";
 import { Skeleton } from "../ui/skeleton";
 
 interface FootballLiveScoreProps {
@@ -30,7 +30,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
       if (!logoA && score.teamA && !errorA) {
         setLoadingA(true);
         try {
-          const logo = await searchTeamLogo({ data: { teamName: score.teamA } });
+          const logo = await getCachedTeamLogo(score.teamA);
           if (logo) {
             setLogoA(logo);
           } else {
@@ -46,7 +46,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
       if (!logoB && score.teamB && !errorB) {
         setLoadingB(true);
         try {
-          const logo = await searchTeamLogo({ data: { teamName: score.teamB } });
+          const logo = await getCachedTeamLogo(score.teamB);
           if (logo) {
             setLogoB(logo);
           } else {

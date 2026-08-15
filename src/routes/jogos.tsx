@@ -18,6 +18,7 @@ import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
 import { Skeleton } from "../components/ui/skeleton";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
+import { prefetchTeamLogos } from "../lib/logo-cache";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
@@ -88,6 +89,12 @@ function JogosPage() {
         const data = await getLiveFootballScores();
         if (data && data.events) {
           setEspnEvents(data.events);
+          
+          // Pré-carrega logos dos times que estão na lista da ESPN
+          const teamNames = data.events.flatMap(event => 
+            event.competitors.map(c => c.team.displayName)
+          );
+          prefetchTeamLogos(teamNames);
         }
       } catch (e) {
         console.error("ESPN load failed", e);
