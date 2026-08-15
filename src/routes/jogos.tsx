@@ -197,7 +197,7 @@ function JogosPage() {
       
       // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos ou de outros esportes
       const nowTitle = epg.now?.title.toLowerCase() || "";
-      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis", "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais"].some(kw => nowTitle.includes(kw));
+      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis", "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais", "futsal", "motogp", "f1", "fórmula", "nascar", "ciclismo", "atletismo"].some(kw => nowTitle.includes(kw));
       
       const isGeneric = nowTitle.includes("programação") || 
                         nowTitle.includes("seu servidor favorito") || 
@@ -206,7 +206,7 @@ function JogosPage() {
                         nowTitle.includes("breve") ||
                         nowTitle.includes("loading") ||
                         nowTitle.includes("transmissão") ||
-                        nowTitle.includes("espn") || // Evita "ESPN 2" como título de programa
+                        nowTitle.includes("espn") || 
                         nowTitle.includes("sportv") ||
                         isOtherSportProgram;
       
@@ -295,7 +295,7 @@ function JogosPage() {
         if (!aLive && bLive) return 1;
         return 0;
       });
-  }, [channels, guide, minuteTick, espnEvents]);
+  }, [channels, guide, minuteTick, espnEvents, selectedDate]);
 
   const open = (item: any) => {
     // Forçamos a navegação usando a URL absoluta do TanStack Router
