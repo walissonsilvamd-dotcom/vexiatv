@@ -66,7 +66,19 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
   .handler(async () => {
     try {
       // Buscamos várias ligas para aumentar a chance de encontrar os jogos da lista
-      const leagues = ["bra.1", "bra.2", "bra.3", "eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "uefa.champions", "uefa.europa", "conmebol.libertadores", "conmebol.sudamericana", "usa.1", "por.1", "arg.1"];
+      const leagues = [
+        "bra.1", "bra.2", "bra.3", "bra.cup", "bra.nordeste", // Brasil
+        "eng.1", "eng.2", "eng.fa", "eng.league_cup",        // Inglaterra
+        "esp.1", "esp.2", "esp.cup",                         // Espanha
+        "ita.1", "ita.2", "ita.cup",                         // Itália
+        "ger.1", "ger.2",                                    // Alemanha
+        "fra.1", "fra.2", "fra.cup",                         // França
+        "por.1", "por.2",                                    // Portugal
+        "arg.1", "mex.1", "ned.1", "sau.1",                  // Outros
+        "uefa.champions", "uefa.europa", "uefa.nations",     // UEFA
+        "conmebol.libertadores", "conmebol.sudamericana",    // CONMEBOL
+        "fifa.world", "conmebol.america", "fifa.friendly"    // Seleções
+      ];
       
       const allEvents: EspnGame[] = [];
       
