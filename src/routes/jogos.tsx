@@ -217,9 +217,23 @@ function JogosPage() {
       isGrouped: false
     }));
 
-    return [...groupedResults, ...standaloneResults]
-      .filter(g => !(g.score as any)?.isFinished) // Filtra jogos que já acabaram via ESPN
-      .sort((a, b) => {
+    const finalResults = [...groupedResults, ...standaloneResults]
+      .filter(g => {
+        // Se temos dados da ESPN, filtramos os encerrados
+        if (g.score && (g.score as any).isFinished) return false;
+        
+        // Se temos dados de EPG, tentamos detectar se já encerrou pelo título/descrição
+        if (g.channels[0].epg.now) {
+          const title = g.channels[0].epg.now.title.toLowerCase();
+          if (title.includes("encerrado") || title.includes("fim de jogo") || title.includes("finalizado")) {
+            return false;
+          }
+        }
+        
+        return true;
+      });
+
+    return finalResults.sort((a, b) => {
         const aLive = a.score?.isLive;
         const bLive = b.score?.isLive;
         if (aLive && !bLive) return -1;
