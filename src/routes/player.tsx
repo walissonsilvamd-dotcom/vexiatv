@@ -300,6 +300,12 @@ function PlayerPage() {
       }) | null;
       if (cancelled || document.fullscreenElement) return;
       try {
+        // Tenta o autoplay real (sem pause) imediatamente
+        if (video) {
+          video.muted = true; // Necessário para autoplay confiável em muitos navegadores
+          void video.play().catch(() => undefined);
+        }
+        
         if (el?.requestFullscreen) await el.requestFullscreen();
         else if (el?.webkitRequestFullscreen) await el.webkitRequestFullscreen();
         else if (el?.msRequestFullscreen) await el.msRequestFullscreen();
@@ -746,9 +752,19 @@ function PlayerPage() {
           if (type !== "live") seekBy(-seekStep);
           break;
         case "ArrowUp":
-          setMenu((m) => (m ? null : "quality"));
+          if (type === "live") {
+            e.preventDefault();
+            stepChannel(-1);
+          } else {
+            setMenu((m) => (m ? null : "quality"));
+          }
           break;
         case "ArrowDown":
+          if (type === "live") {
+            e.preventDefault();
+            stepChannel(1);
+            break;
+          }
           if (menuOpenRef.current) {
             setMenu(null);
             break;
@@ -1391,9 +1407,12 @@ function PlayerPage() {
             <span className="text-vexia-cyan">
               • {qualityLevels.activeLabel ?? (videoRef.current?.videoHeight ? `${videoRef.current.videoHeight}p` : "auto")}
             </span>
-            {type === "live" ? (
-              <span className="text-vexia-cyan">• atraso {Math.round(liveDelay)}s</span>
+            {type === "live" && channel?.tvgId ? (
+              <span className="text-vexia-cyan">• CANAL {channel.tvgId}</span>
             ) : null}
+            <span className="ml-2 text-vexia-cyan tabular-nums">
+              {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
           <h1 className="flex min-w-0 items-center justify-center gap-2 text-sm font-medium text-white md:text-base">
             <span className="truncate">
@@ -1508,14 +1527,7 @@ function PlayerPage() {
         {type === "live" ? <PlayerEpgBar tvgId={channel?.tvgId} /> : null}
 
         {/* Barra de progresso / atraso */}
-        {type === "live" ? (
-          <div className="flex items-center gap-3 text-xs font-medium">
-            <span className="rounded-full bg-[#FF1744]/20 px-3 py-1 font-bold text-[#FF1744]">
-              AO VIVO
-            </span>
-            <span className="text-vexia-cyan">Atraso do stream: {Math.round(liveDelay)} segundos</span>
-          </div>
-        ) : (
+        {type === "live" ? null : (
           <div className="space-y-1.5">
             <input
               type="range"
@@ -1543,23 +1555,23 @@ function PlayerPage() {
         )}
 
         {/* Botões de transporte */}
-        <div className="flex items-center justify-center gap-3 md:gap-5">
-          {type === "series" ? (
-            <button
-              type="button"
-              disabled={!prevEpisode}
-              onClick={() =>
-                prevEpisode &&
-                (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: prevEpisode.id }, viewTransition: true }))
-              }
-              aria-label="Episódio anterior"
-              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
-            >
-              <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
-            </button>
-          ) : null}
-          {type !== "live" ? (
+        {type !== "live" && (
+          <div className="flex items-center justify-center gap-3 md:gap-5">
+            {type === "series" ? (
+              <button
+                type="button"
+                disabled={!prevEpisode}
+                onClick={() =>
+                  prevEpisode &&
+                  (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
+                  navigate({ to: "/player", search: { type, id, ep: prevEpisode.id }, viewTransition: true }))
+                }
+                aria-label="Episódio anterior"
+                className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
+              >
+                <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => seekBy(-seekStep)}
@@ -1568,20 +1580,18 @@ function PlayerPage() {
             >
               <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
-          >
-            {playing ? (
-              <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
-            ) : (
-              <Play className="h-4 w-4 fill-current text-white" aria-hidden />
-            )}
-          </button>
-          {type !== "live" ? (
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={playing ? "Pausar" : "Reproduzir"}
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
+            >
+              {playing ? (
+                <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
+              ) : (
+                <Play className="h-4 w-4 fill-current text-white" aria-hidden />
+              )}
+            </button>
             <button
               type="button"
               onClick={() => seekBy(seekStep)}
@@ -1590,8 +1600,6 @@ function PlayerPage() {
             >
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
-          ) : null}
-          {type !== "live" ? (
             <button
               type="button"
               onClick={() => seekBy(85)}
@@ -1601,31 +1609,30 @@ function PlayerPage() {
             >
               <SkipIntroIcon className="h-3.5 w-3.5" aria-hidden /> ABERTURA
             </button>
-          ) : null}
-          {type === "series" ? (
-            <button
-              type="button"
-              disabled={!nextEpisode}
-              onClick={() =>
-                nextEpisode &&
-                (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true }))
-              }
-              aria-label="Próximo episódio"
-              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
-            >
-              <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
-            </button>
-          ) : null}
-        </div>
+            {type === "series" ? (
+              <button
+                type="button"
+                disabled={!nextEpisode}
+                onClick={() =>
+                  nextEpisode &&
+                  (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
+                  navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true }))
+                }
+                aria-label="Próximo episódio"
+                className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
+              >
+                <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
+              </button>
+            ) : null}
+          </div>
+        )}
 
 
 
 
         {/* Menu de configurações do player */}
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
-          {(
-            [
+          {([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
               {
@@ -1634,7 +1641,7 @@ function PlayerPage() {
                 title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
                 label: subs.currentLabel,
               },
-              { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
+              { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x`, hidden: type === 'live' },
               { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
               { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
               ...(type === "series"
@@ -1653,7 +1660,7 @@ function PlayerPage() {
                   ] as const)
                 : []),
             ] as const
-          ).map((opt) => {
+          ).filter(opt => !('hidden' in opt && (opt as any).hidden)).map((opt) => {
             const open = menu === opt.key;
             return (
               <button
@@ -1686,42 +1693,42 @@ function PlayerPage() {
             );
           })}
           {/* Atraso da legenda: só − e +, sem poluir a tela */}
-          <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5">
-            <Timer className="h-3 w-3 shrink-0 text-vexia-cyan" aria-hidden />
+            <div className={`flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5 ${type === 'live' ? 'hidden' : ''}`}>
+              <Timer className="h-3 w-3 shrink-0 text-vexia-cyan" aria-hidden />
+              <button
+                type="button"
+                aria-label="Adiantar legenda"
+                onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset - SUBTITLE_OFFSET_STEP))}
+                className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
+              >
+                −
+              </button>
+              <span className="min-w-[36px] text-center text-[10px] font-bold tabular-nums text-white">
+                {subsOffset === 0
+                  ? "0s"
+                  : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`}
+              </span>
+              <button
+                type="button"
+                aria-label="Atrasar legenda"
+                onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset + SUBTITLE_OFFSET_STEP))}
+                className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
+              >
+                +
+              </button>
+            </div>
             <button
               type="button"
-              aria-label="Adiantar legenda"
-              onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset - SUBTITLE_OFFSET_STEP))}
-              className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
+              onClick={() => setMenu((m) => (m ? null : "quality"))}
+              aria-label="Configurações"
+              className={`vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none ${type === 'live' ? 'hidden' : ''}`}
             >
-              −
+              <Settings className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
             </button>
-            <span className="min-w-[36px] text-center text-[10px] font-bold tabular-nums text-white">
-              {subsOffset === 0
-                ? "0s"
-                : `${subsOffset > 0 ? "+" : ""}${subsOffset.toFixed(2).replace(/\.?0+$/, "")}s`}
-            </span>
-            <button
-              type="button"
-              aria-label="Atrasar legenda"
-              onClick={() => applySubsOffset(clampSubtitleOffset(subsOffset + SUBTITLE_OFFSET_STEP))}
-              className="vexia-focus grid h-5 w-5 place-items-center rounded-md bg-black/50 text-xs font-black text-vexia-cyan"
-            >
-              +
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setMenu((m) => (m ? null : "quality"))}
-            aria-label="Configurações"
-            className="vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none"
-          >
-            <Settings className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
-          </button>
         </div>
 
 
-        {menu ? (
+        {menu && type !== 'live' ? (
           <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-vexia-purple/40 bg-black/85 p-2 shadow-[0_0_22px_-8px_rgb(var(--vexia-primary-rgb)/0.9)]">
             {menuOptions.length === 0 ? (
               <p className="px-2 py-1 text-[10px] font-medium text-white/70">
