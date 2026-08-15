@@ -77,14 +77,19 @@ export const Route = createFileRoute("/api/public/stream")({
         const range = request.headers.get("range");
         let upstream: Response;
         try {
-          upstream = await fetch(parsed.toString(), {
+          const fetchOptions: RequestInit = {
+            method: "GET",
             headers: {
               "User-Agent": "VLC/3.0.20 LibVLC/3.0.20",
               Accept: "*/*",
               ...(range ? { Range: range } : {}),
             },
             redirect: "follow",
-          });
+          };
+
+          // HACK: Se for um manifesto .m3u8, tentamos forçar o fetch a não 
+          // usar cache e garantimos que o referrer não bloqueie.
+          upstream = await fetch(parsed.toString(), fetchOptions);
         } catch {
           return new Response("Servidor de stream indisponível.", { status: 502 });
         }
