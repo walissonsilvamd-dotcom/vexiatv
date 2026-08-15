@@ -128,12 +128,14 @@ function JogoDetalhesPage() {
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
 
-  // Sincroniza activeChannel quando o canal inicial carrega
+  // Sincroniza activeChannel e inicia player quando o canal inicial carrega
   useEffect(() => {
-    if (channel && !activeChannel) {
-      setActiveChannel(channel);
+    if (channel) {
+      if (!activeChannel) setActiveChannel(channel);
+      setIsPlaying(true);
+      setStreamHandoff("live", channel.id, channel.url);
     }
-  }, [channel, activeChannel]);
+  }, [channel]);
 
   const src = useMemo(() => playableStreamUrl(activeChannel?.url || ""), [activeChannel]);
 
