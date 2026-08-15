@@ -86,11 +86,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamA)}
             </span>
-            {score.league && (
-              <span className="text-[7px] font-bold text-white/40 uppercase tracking-widest mt-0.5">
-                {score.league}
-              </span>
-            )}
+            {/* Liga removida daqui para não repetir */}
           </div>
           <div className="w-9 h-9 shrink-0 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
             {loadingA ? (
@@ -114,17 +110,27 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         {/* Centro: Placar e Tempo */}
         <div className="flex flex-col items-center justify-center px-4 min-w-[70px]">
           <div className="flex items-center gap-2 font-black text-2xl leading-none tracking-tighter">
-            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{score.scoreA}</span>
+            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+              {(score.isLive || (score as any).isFinished) ? score.scoreA : ""}
+            </span>
             <div className="flex flex-col items-center">
               {score.isLive ? (
                 <div className="text-[8px] font-black text-red-500 uppercase animate-pulse">
                   {score.time || "LIVE"}
                 </div>
+              ) : (score as any).isFinished ? (
+                <div className="text-[8px] font-black text-white/40 uppercase">
+                  FIM
+                </div>
               ) : (
-                <div className="text-sm font-light text-white/20">:</div>
+                <div className="text-xs font-black text-white/60 tracking-widest px-2 py-0.5 bg-white/5 rounded-md border border-white/10">
+                  VS
+                </div>
               )}
             </div>
-            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">{score.scoreB}</span>
+            <span className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
+              {(score.isLive || (score as any).isFinished) ? score.scoreB : ""}
+            </span>
           </div>
         </div>
 
@@ -151,11 +157,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             <span className="text-[11px] font-black text-white uppercase tracking-tighter leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamB)}
             </span>
-            {score.league && (
-              <span className="text-[7px] font-bold text-white/40 uppercase tracking-widest mt-0.5">
-                {score.league}
-              </span>
-            )}
+            {/* Liga removida daqui para não repetir */}
           </div>
         </div>
       </div>
