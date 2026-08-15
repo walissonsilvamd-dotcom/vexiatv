@@ -365,7 +365,7 @@ function HomePage() {
                 className={`h-[4px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
                   i === slide
                     ? "w-9 bg-white/25"
-                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-vexia-cyan"
+                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-white shadow-[0_0_10px_white]"
                 }`}
               >
                 {i === slide ? (
