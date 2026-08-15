@@ -186,7 +186,7 @@ export function prefetchNeighbors(urls: Array<string | null | undefined>) {
     })().finally(() => {
       if (neighborCtrl === controller) neighborCtrl = null;
     });
-  }, 320);
+  }, 120);
 }
 
 export function cancelNeighborPrefetch() {
