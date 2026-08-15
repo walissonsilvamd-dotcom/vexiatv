@@ -168,6 +168,16 @@ function JogosPage() {
       const epg = nowAndNext(guide, ch.tvgId, minuteTick);
       const chName = ch.name.toLowerCase();
       
+      // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos
+      const nowTitle = epg.now?.title.toLowerCase() || "";
+      const isGeneric = nowTitle.includes("programação") || 
+                        nowTitle.includes("seu servidor favorito") || 
+                        nowTitle === "" || 
+                        nowTitle.includes("informação indisponível") ||
+                        nowTitle.includes("breve") ||
+                        nowTitle.includes("loading") ||
+                        nowTitle.includes("transmissão");
+      
       // 1. Tenta match com ESPN
       const espnMatch = espnScores.find(score => 
         score.broadcastChannels?.some(b => chName.includes(b.toLowerCase()))
@@ -205,12 +215,12 @@ function JogosPage() {
         }
       }
 
-      // 3. Canais sem jogo detectado mas relevantes
-      const nowTitle = epg.now?.title.toLowerCase() || "";
-      const isGeneric = nowTitle.includes("programação") || nowTitle.includes("seu servidor favorito") || nowTitle === "" || nowTitle.includes("informação indisponível");
-      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
+      // 3. Canais sem jogo detectado: Ignorar se forem genéricos (como no mockup)
+      if (isGeneric) return;
 
-      if (isMainSportCh) {
+      // Se for um canal de esporte principal e o título do EPG parecer um jogo (mesmo sem placar explícito)
+      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
+      if (isMainSportCh && nowTitle.includes(" x ")) {
         standaloneChannels.push({ ch, epg });
       }
     });
