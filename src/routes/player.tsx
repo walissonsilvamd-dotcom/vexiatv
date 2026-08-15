@@ -1532,7 +1532,7 @@ function PlayerPage() {
             <span className="text-vexia-cyan">Atraso do stream: {Math.round(liveDelay)} segundos</span>
           </div>
         ) : (
-          <div className={`space-y-1.5 ${type === 'live' ? 'hidden' : ''}`}>
+          <div className="space-y-1.5">
             <input
               type="range"
               min={0}
