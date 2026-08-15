@@ -116,7 +116,7 @@ function JogosPage() {
       const grp = (c.group || "").toLowerCase();
       
       // Bloqueio de reprise / replay
-      const isReplay = name.includes("reprise") || name.includes("replay") || name.includes("gravado");
+      const isReplay = name.includes("reprise") || name.includes("replay") || name.includes("gravado") || name.includes("historico");
       if (isReplay) return false;
 
       // Lista expandida de termos de futebol e campeonatos
@@ -176,7 +176,7 @@ function JogosPage() {
       
       // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos ou de outros esportes
       const nowTitle = epg.now?.title.toLowerCase() || "";
-      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis"].some(kw => nowTitle.includes(kw));
+      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis", "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais"].some(kw => nowTitle.includes(kw));
       
       const isGeneric = nowTitle.includes("programação") || 
                         nowTitle.includes("seu servidor favorito") || 
@@ -185,6 +185,8 @@ function JogosPage() {
                         nowTitle.includes("breve") ||
                         nowTitle.includes("loading") ||
                         nowTitle.includes("transmissão") ||
+                        nowTitle.includes("espn") || // Evita "ESPN 2" como título de programa
+                        nowTitle.includes("sportv") ||
                         isOtherSportProgram;
       
       // 1. Tenta match com ESPN
