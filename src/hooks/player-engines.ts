@@ -320,9 +320,12 @@ export async function attachEngine(
     const instance = new Hls({
       // Serve manifesto do cache do prefetch: a prévia não espera a rede.
       loader: cachedLoader(Hls.DefaultConfig.loader as unknown as LoaderCtor) as any,
-      lowLatencyMode: live && !preview,
+      debug: false,
       enableWorker: true,
       startFragPrefetch: true,
+      fragLoadingMaxRetry: 5,
+      levelLoadingMaxRetry: 4,
+      manifestLoadingMaxRetry: 4,
       testBandwidth: false,
       // Fora da prévia buscamos a melhor faixa que a banda aguenta; o perfil de
       // desempenho decide o quanto a ABR pode ousar e o tamanho do buffer.
