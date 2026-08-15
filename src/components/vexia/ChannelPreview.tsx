@@ -80,9 +80,10 @@ function ChannelPreviewBase({
       active.volume = 1;
       // Pequeno atraso para garantir que o motor (hls/ts) anexou o buffer
       const timer = setTimeout(() => {
+        if (!active || !playable) return;
+        active.muted = true; // Força mutado para garantir autoplay
         active.play().catch(() => {
-          // Fallback: se o navegador bloquear som, tenta mutado
-          active.muted = true;
+          // Fallback final
           void active.play().catch(() => undefined);
         });
       }, 50);
