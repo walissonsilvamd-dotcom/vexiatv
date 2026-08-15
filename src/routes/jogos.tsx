@@ -100,7 +100,7 @@ function JogosPage() {
 
   /** Canais de esporte da lista, com programa atual e próximo. */
   const games = useMemo(() => {
-    const sports = channels.filter((c) => isSport(c.name, c.category, c.group));
+    const sports = channels.filter((c) => isSport(c.name, c.category, c.group) && (c.name.toLowerCase().includes("futebol") || c.category.toLowerCase().includes("futebol") || c.group.toLowerCase().includes("futebol")));
     
     // Converte eventos ESPN para nosso formato de placar
     const espnScores = espnEvents.map(event => {

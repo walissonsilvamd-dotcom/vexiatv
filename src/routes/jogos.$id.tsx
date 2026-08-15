@@ -1,14 +1,17 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
-import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play } from "lucide-react";
+import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play, Info, Maximize } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { BRAND } from "../lib/brand";
 import { setStreamHandoff } from "../lib/stream-handoff";
+import { useResilientPlayer } from "../hooks/useResilientPlayer";
+import { playableStreamUrl } from "../lib/stream-url";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 
 export const Route = createFileRoute("/jogos/$id")({
   head: () => ({
@@ -82,25 +85,57 @@ function JogoDetalhesPage() {
     return { channel, epg, score, isEspn: !!espnMatch, alternatives };
   }, [channel, guide, minuteTick, espnEvents, channels]);
 
-  if (!gameData) return null;
+  const scopeRef = useRef<HTMLDivElement>(null);
+  useSpatialNav(scopeRef);
+
+  const [activeChannel, setActiveChannel] = useState(channel);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const slotARef = useRef<HTMLVideoElement>(null);
+  const slotBRef = useRef<HTMLVideoElement>(null);
+
+  // Sincroniza activeChannel quando o canal inicial carrega
+  useEffect(() => {
+    if (channel && !activeChannel) {
+      setActiveChannel(channel);
+    }
+  }, [channel, activeChannel]);
+
+  const src = useMemo(() => playableStreamUrl(activeChannel?.url || ""), [activeChannel]);
+
+  const resilientPlayer = useResilientPlayer({
+    videoRef,
+    slotARef,
+    slotBRef,
+    src,
+    live: true,
+  });
+
+  if (!gameData || !activeChannel) return null;
+
+  const openFullscreen = () => {
+    void navigate({ to: "/player", search: { type: "live", id: activeChannel.id } });
+  };
 
   const { channel: ch, epg, score, alternatives } = gameData;
 
   const play = (selectedCh = ch) => {
+    setActiveChannel(selectedCh);
+    setIsPlaying(true);
     setStreamHandoff("live", selectedCh.id, selectedCh.url);
-    void navigate({ to: "/player", search: { type: "live", id: selectedCh.id } });
   };
 
   return (
     <div 
-      className="min-h-screen bg-vexia-bg text-vexia-text vexia-safe p-6 flex flex-col items-center"
+      ref={scopeRef}
+      className="min-h-screen bg-vexia-bg text-vexia-text vexia-safe p-4 md:p-6 flex flex-col items-center overflow-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(5,5,8,0.85), rgba(5,5,8,0.95)), url(${nebula.url})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <header className="w-full max-w-5xl flex items-center justify-between mb-12">
+      <header className="w-full max-w-6xl flex items-center justify-between mb-6 md:mb-8 shrink-0">
         <button 
           onClick={() => window.history.back()}
           className="vexia-focus flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all"
@@ -108,153 +143,168 @@ function JogoDetalhesPage() {
           <ArrowLeft className="w-5 h-5" />
           <span className="text-sm font-bold">Voltar</span>
         </button>
-        <VexiaLogo className="h-10" />
+        <VexiaLogo className="h-8 md:h-10" />
       </header>
 
-      <div className="w-full max-w-4xl bg-black/40 backdrop-blur-xl rounded-[2.5rem] border border-white/10 p-8 md:p-12 shadow-2xl">
-        <div className="flex flex-col items-center gap-8">
-          
-          {/* Status Badge */}
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-vexia-purple/20 rounded-full border border-vexia-purple/30">
-            <Trophy className="w-4 h-4 text-vexia-purple" />
-            <span className="text-xs font-black tracking-widest uppercase text-vexia-purple">
-              {score?.isLive ? "Partida ao Vivo" : "Detalhes do Evento"}
-            </span>
+      <div className="w-full max-w-6xl flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+        {/* Lado Esquerdo: Player ou Info Principal */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="relative aspect-video w-full bg-black/60 rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl group">
+            {isPlaying ? (
+              <>
+                <video ref={slotARef} className="absolute inset-0 h-full w-full object-contain" muted />
+                <video ref={slotBRef} className="absolute inset-0 h-full w-full object-contain" muted />
+                <video ref={videoRef} className="absolute inset-0 h-full w-full object-contain" autoPlay />
+                
+                {resilientPlayer.reconnecting && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="h-10 w-10 border-4 border-vexia-cyan/30 border-t-vexia-cyan rounded-full animate-spin" />
+                      <span className="text-xs font-black text-vexia-cyan uppercase tracking-widest">Reconectando...</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-full border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
+                  <span className="text-[10px] font-black text-white uppercase tracking-wider">{activeChannel.name}</span>
+                </div>
+
+                <button 
+                  onClick={openFullscreen}
+                  className="absolute bottom-6 right-6 z-20 vexia-focus p-3 bg-vexia-purple rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Maximize className="w-5 h-5 text-white" />
+                </button>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-8 text-center">
+                <div className="w-24 h-24 bg-vexia-purple/20 rounded-full flex items-center justify-center border border-vexia-purple/30 animate-pulse">
+                  <Trophy className="w-10 h-10 text-vexia-purple" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">Pronto para a Partida</h3>
+                  <p className="text-sm text-white/60 max-w-xs mx-auto">Clique em assistir para abrir o sinal ao vivo diretamente aqui.</p>
+                </div>
+                <button 
+                  onClick={() => play()}
+                  className="vexia-focus flex items-center justify-center gap-4 px-10 py-4 bg-vexia-purple rounded-full shadow-xl hover:scale-105 transition-all"
+                >
+                  <Play className="w-6 h-6 fill-current" />
+                  <span className="text-lg font-black uppercase tracking-tighter">Assistir Agora</span>
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Confronto Principal */}
-          <div className="w-full flex items-center justify-between gap-4 md:gap-12">
-            {/* Time A */}
-            <div className="flex-1 flex flex-col items-center text-center gap-4">
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-2xl relative group">
-                <div className="absolute inset-0 bg-vexia-purple/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                {score?.logoA ? (
-                  <img src={score.logoA} alt={score.teamA} className="w-16 h-16 md:w-20 md:h-20 object-contain relative z-10" />
-                ) : (
-                  <Shield className="w-12 h-12 md:w-16 md:h-16 text-white/20 relative z-10" />
-                )}
-              </div>
-              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter leading-tight max-w-[150px]">
-                {score?.teamA || ch.name}
-              </h2>
-            </div>
-
-            {/* Placar / Horário */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-4 md:gap-8">
-                <span className="text-5xl md:text-7xl font-black text-vexia-cyan drop-shadow-[0_0_15px_rgba(0,200,255,0.5)]">
-                  {score?.scoreA ?? "-"}
-                </span>
-                <span className="text-2xl md:text-4xl font-light text-white/20 italic">VS</span>
-                <span className="text-5xl md:text-7xl font-black text-vexia-cyan drop-shadow-[0_0_15px_rgba(0,200,255,0.5)]">
-                  {score?.scoreB ?? "-"}
-                </span>
-              </div>
-              {score?.time && (
-                <div className="px-4 py-1 bg-vexia-purple/10 border border-vexia-purple/20 rounded-lg animate-pulse">
-                  <span className="text-sm font-black text-vexia-purple uppercase tracking-widest">{score.time}</span>
+          <div className="mt-6 flex flex-col gap-4">
+             <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-1 bg-vexia-purple/20 rounded-full border border-vexia-purple/30">
+                  <span className="text-[10px] font-black tracking-widest uppercase text-vexia-purple">
+                    {score?.isLive ? "AO VIVO" : "EM BREVE"}
+                  </span>
                 </div>
-              )}
-            </div>
-
-            {/* Time B */}
-            <div className="flex-1 flex flex-col items-center text-center gap-4">
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-2xl relative group">
-                <div className="absolute inset-0 bg-vexia-purple/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                {score?.logoB ? (
-                  <img src={score.logoB} alt={score.teamB} className="w-16 h-16 md:w-20 md:h-20 object-contain relative z-10" />
-                ) : (
-                  <Shield className="w-12 h-12 md:w-16 md:h-16 text-white/20 relative z-10" />
-                )}
-              </div>
-              <h2 className="text-xl md:text-2xl font-black uppercase tracking-tighter leading-tight max-w-[150px]">
-                {score?.teamB || "Confronto"}
-              </h2>
-            </div>
+                <h2 className="text-2xl font-black uppercase tracking-tighter truncate">
+                  {score ? `${score.teamA} vs ${score.teamB}` : ch.name}
+                </h2>
+             </div>
+             
+             {score && (
+                <div className="flex items-center gap-6 bg-white/5 p-4 rounded-3xl border border-white/10 self-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+                      {score.logoA ? <img src={score.logoA} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
+                    </div>
+                    <span className="text-2xl font-black text-vexia-cyan">{score.scoreA}</span>
+                  </div>
+                  <span className="text-white/20 font-light italic">VS</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-black text-vexia-cyan">{score.scoreB}</span>
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+                      {score.logoB ? <img src={score.logoB} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
+                    </div>
+                  </div>
+                  {score.time && (
+                    <div className="ml-4 px-3 py-1 bg-vexia-purple/20 border border-vexia-purple/30 rounded-lg animate-pulse">
+                      <span className="text-xs font-black text-vexia-purple uppercase tracking-widest">{score.time}</span>
+                    </div>
+                  )}
+                </div>
+             )}
           </div>
+        </div>
 
-          <hr className="w-full border-white/5 my-4" />
-
-          {/* Info do Canal e EPG */}
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white/5 p-6 rounded-3xl border border-white/10 flex items-center gap-4">
-              <div className="w-16 h-16 bg-black rounded-2xl border border-white/10 flex items-center justify-center overflow-hidden">
-                {ch.logo ? (
-                  <img src={ch.logo} alt={ch.name} className="w-full h-full object-contain p-2" />
-                ) : (
-                  <Tv className="w-8 h-8 text-vexia-cyan" />
-                )}
-              </div>
-              <div>
-                <span className="block text-[10px] font-black text-vexia-cyan uppercase tracking-widest opacity-60">Transmissão</span>
-                <span className="block text-lg font-black text-white uppercase tracking-tighter">{ch.name}</span>
-                <div className="flex items-center gap-2 mt-1">
-                  <Wifi className="w-3 h-3 text-green-500" />
-                  <span className="text-[10px] text-green-500 font-bold uppercase">Sinal Online</span>
-                </div>
-              </div>
+        {/* Lado Direito: Opções de Canais e Info */}
+        <div className="w-full lg:w-80 flex flex-col gap-6 shrink-0 min-h-0">
+          <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-[2rem] border border-white/10 p-6 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-6 shrink-0">
+              <Info className="w-4 h-4 text-vexia-cyan" />
+              <span className="text-[10px] font-black text-vexia-cyan uppercase tracking-widest">Transmissões Disponíveis</span>
             </div>
 
-            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-              <span className="block text-[10px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-2">Agora no Canal</span>
-              <p className="text-sm font-bold text-white line-clamp-2 leading-snug">
-                {epg.now?.title || "Sem informações de programação no momento."}
-              </p>
-              {epg.now && (
-                <div className="flex items-center gap-2 mt-3 text-[10px] text-vexia-muted font-bold uppercase">
-                  <span>{clock(epg.now.start)}</span>
-                  <span>—</span>
-                  <span>{clock(epg.now.stop)}</span>
-                </div>
-              )}
-            </div>
-          </div>
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 min-h-0">
+              {[ch, ...alternatives].map((altCh) => {
+                const isCurrent = altCh.id === activeChannel.id;
+                const nameLower = altCh.name.toLowerCase();
+                const label = nameLower.includes("fhd") || nameLower.includes("4k") ? "FHD / 4K" : 
+                             nameLower.includes("hd+") ? "HD+" : 
+                             nameLower.includes("hd") ? "HD" : "SD";
 
-          {/* Canais Alternativos (Opções de Qualidade) */}
-          {alternatives.length > 0 && (
-            <div className="w-full">
-              <span className="block text-[10px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-4 text-center">
-                Disponível em outros canais (Qualidades)
-              </span>
-              <div className="flex flex-wrap justify-center gap-3">
-                {[ch, ...alternatives].map((altCh) => {
-                  const nameLower = altCh.name.toLowerCase();
-                  const label = nameLower.includes("fhd") || nameLower.includes("4k") ? "FHD / 4K" : 
-                               nameLower.includes("hd+") ? "HD+" : 
-                               nameLower.includes("hd") ? "HD" : "SD";
-                  
-                  const isCurrent = altCh.id === ch.id;
-
-                  return (
-                    <button
-                      key={altCh.id}
-                      onClick={() => play(altCh)}
-                      className={`vexia-focus px-5 py-3 rounded-2xl border transition-all flex flex-col items-center min-w-[120px] ${
-                        isCurrent 
-                        ? 'bg-vexia-purple/20 border-vexia-purple/50 shadow-[0_0_15px_rgba(123,43,190,0.3)]' 
-                        : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <span className="text-xs font-black text-white truncate max-w-[100px]">{altCh.name}</span>
-                      <span className={`text-[9px] font-bold uppercase mt-1 ${isCurrent ? 'text-vexia-cyan' : 'text-vexia-muted'}`}>
-                        {label}
+                return (
+                  <button
+                    key={altCh.id}
+                    onClick={() => play(altCh)}
+                    className={`vexia-focus w-full flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${
+                      isCurrent 
+                      ? 'bg-vexia-purple/20 border-vexia-purple/50 shadow-lg' 
+                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="w-10 h-10 shrink-0 bg-black rounded-xl border border-white/10 flex items-center justify-center overflow-hidden">
+                      {altCh.logo ? (
+                        <img src={altCh.logo} className="w-full h-full object-contain p-1" alt="" />
+                      ) : (
+                        <Tv className="w-5 h-5 text-vexia-cyan/50" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className={`block text-xs font-black truncate ${isCurrent ? 'text-white' : 'text-white/70'}`}>
+                        {altCh.name}
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-[9px] font-bold px-1.5 rounded-md border ${
+                          isCurrent ? 'bg-vexia-cyan/20 border-vexia-cyan/30 text-vexia-cyan' : 'bg-white/5 border-white/10 text-white/40'
+                        }`}>
+                          {label}
+                        </span>
+                        {isCurrent && isPlaying && (
+                          <span className="text-[8px] font-black text-green-500 uppercase flex items-center gap-1">
+                            <Wifi className="w-2 h-2" /> ONLINE
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          )}
 
-          {/* Botão de Ação Principal */}
-          <button 
-            onClick={() => play()}
-            className="vexia-focus mt-8 flex items-center justify-center gap-4 w-full md:w-auto md:px-16 py-5 bg-vexia-purple rounded-[2rem] shadow-[0_0_40px_rgba(123,43,190,0.5)] hover:scale-[1.05] active:scale-95 transition-all group"
-          >
-            <Play className="w-6 h-6 fill-current group-hover:scale-110 transition-transform" />
-            <span className="text-lg font-black uppercase tracking-tighter">Assistir Agora</span>
-          </button>
-
+            <div className="mt-6 pt-6 border-t border-white/5 shrink-0">
+               <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <span className="block text-[9px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-2">Guia de Programação</span>
+                  <p className="text-[11px] font-bold text-white line-clamp-2 leading-snug mb-2">
+                    {epg.now?.title || "Programação indisponível"}
+                  </p>
+                  {epg.now && (
+                    <div className="flex items-center gap-2 text-[9px] text-white/40 font-black uppercase">
+                      <span>{clock(epg.now.start)}</span>
+                      <div className="w-1 h-1 bg-white/20 rounded-full" />
+                      <span>{clock(epg.now.stop)}</span>
+                    </div>
+                  )}
+               </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
