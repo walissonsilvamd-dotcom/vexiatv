@@ -309,7 +309,7 @@ function JogosPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="flex flex-col gap-6 w-full">
               {games.map((item, idx) => {
                 const { score, channels: itemChannels } = item;
                 const mainCh = itemChannels[0].ch;
@@ -319,26 +319,14 @@ function JogosPage() {
                   <button
                     key={`${mainCh.id}-${idx}`}
                     type="button"
-                    data-nav-row={1}
+                    data-nav-row={idx + 1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex flex-col gap-3 rounded-[32px] border border-white/10 bg-black/40 p-5 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
+                    className="vexia-focus flex items-center gap-4 rounded-3xl border border-white/5 bg-black/40 p-2 text-left transition-all hover:border-white/20 hover:bg-white/5 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
                   >
-                    <div className="absolute top-2 right-2 flex items-center gap-1.5">
-                      {score?.isLive ? (
-                        <div className="flex items-center gap-1 px-2 py-0.5 bg-red-600 rounded-md animate-pulse shadow-lg shadow-red-600/20">
-                           <div className="w-1 h-1 bg-white rounded-full" />
-                           <span className="text-[8px] font-black text-white">AO VIVO</span>
-                        </div>
-                      ) : epg.now ? null : (
-                        <div className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md">
-                           <span className="text-[8px] font-black text-white/40 tracking-widest">FT</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between w-full">
-                      <div className="relative shrink-0">
-                        <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
+                    <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2">
+                      <div className="relative">
+                        <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
                           {mainCh.logo ? (
                             <SmartImage
                               src={mainCh.logo}
@@ -352,31 +340,36 @@ function JogosPage() {
                           )}
                         </span>
                         {item.isGrouped && itemChannels.length > 1 && (
-                          <div className="absolute -bottom-1 -right-1 bg-white text-[7px] font-black px-1.5 py-0.5 text-black rounded-full border border-black shadow-lg uppercase">
+                          <div className="absolute -bottom-1 -right-1 bg-vexia-purple text-[7px] font-black px-1.5 py-0.5 text-white rounded-full border border-black shadow-lg uppercase">
                             +{itemChannels.length - 1}
                           </div>
                         )}
                       </div>
-                      <div className="text-[10px] font-black text-white/90 tracking-widest bg-white/10 px-2 py-1 rounded-lg border border-white/10">
-                        {epg.now ? clock(epg.now.start) : "AGORA"}
+                      <div className="text-[8px] font-black text-white/40 tracking-widest uppercase text-center max-w-[80px] truncate">
+                        {mainCh.name}
                       </div>
                     </div>
                     
-                    <div className="w-full">
+                    <div className="flex-1 min-w-0 pr-4">
                       {score ? (
                         <FootballLiveScore 
                           score={score} 
-                          className="mb-1"
-                          timeLabel={item.isGrouped ? undefined : (epg.now ? `${mainCh.name} • AO VIVO` : `${mainCh.name} • ${clock(epg.next!.start)}`)}
+                          className="w-full"
+                          timeLabel={epg.now ? clock(epg.now.start) : "AGORA"}
                         />
                       ) : (
-                        <div className="flex flex-col gap-1">
-                          <span className="block truncate text-sm font-black text-white uppercase tracking-tight">
-                            {epg.now?.title ?? mainCh.name}
-                          </span>
-                          <span className="block truncate text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                            {mainCh.name}
-                          </span>
+                        <div className="flex items-center justify-between w-full bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <div className="flex flex-col gap-1">
+                            <span className="block truncate text-lg font-black text-white uppercase tracking-tight">
+                              {epg.now?.title ?? mainCh.name}
+                            </span>
+                            <span className="block truncate text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                              PROGRAMAÇÃO ATUAL
+                            </span>
+                          </div>
+                          <div className="text-sm font-black text-vexia-purple bg-vexia-purple/10 px-4 py-2 rounded-xl border border-vexia-purple/20">
+                            {epg.now ? clock(epg.now.start) : "LIVE"}
+                          </div>
                         </div>
                       )}
                     </div>
