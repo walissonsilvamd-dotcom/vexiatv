@@ -79,7 +79,8 @@ export const Route = createFileRoute("/api/public/stream")({
         const isManifest =
           type.includes("mpegurl") ||
           parsed.pathname.toLowerCase().endsWith(".m3u8") ||
-          parsed.pathname.toLowerCase().endsWith(".m3u");
+          parsed.pathname.toLowerCase().endsWith(".m3u") ||
+          parsed.search.toLowerCase().includes(".m3u8");
 
         const headers = new Headers({
           "Cache-Control": "no-store",
