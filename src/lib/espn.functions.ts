@@ -70,7 +70,9 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
   .validator((data: unknown) => {
-    return (data as { date?: string }) || {};
+    if (!data) return {};
+    if (typeof data === 'object' && 'date' in data) return data as { date?: string };
+    return {};
   })
   .handler(async ({ data }) => {
     try {
