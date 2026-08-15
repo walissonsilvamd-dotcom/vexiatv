@@ -424,12 +424,11 @@ function ChannelsPage() {
    * Assim, passar rápido pela lista com o controle não abre e fecha um stream
    * por linha — a navegação fica lisa e a banda vai toda para o canal escolhido.
    */
-  const previewChannel = useDebounce(selected, 110);
-
+  const previewChannel = useDebounce(selected, 50);
 
   /**
    * Aquecimento imediato do canal focado: DNS/TLS + biblioteca do motor já
-   * resolvidos durante os 180 ms de debounce, então quando a prévia monta o
+   * resolvidos durante os 50 ms de debounce, então quando a prévia monta o
    * stream começa praticamente na hora (sem custo de banda de vídeo).
    */
   useEffect(() => {
