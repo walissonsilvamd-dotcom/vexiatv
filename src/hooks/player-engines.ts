@@ -331,21 +331,21 @@ export async function attachEngine(
       // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
       startLevel: preview ? 0 : -1,
       // Começa a tocar com o mínimo de dados possível.
-      maxStarvationDelay: 2,
-      maxLoadingDelay: 2,
-      backBufferLength: preview ? 6 : scale(live ? 20 : 90),
-      maxBufferLength: preview ? 6 : scale(live ? 30 : 60),
-      maxMaxBufferLength: preview ? 12 : scale(live ? 60 : 120),
+      maxStarvationDelay: 1,
+      maxLoadingDelay: 1,
+      backBufferLength: preview ? 2 : scale(live ? 20 : 90),
+      maxBufferLength: preview ? 4 : scale(live ? 30 : 60),
+      maxMaxBufferLength: preview ? 6 : scale(live ? 60 : 120),
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 1,
       nudgeOffset: 0.1,
       nudgeMaxRetry: 2,
-      manifestLoadingTimeOut: preview ? 3_500 : 6_000,
-      manifestLoadingMaxRetry: preview ? 2 : 4,
-      levelLoadingTimeOut: preview ? 4_000 : 8_000,
-      levelLoadingMaxRetry: preview ? 2 : 4,
-      fragLoadingTimeOut: 10_000,
-      fragLoadingMaxRetry: preview ? 3 : 5,
+      manifestLoadingTimeOut: preview ? 2_000 : 6_000,
+      manifestLoadingMaxRetry: preview ? 1 : 4,
+      levelLoadingTimeOut: preview ? 2_500 : 8_000,
+      levelLoadingMaxRetry: preview ? 1 : 4,
+      fragLoadingTimeOut: preview ? 4_000 : 10_000,
+      fragLoadingMaxRetry: preview ? 2 : 5,
     });
     instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
     instance.on(Hls.Events.MANIFEST_PARSED, () => {
