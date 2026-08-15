@@ -155,6 +155,7 @@ const ChannelRow = memo(function ChannelRow({
         data-nav-row={2}
         tabIndex={0}
         onClick={() => onSelect(ch)}
+        onDoubleClick={() => onDoubleClick(ch)}
         className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
           isActive
             ? "scale-[1.02] border-vexia-purple/70 bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.75)]"
