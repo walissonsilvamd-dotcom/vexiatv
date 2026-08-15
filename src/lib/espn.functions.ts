@@ -40,15 +40,15 @@ export interface EspnGame {
     names: string[];
   }>;
 }
+
 /**
  * Busca detalhes de um jogo específico na ESPN (escalações, gols, eventos).
  */
 export const getEspnGameDetails = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .validator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
     try {
       const { id } = data;
-      // URL para detalhes do jogo (summary)
       const response = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${id}`,
         { 
@@ -69,51 +69,44 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  * Busca jogos de futebol na API pública da ESPN.
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
-  .inputValidator((data: any) => z.object({ date: z.string().optional() }).parse(data))
+  .validator((data: unknown) => {
+    return (data as { date?: string }) || {};
+  })
   .handler(async ({ data }) => {
     try {
-      const targetDate = data.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const targetDate = data?.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
       const dateParam = targetDate.replace(/-/g, '');
 
-
-      // Buscamos várias ligas para aumentar a chance de encontrar os jogos da lista
       const leagues = [
-        "bra.1", "bra.2", "bra.3", "bra.cup", "bra.nordeste", // Brasil
-        "eng.1", "eng.2", "eng.fa", "eng.league_cup",        // Inglaterra
-        "esp.1", "esp.2", "esp.cup",                         // Espanha
-        "ita.1", "ita.2", "ita.cup",                         // Itália
-        "ger.1", "ger.2",                                    // Alemanha
-        "fra.1", "fra.2", "fra.cup",                         // França
-        "por.1", "por.2",                                    // Portugal
-        "arg.1", "mex.1", "ned.1", "sau.1",                  // Outros
-        "uefa.champions", "uefa.europa", "uefa.nations",     // UEFA
-        "conmebol.libertadores", "conmebol.sudamericana",    // CONMEBOL
-        "fifa.world", "conmebol.america", "fifa.friendly"    // Seleções
+        "bra.1", "bra.2", "bra.cup", "bra.nordeste", 
+        "eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "por.1",
+        "arg.1", "mex.1", "uefa.champions", "uefa.europa",
+        "conmebol.libertadores", "conmebol.sudamericana",
+        "fifa.world", "conmebol.america", "fifa.friendly"
       ];
       
       const allEvents: EspnGame[] = [];
       
-      // Executa as buscas em paralelo para não travar o tempo total por uma liga lenta
       const results = await Promise.allSettled(leagues.map(async (league) => {
         try {
           const response = await fetch(
             `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${dateParam}`,
             { 
               headers: { "Accept": "application/json" },
-              signal: AbortSignal.timeout(4000) // Timeout mais curto por liga
+              signal: AbortSignal.timeout(3500)
             }
           );
           
           if (!response.ok) return [];
           
-          const data = await response.json();
-          return (data.events || []).map((event: any) => ({
+          const json = await response.json();
+          return (json.events || []).map((event: any) => ({
             id: event.id,
             name: event.name,
             shortName: event.shortName,
             league: {
-              name: data.leagues?.[0]?.name || "",
-              logo: data.leagues?.[0]?.logos?.[0]?.href
+              name: json.leagues?.[0]?.name || "",
+              logo: json.leagues?.[0]?.logos?.[0]?.href
             },
             date: event.date,
             status: {
@@ -144,7 +137,6 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
             }))
           }));
         } catch (e) {
-          // Falha silenciosa por liga para não quebrar a chamada inteira
           return [];
         }
       }));
@@ -158,7 +150,6 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
       return { events: allEvents };
     } catch (error) {
       console.error("Erro fatal ao buscar placares ESPN:", error);
-      // Retorna objeto vazio em vez de lançar erro, evitando o 500
       return { events: [] };
     }
   });
