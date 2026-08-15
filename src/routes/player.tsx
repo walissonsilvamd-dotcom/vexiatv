@@ -1559,23 +1559,23 @@ function PlayerPage() {
         )}
 
         {/* Botões de transporte */}
-        <div className="flex items-center justify-center gap-3 md:gap-5">
-          {type === "series" ? (
-            <button
-              type="button"
-              disabled={!prevEpisode}
-              onClick={() =>
-                prevEpisode &&
-                (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: prevEpisode.id }, viewTransition: true }))
-              }
-              aria-label="Episódio anterior"
-              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
-            >
-              <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
-            </button>
-          ) : null}
-          {type !== "live" ? (
+        {type !== "live" && (
+          <div className="flex items-center justify-center gap-3 md:gap-5">
+            {type === "series" ? (
+              <button
+                type="button"
+                disabled={!prevEpisode}
+                onClick={() =>
+                  prevEpisode &&
+                  (setStreamHandoff("series", id, prevEpisode.url, prevEpisode.id),
+                  navigate({ to: "/player", search: { type, id, ep: prevEpisode.id }, viewTransition: true }))
+                }
+                aria-label="Episódio anterior"
+                className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
+              >
+                <SkipBack className="h-4 w-4 text-vexia-cyan" aria-hidden />
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={() => seekBy(-seekStep)}
@@ -1584,20 +1584,18 @@ function PlayerPage() {
             >
               <Rewind className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={playing ? "Pausar" : "Reproduzir"}
-            className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
-          >
-            {playing ? (
-              <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
-            ) : (
-              <Play className="h-4 w-4 fill-current text-white" aria-hidden />
-            )}
-          </button>
-          {type !== "live" ? (
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={playing ? "Pausar" : "Reproduzir"}
+              className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
+            >
+              {playing ? (
+                <Pause className="h-4 w-4 fill-current text-white" aria-hidden />
+              ) : (
+                <Play className="h-4 w-4 fill-current text-white" aria-hidden />
+              )}
+            </button>
             <button
               type="button"
               onClick={() => seekBy(seekStep)}
@@ -1606,8 +1604,6 @@ function PlayerPage() {
             >
               <FastForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
             </button>
-          ) : null}
-          {type !== "live" ? (
             <button
               type="button"
               onClick={() => seekBy(85)}
@@ -1617,29 +1613,29 @@ function PlayerPage() {
             >
               <SkipIntroIcon className="h-3.5 w-3.5" aria-hidden /> ABERTURA
             </button>
-          ) : null}
-          {type === "series" ? (
-            <button
-              type="button"
-              disabled={!nextEpisode}
-              onClick={() =>
-                nextEpisode &&
-                (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
-                navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true }))
-              }
-              aria-label="Próximo episódio"
-              className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
-            >
-              <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
-            </button>
-          ) : null}
-        </div>
+            {type === "series" ? (
+              <button
+                type="button"
+                disabled={!nextEpisode}
+                onClick={() =>
+                  nextEpisode &&
+                  (setStreamHandoff("series", id, nextEpisode.url, nextEpisode.id),
+                  navigate({ to: "/player", search: { type, id, ep: nextEpisode.id }, viewTransition: true }))
+                }
+                aria-label="Próximo episódio"
+                className="vexia-focus grid h-7 w-7 place-items-center rounded-full disabled:opacity-30"
+              >
+                <SkipForward className="h-4 w-4 text-vexia-cyan" aria-hidden />
+              </button>
+            ) : null}
+          </div>
+        )}
 
 
 
 
         {/* Menu de configurações do player */}
-        <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
+        <div ref={controlsRef} className={`relative z-10 flex flex-wrap items-center gap-1.5 ${type === 'live' ? 'hidden' : ''}`}>
           {(
             [
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
