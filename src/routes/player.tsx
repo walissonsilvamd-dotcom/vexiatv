@@ -1433,7 +1433,7 @@ function PlayerPage() {
 
         </div>
 
-        {type !== "live" && (
+        {type !== "live" ? (
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -1472,16 +1472,6 @@ function PlayerPage() {
                 <PictureInPicture2 className="h-4 w-4 text-vexia-cyan" aria-hidden />
               </button>
             ) : null}
-            {type === "live" && zapChannels.length > 1 ? (
-              <button
-                type="button"
-                onClick={() => setZapOpen((v) => !v)}
-                aria-label="Trocar de canal"
-                className="vexia-focus grid h-7 w-7 place-items-center rounded-full"
-              >
-                <OpenListVideo className="h-4 w-4 text-vexia-cyan" aria-hidden />
-              </button>
-            ) : null}
             <button
               type="button"
               onClick={() => setStatsOpen((v) => !v)}
@@ -1512,8 +1502,7 @@ function PlayerPage() {
             </button>
             <VexiaLogo className="h-7" />
           </div>
-        )}
-        {type === "live" && (
+        ) : (
           <div className="flex items-center gap-2">
             <VexiaLogo className="h-7" />
           </div>
