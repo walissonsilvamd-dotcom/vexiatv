@@ -353,7 +353,7 @@ function JogosPage() {
 
                 <button 
                   onClick={() => open(games[0])}
-                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-primary text-white rounded-full font-black text-lg tracking-tighter uppercase shadow-xl hover:scale-105 transition-all"
+                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-primary text-white rounded-full font-black text-lg tracking-tighter uppercase shadow-[0_0_30px_rgba(82,0,165,0.4)] hover:scale-105 transition-all"
                 >
                   <Play className="w-6 h-6 fill-current" />
                   Assistir Agora
