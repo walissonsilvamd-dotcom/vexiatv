@@ -224,9 +224,12 @@ function JogosPage() {
       // 3. Canais sem jogo detectado: Ignorar se forem genéricos (como no mockup)
       if (isGeneric) return;
 
-      // Se for um canal de esporte principal e o título do EPG parecer um jogo (mesmo sem placar explícito)
-      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
-      if (isMainSportCh && nowTitle.includes(" x ")) {
+      // Se for um canal de esporte principal, mantemos mesmo sem jogo detectado pela API/EPG
+      // mas apenas se o EPG não for genérico (já filtrado acima) ou se não tiver EPG (para permitir sintonizar)
+      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || 
+                            chName.includes("espn") || chName.includes("tnt sports") || chName.includes("dazn");
+      
+      if (isMainSportCh) {
         standaloneChannels.push({ ch, epg });
       }
     });
