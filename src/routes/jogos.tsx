@@ -19,6 +19,7 @@ import { Skeleton } from "../components/ui/skeleton";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
 import { prefetchTeamLogos } from "../lib/logo-cache";
+import { GameDetailsDialog } from "../components/vexia/GameDetailsDialog";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
@@ -78,6 +79,8 @@ function JogosPage() {
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const [listsOpen, setListsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedGame, setSelectedGame] = useState<any>(null);
   const [espnEvents, setEspnEvents] = useState<EspnGame[]>([]);
   const [loadingEspn, setLoadingEspn] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -302,16 +305,8 @@ function JogosPage() {
   }, [channels, guide, minuteTick, espnEvents, selectedDate]);
 
   const open = (item: any) => {
-    // Forçamos a navegação usando a URL absoluta do TanStack Router
-    const channelId = item.channels[0].ch.id;
-    navigate({ 
-      to: "/jogos/$id", 
-      params: { id: channelId } 
-    }).catch(err => {
-      console.error("Navigation failed", err);
-      // Fallback manual caso o navigate falhe
-      window.location.href = `/jogos/${channelId}`;
-    });
+    setSelectedGame(item);
+    setDetailsOpen(true);
   };
 
   return (
@@ -516,6 +511,11 @@ function JogosPage() {
       )}
 
       <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
+      <GameDetailsDialog 
+        open={detailsOpen} 
+        onClose={() => setDetailsOpen(false)} 
+        game={selectedGame} 
+      />
     </main>
   );
 }
