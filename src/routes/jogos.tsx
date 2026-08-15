@@ -119,24 +119,24 @@ function JogosPage() {
       const isReplay = name.includes("reprise") || name.includes("replay") || name.includes("gravado");
       if (isReplay) return false;
 
-      // Apenas futebol
-      const isFootball = name.includes("futebol") || name.includes("soccer") || name.includes("brasileir") || 
-                        name.includes("libertadores") || name.includes("champions") || name.includes("copa") ||
-                        name.includes("campeonato") || name.includes("liga") ||
-                        cat.includes("futebol") || cat.includes("soccer") || grp.includes("futebol") || grp.includes("soccer") ||
-                        grp.includes("brasileir") || cat.includes("brasileir") || grp.includes("esport");
+      // Lista expandida de termos de futebol e campeonatos
+      const footballKeywords = [
+        "futebol", "soccer", "brasileir", "libertadores", "champions", "copa", "cup",
+        "campeonato", "liga", "league", "serie a", "serie b", "serie c", "premiere",
+        "espn", "tnt sports", "sportv", "dazn", "goltv", "nordeste", "paulistao", 
+        "carioca", "mineiro", "gauchao", "premier league", "la liga", "bundesliga",
+        "ligue 1", "serie a tim", "eredivisie", "liga nos", "mls", "concacaf", "conmebol"
+      ];
       
-      // Canais de esporte que costumam passar futebol
-      const isSportChannel = name.includes("premiere") || name.includes("espn") || name.includes("tnt") || name.includes("dazn") ||
-                            name.includes("sportv") || cat.includes("sport") || grp.includes("esporte");
+      const isFootball = footballKeywords.some(kw => 
+        name.includes(kw) || cat.includes(kw) || grp.includes(kw)
+      );
       
-      // Bloqueio explícito de outros esportes
-      const isOtherSport = name.includes("futsal") || name.includes("nba") || name.includes("nfl") || name.includes("nhl") || 
-                          name.includes("golfe") || name.includes("surfe") || name.includes("tennis") || name.includes("ufc") || 
-                          name.includes("lutas") || name.includes("basquete") ||
-                          cat.includes("nba") || cat.includes("nfl");
+      // Bloqueio explícito de outros esportes para não poluir
+      const otherSports = ["futsal", "nba", "nfl", "nhl", "golfe", "surfe", "tennis", "ufc", "lutas", "basquete"];
+      const isOtherSport = otherSports.some(kw => name.includes(kw) || cat.includes(kw));
 
-      return (isFootball || isSportChannel) && !isOtherSport;
+      return isFootball && !isOtherSport;
     });
     
     // Converte eventos ESPN para nosso formato de placar
@@ -224,9 +224,12 @@ function JogosPage() {
       // 3. Canais sem jogo detectado: Ignorar se forem genéricos (como no mockup)
       if (isGeneric) return;
 
-      // Se for um canal de esporte principal e o título do EPG parecer um jogo (mesmo sem placar explícito)
-      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
-      if (isMainSportCh && nowTitle.includes(" x ")) {
+      // Se for um canal de esporte principal, mantemos mesmo sem jogo detectado pela API/EPG
+      // mas apenas se o EPG não for genérico (já filtrado acima) ou se não tiver EPG (para permitir sintonizar)
+      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || 
+                            chName.includes("espn") || chName.includes("tnt sports") || chName.includes("dazn");
+      
+      if (isMainSportCh) {
         standaloneChannels.push({ ch, epg });
       }
     });
@@ -245,7 +248,7 @@ function JogosPage() {
 
     const finalResults = [...groupedResults, ...standaloneResults]
       .filter(g => {
-        // Se temos dados da ESPN, filtramos os encerrados
+        // Se temos dados da ESPN, exibimos se estiver ao vivo ou se for no futuro (hoje)
         if (g.score && (g.score as any).isFinished) return false;
         
         // Se temos dados de EPG, tentamos detectar se já encerrou pelo título/descrição
