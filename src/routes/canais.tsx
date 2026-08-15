@@ -508,6 +508,19 @@ function ChannelsPage() {
           />
         </label>
         <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
+
+        <div className="flex items-center gap-3 ml-2 text-white/70">
+          <div className="flex flex-col items-end">
+            <span className="text-[13px] font-black tracking-wider tabular-nums leading-none">
+              {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.1em] opacity-60">
+              {new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+            </span>
+          </div>
+          <Clock className="h-4 w-4 opacity-40" />
+        </div>
+
         <div className="ml-auto hidden md:block">
           <VexiaLogo className="h-20 md:h-28" />
         </div>
