@@ -142,6 +142,7 @@ function JogosPage() {
 
         const nowTitle = item.epg.now?.title.toLowerCase() || "";
         const nextTitle = item.epg.next?.title.toLowerCase() || "";
+        const chName = item.ch.name.toLowerCase();
         
         if (item.epg.now) {
           const score = extractFootballScore(item.epg.now.title, item.epg.now.description);
