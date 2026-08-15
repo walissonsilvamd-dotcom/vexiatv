@@ -135,6 +135,7 @@ const ChannelRow = memo(function ChannelRow({
   nowTitle,
   onSelect,
   onToggleFav,
+  onDoubleClick,
 }: {
   ch: PlaylistChannel;
   index: number;
@@ -144,6 +145,7 @@ const ChannelRow = memo(function ChannelRow({
   nowTitle: string;
   onSelect: (ch: PlaylistChannel) => void;
   onToggleFav: (ch: PlaylistChannel) => void;
+  onDoubleClick: (ch: PlaylistChannel) => void;
 }) {
   const quality = qualityOf(ch.name);
   return (
@@ -153,6 +155,7 @@ const ChannelRow = memo(function ChannelRow({
         data-nav-row={2}
         tabIndex={0}
         onClick={() => onSelect(ch)}
+        onDoubleClick={() => onDoubleClick(ch)}
         className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 ${
           isActive
             ? "scale-[1.02] border-vexia-purple/70 bg-vexia-purple shadow-[0_0_22px_-6px_rgb(var(--vexia-primary-rgb)/0.75)]"
@@ -319,6 +322,14 @@ function ChannelsPage() {
       writeLastChannel(ch.id, false);
     },
     [selected, openFullscreen],
+  );
+
+  /** Clique duplo em qualquer canal abre tela cheia imediatamente. */
+  const onChannelDoubleClick = useCallback(
+    (ch: PlaylistChannel) => {
+      openFullscreen(ch);
+    },
+    [openFullscreen],
   );
 
 
@@ -529,6 +540,7 @@ function ChannelsPage() {
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
       onToggleFav={toggleFav}
+      onDoubleClick={onChannelDoubleClick}
     />
   );
 
