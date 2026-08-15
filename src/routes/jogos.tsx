@@ -189,7 +189,8 @@ function JogosPage() {
                       {epg.now && extractFootballScore(epg.now.title, epg.now.description) ? (
                         <FootballLiveScore 
                           score={extractFootballScore(epg.now.title, epg.now.description)!} 
-                          className="mb-2"
+                          className="mb-1"
+                          timeLabel={`${ch.name} • ${clock(epg.now.start)}`}
                         />
                       ) : (
                         <>
