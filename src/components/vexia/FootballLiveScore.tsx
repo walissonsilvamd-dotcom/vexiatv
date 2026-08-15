@@ -32,12 +32,18 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         </div>
 
         {/* Placar Central */}
-        <div className="flex flex-col items-center justify-center px-1 min-w-[55px]">
-          <div className="flex items-center gap-2 font-black text-xl leading-none tracking-tighter">
-            <span className="text-vexia-cyan drop-shadow-[0_0_8px_rgba(0,200,255,0.4)]">{score.scoreA}</span>
-            <span className="text-white/10 text-xs font-light">x</span>
-            <span className="text-vexia-cyan drop-shadow-[0_0_8px_rgba(0,200,255,0.4)]">{score.scoreB}</span>
-          </div>
+        <div className="flex flex-col items-center justify-center px-1 min-w-[65px]">
+          {score.scoreA === 0 && score.scoreB === 0 && !score.isLive ? (
+            <div className="text-white/60 text-xs font-black tracking-widest bg-white/5 px-2 py-1 rounded-md border border-white/10 uppercase">
+              VS
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 font-black text-xl leading-none tracking-tighter">
+              <span className="text-vexia-cyan drop-shadow-[0_0_8px_rgba(0,200,255,0.4)]">{score.scoreA}</span>
+              <span className="text-white/10 text-xs font-light">x</span>
+              <span className="text-vexia-cyan drop-shadow-[0_0_8px_rgba(0,200,255,0.4)]">{score.scoreB}</span>
+            </div>
+          )}
           {score.time && (
             <span className="text-[8px] font-black text-vexia-purple uppercase mt-1 animate-pulse tracking-widest bg-vexia-purple/10 px-1.5 py-0.5 rounded-full border border-vexia-purple/20">
               {score.time}

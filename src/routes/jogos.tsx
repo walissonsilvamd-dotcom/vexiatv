@@ -186,11 +186,11 @@ function JogosPage() {
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      {epg.now && extractFootballScore(epg.now.title, epg.now.description) ? (
+                      {(epg.now && extractFootballScore(epg.now.title, epg.now.description)) || (epg.next && extractFootballScore(epg.next.title, epg.next.description)) ? (
                         <FootballLiveScore 
-                          score={extractFootballScore(epg.now.title, epg.now.description)!} 
+                          score={extractFootballScore(epg.now?.title || epg.next?.title || "", epg.now?.description || epg.next?.description)!} 
                           className="mb-1"
-                          timeLabel={`${ch.name} • ${clock(epg.now.start)}`}
+                          timeLabel={epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`}
                         />
                       ) : (
                         <>
