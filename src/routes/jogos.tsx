@@ -138,6 +138,8 @@ function JogosPage() {
       // Tenta extrair o nome da liga do nome do evento ou metadados
       const leagueName = event.name.split(" vs ")[0] === home?.team.displayName ? "" : ""; // ESPN API usually doesn't have league in top level here but we can infer or leave empty for now
       
+      const leagueLogo = event.competitors[0].team.logo; // Pega o logo de um dos times ou a ESPN teria o da liga em outro lugar
+
       return {
         id: event.id,
         teamA: home?.team.displayName || "",
@@ -150,7 +152,8 @@ function JogosPage() {
         isLive: event.status.type.state === "in",
         isFinished,
         broadcastChannels: event.broadcasts?.[0]?.names || [],
-        league: event.shortName // Aprox de liga na ESPN
+        league: event.shortName,
+        leagueLogo: `https://a.espncdn.com/i/teamlogos/soccer/500/leagues/${event.id.split('.')[0]}.png` // Mock de logo de liga da espn
       } as FootballScore & { isFinished: boolean };
     });
 
