@@ -270,8 +270,16 @@ function JogosPage() {
   }, [channels, guide, minuteTick, espnEvents]);
 
   const open = (item: any) => {
-    // A rota correta para o ID é /$id dentro do subgrupo /jogos, ou seja, /jogos/$id
-    void navigate({ to: "/jogos/$id", params: { id: item.channels[0].ch.id } });
+    // Forçamos a navegação usando a URL absoluta do TanStack Router
+    const channelId = item.channels[0].ch.id;
+    navigate({ 
+      to: "/jogos/$id", 
+      params: { id: channelId } 
+    }).catch(err => {
+      console.error("Navigation failed", err);
+      // Fallback manual caso o navigate falhe
+      window.location.href = `/jogos/${channelId}`;
+    });
   };
 
   return (
