@@ -88,8 +88,8 @@
   /* Derivados automáticos — não precisa mexer */
   --vexia-purple: var(--vexia-primary);
   --vexia-purple-soft: color-mix(in oklab, var(--vexia-primary) 70%, white);
-  --vexia-cyan: var(--vexia-primary);
-  --vexia-gold: var(--vexia-primary);
+  --vexia-cyan: #00C8FF;
+  --vexia-gold: #FFD700;
   --vexia-text: #FFFFFF;
   --vexia-muted: #AAAAAA;
   --radius: 0.625rem;
