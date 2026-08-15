@@ -321,6 +321,14 @@ function ChannelsPage() {
     [selected, openFullscreen],
   );
 
+  /** Clique duplo em qualquer canal abre tela cheia imediatamente. */
+  const onChannelDoubleClick = useCallback(
+    (ch: PlaylistChannel) => {
+      openFullscreen(ch);
+    },
+    [openFullscreen],
+  );
+
 
   const favs = useMemo(
     () => channels.filter((c) => has("channel", c.name)).map((c) => c.id),
