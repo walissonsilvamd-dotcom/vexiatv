@@ -69,13 +69,13 @@ function SplashScreen() {
           className="relative h-[5.2vmin] w-[5.2vmin] min-h-[26px] min-w-[26px] animate-[splash-spin_1100ms_linear_infinite]"
           style={{
             background:
-              "conic-gradient(from 0deg, var(--vexia-cyan), var(--vexia-purple), var(--vexia-cyan))",
+              "conic-gradient(from 0deg, white, var(--vexia-purple), white)",
             WebkitMask:
               "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
             mask: "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
             WebkitMaskComposite: "source-in",
             maskComposite: "intersect",
-            filter: "drop-shadow(0 0 6px color-mix(in oklab, var(--vexia-cyan) 55%, transparent))",
+            filter: "drop-shadow(0 0 6px color-mix(in oklab, white 55%, transparent))",
           }}
         />
       </div>
