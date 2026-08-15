@@ -153,7 +153,7 @@ function JogosPage() {
         isFinished,
         broadcastChannels: event.broadcasts?.[0]?.names || [],
         league: event.shortName,
-        leagueLogo: `https://a.espncdn.com/i/teamlogos/soccer/500/leagues/${event.id.split('.')[0]}.png` // Mock de logo de liga da espn
+        leagueLogo: undefined // Removido mock incerto
       } as FootballScore & { isFinished: boolean };
     });
 
