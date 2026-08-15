@@ -80,16 +80,16 @@
   /* ============================================================
    * IDENTIDADE VISUAL — trocar apenas estas 4 linhas muda o app inteiro
    * ============================================================ */
-  --vexia-primary: #FFD700;        /* Dourado UniTV */
-  --vexia-primary-rgb: 255 215 0;   /* mesma cor em RGB */
-  --vexia-secondary: #ffffff;      /* Branco UniTV */
+  --vexia-primary: #5200a5;        /* Roxo PipocaFlix */
+  --vexia-primary-rgb: 82 0 165;   /* mesma cor em RGB */
+  --vexia-secondary: #ffffff;      /* Branco PipocaFlix */
   --vexia-secondary-rgb: 255 255 255;  /* mesma cor em RGB */
 
   /* Derivados automáticos — não precisa mexer */
   --vexia-purple: var(--vexia-primary);
   --vexia-purple-soft: color-mix(in oklab, var(--vexia-primary) 70%, white);
-  --vexia-cyan: #FFD700;
-  --vexia-gold: #FFD700;
+  --vexia-cyan: var(--vexia-primary);
+  --vexia-gold: var(--vexia-primary);
   --vexia-text: #FFFFFF;
   --vexia-muted: #AAAAAA;
   --radius: 0.625rem;
