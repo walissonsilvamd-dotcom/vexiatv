@@ -8,6 +8,10 @@ export interface EspnGame {
   id: string;
   name: string;
   shortName: string;
+  league?: {
+    name: string;
+    logo?: string;
+  };
   date: string;
   status: {
     type: {
@@ -100,6 +104,10 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
           id: event.id,
           name: event.name,
           shortName: event.shortName,
+          league: {
+            name: data.leagues?.[0]?.name || "",
+            logo: data.leagues?.[0]?.logos?.[0]?.href
+          },
           date: event.date,
           status: {
             type: {

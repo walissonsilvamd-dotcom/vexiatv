@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Trophy, Play, Tv, Wifi, Settings } from "lucide-react";
+import { Trophy, Play, Tv, Wifi, Settings, Clock } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -146,9 +146,8 @@ function JogosPage() {
       const isFinished = event.status.type.state === "post";
       
       // Tenta extrair o nome da liga do nome do evento ou metadados
-      const leagueName = event.name.split(" vs ")[0] === home?.team.displayName ? "" : ""; // ESPN API usually doesn't have league in top level here but we can infer or leave empty for now
-      
-      const leagueLogo = event.competitors[0].team.logo; // Pega o logo de um dos times ou a ESPN teria o da liga em outro lugar
+      const leagueName = event.league?.name || "";
+      const leagueLogo = event.league?.logo;
 
       return {
         id: event.id,
@@ -162,8 +161,8 @@ function JogosPage() {
         isLive: event.status.type.state === "in",
         isFinished,
         broadcastChannels: event.broadcasts?.[0]?.names || [],
-        league: event.shortName,
-        leagueLogo: undefined // Removido mock incerto
+        league: leagueName,
+        leagueLogo: leagueLogo
       } as FootballScore & { isFinished: boolean };
     });
 
@@ -336,14 +335,14 @@ function JogosPage() {
           {loadingEspn && games.length === 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex flex-col gap-4 rounded-[40px] border border-white/5 bg-white/5 p-6 backdrop-blur-md">
-                  <div className="flex items-center justify-between w-full">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Skeleton className="h-20 w-full rounded-3xl" />
-                  </div>
+                <div key={i} className="flex flex-col gap-4 rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-md">
+                   <div className="flex items-center gap-4">
+                     <Skeleton className="h-16 w-16 rounded-full" />
+                     <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <Skeleton className="h-3 w-1/2 rounded" />
+                     </div>
+                   </div>
                 </div>
               ))}
             </div>
@@ -357,7 +356,7 @@ function JogosPage() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-6 w-full">
+            <div className="grid grid-cols-1 gap-4 w-full sm:grid-cols-2">
               {games.map((item, idx) => {
                 const { score, channels: itemChannels } = item;
                 const mainCh = itemChannels[0].ch;
@@ -372,54 +371,71 @@ function JogosPage() {
                     onClick={() => open(item)}
                     className="vexia-focus flex items-center gap-4 rounded-3xl border border-white/5 bg-black/40 p-2 text-left transition-all hover:border-white/20 hover:bg-white/5 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
                   >
-                    <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2">
-                      <div className="relative">
-                        <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
-                          {mainCh.logo ? (
+                    <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2 min-h-[100px]">
+                      {score?.leagueLogo ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
                             <SmartImage
-                              src={mainCh.logo}
+                              src={score.leagueLogo}
                               role="logo"
                               alt=""
                               className="h-full w-full object-contain p-1"
-                              fallback={<Tv className="h-5 w-5 text-white" aria-hidden />}
+                              fallback={<Trophy className="h-6 w-6 text-white/40" />}
                             />
-                          ) : (
-                            <Tv className="h-5 w-5 text-white" aria-hidden />
-                          )}
-                        </span>
-                        {item.isGrouped && itemChannels.length > 1 && (
-                          <div className="absolute -bottom-1 -right-1 bg-vexia-purple text-[7px] font-black px-1.5 py-0.5 text-white rounded-full border border-black shadow-lg uppercase">
-                            +{itemChannels.length - 1}
+                          </div>
+                          <span className="text-[8px] font-black text-white/60 uppercase text-center leading-[1] max-w-[80px] break-words">
+                            {score.league}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                            <Trophy className="h-6 w-6 text-white/40" />
+                          </div>
+                          <span className="text-[8px] font-black text-white/60 uppercase text-center leading-[1] max-w-[80px] break-words">
+                            {score?.league || "Futebol"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 flex flex-col justify-center gap-2 p-2">
+                      {score ? (
+                        <FootballLiveScore score={score} />
+                      ) : (
+                        <div className="flex items-center justify-between w-full bg-white/5 p-3 rounded-xl border border-white/10">
+                          <span className="truncate text-xs font-black text-white uppercase">{epg.now?.title ?? mainCh.name}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between mt-auto">
+                        <div className="flex items-center gap-2">
+                          <span className="grid h-6 w-6 place-items-center overflow-hidden rounded-full border border-white/20 bg-black/80">
+                            {mainCh.logo ? (
+                              <SmartImage
+                                src={mainCh.logo}
+                                role="logo"
+                                alt=""
+                                className="h-full w-full object-contain p-1"
+                                fallback={<Tv className="h-3 w-3 text-white" aria-hidden />}
+                              />
+                            ) : (
+                              <Tv className="h-3 w-3 text-white" aria-hidden />
+                            )}
+                          </span>
+                          <span className="text-[9px] font-bold text-white/50 truncate max-w-[120px]">
+                            {mainCh.name}
+                            {item.isGrouped && itemChannels.length > 1 && ` (+${itemChannels.length - 1})`}
+                          </span>
+                        </div>
+                        
+                        {epg.now && (
+                          <div className="flex items-center gap-1 px-2 py-0.5 bg-white/5 rounded-md border border-white/10">
+                            <Clock className="w-2.5 h-2.5 text-vexia-purple" />
+                            <span className="text-[9px] font-black text-white/80">{clock(epg.now.start)}</span>
                           </div>
                         )}
                       </div>
-                      <div className="text-[8px] font-black text-white/40 tracking-widest uppercase text-center max-w-[80px] truncate">
-                        {mainCh.name}
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0 pr-4">
-                      {score ? (
-                        <FootballLiveScore 
-                          score={score} 
-                          className="w-full"
-                          timeLabel={epg.now ? clock(epg.now.start) : "AGORA"}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-between w-full bg-white/5 p-4 rounded-2xl border border-white/10">
-                          <div className="flex flex-col gap-1">
-                            <span className="block truncate text-lg font-black text-white uppercase tracking-tight">
-                              {epg.now?.title ?? mainCh.name}
-                            </span>
-                            <span className="block truncate text-[10px] font-bold text-white/40 uppercase tracking-widest">
-                              PROGRAMAÇÃO ATUAL
-                            </span>
-                          </div>
-                          <div className="text-sm font-black text-vexia-purple bg-vexia-purple/10 px-4 py-2 rounded-xl border border-vexia-purple/20">
-                            {epg.now ? clock(epg.now.start) : "LIVE"}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </button>
                 );
