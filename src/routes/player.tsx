@@ -1632,8 +1632,7 @@ function PlayerPage() {
 
         {/* Menu de configurações do player */}
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
-          { (
-            ([
+          {([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
               {
