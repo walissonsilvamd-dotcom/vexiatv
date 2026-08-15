@@ -346,8 +346,6 @@ export async function attachEngine(
       levelLoadingMaxRetry: preview ? 1 : 4,
       fragLoadingTimeOut: preview ? 2_500 : 10_000,
       fragLoadingMaxRetry: preview ? 2 : 5,
-      // Prioridade total para o carregamento inicial.
-      enableWorker: true,
       enableSoftwareAES: false,
       fragLoadingRetryDelay: 200,
     });
