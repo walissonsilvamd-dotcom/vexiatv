@@ -1628,7 +1628,8 @@ function PlayerPage() {
 
         {/* Menu de configurações do player */}
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
-          {([
+          {type !== 'live' && (
+            ([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
               {
@@ -1637,7 +1638,7 @@ function PlayerPage() {
                 title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
                 label: subs.currentLabel,
               },
-              { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x`, hidden: type === 'live' },
+              { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
               { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
               { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
               ...(type === "series"
@@ -1656,40 +1657,42 @@ function PlayerPage() {
                   ] as const)
                 : []),
             ] as const
-          ).filter(opt => !('hidden' in opt && (opt as any).hidden)).map((opt) => {
-            const open = menu === opt.key;
-            return (
-              <button
-                key={opt.key}
-                type="button"
-                onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
-                aria-pressed={open}
-                className={`vexia-focus group grid min-w-0 max-w-[130px] grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-2 py-1 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_18px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
-                  open
-                    ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_16px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
-                    : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
-                }`}
-              >
-                <span
-                  className={`grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors ${
-                    open ? "bg-vexia-purple text-white" : "bg-black/50 text-vexia-cyan"
+            ).map((opt) => {
+              const open = menu === opt.key;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
+                  aria-pressed={open}
+                  className={`vexia-focus group grid min-w-0 max-w-[130px] grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-2 py-1 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_18px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
+                    open
+                      ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_16px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
+                      : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
                   }`}
                 >
-                  <opt.icon className="h-3 w-3" aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[8px] font-bold uppercase tracking-[0.14em] text-white/45">
-                    {opt.title}
+                  <span
+                    className={`grid h-5 w-5 shrink-0 place-items-center rounded-full transition-colors ${
+                      open ? "bg-vexia-purple text-white" : "bg-black/50 text-vexia-cyan"
+                    }`}
+                  >
+                    <opt.icon className="h-3 w-3" aria-hidden />
                   </span>
-                  <span className="block truncate text-[10px] font-semibold text-white">
-                    {opt.label}
+                  <span className="min-w-0">
+                    <span className="block text-[8px] font-bold uppercase tracking-[0.14em] text-white/45">
+                      {opt.title}
+                    </span>
+                    <span className="block truncate text-[10px] font-semibold text-white">
+                      {opt.label}
+                    </span>
                   </span>
-                </span>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })
+          )}
           {/* Atraso da legenda: só − e +, sem poluir a tela */}
-            <div className={`flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5 ${type === 'live' ? 'hidden' : ''}`}>
+          {type !== 'live' && (
+            <div className={`flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5`}>
               <Timer className="h-3 w-3 shrink-0 text-vexia-cyan" aria-hidden />
               <button
                 type="button"
@@ -1713,14 +1716,17 @@ function PlayerPage() {
                 +
               </button>
             </div>
+          )}
+          {type !== 'live' && (
             <button
               type="button"
               onClick={() => setMenu((m) => (m ? null : "quality"))}
               aria-label="Configurações"
-              className={`vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none ${type === 'live' ? 'hidden' : ''}`}
+              className={`vexia-focus grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-vexia-cyan/40 hover:bg-white/[0.12] focus-visible:border-vexia-cyan focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55)] focus-visible:outline-none`}
             >
               <Settings className="h-3.5 w-3.5 text-vexia-cyan" aria-hidden />
             </button>
+          )}
         </div>
 
 
