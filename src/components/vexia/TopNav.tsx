@@ -9,7 +9,8 @@ type TabKey =
   | "Séries"
   | "Favoritos"
   | "Histórico"
-  | "Ajustes";
+  | "Ajustes"
+  | "Jogos";
 
 const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] = [
   { label: "Home", to: "/home" },
