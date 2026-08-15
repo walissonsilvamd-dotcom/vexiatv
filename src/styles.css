@@ -80,10 +80,10 @@
   /* ============================================================
    * IDENTIDADE VISUAL — trocar apenas estas 4 linhas muda o app inteiro
    * ============================================================ */
-  --vexia-primary: #7B2BBE;        /* cor primária (hoje roxo) */
-  --vexia-primary-rgb: 123 43 190; /* mesma cor em RGB (para glows/sombras) */
-  --vexia-secondary: #00C8FF;        /* cor secundária (hoje ciano) */
-  --vexia-secondary-rgb: 0 200 255;  /* mesma cor em RGB */
+  --vexia-primary: #5200a5;        /* Roxo PipocaFlix (escuro/vibrante) */
+  --vexia-primary-rgb: 82 0 165;   /* mesma cor em RGB */
+  --vexia-secondary: #ffffff;      /* Branco PipocaFlix */
+  --vexia-secondary-rgb: 255 255 255;  /* mesma cor em RGB */
 
   /* Derivados automáticos — não precisa mexer */
   --vexia-purple: var(--vexia-primary);
