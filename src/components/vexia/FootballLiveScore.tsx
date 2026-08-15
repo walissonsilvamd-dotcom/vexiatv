@@ -98,13 +98,18 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
           <span className="text-sm font-black text-white uppercase tracking-tighter text-right">
             {score.teamA}
           </span>
-          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden">
-            {logoA ? (
+          <div className="w-12 h-12 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+            {loadingA ? (
+              <Skeleton className="w-9 h-9 rounded-full bg-white/10 animate-pulse" />
+            ) : logoA ? (
               <img 
                 src={logoA} 
                 alt={score.teamA} 
                 className="w-9 h-9 object-contain"
-                onError={() => setLogoA(undefined)}
+                onError={() => {
+                  setLogoA(undefined);
+                  setErrorA(true);
+                }}
               />
             ) : (
               <Shield className="w-6 h-6 text-white/20" />
