@@ -229,7 +229,10 @@ function DetailsPage() {
   return (
     <main ref={scopeRef} className="vexia-safe min-h-screen bg-vexia-bg pb-10 text-vexia-text">
       <div className="px-5 pt-4 md:px-10">
-        <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
+        <div className="flex items-center gap-6">
+          <TopNav active={isSeries ? "Séries" : "Filmes"} className="w-fit" />
+          <VexiaLogo className="h-12 md:h-16" />
+        </div>
       </div>
 
       {/* ─── Destaque com backdrop ─── */}
