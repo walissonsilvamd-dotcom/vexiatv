@@ -497,7 +497,7 @@ function ChannelsPage() {
         </label>
         <SortControl navRow={0} labels={{ nota: "Ordem da lista", recentes: "Mais recentes" }} />
         <div className="ml-auto hidden md:block">
-          <VexiaLogo className="h-14 md:h-20" />
+          <VexiaLogo className="h-20 md:h-28" />
         </div>
       </header>
 
