@@ -113,6 +113,10 @@ function JogoDetalhesPage() {
 
   if (!gameData || !activeChannel) return null;
 
+  const openFullscreen = () => {
+    void navigate({ to: "/player", search: { type: "live", id: activeChannel.id } });
+  };
+
   const { channel: ch, epg, score, alternatives } = gameData;
 
   const play = (selectedCh = ch) => {
