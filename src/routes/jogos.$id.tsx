@@ -7,6 +7,7 @@ import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { getLiveFootballScores, getEspnGameDetails, EspnGame } from "../lib/espn.functions";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
+import { searchTeamLogo } from "../lib/team-logos.functions";
 import { BRAND } from "../lib/brand";
 import { setStreamHandoff } from "../lib/stream-handoff";
 import { useResilientPlayer } from "../hooks/useResilientPlayer";
@@ -33,6 +34,8 @@ function JogoDetalhesPage() {
   const [espnEvents, setEspnEvents] = useState<EspnGame[]>([]);
   const [details, setDetails] = useState<any>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [logoA, setLogoA] = useState<string | undefined>();
+  const [logoB, setLogoB] = useState<string | undefined>();
 
   const fetchScores = useCallback(async () => {
     const data = await getLiveFootballScores();
@@ -44,6 +47,7 @@ function JogoDetalhesPage() {
     const interval = setInterval(fetchScores, 30000); // Atualiza a cada 30s
     return () => clearInterval(interval);
   }, [fetchScores]);
+
 
   const espnEventId = useMemo(() => {
     if (!channels.find(c => c.id === id)) return null;
@@ -118,6 +122,26 @@ function JogoDetalhesPage() {
 
     return { channel, epg, score, isEspn: !!espnMatch, alternatives };
   }, [channel, guide, minuteTick, espnEvents, channels]);
+
+  useEffect(() => {
+    if (gameData?.score) {
+      setLogoA(gameData.score.logoA);
+      setLogoB(gameData.score.logoB);
+      
+      async function fetchLogos() {
+        if (!gameData.score?.logoA && gameData.score?.teamA) {
+          const logo = await searchTeamLogo({ data: gameData.score.teamA });
+          if (logo) setLogoA(logo);
+        }
+        if (!gameData.score?.logoB && gameData.score?.teamB) {
+          const logo = await searchTeamLogo({ data: gameData.score.teamB });
+          if (logo) setLogoB(logo);
+        }
+      }
+      fetchLogos();
+    }
+  }, [gameData?.score?.teamA, gameData?.score?.teamB, gameData?.score?.logoA, gameData?.score?.logoB]);
+
 
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
@@ -253,16 +277,16 @@ function JogoDetalhesPage() {
              {score && (
                 <div className="flex items-center gap-6 bg-white/5 p-4 rounded-3xl border border-white/10 self-start">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
-                      {score.logoA ? <img src={score.logoA} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 overflow-hidden">
+                      {logoA ? <img src={logoA} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
                     </div>
                     <span className="text-2xl font-black text-vexia-cyan">{score.scoreA}</span>
                   </div>
                   <span className="text-white/20 font-light italic">VS</span>
                   <div className="flex items-center gap-3">
                     <span className="text-2xl font-black text-vexia-cyan">{score.scoreB}</span>
-                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
-                      {score.logoB ? <img src={score.logoB} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 overflow-hidden">
+                      {logoB ? <img src={logoB} className="w-7 h-7 object-contain" alt="" /> : <Shield className="w-6 h-6 text-white/20" />}
                     </div>
                   </div>
                   {score.time && (
