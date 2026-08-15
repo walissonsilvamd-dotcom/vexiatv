@@ -13,6 +13,8 @@ export type FootballScore = {
   logoB?: string;
   isLive: boolean;
   broadcastChannels?: string[];
+  league?: string;
+  leagueLogo?: string;
 };
 
 // Regex para capturar padrões como "Time A 2 x 1 Time B" ou "Time A 2 - 1 Time B"
