@@ -353,7 +353,7 @@ function JogosPage() {
                           </div>
                         )}
                       </div>
-                      <div className="text-[11px] font-black text-white tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                      <div className="text-[10px] font-black text-white/90 tracking-widest bg-white/10 px-2 py-1 rounded-lg border border-white/10">
                         {epg.now ? clock(epg.now.start) : "AGORA"}
                       </div>
                     </div>
