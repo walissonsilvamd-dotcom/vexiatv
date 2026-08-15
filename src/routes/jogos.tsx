@@ -276,6 +276,81 @@ function JogosPage() {
             ))}
           </div>
 
+          {/* Card de Destaque Principal */}
+          {games.length > 0 && (
+            <div className="mb-8 relative group overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-vexia-gold/20" />
+              <div className="relative p-8 flex flex-col items-center justify-center text-center">
+                <div className="absolute top-6 right-6 px-3 py-1 bg-red-600 rounded-full animate-pulse flex items-center gap-2 shadow-lg shadow-red-600/30">
+                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                  <span className="text-[10px] font-black text-white tracking-widest uppercase">AO VIVO</span>
+                </div>
+                
+                <div className="flex items-center gap-12 mb-6">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                      {games[0].score?.logoA ? (
+                        <img src={games[0].score.logoA} className="w-16 h-16 object-contain" alt="" />
+                      ) : (
+                        <div className="text-4xl font-black text-white/20 italic">{games[0].score?.teamA.substring(0, 1)}</div>
+                      )}
+                    </div>
+                    <span className="text-sm font-black text-white uppercase tracking-tighter max-w-[120px] truncate">
+                      {games[0].score?.teamA || games[0].channels[0].ch.name}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+                      {games[0].score?.isLive ? (
+                        <div className="flex items-center gap-4">
+                          <span className="text-vexia-gold">{games[0].score.scoreA}</span>
+                          <span className="text-white/10 text-2xl font-light">X</span>
+                          <span className="text-vexia-gold">{games[0].score.scoreB}</span>
+                        </div>
+                      ) : (
+                        <span className="text-4xl text-white/20 italic">VS</span>
+                      )}
+                    </div>
+                    {games[0].score?.time && (
+                      <div className="mt-4 px-4 py-1.5 bg-vexia-gold text-black rounded-full text-[10px] font-black tracking-widest uppercase">
+                        {games[0].score.time}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center border border-white/10 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                      {games[0].score?.logoB ? (
+                        <img src={games[0].score.logoB} className="w-16 h-16 object-contain" alt="" />
+                      ) : (
+                        <div className="text-4xl font-black text-white/20 italic">{games[0].score?.teamB.substring(0, 1)}</div>
+                      )}
+                    </div>
+                    <span className="text-sm font-black text-white uppercase tracking-tighter max-w-[120px] truncate">
+                      {games[0].score?.teamB || "Convidado"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                    <Tv className="w-3.5 h-3.5 text-vexia-gold" />
+                    <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Canais: {games[0].channels.map(c => c.ch.name).join(", ")}</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => open(games[0])}
+                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-gold text-black rounded-full font-black text-lg tracking-tighter uppercase shadow-xl hover:scale-105 transition-all"
+                >
+                  <Play className="w-6 h-6 fill-current" />
+                  Assistir Agora
+                </button>
+              </div>
+            </div>
+          )}
+
           <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {games.length === 0 ? (
             <div className="py-24 flex flex-col items-center justify-center text-center">
