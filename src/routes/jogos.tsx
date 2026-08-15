@@ -245,11 +245,11 @@ function JogosPage() {
             <span className="text-xl font-black text-vexia-primary tracking-tight italic">Flix</span>
           </div>
           <div className="flex items-center gap-3">
-            <Trophy className="h-5 w-5 text-vexia-primary" aria-hidden />
+            <Trophy className="h-5 w-5 text-white" aria-hidden />
             <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text uppercase">JOGOS AO VIVO</h1>
             {loadingEspn && (
               <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-primary/10 rounded-full border border-vexia-primary/20">
-                <Wifi className="h-3 w-3 text-vexia-primary animate-pulse" />
+                <Wifi className="h-3 w-3 text-white animate-pulse" />
                 <span className="text-[8px] font-bold text-vexia-primary tracking-widest uppercase">API Live</span>
               </div>
             )}
@@ -300,7 +300,7 @@ function JogosPage() {
                 <Trophy className="w-10 h-10" />
               </div>
               <p className="text-sm font-bold text-vexia-muted max-w-[200px]">
-                ⏳ Buscando jogos ao vivo...
+                ⏳ Buscando jogos de futebol ao vivo...
               </p>
             </div>
           ) : (
