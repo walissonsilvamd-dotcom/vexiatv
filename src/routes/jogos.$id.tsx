@@ -123,17 +123,19 @@ function JogoDetalhesPage() {
   useSpatialNav(scopeRef);
 
   const [activeChannel, setActiveChannel] = useState(channel);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
 
-  // Sincroniza activeChannel quando o canal inicial carrega
+  // Sincroniza activeChannel e inicia player quando o canal inicial carrega
   useEffect(() => {
-    if (channel && !activeChannel) {
-      setActiveChannel(channel);
+    if (channel) {
+      if (!activeChannel) setActiveChannel(channel);
+      setIsPlaying(true);
+      setStreamHandoff("live", channel.id, channel.url);
     }
-  }, [channel, activeChannel]);
+  }, [channel]);
 
   const src = useMemo(() => playableStreamUrl(activeChannel?.url || ""), [activeChannel]);
 
@@ -189,7 +191,7 @@ function JogoDetalhesPage() {
         {/* Lado Esquerdo: Player ou Info Principal */}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="relative aspect-video w-full bg-black/60 rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl group">
-            {isPlaying ? (
+            {isPlaying && activeChannel ? (
               <>
                 <video ref={slotARef} className="absolute inset-0 h-full w-full object-contain" muted />
                 <video ref={slotBRef} className="absolute inset-0 h-full w-full object-contain" muted />
