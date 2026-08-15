@@ -78,15 +78,14 @@ function ChannelPreviewBase({
     if (active && playable) {
       active.muted = false;
       active.volume = 1;
-      // Pequeno atraso para garantir que o motor (hls/ts) anexou o buffer
+      // Reduzi o delay para play() na prévia para aumentar a percepção de velocidade
       const timer = setTimeout(() => {
         if (!active || !playable) return;
         active.play().catch(() => {
-          // Fallback para mutado se o navegador bloquear autoplay com som
           active.muted = true;
           void active.play().catch(() => undefined);
         });
-      }, 50);
+      }, 10);
       return () => clearTimeout(timer);
     }
   }, [activeSlot, started, playable]);
