@@ -1661,7 +1661,7 @@ function PlayerPage() {
                   ] as const)
                 : []),
             ] as const
-          ).filter(opt => !('hidden' in opt && opt.hidden)).map((opt) => {
+          ).filter(opt => !('hidden' in opt && (opt as any).hidden)).map((opt) => {
             const open = menu === opt.key;
             return (
               <button
