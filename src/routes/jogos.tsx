@@ -161,9 +161,16 @@ function JogosPage() {
         "futsal", "nba", "nfl", "nhl", "golfe", "golf", "surfe", "tennis", "tenis", 
         "ufc", "lutas", "basquete", "olimpica", "atp", "wta", "cincinnati", "st. jude",
         "formula", "f1", "motogp", "nascar", "ciclismo", "atletismo", "boxe", "ginástica",
-        "natação", "esportes radicais", "faixa olímpica", "vôlei", "volei"
+        "natação", "esportes radicais", "faixa olímpica", "vôlei", "volei",
+        "arena cross", "motocross", "supercross", "cross", "rally", "kart", "automobilismo",
+        "poker", "sinuca", "xadrez", "e-sports", "esports", "wwe", "aew", "mma", "jiu",
+        "skate", "bmx", "triatlo", "maratona", "remo", "vela", "hipismo", "rodeio",
+        "beach", "praia", "americano", "baseball", "beisebol", "hockey", "hoquei",
+        "rugby", "cricket", "handebol", "handball", "pesca", "dardos", "darts", "boliche"
       ];
-      const isOtherSport = otherSports.some(kw => name.includes(kw) || cat.includes(kw) || grp.includes(kw));
+      const isOtherSport = otherSports.some(kw => 
+        name.includes(kw) || cat.includes(kw) || grp.includes(kw)
+      );
 
       return isFootball && !isOtherSport;
     });
@@ -212,7 +219,10 @@ function JogosPage() {
         "olímpica", "atp", "wta", "golfe", "golf", "nba", "nfl", "basquete", "vôlei", "tênis", 
         "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais", "futsal", 
         "motogp", "f1", "fórmula", "nascar", "ciclismo", "atletismo", "basketball", "tennis", 
-        "baseball", "hockey"
+        "baseball", "hockey", "arena cross", "motocross", "supercross", "cross", "rally",
+        "kart", "automobilismo", "poker", "sinuca", "wwe", "mma", "jiu", "skate", "bmx",
+        "rugby", "cricket", "handebol", "handball", "beach", "praia", "hipismo", "rodeio",
+        "e-sports", "esports", "darts", "boliche", "pesca", "vela", "remo", "triatlo"
       ].some(kw => nowTitle.includes(kw));
       
       const isGeneric = nowTitle.includes("programação") || 
