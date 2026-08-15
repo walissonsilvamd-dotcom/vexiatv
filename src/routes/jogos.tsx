@@ -170,6 +170,9 @@ function JogosPage() {
       const leagueName = event.league?.name || "";
       const leagueLogo = event.league?.logo;
 
+      // Simplifica os canais da ESPN para match (ex: "ESPN 4" -> "espn 4")
+      const channelsMatch = (event.broadcasts?.[0]?.names || []).map(n => n.toLowerCase());
+
       return {
         id: event.id + "-" + selectedDate,
         teamA: home?.team.displayName || "",
@@ -181,7 +184,7 @@ function JogosPage() {
         time: event.status.type.state === "in" ? event.status.displayClock : event.status.type.description,
         isLive: event.status.type.state === "in",
         isFinished,
-        broadcastChannels: event.broadcasts?.[0]?.names || [],
+        broadcastChannels: channelsMatch,
         league: leagueName,
         leagueLogo: leagueLogo
       } as FootballScore & { isFinished: boolean };
@@ -210,9 +213,10 @@ function JogosPage() {
                         nowTitle.includes("sportv") ||
                         isOtherSportProgram;
       
-      // 1. Tenta match com ESPN
+      // 1. Tenta match com ESPN primeiro
       const espnMatch = espnScores.find(score => 
-        score.broadcastChannels?.some(b => chName.includes(b.toLowerCase()))
+        score.broadcastChannels?.some(b => chName.includes(b)) || 
+        (chName.includes("espn") && score.broadcastChannels?.some(b => b.includes("espn")))
       );
 
       if (espnMatch) {
