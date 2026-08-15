@@ -435,7 +435,7 @@ function JogosPage() {
                     data-nav-row={idx + 1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex items-center gap-4 rounded-3xl border border-white/5 bg-black/40 p-2 text-left transition-all hover:border-white/20 hover:bg-white/5 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
+                    className="vexia-focus flex items-center gap-4 rounded-3xl border border-white/5 bg-black/40 p-2 text-left transition-all hover:border-white/20 hover:bg-white/5 backdrop-blur-md group relative shadow-2xl w-full min-h-[140px] overflow-hidden"
                   >
                     <div className="flex flex-col items-center justify-center w-24 shrink-0 gap-2 border-r border-white/10 pr-2 min-h-[100px]">
                       {score?.leagueLogo ? (
