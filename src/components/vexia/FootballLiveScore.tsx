@@ -30,7 +30,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
       if (!logoA && score.teamA && !errorA) {
         setLoadingA(true);
         try {
-          const logo = await searchTeamLogo({ data: { teamName: score.teamA } });
+          const logo = await getCachedTeamLogo(score.teamA);
           if (logo) {
             setLogoA(logo);
           } else {
@@ -46,7 +46,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
       if (!logoB && score.teamB && !errorB) {
         setLoadingB(true);
         try {
-          const logo = await searchTeamLogo({ data: { teamName: score.teamB } });
+          const logo = await getCachedTeamLogo(score.teamB);
           if (logo) {
             setLogoB(logo);
           } else {
