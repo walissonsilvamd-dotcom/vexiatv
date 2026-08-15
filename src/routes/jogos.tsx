@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
-import { useMemo, useRef, useState } from "react";
-import { Trophy, Play, Tv } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Trophy, Play, Tv, Wifi } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -15,7 +15,8 @@ import { setStreamHandoff } from "../lib/stream-handoff";
 import type { PlaylistChannel } from "../lib/m3u";
 import { BRAND } from "../lib/brand";
 import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
-import { extractFootballScore } from "../lib/football-score";
+import { extractFootballScore, FootballScore } from "../lib/football-score";
+import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
@@ -75,23 +76,76 @@ function JogosPage() {
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const [listsOpen, setListsOpen] = useState(false);
+  const [espnEvents, setEspnEvents] = useState<EspnGame[]>([]);
+  const [loadingEspn, setLoadingEspn] = useState(false);
+
+  // Busca dados da ESPN a cada 60 segundos se estiver na tela
+  useEffect(() => {
+    const fetchEspn = async () => {
+      setLoadingEspn(true);
+      try {
+        const data = await getLiveFootballScores();
+        setEspnEvents(data.events || []);
+      } catch (e) {
+        console.error("ESPN load failed", e);
+      } finally {
+        setLoadingEspn(false);
+      }
+    };
+
+    fetchEspn();
+    const timer = setInterval(fetchEspn, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   /** Canais de esporte da lista, com programa atual e próximo. */
   const games = useMemo(() => {
     const sports = channels.filter((c) => isSport(c.name, c.category, c.group));
+    
+    // Converte eventos ESPN para nosso formato de placar
+    const espnScores = espnEvents.map(event => {
+      const home = event.competitors.find(c => c.homeAway === "home");
+      const away = event.competitors.find(c => c.homeAway === "away");
+      return {
+        id: event.id,
+        teamA: home?.team.displayName || "",
+        teamB: away?.team.displayName || "",
+        scoreA: parseInt(home?.score || "0"),
+        scoreB: parseInt(away?.score || "0"),
+        logoA: home?.team.logo,
+        logoB: away?.team.logo,
+        time: event.status.type.state === "in" ? event.status.displayClock : event.status.type.description,
+        isLive: event.status.type.state === "in",
+        broadcastChannels: event.broadcasts?.[0]?.names || []
+      } as FootballScore;
+    });
+
     return sports
-      .map((ch) => ({ ch, epg: nowAndNext(guide, ch.tvgId, minuteTick) }))
+      .map((ch) => {
+        const epg = nowAndNext(guide, ch.tvgId, minuteTick);
+        
+        // Tenta encontrar um jogo ESPN que esteja passando neste canal
+        const chName = ch.name.toLowerCase();
+        const espnMatch = espnScores.find(score => 
+          score.broadcastChannels?.some(b => chName.includes(b.toLowerCase()))
+        );
+
+        return { 
+          ch, 
+          epg,
+          espnScore: espnMatch
+        };
+      })
       // Filtra e prioriza canais de esporte relevantes
       .filter((item) => {
+        if (item.espnScore) return true;
+
         const nowTitle = item.epg.now?.title.toLowerCase() || "";
         const nextTitle = item.epg.next?.title.toLowerCase() || "";
         const chName = item.ch.name.toLowerCase();
         
-        // Se houver placar, verifica se o jogo ainda está acontecendo (isLive)
         if (item.epg.now) {
           const score = extractFootballScore(item.epg.now.title, item.epg.now.description);
-          // Se o placar indicar que acabou ("fim", "encerrado"), removemos da grade principal 
-          // (a menos que seja o único conteúdo do canal)
           if (score && !score.isLive) return false;
         }
 
@@ -103,16 +157,16 @@ function JogosPage() {
         return isFootNow || isFootNext || isPremiere;
       })
       .sort((a, b) => {
-        // Prioridade 1: Jogos com placar detectado (ao vivo agora)
-        const aScore = a.epg.now ? extractFootballScore(a.epg.now.title, a.epg.now.description) : null;
-        const bScore = b.epg.now ? extractFootballScore(b.epg.now.title, b.epg.now.description) : null;
-        if (aScore && !bScore) return -1;
-        if (!aScore && bScore) return 1;
+        // Prioridade 1: Jogos com dados da ESPN ou placar detectado (ao vivo agora)
+        const aHasScore = a.espnScore || (a.epg.now && extractFootballScore(a.epg.now.title, a.epg.now.description));
+        const bHasScore = b.espnScore || (b.epg.now && extractFootballScore(b.epg.now.title, b.epg.now.description));
+        
+        if (aHasScore && !bHasScore) return -1;
+        if (!aHasScore && bHasScore) return 1;
 
-        // Prioridade 2: Tem EPG agora
         return Number(Boolean(b.epg.now)) - Number(Boolean(a.epg.now));
       });
-  }, [channels, guide, minuteTick]);
+  }, [channels, guide, minuteTick, espnEvents]);
 
   const open = (ch: PlaylistChannel) => {
     setStreamHandoff("live", ch.id, ch.url);
@@ -132,7 +186,13 @@ function JogosPage() {
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-3">
           <Trophy className="h-6 w-6 text-vexia-cyan" aria-hidden />
-          <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text">JOGOS AO VIVO</h1>
+          <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text uppercase">JOGOS AO VIVO</h1>
+          {loadingEspn && (
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-cyan/10 rounded-full border border-vexia-cyan/20">
+              <Wifi className="h-3 w-3 text-vexia-cyan animate-pulse" />
+              <span className="text-[8px] font-bold text-vexia-cyan tracking-widest uppercase">API Live</span>
+            </div>
+          )}
         </div>
         <TopNav />
         <VexiaLogo className="h-9" />
@@ -151,7 +211,7 @@ function JogosPage() {
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {games.map(({ ch, epg }) => {
+              {games.map(({ ch, epg, espnScore }) => {
                 const progress = epg.now
                   ? Math.min(
                       100,
@@ -163,6 +223,11 @@ function JogosPage() {
                       ),
                     )
                   : 0;
+                
+                const score = espnScore || 
+                  (epg.now ? extractFootballScore(epg.now.title, epg.now.description) : null) ||
+                  (epg.next ? extractFootballScore(epg.next.title, epg.next.description) : null);
+
                 return (
                   <button
                     key={ch.id}
@@ -186,33 +251,25 @@ function JogosPage() {
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      {(() => {
-                        const currentScore = epg.now ? extractFootballScore(epg.now.title, epg.now.description) : null;
-                        const nextScore = epg.next ? extractFootballScore(epg.next.title, epg.next.description) : null;
-                        const score = currentScore || nextScore;
-                        
-                        if (score) {
-                          return (
-                            <FootballLiveScore 
-                              score={score} 
-                              className="mb-1"
-                              timeLabel={epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`}
-                            />
-                          );
-                        }
-                        return (
-                          <>
-                            <span className="block truncate text-sm font-bold text-vexia-text">
-                              {epg.now?.title ?? ch.name}
-                            </span>
-                            <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
-                              {epg.now
-                                ? `${ch.name} • ${clock(epg.now.start)}`
-                                : ch.name}
-                            </span>
-                          </>
-                        );
-                      })()}
+                      {score ? (
+                        <FootballLiveScore 
+                          score={score} 
+                          className="mb-1"
+                          timeLabel={espnScore ? `${ch.name} • ESPN LIVE` : (epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`)}
+                        />
+                      ) : (
+                        <>
+                          <span className="block truncate text-sm font-bold text-vexia-text">
+                            {epg.now?.title ?? ch.name}
+                          </span>
+                          <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
+                            {epg.now
+                              ? `${ch.name} • ${clock(epg.now.start)}`
+                              : ch.name}
+                          </span>
+                        </>
+                      )}
+
                       
                       {epg.now ? (
                         <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10">
