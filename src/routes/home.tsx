@@ -134,9 +134,15 @@ function HomePage() {
   // Pool de destaques: até 8 títulos da lista com imagem disponível.
   // Filtra conteúdo adulto para nunca aparecer nos destaques da Home.
   const heroPool = useMemo<MediaItem[]>(() => {
+    // Prioriza lançamentos de 2026 para o destaque da Home
     const pool = [...movies, ...series]
       .filter((m) => m.backdrop || m.poster)
       .filter((m) => !isAdultText(m.title, m.category, ...(m.genres || [])))
+      .sort((a, b) => {
+        if (a.year === 2026 && b.year !== 2026) return -1;
+        if (b.year === 2026 && a.year !== 2026) return 1;
+        return (b.year || 0) - (a.year || 0);
+      })
       .slice(0, 8);
     return pool;
   }, [movies, series]);
