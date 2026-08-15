@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/public/stream")({
         try {
           const upstream = await fetch(target, {
             method: "HEAD",
-            headers: { "User-Agent": "VLC/3.0.20 LibVLC/3.0.20" },
+            headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" },
             redirect: "follow",
           });
           return new Response(null, {
