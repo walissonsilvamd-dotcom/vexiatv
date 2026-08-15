@@ -26,6 +26,7 @@ import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SerieIdRouteImport } from './routes/serie.$id'
+import { Route as JogosIdRouteImport } from './routes/jogos.$id'
 import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
 import { Route as ApiPublicStreamRouteImport } from './routes/api/public/stream'
 import { Route as ApiPublicPlaylistRouteImport } from './routes/api/public/playlist'
@@ -115,6 +116,11 @@ const SerieIdRoute = SerieIdRouteImport.update({
   path: '/serie/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JogosIdRoute = JogosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => JogosRoute,
+} as any)
 const DetalhesIdRoute = DetalhesIdRouteImport.update({
   id: '/detalhes/$id',
   path: '/detalhes/$id',
@@ -142,13 +148,14 @@ export interface FileRoutesByFullPath {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
-  '/jogos': typeof JogosRoute
+  '/jogos': typeof JogosRouteWithChildren
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
+  '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
@@ -164,13 +171,14 @@ export interface FileRoutesByTo {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
-  '/jogos': typeof JogosRoute
+  '/jogos': typeof JogosRouteWithChildren
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
+  '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
@@ -187,13 +195,14 @@ export interface FileRoutesById {
   '/filtros': typeof FiltrosRoute
   '/historico': typeof HistoricoRoute
   '/home': typeof HomeRoute
-  '/jogos': typeof JogosRoute
+  '/jogos': typeof JogosRouteWithChildren
   '/listas': typeof ListasRoute
   '/parear': typeof ParearRoute
   '/player': typeof PlayerRoute
   '/series': typeof SeriesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/detalhes/$id': typeof DetalhesIdRoute
+  '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/sitemap.xml'
     | '/detalhes/$id'
+    | '/jogos/$id'
     | '/serie/$id'
     | '/api/public/playlist'
     | '/api/public/stream'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/sitemap.xml'
     | '/detalhes/$id'
+    | '/jogos/$id'
     | '/serie/$id'
     | '/api/public/playlist'
     | '/api/public/stream'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/series'
     | '/sitemap.xml'
     | '/detalhes/$id'
+    | '/jogos/$id'
     | '/serie/$id'
     | '/api/public/playlist'
     | '/api/public/stream'
@@ -278,7 +290,7 @@ export interface RootRouteChildren {
   FiltrosRoute: typeof FiltrosRoute
   HistoricoRoute: typeof HistoricoRoute
   HomeRoute: typeof HomeRoute
-  JogosRoute: typeof JogosRoute
+  JogosRoute: typeof JogosRouteWithChildren
   ListasRoute: typeof ListasRoute
   ParearRoute: typeof ParearRoute
   PlayerRoute: typeof PlayerRoute
@@ -411,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SerieIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/jogos/$id': {
+      id: '/jogos/$id'
+      path: '/$id'
+      fullPath: '/jogos/$id'
+      preLoaderRoute: typeof JogosIdRouteImport
+      parentRoute: typeof JogosRoute
+    }
     '/detalhes/$id': {
       id: '/detalhes/$id'
       path: '/detalhes/$id'
@@ -435,6 +454,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface JogosRouteChildren {
+  JogosIdRoute: typeof JogosIdRoute
+}
+
+const JogosRouteChildren: JogosRouteChildren = {
+  JogosIdRoute: JogosIdRoute,
+}
+
+const JogosRouteWithChildren = JogosRoute._addFileChildren(JogosRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BuscaRoute: BuscaRoute,
@@ -446,7 +475,7 @@ const rootRouteChildren: RootRouteChildren = {
   FiltrosRoute: FiltrosRoute,
   HistoricoRoute: HistoricoRoute,
   HomeRoute: HomeRoute,
-  JogosRoute: JogosRoute,
+  JogosRoute: JogosRouteWithChildren,
   ListasRoute: ListasRoute,
   ParearRoute: ParearRoute,
   PlayerRoute: PlayerRoute,
