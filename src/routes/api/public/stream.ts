@@ -87,11 +87,10 @@ export const Route = createFileRoute("/api/public/stream")({
             redirect: "follow",
           };
 
-          // HACK: Se for um manifesto .m3u8, tentamos forçar o fetch a não 
-          // usar cache e garantimos que o referrer não bloqueie.
           upstream = await fetch(parsed.toString(), fetchOptions);
-        } catch {
-          return new Response("Servidor de stream indisponível.", { status: 502 });
+        } catch (e: any) {
+          console.error(`[StreamProxy] Error fetching ${parsed.toString()}:`, e.message || e);
+          return new Response(`Servidor de stream indisponível: ${e.message || "Erro desconhecido"}`, { status: 502 });
         }
 
         if (!upstream.ok || !upstream.body) {
