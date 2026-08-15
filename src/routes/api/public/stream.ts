@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/public/stream")({
         try {
           const upstream = await fetch(target, {
             method: "HEAD",
-            headers: { "User-Agent": "VLC/3.0.20 LibVLC/3.0.20" },
+            headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36" },
             redirect: "follow",
           });
           return new Response(null, {
@@ -80,18 +80,17 @@ export const Route = createFileRoute("/api/public/stream")({
           const fetchOptions: RequestInit = {
             method: "GET",
             headers: {
-              "User-Agent": "VLC/3.0.20 LibVLC/3.0.20",
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
               Accept: "*/*",
               ...(range ? { Range: range } : {}),
             },
             redirect: "follow",
           };
 
-          // HACK: Se for um manifesto .m3u8, tentamos forçar o fetch a não 
-          // usar cache e garantimos que o referrer não bloqueie.
           upstream = await fetch(parsed.toString(), fetchOptions);
-        } catch {
-          return new Response("Servidor de stream indisponível.", { status: 502 });
+        } catch (e: any) {
+          console.error(`[StreamProxy] Error fetching ${parsed.toString()}:`, e.message || e);
+          return new Response(`Servidor de stream indisponível: ${e.message || "Erro desconhecido"}`, { status: 502 });
         }
 
         if (!upstream.ok || !upstream.body) {
