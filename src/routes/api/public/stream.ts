@@ -82,6 +82,8 @@ export const Route = createFileRoute("/api/public/stream")({
             headers: {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
               Accept: "*/*",
+              "Accept-Encoding": "gzip, deflate, br",
+              "Connection": "keep-alive",
               ...(range ? { Range: range } : {}),
             },
             redirect: "follow",
@@ -105,7 +107,7 @@ export const Route = createFileRoute("/api/public/stream")({
           parsed.search.toLowerCase().includes(".m3u8");
 
         const headers = new Headers({
-          "Cache-Control": "public, max-age=1, stale-while-revalidate=10",
+          "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
           "Access-Control-Allow-Origin": "*",
         });
 

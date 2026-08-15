@@ -35,11 +35,11 @@ export function prefetchChannel(url: string | null | undefined) {
   inflight = null;
   if (prepared.has(url)) return;
 
+  // Reduzi para 50ms para disparar quase na hora na navegação
   pending = setTimeout(() => {
     pending = null;
     if (prepared.has(url)) return;
     prepared.add(url);
-    // Conexão aquecida (preconnect/dns-prefetch) para qualquer tipo de stream.
     warmEngines(url);
     const playable = playableStreamUrl(url);
     if (!playable || !isManifest(playable)) return;
@@ -52,7 +52,7 @@ export function prefetchChannel(url: string | null | undefined) {
       .finally(() => {
         if (inflight === controller) inflight = null;
       });
-  }, 600);
+  }, 50);
 }
 
 const focusInflight = new Map<string, AbortController>();
@@ -186,7 +186,7 @@ export function prefetchNeighbors(urls: Array<string | null | undefined>) {
     })().finally(() => {
       if (neighborCtrl === controller) neighborCtrl = null;
     });
-  }, 120);
+  }, 30);
 }
 
 export function cancelNeighborPrefetch() {

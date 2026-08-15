@@ -328,26 +328,27 @@ export async function attachEngine(
       // desempenho decide o quanto a ABR pode ousar e o tamanho do buffer.
       capLevelToPlayerSize: preview || tuning.capToPlayerSize,
       abrEwmaDefaultEstimate: tuning.bandwidthEstimate,
-      // Prévia: entra pela faixa mais leve (imagem aparece quase instantânea).
-      startLevel: preview ? 0 : -1,
-      // Começa a tocar com o mínimo de dados possível.
-      maxStarvationDelay: preview ? 0.2 : 1,
-      maxLoadingDelay: preview ? 0.2 : 1,
-      backBufferLength: preview ? 1 : scale(live ? 20 : 90),
-      maxBufferLength: preview ? 2 : scale(live ? 30 : 60),
-      maxMaxBufferLength: preview ? 4 : scale(live ? 60 : 120),
+      // Entra pela faixa mais leve (imagem instantânea)
+      startLevel: 0,
+      // Buffers agressivos para início rápido em TV
+      initialLiveManifestSize: 1,
+      maxStarvationDelay: 0.1,
+      maxLoadingDelay: 0.1,
+      backBufferLength: preview ? 1 : scale(live ? 10 : 60),
+      maxBufferLength: preview ? 1.5 : scale(live ? 20 : 60),
+      maxMaxBufferLength: preview ? 3 : scale(live ? 40 : 120),
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 0.5,
       nudgeOffset: 0.1,
-      nudgeMaxRetry: 3,
-      manifestLoadingTimeOut: preview ? 1_500 : 6_000,
-      manifestLoadingMaxRetry: preview ? 1 : 4,
-      levelLoadingTimeOut: preview ? 1_500 : 8_000,
-      levelLoadingMaxRetry: preview ? 1 : 4,
-      fragLoadingTimeOut: preview ? 2_500 : 10_000,
-      fragLoadingMaxRetry: preview ? 2 : 5,
+      nudgeMaxRetry: 5,
+      manifestLoadingTimeOut: preview ? 1_000 : 3_000,
+      manifestLoadingMaxRetry: preview ? 1 : 2,
+      levelLoadingTimeOut: preview ? 1_000 : 4_000,
+      levelLoadingMaxRetry: preview ? 1 : 2,
+      fragLoadingTimeOut: preview ? 2_000 : 6_000,
+      fragLoadingMaxRetry: preview ? 2 : 3,
       enableSoftwareAES: false,
-      fragLoadingRetryDelay: 200,
+      fragLoadingRetryDelay: 100,
     });
     instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
     instance.on(Hls.Events.MANIFEST_PARSED, () => {
