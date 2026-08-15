@@ -135,6 +135,9 @@ function JogosPage() {
       const away = event.competitors.find(c => c.homeAway === "away");
       const isFinished = event.status.type.state === "post";
       
+      // Tenta extrair o nome da liga do nome do evento ou metadados
+      const leagueName = event.name.split(" vs ")[0] === home?.team.displayName ? "" : ""; // ESPN API usually doesn't have league in top level here but we can infer or leave empty for now
+      
       return {
         id: event.id,
         teamA: home?.team.displayName || "",
@@ -146,7 +149,8 @@ function JogosPage() {
         time: event.status.type.state === "in" ? event.status.displayClock : event.status.type.description,
         isLive: event.status.type.state === "in",
         isFinished,
-        broadcastChannels: event.broadcasts?.[0]?.names || []
+        broadcastChannels: event.broadcasts?.[0]?.names || [],
+        league: event.shortName // Aprox de liga na ESPN
       } as FootballScore & { isFinished: boolean };
     });
 
