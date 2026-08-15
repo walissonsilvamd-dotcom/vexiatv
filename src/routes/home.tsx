@@ -378,7 +378,7 @@ function HomePage() {
             ))}
           </div>
         ) : !hasContent ? (
-          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-vexia-cyan/80">
+          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-white/80">
             Abra LISTAS e carregue sua lista M3U
           </p>
         ) : null}
