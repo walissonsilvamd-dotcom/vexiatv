@@ -90,7 +90,7 @@ function JogosPage() {
     const fetchEspn = async () => {
       setLoadingEspn(true);
       try {
-        const data = await getLiveFootballScores({ date: selectedDate.replace(/-/g, '') });
+        const data = await getLiveFootballScores({ data: { date: selectedDate.replace(/-/g, '') } });
 
         if (data && data.events) {
           setEspnEvents(data.events);
