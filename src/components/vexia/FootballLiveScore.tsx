@@ -36,11 +36,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
     <div className={`flex items-center gap-4 w-full p-2 rounded-2xl transition-all ${className}`}>
       {/* Coluna Liga/Status */}
       <div className="flex flex-col items-center justify-center gap-2 w-20 shrink-0 bg-white/5 p-3 rounded-2xl border border-white/5">
-        {score.leagueLogo ? (
-          <img src={score.leagueLogo} alt={score.league} className="w-8 h-8 object-contain opacity-80" />
-        ) : (
-          <Trophy className="w-6 h-6 text-white/20" />
-        )}
+        <Trophy className="w-6 h-6 text-white/20" />
         {score.league && (
           <span className="text-[8px] font-black text-white/40 uppercase text-center leading-tight">
             {score.league}
