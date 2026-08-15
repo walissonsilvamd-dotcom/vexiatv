@@ -270,8 +270,7 @@ function JogosPage() {
   }, [channels, guide, minuteTick, espnEvents]);
 
   const open = (item: any) => {
-    // Se for um grupo de canais, vamos para a tela de detalhes
-    // Se for apenas um canal, vamos direto para o player ou detalhes
+    // A rota correta para o ID é /$id dentro do subgrupo /jogos, ou seja, /jogos/$id
     void navigate({ to: "/jogos/$id", params: { id: item.channels[0].ch.id } });
   };
 

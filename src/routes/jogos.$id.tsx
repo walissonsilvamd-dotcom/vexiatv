@@ -158,7 +158,7 @@ function JogoDetalhesPage() {
   // Sincroniza activeChannel e inicia player quando o canal inicial carrega
   useEffect(() => {
     if (channel) {
-      if (!activeChannel) setActiveChannel(channel);
+      setActiveChannel(channel);
       setIsPlaying(true);
       setStreamHandoff("live", channel.id, channel.url);
     }
