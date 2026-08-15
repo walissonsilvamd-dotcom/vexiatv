@@ -310,11 +310,7 @@ function JogosPage() {
                            <div className="w-1 h-1 bg-white rounded-full" />
                            <span className="text-[8px] font-black text-white">AO VIVO</span>
                         </div>
-                      ) : epg.now ? (
-                        <div className="px-2 py-0.5 bg-blue-600/20 border border-blue-600/30 rounded-md">
-                           <span className="text-[8px] font-black text-blue-400">AGENDADO</span>
-                        </div>
-                      ) : (
+                      ) : epg.now ? null : (
                         <div className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md">
                            <span className="text-[8px] font-black text-white/40 tracking-widest">FT</span>
                         </div>
