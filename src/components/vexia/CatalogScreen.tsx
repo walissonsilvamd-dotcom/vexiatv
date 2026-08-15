@@ -230,7 +230,7 @@ export function CatalogScreen(props: {
         <div className="shrink-0"><SortControl navRow={0} /></div>
 
         <div className="ml-auto hidden shrink-0 sm:block">
-          <VexiaLogo className="h-8" />
+          <VexiaLogo className="h-10 md:h-14" />
         </div>
       </header>
 

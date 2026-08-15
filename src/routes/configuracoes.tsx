@@ -273,7 +273,7 @@ function SettingsPage() {
             {formatTime(new Date())} • Preferências salvas no aparelho
           </p>
         </div>
-        <VexiaLogo className="h-9 shrink-0 md:h-12" />
+        <VexiaLogo className="h-16 shrink-0 md:h-24" />
       </header>
 
       {flash ? (

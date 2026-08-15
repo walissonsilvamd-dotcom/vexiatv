@@ -278,8 +278,8 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[12vh] max-h-[250px] min-h-[80px] w-auto md:h-[19vh] md:min-h-[120px]"
-              : "h-[22vh] max-h-[420px] min-h-[110px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[34vh] md:min-h-[190px]"
+              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto md:h-[38vh] md:min-h-[240px]"
+              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[68vh] md:min-h-[380px]"
           }
         />
 
@@ -377,7 +377,7 @@ function HomePage() {
 
       {/* Retomada automática da última sessão */}
       {lastSession ? (
-        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[3vh]">
           <button
             type="button"
             onClick={() =>
