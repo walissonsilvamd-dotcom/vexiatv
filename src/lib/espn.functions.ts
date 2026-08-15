@@ -40,6 +40,7 @@ export interface EspnGame {
     names: string[];
   }>;
 }
+
 /**
  * Busca detalhes de um jogo específico na ESPN (escalações, gols, eventos).
  */
@@ -48,7 +49,6 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     try {
       const { id } = data;
-      // URL para detalhes do jogo (summary)
       const response = await fetch(
         `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${id}`,
         { 
