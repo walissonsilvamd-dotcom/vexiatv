@@ -300,7 +300,7 @@ function HomePage() {
 
 
           <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
-            <Clock className="h-3.5 w-3.5 shrink-0 text-vexia-cyan" aria-hidden />
+            <Clock className="h-3.5 w-3.5 shrink-0 text-white" aria-hidden />
             <span className="tabular-nums">
               {formatTime(now)}
             </span>
