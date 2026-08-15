@@ -371,7 +371,7 @@ function HomePage() {
                 {i === slide ? (
                   <span
                     key={`p-${slide}`}
-                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-vexia-cyan shadow-[0_0_10px_var(--vexia-cyan)]"
+                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_10px_white]"
                   />
                 ) : null}
               </button>
