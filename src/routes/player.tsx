@@ -1632,7 +1632,7 @@ function PlayerPage() {
 
         {/* Menu de configurações do player */}
         <div ref={controlsRef} className="relative z-10 flex flex-wrap items-center gap-1.5">
-          (
+          { (
             ([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
               { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
@@ -1692,7 +1692,7 @@ function PlayerPage() {
                 </span>
               </button>
             );
-          })}
+          ) }
           {/* Atraso da legenda: só − e +, sem poluir a tela */}
             <div className={`flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-1.5 py-0.5 ${type === 'live' ? 'hidden' : ''}`}>
               <Timer className="h-3 w-3 shrink-0 text-vexia-cyan" aria-hidden />
