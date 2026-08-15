@@ -123,7 +123,7 @@ function JogoDetalhesPage() {
   useSpatialNav(scopeRef);
 
   const [activeChannel, setActiveChannel] = useState(channel);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
