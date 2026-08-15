@@ -1,14 +1,17 @@
 import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
-import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play } from "lucide-react";
+import { Trophy, ArrowLeft, Tv, Wifi, Shield, Play, Info } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
 import { useEpg, useMinuteTick, nowAndNext } from "../hooks/use-epg";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { BRAND } from "../lib/brand";
 import { setStreamHandoff } from "../lib/stream-handoff";
+import { useResilientPlayer } from "../hooks/useResilientPlayer";
+import { playableStreamUrl } from "../lib/stream-url";
+import { useSpatialNav } from "../hooks/use-spatial-nav";
 
 export const Route = createFileRoute("/jogos/$id")({
   head: () => ({
