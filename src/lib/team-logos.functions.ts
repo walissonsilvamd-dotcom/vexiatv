@@ -7,8 +7,8 @@ import { z } from "zod";
 export const searchTeamLogo = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ teamName: z.string() }).parse(data))
   .handler(async ({ data }) => {
+    const teamName = data.teamName;
     try {
-      const { teamName } = data;
       // Limpeza básica do nome do time
       const cleanName = teamName
         .replace(/\b(FC|SC|AC|AFC|CF|UD|CD|SD|RC|CR|EC|FBC|CRB)\b/gi, "")
