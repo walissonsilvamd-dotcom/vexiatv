@@ -44,7 +44,7 @@ export interface EspnGame {
  * Busca detalhes de um jogo específico na ESPN (escalações, gols, eventos).
  */
 export const getEspnGameDetails = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .validator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
     try {
       const { id } = data;
@@ -69,7 +69,7 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  * Busca jogos de futebol na API pública da ESPN.
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
-  .inputValidator((data: any) => z.object({ date: z.string().optional() }).parse(data))
+  .validator((data: any) => z.object({ date: z.string().optional() }).parse(data))
   .handler(async ({ data }) => {
     try {
       const targetDate = data.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
