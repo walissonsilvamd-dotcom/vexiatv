@@ -409,7 +409,7 @@ function HomePage() {
               onClick={() => openTile(tile)}
               className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "-translate-y-[0.6vh] scale-[1.04] border-vexia-cyan/90 bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(82,0,165,0.55),0_0_30px_-6px_rgba(255,255,255,0.45),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  ? "-translate-y-[0.6vh] scale-[1.04] border-white bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(82,0,165,0.55),0_0_30px_rgba(255,255,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)]"
                   : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-white/40 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
               }`}
             >
