@@ -157,8 +157,13 @@ function JogosPage() {
       );
       
       // Bloqueio explícito de outros esportes para não poluir
-      const otherSports = ["futsal", "nba", "nfl", "nhl", "golfe", "surfe", "tennis", "ufc", "lutas", "basquete", "olimpica", "atp", "wta", "cincinnati", "st. jude"];
-      const isOtherSport = otherSports.some(kw => name.includes(kw) || cat.includes(kw));
+      const otherSports = [
+        "futsal", "nba", "nfl", "nhl", "golfe", "golf", "surfe", "tennis", "tenis", 
+        "ufc", "lutas", "basquete", "olimpica", "atp", "wta", "cincinnati", "st. jude",
+        "formula", "f1", "motogp", "nascar", "ciclismo", "atletismo", "boxe", "ginástica",
+        "natação", "esportes radicais", "faixa olímpica", "vôlei", "volei"
+      ];
+      const isOtherSport = otherSports.some(kw => name.includes(kw) || cat.includes(kw) || grp.includes(kw));
 
       return isFootball && !isOtherSport;
     });
