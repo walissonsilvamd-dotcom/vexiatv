@@ -188,7 +188,11 @@ function JogosPage() {
           
           const key = existingKey || eventKey;
           if (!gamesByEvent[key]) {
-            gamesByEvent[key] = { score, chs: [] };
+            // Tenta inferir liga pelo grupo ou nome do canal para match de EPG
+            const league = ch.group?.includes("Brasileir") ? "Brasileirão" : 
+                          ch.group?.includes("Champions") ? "UCL" :
+                          ch.group?.includes("Libertadores") ? "Libertadores" : "";
+            gamesByEvent[key] = { score: { ...score, league }, chs: [] };
           }
           gamesByEvent[key].chs.push({ ch, epg });
           return;
