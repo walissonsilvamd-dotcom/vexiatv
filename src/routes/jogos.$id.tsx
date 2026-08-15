@@ -38,16 +38,70 @@ function JogoDetalhesPage() {
 
   const channel = useMemo(() => channels.find(c => c.id === id), [channels, id]);
   
+  const gameData = useMemo(() => {
+    if (!channel) return null;
+    
+    const epg = nowAndNext(guide, channel.tvgId, minuteTick);
+    const chName = channel.name.toLowerCase();
+    
+    // Procura na ESPN
+    const espnMatch = espnEvents.find(event => 
+      event.broadcasts?.[0]?.names.some((b: string) => chName.includes(b.toLowerCase()))
+    );
+
+    let score: FootballScore | null = null;
+    if (espnMatch) {
+      const home = espnMatch.competitors.find(c => c.homeAway === "home");
+      const away = espnMatch.competitors.find(c => c.homeAway === "away");
+      score = {
+        teamA: home?.team.displayName || "",
+        scoreA: parseInt(home?.score || "0"),
+        teamB: away?.team.displayName || "",
+        scoreB: parseInt(away?.score || "0"),
+        logoA: home?.team.logo,
+        logoB: away?.team.logo,
+        time: espnMatch.status.type.state === "in" ? espnMatch.status.displayClock : espnMatch.status.type.description,
+        isLive: espnMatch.status.type.state === "in"
+      };
+    } else if (epg.now) {
+      score = extractFootballScore(epg.now.title, epg.now.description);
+    }
+
+    // Busca canais alternativos que passam o mesmo jogo
+    const alternatives = channels.filter(c => {
+      if (c.id === channel.id) return false;
+      
+      const cName = c.name.toLowerCase();
+      // Match via ESPN
+      if (espnMatch && espnMatch.broadcasts?.[0]?.names.some(b => cName.includes(b.toLowerCase()))) return true;
+      
+      // Match via EPG (se tiver o mesmo título do programa agora)
+      const cEpg = nowAndNext(guide, c.tvgId, minuteTick);
+      if (epg.now && cEpg.now && cEpg.now.title === epg.now.title) return true;
+      
+      return false;
+    });
+
+    return { channel, epg, score, isEspn: !!espnMatch, alternatives };
+  }, [channel, guide, minuteTick, espnEvents, channels]);
+
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
 
-  const [activeChannel, setActiveChannel] = useState(ch);
+  const [activeChannel, setActiveChannel] = useState(channel);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const slotARef = useRef<HTMLVideoElement>(null);
   const slotBRef = useRef<HTMLVideoElement>(null);
 
-  const src = useMemo(() => playableStreamUrl(activeChannel.url), [activeChannel]);
+  // Sincroniza activeChannel quando o canal inicial carrega
+  useEffect(() => {
+    if (channel && !activeChannel) {
+      setActiveChannel(channel);
+    }
+  }, [channel, activeChannel]);
+
+  const src = useMemo(() => playableStreamUrl(activeChannel?.url || ""), [activeChannel]);
 
   const resilientPlayer = useResilientPlayer({
     videoRef,
@@ -57,17 +111,15 @@ function JogoDetalhesPage() {
     live: true,
   });
 
+  if (!gameData || !activeChannel) return null;
+
+  const { channel: ch, epg, score, alternatives } = gameData;
+
   const play = (selectedCh = ch) => {
     setActiveChannel(selectedCh);
     setIsPlaying(true);
     setStreamHandoff("live", selectedCh.id, selectedCh.url);
   };
-
-  const openFullscreen = () => {
-    void navigate({ to: "/player", search: { type: "live", id: activeChannel.id } });
-  };
-
-  if (!gameData) return null;
 
   return (
     <div 
