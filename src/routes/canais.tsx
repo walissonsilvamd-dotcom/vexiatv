@@ -540,6 +540,7 @@ function ChannelsPage() {
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
       onToggleFav={toggleFav}
+      onDoubleClick={onChannelDoubleClick}
     />
   );
 
