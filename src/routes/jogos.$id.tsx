@@ -64,16 +64,31 @@ function JogoDetalhesPage() {
       score = extractFootballScore(epg.now.title, epg.now.description);
     }
 
-    return { channel, epg, score, isEspn: !!espnMatch };
-  }, [channel, guide, minuteTick, espnEvents]);
+    // Busca canais alternativos que passam o mesmo jogo
+    const alternatives = channels.filter(c => {
+      if (c.id === channel.id) return false;
+      
+      const cName = c.name.toLowerCase();
+      // Match via ESPN
+      if (espnMatch && espnMatch.broadcasts?.[0]?.names.some(b => cName.includes(b.toLowerCase()))) return true;
+      
+      // Match via EPG (se tiver o mesmo título do programa agora)
+      const cEpg = nowAndNext(guide, c.tvgId, minuteTick);
+      if (epg.now && cEpg.now && cEpg.now.title === epg.now.title) return true;
+      
+      return false;
+    });
+
+    return { channel, epg, score, isEspn: !!espnMatch, alternatives };
+  }, [channel, guide, minuteTick, espnEvents, channels]);
 
   if (!gameData) return null;
 
-  const { channel: ch, epg, score } = gameData;
+  const { channel: ch, epg, score, alternatives } = gameData;
 
-  const play = () => {
-    setStreamHandoff("live", ch.id, ch.url);
-    void navigate({ to: "/player", search: { type: "live", id: ch.id } });
+  const play = (selectedCh = ch) => {
+    setStreamHandoff("live", selectedCh.id, selectedCh.url);
+    void navigate({ to: "/player", search: { type: "live", id: selectedCh.id } });
   };
 
   return (
@@ -195,9 +210,33 @@ function JogoDetalhesPage() {
             </div>
           </div>
 
-          {/* Botão de Ação */}
+          {/* Canais Alternativos (Qualidades) */}
+          {alternatives.length > 0 && (
+            <div className="w-full">
+              <span className="block text-[10px] font-black text-vexia-cyan uppercase tracking-widest opacity-60 mb-3 text-center">Disponível em outros canais</span>
+              <div className="flex flex-wrap justify-center gap-2">
+                {[ch, ...alternatives].map((altCh, idx) => {
+                  const label = altCh.name.toLowerCase().includes("fhd") ? "FHD" : 
+                               altCh.name.toLowerCase().includes("hd+") ? "HD+" : 
+                               altCh.name.toLowerCase().includes("hd") ? "HD" : "SD";
+                  return (
+                    <button
+                      key={altCh.id}
+                      onClick={() => play(altCh)}
+                      className="vexia-focus px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-vexia-purple/20 hover:border-vexia-purple/50 transition-all flex flex-col items-center min-w-[100px]"
+                    >
+                      <span className="text-xs font-black text-white">{altCh.name}</span>
+                      <span className="text-[9px] font-bold text-vexia-cyan uppercase">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Botão de Ação Principal */}
           <button 
-            onClick={play}
+            onClick={() => play()}
             className="vexia-focus mt-6 flex items-center justify-center gap-4 w-full md:w-auto md:px-12 py-5 bg-vexia-purple rounded-[2rem] shadow-[0_0_30px_rgba(123,43,190,0.4)] hover:scale-[1.05] transition-all group"
           >
             <Play className="w-6 h-6 fill-current group-hover:scale-110 transition-transform" />

@@ -120,68 +120,82 @@ function JogosPage() {
       } as FootballScore;
     });
 
-    return sports
-      .map((ch) => {
-        const epg = nowAndNext(guide, ch.tvgId, minuteTick);
-        
-        // Tenta encontrar um jogo ESPN que esteja passando neste canal
-        const chName = ch.name.toLowerCase();
-        const espnMatch = espnScores.find(score => 
-          score.broadcastChannels?.some(b => chName.includes(b.toLowerCase()))
-        );
+    // Agrupa canais por evento (jogo)
+    const gamesByEvent: Record<string, { score: FootballScore; chs: { ch: PlaylistChannel; epg: any }[] }> = {};
+    const standaloneChannels: { ch: PlaylistChannel; epg: any; score?: FootballScore }[] = [];
 
-        return { 
-          ch, 
-          epg,
-          espnScore: espnMatch
-        };
-      })
-      // Filtra e prioriza canais de esporte relevantes que realmente tenham conteúdo detectado
-      .filter((item) => {
-        // Se temos um jogo da ESPN sincronizado, ele tem prioridade máxima
-        if (item.espnScore) return true;
+    sports.forEach((ch) => {
+      const epg = nowAndNext(guide, ch.tvgId, minuteTick);
+      const chName = ch.name.toLowerCase();
+      
+      // 1. Tenta match com ESPN
+      const espnMatch = espnScores.find(score => 
+        score.broadcastChannels?.some(b => chName.includes(b.toLowerCase()))
+      );
 
-        const nowTitle = item.epg.now?.title.toLowerCase() || "";
-        const nextTitle = item.epg.next?.title.toLowerCase() || "";
-        const chName = item.ch.name.toLowerCase();
-        
-        // Se o EPG atual tem um placar ou indicativo de jogo vs/x, mantemos
-        if (item.epg.now) {
-          const score = extractFootballScore(item.epg.now.title, item.epg.now.description);
-          if (score && score.isLive) return true;
+      if (espnMatch) {
+        const eventKey = `espn-${espnMatch.id}`;
+        if (!gamesByEvent[eventKey]) {
+          gamesByEvent[eventKey] = { score: espnMatch, chs: [] };
         }
+        gamesByEvent[eventKey].chs.push({ ch, epg });
+        return;
+      }
 
-        // Se o próximo jogo tem placar/vs/x detectado, mantemos
-        if (item.epg.next) {
-          const nextScore = extractFootballScore(item.epg.next.title, item.epg.next.description);
-          if (nextScore) return true;
+      // 2. Tenta match por EPG (placar/versus)
+      if (epg.now) {
+        const score = extractFootballScore(epg.now.title, epg.now.description);
+        if (score) {
+          const eventKey = `epg-${score.teamA.toLowerCase()}-${score.teamB.toLowerCase()}`;
+          // Busca um agrupamento existente que possa ser o mesmo jogo
+          const existingKey = Object.keys(gamesByEvent).find(k => 
+            k.includes(score.teamA.toLowerCase()) && k.includes(score.teamB.toLowerCase())
+          );
+          
+          const key = existingKey || eventKey;
+          if (!gamesByEvent[key]) {
+            gamesByEvent[key] = { score, chs: [] };
+          }
+          gamesByEvent[key].chs.push({ ch, epg });
+          return;
         }
+      }
 
-        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x ", "brasileirão", "libertadores", "champions", "premier league", "laliga"];
-        const isFootNow = footHints.some(h => nowTitle.includes(h));
-        const isFootNext = footHints.some(h => nextTitle.includes(h));
-        
-        // Permitimos Premiere/GolTV apenas se o título não for genérico (como "Programação")
-        const isGeneric = nowTitle.includes("programação") || nowTitle.includes("seu servidor favorito") || nowTitle === "" || nowTitle.includes("informação indisponível");
-        const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
+      // 3. Canais sem jogo detectado mas relevantes
+      const nowTitle = epg.now?.title.toLowerCase() || "";
+      const isGeneric = nowTitle.includes("programação") || nowTitle.includes("seu servidor favorito") || nowTitle === "" || nowTitle.includes("informação indisponível");
+      const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
 
-        // Regra final: Só mostra se for futebol detectado ou se for um canal principal COM algo passando que não seja genérico
-        return isFootNow || isFootNext || (isMainSportCh && !isGeneric);
-      })
-      .sort((a, b) => {
-        // Prioridade 1: Jogos com dados da ESPN ou placar detectado (ao vivo agora)
-        const aHasScore = a.espnScore || (a.epg.now && extractFootballScore(a.epg.now.title, a.epg.now.description));
-        const bHasScore = b.espnScore || (b.epg.now && extractFootballScore(b.epg.now.title, b.epg.now.description));
-        
-        if (aHasScore && !bHasScore) return -1;
-        if (!aHasScore && bHasScore) return 1;
+      if (isMainSportCh && !isGeneric) {
+        standaloneChannels.push({ ch, epg });
+      }
+    });
 
-        return Number(Boolean(b.epg.now)) - Number(Boolean(a.epg.now));
-      });
+    const groupedResults = Object.values(gamesByEvent).map(g => ({
+      score: g.score,
+      channels: g.chs,
+      isGrouped: true
+    }));
+
+    const standaloneResults = standaloneChannels.map(s => ({
+      score: s.score,
+      channels: [{ ch: s.ch, epg: s.epg }],
+      isGrouped: false
+    }));
+
+    return [...groupedResults, ...standaloneResults].sort((a, b) => {
+      const aLive = a.score?.isLive;
+      const bLive = b.score?.isLive;
+      if (aLive && !bLive) return -1;
+      if (!aLive && bLive) return 1;
+      return 0;
+    });
   }, [channels, guide, minuteTick, espnEvents]);
 
-  const open = (ch: PlaylistChannel) => {
-    void navigate({ to: "/jogos/$id", params: { id: ch.id } });
+  const open = (item: any) => {
+    // Se for um grupo de canais, vamos para a tela de detalhes
+    // Se for apenas um canal, vamos direto para o player ou detalhes
+    void navigate({ to: "/jogos/$id", params: { id: item.channels[0].ch.id } });
   };
 
   return (
@@ -222,49 +236,56 @@ function JogosPage() {
             </p>
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {games.map(({ ch, epg, espnScore }) => {
-                const score = espnScore || 
-                  (epg.now ? extractFootballScore(epg.now.title, epg.now.description) : null) ||
-                  (epg.next ? extractFootballScore(epg.next.title, epg.next.description) : null);
+              {games.map((item, idx) => {
+                const { score, channels: itemChannels } = item;
+                const mainCh = itemChannels[0].ch;
+                const epg = itemChannels[0].epg;
 
                 return (
                   <button
-                    key={ch.id}
+                    key={`${mainCh.id}-${idx}`}
                     type="button"
                     data-nav-row={1}
                     tabIndex={0}
-                    onClick={() => open(ch)}
+                    onClick={() => open(item)}
                     className="vexia-focus flex items-center gap-3 rounded-2xl border border-white/[0.07] bg-black/45 p-3 text-left transition-all hover:border-vexia-purple/50 hover:bg-vexia-purple/15"
                   >
-                    <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/10 bg-black/70">
-                      {ch.logo ? (
-                        <SmartImage
-                          src={ch.logo}
-                          role="logo"
-                          alt=""
-                          className="h-full w-full object-contain p-0.5"
-                          fallback={<Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />}
-                        />
-                      ) : (
-                        <Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />
+                    <div className="relative shrink-0">
+                      <span className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl border border-white/10 bg-black/70">
+                        {mainCh.logo ? (
+                          <SmartImage
+                            src={mainCh.logo}
+                            role="logo"
+                            alt=""
+                            className="h-full w-full object-contain p-0.5"
+                            fallback={<Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />}
+                          />
+                        ) : (
+                          <Tv className="h-5 w-5 text-vexia-cyan" aria-hidden />
+                        )}
+                      </span>
+                      {item.isGrouped && itemChannels.length > 1 && (
+                        <div className="absolute -bottom-1 -right-1 bg-vexia-cyan text-[8px] font-black px-1.5 rounded-full border border-black shadow-lg">
+                          +{itemChannels.length - 1}
+                        </div>
                       )}
-                    </span>
+                    </div>
                     <span className="min-w-0 flex-1">
                       {score ? (
                         <FootballLiveScore 
                           score={score} 
                           className="mb-1"
-                          timeLabel={espnScore ? `${ch.name} • ESPN LIVE` : (epg.now ? `${ch.name} • AO VIVO` : `${ch.name} • ${clock(epg.next!.start)}`)}
+                          timeLabel={item.isGrouped ? `${score.teamA} x ${score.teamB}` : (epg.now ? `${mainCh.name} • AO VIVO` : `${mainCh.name} • ${clock(epg.next!.start)}`)}
                         />
                       ) : (
                         <>
                           <span className="block truncate text-sm font-bold text-vexia-text">
-                            {epg.now?.title ?? ch.name}
+                            {epg.now?.title ?? mainCh.name}
                           </span>
                           <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
                             {epg.now
-                              ? `${ch.name} • ${clock(epg.now.start)}`
-                              : ch.name}
+                              ? `${mainCh.name} • ${clock(epg.now.start)}`
+                              : mainCh.name}
                           </span>
                         </>
                       )}
