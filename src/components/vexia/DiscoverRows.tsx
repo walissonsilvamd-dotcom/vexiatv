@@ -5,6 +5,7 @@ import { COUNTRY_CODES } from "../../lib/filters-store";
 import { useWatchHistory } from "../../lib/history-store";
 import { usePlaylist } from "../../lib/playlist-store";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
+import { isAdultText } from "../../lib/parental";
 import { Carousel } from "./Carousel";
 
 const SAMPLE_MOVIES = 36;
@@ -41,8 +42,14 @@ export function DiscoverRows() {
   const [country, setCountry] = useState(COUNTRY_CHIPS[0]);
   const [genre, setGenre] = useState(GENRE_CHIPS[0]);
 
-  const movieSample = useMemo(() => movies.slice(0, SAMPLE_MOVIES), [movies]);
-  const seriesSample = useMemo(() => series.slice(0, SAMPLE_SERIES), [series]);
+  const movieSample = useMemo(
+    () => movies.filter((m) => !isAdultText(m.title, m.category, ...m.genres)).slice(0, SAMPLE_MOVIES),
+    [movies],
+  );
+  const seriesSample = useMemo(
+    () => series.filter((s) => !isAdultText(s.title, s.category, ...s.genres)).slice(0, SAMPLE_SERIES),
+    [series],
+  );
 
   const richMovies = useTmdbHeroes(movieSample, "movie");
   const richSeries = useTmdbHeroes(seriesSample, "series");

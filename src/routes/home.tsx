@@ -34,6 +34,7 @@ import { ConfirmDialog } from "../components/vexia/ConfirmDialog";
 import { preloadImage, preloadImages } from "../lib/image";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { BRAND } from "../lib/brand";
+import { isAdultText } from "../lib/parental";
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -131,9 +132,11 @@ function HomePage() {
 
 
   // Pool de destaques: até 8 títulos da lista com imagem disponível.
+  // Filtra conteúdo adulto para nunca aparecer nos destaques da Home.
   const heroPool = useMemo<MediaItem[]>(() => {
     const pool = [...movies, ...series]
       .filter((m) => m.backdrop || m.poster)
+      .filter((m) => !isAdultText(m.title, m.category, ...(m.genres || [])))
       .slice(0, 8);
     return pool;
   }, [movies, series]);
