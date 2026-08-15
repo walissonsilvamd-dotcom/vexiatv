@@ -75,12 +75,20 @@ function ChannelPreviewBase({
     const active = activeSlot === "a" ? slotARef.current : slotBRef.current;
     const standby = activeSlot === "a" ? slotBRef.current : slotARef.current;
     if (standby) standby.muted = true;
-    if (active) {
+    if (active && playable) {
       active.muted = false;
       active.volume = 1;
-      void active.play().catch(() => undefined);
+      // Pequeno atraso para garantir que o motor (hls/ts) anexou o buffer
+      const timer = setTimeout(() => {
+        active.play().catch(() => {
+          // Fallback: se o navegador bloquear som, tenta mutado
+          active.muted = true;
+          void active.play().catch(() => undefined);
+        });
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [activeSlot, started]);
+  }, [activeSlot, started, playable]);
 
   const showPoster = !playable || Boolean(fatalError);
   /* Primeiro clique: mostra o carregamento até o stream aquecer. */
