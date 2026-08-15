@@ -313,13 +313,24 @@ function JogosPage() {
         </div>
         <TopNav active="Jogos" />
         <div className="flex items-center gap-4">
+           <div className="flex items-center gap-3 mr-2 text-white/70">
+             <div className="flex flex-col items-end">
+               <span className="text-[13px] font-black tracking-wider tabular-nums leading-none">
+                 {new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+               </span>
+               <span className="text-[9px] font-bold uppercase tracking-[0.1em] opacity-60">
+                 {new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+               </span>
+             </div>
+             <Clock className="h-4 w-4 opacity-40" />
+           </div>
            <div className="h-9 w-9 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-white/60">
              <div className="relative">
                 <div className="absolute -top-1 -right-1 h-2 w-2 bg-red-500 rounded-full border border-black animate-pulse" />
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
              </div>
            </div>
-           <button onClick={() => navigate({ to: '/configuracoes' })} className="h-9 w-9 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-white/60 hover:text-white transition-colors">
+           <button onClick={() => navigate({ to: '/configuracoes' })} className="vexia-focus h-9 w-9 bg-white/5 rounded-full flex items-center justify-center border border-white/10 text-white/60 hover:text-white transition-colors">
              <Settings className="w-5 h-5" />
            </button>
         </div>
