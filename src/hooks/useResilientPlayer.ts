@@ -33,11 +33,11 @@ type Options = {
 
 const ENGINE_RETRIES = 1;
 const STARTUP_TIMEOUT_MS = 6_000;
-const STALL_TIMEOUT_MS = 3_500;
+const STALL_TIMEOUT_MS = 3_000;
 /** Congelamento leve: tenta "cutucar" o stream antes de trocar de motor. */
-const SOFT_STALL_MS = 700;
+const SOFT_STALL_MS = 500;
 /** Troca imediata para a reserva assim que o congelamento passa deste tempo. */
-const INSTANT_SWAP_MS = 500;
+const INSTANT_SWAP_MS = 300;
 const STALL_CHECK_MS = 200;
 const NUDGE_MAX = 1;
 /** VOD: a reserva fica sempre próxima da posição atual para trocar sem seek. */
