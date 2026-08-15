@@ -81,23 +81,37 @@ function JogosPage() {
     const sports = channels.filter((c) => isSport(c.name, c.category, c.group));
     return sports
       .map((ch) => ({ ch, epg: nowAndNext(guide, ch.tvgId, minuteTick) }))
-      // Prioriza quem tem jogo de futebol detectado no EPG agora ou a seguir
+      // Filtra e prioriza canais de esporte relevantes
       .filter((item) => {
-        const now = item.epg.now?.title.toLowerCase() || "";
-        const next = item.epg.next?.title.toLowerCase() || "";
-        // Se não tiver EPG, assume que é canal de futebol pelos hints do nome
-        if (!item.epg.now) return true;
+        const nowTitle = item.epg.now?.title.toLowerCase() || "";
+        const nextTitle = item.epg.next?.title.toLowerCase() || "";
+        const chName = item.ch.name.toLowerCase();
         
-        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x "];
-        const isFootNow = footHints.some(h => now.includes(h));
-        const isFootNext = footHints.some(h => next.includes(h));
-        
-        // Se for canal Premiere ou GolTV, sempre passa
-        const isPremiere = item.ch.name.toLowerCase().includes("premiere") || item.ch.name.toLowerCase().includes("goltv");
+        // Se houver placar, verifica se o jogo ainda está acontecendo (isLive)
+        if (item.epg.now) {
+          const score = extractFootballScore(item.epg.now.title, item.epg.now.description);
+          // Se o placar indicar que acabou ("fim", "encerrado"), removemos da grade principal 
+          // (a menos que seja o único conteúdo do canal)
+          if (score && !score.isLive) return false;
+        }
+
+        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x ", "brasileirão", "libertadores", "champions"];
+        const isFootNow = footHints.some(h => nowTitle.includes(h));
+        const isFootNext = footHints.some(h => nextTitle.includes(h));
+        const isPremiere = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn");
         
         return isFootNow || isFootNext || isPremiere;
       })
-      .sort((a, b) => Number(Boolean(b.epg.now)) - Number(Boolean(a.epg.now)));
+      .sort((a, b) => {
+        // Prioridade 1: Jogos com placar detectado (ao vivo agora)
+        const aScore = a.epg.now ? extractFootballScore(a.epg.now.title, a.epg.now.description) : null;
+        const bScore = b.epg.now ? extractFootballScore(b.epg.now.title, b.epg.now.description) : null;
+        if (aScore && !bScore) return -1;
+        if (!aScore && bScore) return 1;
+
+        // Prioridade 2: Tem EPG agora
+        return Number(Boolean(b.epg.now)) - Number(Boolean(a.epg.now));
+      });
   }, [channels, guide, minuteTick]);
 
   const open = (ch: PlaylistChannel) => {
@@ -175,17 +189,18 @@ function JogosPage() {
                       {epg.now && extractFootballScore(epg.now.title, epg.now.description) ? (
                         <FootballLiveScore 
                           score={extractFootballScore(epg.now.title, epg.now.description)!} 
-                          className="mb-2"
+                          className="mb-1"
+                          timeLabel={`${ch.name} • ${clock(epg.now.start)}`}
                         />
                       ) : (
                         <>
                           <span className="block truncate text-sm font-bold text-vexia-text">
                             {epg.now?.title ?? ch.name}
                           </span>
-                          <span className="block truncate text-[11px] font-medium text-vexia-cyan/85">
+                          <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
                             {epg.now
-                              ? `${ch.name} • ${clock(epg.now.start)} – ${clock(epg.now.stop)}`
-                              : ch.group || ch.category}
+                              ? `${ch.name} • ${clock(epg.now.start)}`
+                              : ch.name}
                           </span>
                         </>
                       )}
