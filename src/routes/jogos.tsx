@@ -86,7 +86,9 @@ function JogosPage() {
       setLoadingEspn(true);
       try {
         const data = await getLiveFootballScores();
-        setEspnEvents(data.events || []);
+        if (data && data.events) {
+          setEspnEvents(data.events);
+        }
       } catch (e) {
         console.error("ESPN load failed", e);
       } finally {
