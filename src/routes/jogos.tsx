@@ -489,9 +489,13 @@ function JogosPage() {
                               <Tv className="h-3 w-3 text-white" aria-hidden />
                             )}
                           </span>
-                          <span className="text-[9px] font-bold text-white/50 truncate max-w-[120px]">
+                          <span className="text-[10px] font-black text-white/90 truncate max-w-[150px] italic">
                             {mainCh.name}
-                            {item.isGrouped && itemChannels.length > 1 && ` (+${itemChannels.length - 1})`}
+                            {item.isGrouped && itemChannels.length > 1 && (
+                              <span className="ml-2 inline-flex items-center px-1.5 py-0.5 bg-vexia-purple text-white text-[8px] font-black rounded-full shadow-lg shadow-vexia-purple/30">
+                                +{itemChannels.length - 1}
+                              </span>
+                            )}
                           </span>
                         </div>
                         
