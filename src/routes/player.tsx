@@ -1244,7 +1244,7 @@ function PlayerPage() {
 
 
       {/* Aviso discreto de reconexão (sem spinner cobrindo o filme). */}
-      {reconnecting && !fatalError && (
+      {reconnecting && !fatalError && type !== "live" && (
         <div className="pointer-events-none absolute left-5 top-20 z-30 rounded-full bg-black/70 px-3 py-1 text-[10px] font-bold tracking-[0.16em] text-vexia-cyan">
           {recoveryCycle > 0 ? `RECONECTANDO ${Math.min(recoveryCycle, 5)}/5…` : "TROCANDO MOTOR…"}
         </div>
