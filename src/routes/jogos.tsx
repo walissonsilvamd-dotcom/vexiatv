@@ -223,18 +223,6 @@ function JogosPage() {
           ) : (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {games.map(({ ch, epg, espnScore }) => {
-                const progress = epg.now
-                  ? Math.min(
-                      100,
-                      Math.max(
-                        0,
-                        ((minuteTick - epg.now.start) /
-                          Math.max(1, epg.now.stop - epg.now.start)) *
-                          100,
-                      ),
-                    )
-                  : 0;
-                
                 const score = espnScore || 
                   (epg.now ? extractFootballScore(epg.now.title, epg.now.description) : null) ||
                   (epg.next ? extractFootballScore(epg.next.title, epg.next.description) : null);
@@ -280,23 +268,8 @@ function JogosPage() {
                           </span>
                         </>
                       )}
-
-                      
-                      {epg.now ? (
-                        <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10">
-                          <span
-                            className="block h-full rounded-full bg-gradient-to-r from-vexia-purple to-vexia-cyan"
-                            style={{ width: `${Math.round(progress)}%` }}
-                          />
-                        </span>
-                      ) : null}
-                      {epg.next ? (
-                        <span className="mt-1 block truncate text-[10px] text-vexia-muted">
-                          A seguir: {epg.next.title}
-                        </span>
-                      ) : null}
                     </span>
-                    <Play className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden />
+                    <Play className="h-4 w-4 shrink-0 text-vexia-cyan opacity-40 group-hover:opacity-100" aria-hidden />
                   </button>
                 );
               })}
