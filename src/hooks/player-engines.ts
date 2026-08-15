@@ -383,7 +383,7 @@ export async function attachEngine(
   }
   const tsTuning = tuningFor(preview);
   const player = mpegts.createPlayer(
-    { type: "mpegts", isLive: live, url: src },
+    { type: sourceKind(src) === "mpegts" ? "mpegts" : "flv", isLive: live, url: src },
     {
       enableWorker: true,
       enableStashBuffer: true,
