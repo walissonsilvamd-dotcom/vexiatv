@@ -320,7 +320,7 @@ export async function attachEngine(
     const instance = new Hls({
       // Serve manifesto do cache do prefetch: a prévia não espera a rede.
       loader: cachedLoader(Hls.DefaultConfig.loader as unknown as LoaderCtor) as any,
-      lowLatencyMode: live && !preview,
+      debug: false,
       enableWorker: true,
       startFragPrefetch: true,
       testBandwidth: false,
@@ -341,11 +341,11 @@ export async function attachEngine(
       nudgeOffset: 0.1,
       nudgeMaxRetry: 2,
       manifestLoadingTimeOut: preview ? 3_500 : 6_000,
-      manifestLoadingMaxRetry: preview ? 1 : 2,
+      manifestLoadingMaxRetry: preview ? 2 : 4,
       levelLoadingTimeOut: preview ? 4_000 : 8_000,
-      levelLoadingMaxRetry: preview ? 1 : 2,
+      levelLoadingMaxRetry: preview ? 2 : 4,
       fragLoadingTimeOut: 10_000,
-      fragLoadingMaxRetry: 3,
+      fragLoadingMaxRetry: preview ? 3 : 5,
     });
     instance.on(Hls.Events.MEDIA_ATTACHED, () => instance.loadSource(src));
     instance.on(Hls.Events.MANIFEST_PARSED, () => {
