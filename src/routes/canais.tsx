@@ -135,6 +135,7 @@ const ChannelRow = memo(function ChannelRow({
   nowTitle,
   onSelect,
   onToggleFav,
+  onDoubleClick,
 }: {
   ch: PlaylistChannel;
   index: number;
@@ -144,6 +145,7 @@ const ChannelRow = memo(function ChannelRow({
   nowTitle: string;
   onSelect: (ch: PlaylistChannel) => void;
   onToggleFav: (ch: PlaylistChannel) => void;
+  onDoubleClick: (ch: PlaylistChannel) => void;
 }) {
   const quality = qualityOf(ch.name);
   return (
