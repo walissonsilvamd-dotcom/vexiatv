@@ -318,7 +318,7 @@ function JogosPage() {
                     data-nav-row={1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex flex-col gap-5 rounded-[40px] border border-white/10 bg-black/40 p-7 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
+                    className="vexia-focus flex flex-col gap-3 rounded-[32px] border border-white/10 bg-black/40 p-5 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl w-full overflow-hidden"
                   >
                     <div className="absolute top-2 right-2 flex items-center gap-1.5">
                       {score?.isLive ? (
