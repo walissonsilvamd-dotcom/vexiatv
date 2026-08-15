@@ -136,25 +136,37 @@ function JogosPage() {
           espnScore: espnMatch
         };
       })
-      // Filtra e prioriza canais de esporte relevantes
+      // Filtra e prioriza canais de esporte relevantes que realmente tenham conteúdo detectado
       .filter((item) => {
+        // Se temos um jogo da ESPN sincronizado, ele tem prioridade máxima
         if (item.espnScore) return true;
 
         const nowTitle = item.epg.now?.title.toLowerCase() || "";
         const nextTitle = item.epg.next?.title.toLowerCase() || "";
         const chName = item.ch.name.toLowerCase();
         
+        // Se o EPG atual tem um placar ou indicativo de jogo vs/x, mantemos
         if (item.epg.now) {
           const score = extractFootballScore(item.epg.now.title, item.epg.now.description);
-          if (score && !score.isLive) return false;
+          if (score && score.isLive) return true;
         }
 
-        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x ", "brasileirão", "libertadores", "champions"];
+        // Se o próximo jogo tem placar/vs/x detectado, mantemos
+        if (item.epg.next) {
+          const nextScore = extractFootballScore(item.epg.next.title, item.epg.next.description);
+          if (nextScore) return true;
+        }
+
+        const footHints = ["futebol", "soccer", "jogo", "partida", "vs", " x ", "brasileirão", "libertadores", "champions", "premier league", "laliga"];
         const isFootNow = footHints.some(h => nowTitle.includes(h));
         const isFootNext = footHints.some(h => nextTitle.includes(h));
-        const isPremiere = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn");
         
-        return isFootNow || isFootNext || isPremiere;
+        // Permitimos Premiere/GolTV apenas se o título não for genérico (como "Programação")
+        const isGeneric = nowTitle.includes("programação") || nowTitle.includes("seu servidor favorito") || nowTitle === "" || nowTitle.includes("informação indisponível");
+        const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
+
+        // Regra final: Só mostra se for futebol detectado ou se for um canal principal COM algo passando que não seja genérico
+        return isFootNow || isFootNext || (isMainSportCh && !isGeneric);
       })
       .sort((a, b) => {
         // Prioridade 1: Jogos com dados da ESPN ou placar detectado (ao vivo agora)
