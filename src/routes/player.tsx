@@ -1527,14 +1527,7 @@ function PlayerPage() {
         {type === "live" ? <PlayerEpgBar tvgId={channel?.tvgId} /> : null}
 
         {/* Barra de progresso / atraso */}
-        {type === "live" ? (
-          <div className="flex items-center gap-3 text-xs font-medium">
-            <span className="rounded-full bg-[#FF1744]/20 px-3 py-1 font-bold text-[#FF1744]">
-              AO VIVO
-            </span>
-            <span className="text-vexia-cyan">Atraso do stream: {Math.round(liveDelay)} segundos</span>
-          </div>
-        ) : (
+        {type === "live" ? null : (
           <div className="space-y-1.5">
             <input
               type="range"
