@@ -43,6 +43,24 @@ function rewriteManifest(text: string, base: URL) {
 export const Route = createFileRoute("/api/public/stream")({
   server: {
     handlers: {
+      HEAD: async ({ request }) => {
+        const target = new URL(request.url).searchParams.get("url") ?? "";
+        if (!target) return new Response(null, { status: 400 });
+
+        try {
+          const upstream = await fetch(target, {
+            method: "HEAD",
+            headers: { "User-Agent": "VLC/3.0.20 LibVLC/3.0.20" },
+            redirect: "follow",
+          });
+          return new Response(null, {
+            status: upstream.status,
+            headers: { "Access-Control-Allow-Origin": "*" },
+          });
+        } catch {
+          return new Response(null, { status: 502 });
+        }
+      },
       GET: async ({ request }) => {
         const target = new URL(request.url).searchParams.get("url") ?? "";
 
