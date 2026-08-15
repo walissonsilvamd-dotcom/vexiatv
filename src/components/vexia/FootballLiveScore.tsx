@@ -86,23 +86,22 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             <span className="text-[11px] font-black text-white uppercase tracking-tighter text-right leading-tight break-words max-w-[120px]">
               {cleanTeamName(score.teamA)}
             </span>
-            {/* Liga removida daqui para não repetir */}
           </div>
-          <div className="w-9 h-9 shrink-0 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+          <div className="w-12 h-12 shrink-0 flex items-center justify-center overflow-hidden relative">
             {loadingA ? (
-              <Skeleton className="w-6 h-6 rounded-full bg-white/10 animate-pulse" />
+              <Skeleton className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
             ) : logoA ? (
               <img 
                 src={logoA} 
                 alt={score.teamA} 
-                className="w-7 h-7 object-contain"
+                className="w-full h-full object-contain"
                 onError={() => {
                   setLogoA(undefined);
                   setErrorA(true);
                 }}
               />
             ) : (
-              <Shield className="w-4 h-4 text-white/20" />
+              <Shield className="w-6 h-6 text-white/20" />
             )}
           </div>
         </div>
@@ -136,21 +135,21 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
 
         {/* Time B */}
         <div className="flex items-center gap-3 flex-1 justify-start pl-3 border-l border-white/5">
-          <div className="w-9 h-9 shrink-0 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 shadow-inner overflow-hidden relative">
+          <div className="w-12 h-12 shrink-0 flex items-center justify-center overflow-hidden relative">
             {loadingB ? (
-              <Skeleton className="w-6 h-6 rounded-full bg-white/10 animate-pulse" />
+              <Skeleton className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
             ) : logoB ? (
               <img 
                 src={logoB} 
                 alt={score.teamB} 
-                className="w-7 h-7 object-contain"
+                className="w-full h-full object-contain"
                 onError={() => {
                   setLogoB(undefined);
                   setErrorB(true);
                 }}
               />
             ) : (
-              <Shield className="w-4 h-4 text-white/20" />
+              <Shield className="w-6 h-6 text-white/20" />
             )}
           </div>
           <div className="flex flex-col items-start">
