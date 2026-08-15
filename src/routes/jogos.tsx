@@ -171,7 +171,7 @@ function JogosPage() {
       const leagueLogo = event.league?.logo;
 
       return {
-        id: event.id,
+        id: event.id + "-" + selectedDate,
         teamA: home?.team.displayName || "",
         teamB: away?.team.displayName || "",
         scoreA: parseInt(home?.score || "0"),
