@@ -96,7 +96,17 @@ function getTeamLogoUrl(teamName: string): string | undefined {
     "bragantino": "https://upload.wikimedia.org/wikipedia/pt/thumb/9/9e/Red_Bull_Bragantino_logo.svg/100px-Red_Bull_Bragantino_logo.svg.png",
     "coritiba": "https://upload.wikimedia.org/wikipedia/pt/thumb/a/a3/Coritiba_FBC_%282023%29.png/100px-Coritiba_FBC_%282023%29.png",
     "vitória": "https://upload.wikimedia.org/wikipedia/pt/thumb/f/f7/Esporte_Clube_Vit%C3%B3ria_logo.svg/100px-Esporte_Clube_Vit%C3%B3ria_logo.svg.png",
-    "remo": "https://upload.wikimedia.org/wikipedia/pt/thumb/5/56/Clube_do_Remo.png/100px-Clube_do_Remo.png"
+    "remo": "https://upload.wikimedia.org/wikipedia/pt/thumb/5/56/Clube_do_Remo.png/100px-Clube_do_Remo.png",
+    "real madrid": "https://upload.wikimedia.org/wikipedia/pt/thumb/9/98/Real_Madrid.png/100px-Real_Madrid.png",
+    "barcelona": "https://upload.wikimedia.org/wikipedia/pt/thumb/4/43/FCBarcelona.svg/100px-FCBarcelona.svg.png",
+    "manchester city": "https://upload.wikimedia.org/wikipedia/pt/thumb/0/02/Manchester_City_FC_badge.svg/100px-Manchester_City_FC_badge.svg.png",
+    "liverpool": "https://upload.wikimedia.org/wikipedia/pt/thumb/0/0c/Liverpool_FC.svg/100px-Liverpool_FC.svg.png",
+    "psg": "https://upload.wikimedia.org/wikipedia/pt/thumb/a/a7/Paris_Saint-Germain_Football_Club_..png/100px-Paris_Saint-Germain_Football_Club_..png",
+    "bayern": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/100px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+    "juventus": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Juventus_FC_2017_icon_%28black%29.svg/100px-Juventus_FC_2017_icon_%28black%29.svg.png",
+    "arsenal": "https://upload.wikimedia.org/wikipedia/pt/thumb/5/53/Arsenal_FC.svg/100px-Arsenal_FC.svg.png",
+    "milan": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/AC_Milan_logo.svg/100px-AC_Milan_logo.svg.png",
+    "inter milão": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/FC_Internazionale_Milano_2021_logo.svg/100px-FC_Internazionale_Milano_2021_logo.svg.png"
   };
 
   for (const [key, url] of Object.entries(mapping)) {
