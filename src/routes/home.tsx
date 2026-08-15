@@ -377,7 +377,7 @@ function HomePage() {
 
       {/* Retomada automática da última sessão */}
       {lastSession ? (
-        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[1.2vh]">
+        <section className="relative z-10 shrink-0 px-4 pb-3 sm:px-[5vw] md:pb-[3vh]">
           <button
             type="button"
             onClick={() =>
