@@ -39,9 +39,9 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
             </div>
           ) : (
             <div className="flex items-center gap-2 font-black text-xl leading-none tracking-tighter">
-              <span className="text-vexia-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">{score.scoreA}</span>
+              <span className="text-vexia-primary drop-shadow-[0_0_10px_rgba(82,0,165,0.5)]">{score.scoreA}</span>
               <span className="text-white/20 text-xs font-light">x</span>
-              <span className="text-vexia-gold drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">{score.scoreB}</span>
+              <span className="text-vexia-primary drop-shadow-[0_0_10px_rgba(82,0,165,0.5)]">{score.scoreB}</span>
             </div>
           )}
           {score.time && (

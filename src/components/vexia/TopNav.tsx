@@ -45,7 +45,7 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
             activeProps={{ "aria-current": "page" }}
             className={`vexia-focus flex shrink-0 items-center rounded-xl px-3 py-2.5 text-[13px] md:py-1.5 font-bold transition-all md:px-3.5 md:text-sm ${
               isActive
-                ? "bg-vexia-gold text-black shadow-[0_0_20px_rgba(255,215,0,0.4)] border-b-2 border-vexia-gold"
+                ? "bg-vexia-primary text-white shadow-[0_0_20px_rgba(82,0,165,0.4)] border-b-2 border-vexia-primary"
                 : "text-white/80 hover:bg-white/5"
             }`}
           >

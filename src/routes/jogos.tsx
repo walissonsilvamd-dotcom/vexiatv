@@ -121,6 +121,8 @@ function JogosPage() {
     const espnScores = espnEvents.map(event => {
       const home = event.competitors.find(c => c.homeAway === "home");
       const away = event.competitors.find(c => c.homeAway === "away");
+      const isFinished = event.status.type.state === "post";
+      
       return {
         id: event.id,
         teamA: home?.team.displayName || "",
@@ -131,8 +133,9 @@ function JogosPage() {
         logoB: away?.team.logo,
         time: event.status.type.state === "in" ? event.status.displayClock : event.status.type.description,
         isLive: event.status.type.state === "in",
+        isFinished,
         broadcastChannels: event.broadcasts?.[0]?.names || []
-      } as FootballScore;
+      } as FootballScore & { isFinished: boolean };
     });
 
     // Agrupa canais por evento (jogo)
@@ -181,7 +184,7 @@ function JogosPage() {
       const isGeneric = nowTitle.includes("programação") || nowTitle.includes("seu servidor favorito") || nowTitle === "" || nowTitle.includes("informação indisponível");
       const isMainSportCh = chName.includes("premiere") || chName.includes("goltv") || chName.includes("sportv") || chName.includes("espn") || chName.includes("tnt sports");
 
-      if (isMainSportCh && !isGeneric) {
+      if (isMainSportCh) {
         standaloneChannels.push({ ch, epg });
       }
     });
@@ -198,13 +201,15 @@ function JogosPage() {
       isGrouped: false
     }));
 
-    return [...groupedResults, ...standaloneResults].sort((a, b) => {
-      const aLive = a.score?.isLive;
-      const bLive = b.score?.isLive;
-      if (aLive && !bLive) return -1;
-      if (!aLive && bLive) return 1;
-      return 0;
-    });
+    return [...groupedResults, ...standaloneResults]
+      .filter(g => !(g.score as any)?.isFinished) // Filtra jogos que já acabaram via ESPN
+      .sort((a, b) => {
+        const aLive = a.score?.isLive;
+        const bLive = b.score?.isLive;
+        if (aLive && !bLive) return -1;
+        if (!aLive && bLive) return 1;
+        return 0;
+      });
   }, [channels, guide, minuteTick, espnEvents]);
 
   const open = (item: any) => {
@@ -226,16 +231,16 @@ function JogosPage() {
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-white tracking-tight italic">Uni</span>
-            <span className="text-xl font-black text-vexia-gold tracking-tight italic">TV</span>
+            <span className="text-xl font-black text-white tracking-tight italic">Pipoca</span>
+            <span className="text-xl font-black text-vexia-primary tracking-tight italic">Flix</span>
           </div>
           <div className="flex items-center gap-3">
-            <Trophy className="h-5 w-5 text-vexia-gold" aria-hidden />
+            <Trophy className="h-5 w-5 text-vexia-primary" aria-hidden />
             <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text uppercase">JOGOS AO VIVO</h1>
             {loadingEspn && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-gold/10 rounded-full border border-vexia-gold/20">
-                <Wifi className="h-3 w-3 text-vexia-gold animate-pulse" />
-                <span className="text-[8px] font-bold text-vexia-gold tracking-widest uppercase">API Live</span>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-primary/10 rounded-full border border-vexia-primary/20">
+                <Wifi className="h-3 w-3 text-vexia-primary animate-pulse" />
+                <span className="text-[8px] font-bold text-vexia-primary tracking-widest uppercase">API Live</span>
               </div>
             )}
           </div>
@@ -267,7 +272,7 @@ function JogosPage() {
                 key={f}
                 className={`shrink-0 px-6 py-2 rounded-full text-[10px] font-black tracking-widest uppercase transition-all border ${
                   i === 0 
-                  ? "bg-vexia-gold border-vexia-gold text-black shadow-[0_0_15px_rgba(255,215,0,0.3)]" 
+                  ? "bg-vexia-primary border-vexia-primary text-white shadow-[0_0_15px_rgba(82,0,165,0.3)]" 
                   : "bg-white/5 border-white/10 text-white/60 hover:text-white"
                 }`}
               >
@@ -279,7 +284,7 @@ function JogosPage() {
           {/* Card de Destaque Principal */}
           {games.length > 0 && (
             <div className="mb-8 relative group overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-vexia-gold/20" />
+              <div className="absolute inset-0 bg-gradient-to-br from-black via-black/80 to-vexia-primary/20" />
               <div className="relative p-8 flex flex-col items-center justify-center text-center">
                 <div className="absolute top-6 right-6 px-3 py-1 bg-red-600 rounded-full animate-pulse flex items-center gap-2 shadow-lg shadow-red-600/30">
                   <div className="w-1.5 h-1.5 bg-white rounded-full" />
@@ -301,19 +306,19 @@ function JogosPage() {
                   </div>
 
                   <div className="flex flex-col items-center justify-center">
-                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(255,215,0,0.3)]">
+                    <div className="text-6xl font-black text-white tracking-tighter drop-shadow-[0_0_20px_rgba(82,0,165,0.3)]">
                       {games[0].score?.isLive ? (
                         <div className="flex items-center gap-4">
-                          <span className="text-vexia-gold">{games[0].score.scoreA}</span>
+                          <span className="text-vexia-primary">{games[0].score.scoreA}</span>
                           <span className="text-white/10 text-2xl font-light">X</span>
-                          <span className="text-vexia-gold">{games[0].score.scoreB}</span>
+                          <span className="text-vexia-primary">{games[0].score.scoreB}</span>
                         </div>
                       ) : (
                         <span className="text-4xl text-white/20 italic">VS</span>
                       )}
                     </div>
                     {games[0].score?.time && (
-                      <div className="mt-4 px-4 py-1.5 bg-vexia-gold text-black rounded-full text-[10px] font-black tracking-widest uppercase">
+                      <div className="mt-4 px-4 py-1.5 bg-vexia-primary text-white rounded-full text-[10px] font-black tracking-widest uppercase">
                         {games[0].score.time}
                       </div>
                     )}
@@ -335,14 +340,14 @@ function JogosPage() {
 
                 <div className="flex items-center gap-4 mb-8">
                   <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-                    <Tv className="w-3.5 h-3.5 text-vexia-gold" />
+                    <Tv className="w-3.5 h-3.5 text-vexia-primary" />
                     <span className="text-[10px] font-black text-white/60 tracking-widest uppercase">Canais: {games[0].channels.map(c => c.ch.name).join(", ")}</span>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => open(games[0])}
-                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-gold text-black rounded-full font-black text-lg tracking-tighter uppercase shadow-xl hover:scale-105 transition-all"
+                  className="vexia-focus flex items-center gap-4 px-12 py-4 bg-vexia-primary text-white rounded-full font-black text-lg tracking-tighter uppercase shadow-xl hover:scale-105 transition-all"
                 >
                   <Play className="w-6 h-6 fill-current" />
                   Assistir Agora
@@ -358,7 +363,7 @@ function JogosPage() {
                 <Trophy className="w-10 h-10" />
               </div>
               <p className="text-sm font-bold text-vexia-muted max-w-[200px]">
-                ⏳ Nenhum jogo no momento. Volte mais tarde!
+                ⏳ Buscando jogos ao vivo...
               </p>
             </div>
           ) : (
