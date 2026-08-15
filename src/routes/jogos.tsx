@@ -208,7 +208,12 @@ function JogosPage() {
       
       // Filtro rigoroso: Se não tiver jogo detectado (ESPN ou EPG), ignorar canais genéricos ou de outros esportes
       const nowTitle = epg.now?.title.toLowerCase() || "";
-      const isOtherSportProgram = ["olímpica", "atp", "wta", "golfe", "nba", "nfl", "basquete", "vôlei", "tênis", "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais", "futsal", "motogp", "f1", "fórmula", "nascar", "ciclismo", "atletismo"].some(kw => nowTitle.includes(kw));
+      const isOtherSportProgram = [
+        "olímpica", "atp", "wta", "golfe", "golf", "nba", "nfl", "basquete", "vôlei", "tênis", 
+        "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais", "futsal", 
+        "motogp", "f1", "fórmula", "nascar", "ciclismo", "atletismo", "basketball", "tennis", 
+        "baseball", "hockey"
+      ].some(kw => nowTitle.includes(kw));
       
       const isGeneric = nowTitle.includes("programação") || 
                         nowTitle.includes("seu servidor favorito") || 
@@ -217,8 +222,6 @@ function JogosPage() {
                         nowTitle.includes("breve") ||
                         nowTitle.includes("loading") ||
                         nowTitle.includes("transmissão") ||
-                        nowTitle.includes("espn") || 
-                        nowTitle.includes("sportv") ||
                         isOtherSportProgram;
       
       // 1. Tenta match com ESPN primeiro
