@@ -12,7 +12,7 @@ import { setStreamHandoff } from "../lib/stream-handoff";
 
 export const Route = createFileRoute("/jogos/$id")({
   head: () => ({
-    title: `Detalhes do Jogo — ${BRAND.name}`,
+    meta: [{ title: `Detalhes do Jogo — ${BRAND.name}` }],
   }),
   component: JogoDetalhesPage,
 });
