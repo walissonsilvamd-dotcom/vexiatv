@@ -15,6 +15,7 @@ import { setStreamHandoff } from "../lib/stream-handoff";
 import type { PlaylistChannel } from "../lib/m3u";
 import { BRAND } from "../lib/brand";
 import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
+import { Skeleton } from "../components/ui/skeleton";
 import { extractFootballScore, FootballScore } from "../lib/football-score";
 import { getLiveFootballScores, EspnGame } from "../lib/espn.functions";
 
@@ -280,13 +281,27 @@ function JogosPage() {
           {/* Destaque Removido conforme solicitado */}
 
           <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
-          {games.length === 0 ? (
+          {loadingEspn && games.length === 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex flex-col gap-4 rounded-[40px] border border-white/5 bg-white/5 p-6 backdrop-blur-md">
+                  <div className="flex items-center justify-between w-full">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Skeleton className="h-20 w-full rounded-3xl" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : games.length === 0 ? (
             <div className="py-24 flex flex-col items-center justify-center text-center">
               <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-4 border border-white/10 text-white/20">
                 <Trophy className="w-10 h-10" />
               </div>
               <p className="text-sm font-bold text-vexia-muted max-w-[200px]">
-                ⏳ Buscando jogos de futebol ao vivo...
+                ⏳ Nenhum jogo de futebol encontrado no momento.
               </p>
             </div>
           ) : (
@@ -303,7 +318,7 @@ function JogosPage() {
                     data-nav-row={1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex flex-col gap-4 rounded-[40px] border border-white/10 bg-black/40 p-6 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
+                    className="vexia-focus flex flex-col gap-5 rounded-[40px] border border-white/10 bg-black/40 p-7 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
                   >
                     <div className="absolute top-2 right-2 flex items-center gap-1.5">
                       {score?.isLive ? (
