@@ -245,7 +245,7 @@ function JogosPage() {
 
     const finalResults = [...groupedResults, ...standaloneResults]
       .filter(g => {
-        // Se temos dados da ESPN, filtramos os encerrados
+        // Se temos dados da ESPN, exibimos se estiver ao vivo ou se for no futuro (hoje)
         if (g.score && (g.score as any).isFinished) return false;
         
         // Se temos dados de EPG, tentamos detectar se já encerrou pelo título/descrição
