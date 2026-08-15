@@ -146,9 +146,8 @@ function JogosPage() {
       const isFinished = event.status.type.state === "post";
       
       // Tenta extrair o nome da liga do nome do evento ou metadados
-      const leagueName = event.name.split(" vs ")[0] === home?.team.displayName ? "" : ""; // ESPN API usually doesn't have league in top level here but we can infer or leave empty for now
-      
-      const leagueLogo = event.competitors[0].team.logo; // Pega o logo de um dos times ou a ESPN teria o da liga em outro lugar
+      const leagueName = event.league?.name || "";
+      const leagueLogo = event.league?.logo;
 
       return {
         id: event.id,
@@ -162,8 +161,8 @@ function JogosPage() {
         isLive: event.status.type.state === "in",
         isFinished,
         broadcastChannels: event.broadcasts?.[0]?.names || [],
-        league: event.shortName,
-        leagueLogo: undefined // Removido mock incerto
+        league: leagueName,
+        leagueLogo: leagueLogo
       } as FootballScore & { isFinished: boolean };
     });
 
@@ -336,14 +335,14 @@ function JogosPage() {
           {loadingEspn && games.length === 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex flex-col gap-4 rounded-[40px] border border-white/5 bg-white/5 p-6 backdrop-blur-md">
-                  <div className="flex items-center justify-between w-full">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <Skeleton className="h-6 w-20 rounded-full" />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <Skeleton className="h-20 w-full rounded-3xl" />
-                  </div>
+                <div key={i} className="flex flex-col gap-4 rounded-3xl border border-white/5 bg-white/5 p-4 backdrop-blur-md">
+                   <div className="flex items-center gap-4">
+                     <Skeleton className="h-16 w-16 rounded-full" />
+                     <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <Skeleton className="h-3 w-1/2 rounded" />
+                     </div>
+                   </div>
                 </div>
               ))}
             </div>
@@ -357,7 +356,7 @@ function JogosPage() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-col gap-6 w-full">
+            <div className="grid grid-cols-1 gap-4 w-full sm:grid-cols-2">
               {games.map((item, idx) => {
                 const { score, channels: itemChannels } = item;
                 const mainCh = itemChannels[0].ch;
