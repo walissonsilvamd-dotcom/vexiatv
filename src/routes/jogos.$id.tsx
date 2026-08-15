@@ -189,7 +189,7 @@ function JogoDetalhesPage() {
         {/* Lado Esquerdo: Player ou Info Principal */}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="relative aspect-video w-full bg-black/60 rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl group">
-            {isPlaying ? (
+            {isPlaying && activeChannel ? (
               <>
                 <video ref={slotARef} className="absolute inset-0 h-full w-full object-contain" muted />
                 <video ref={slotBRef} className="absolute inset-0 h-full w-full object-contain" muted />
