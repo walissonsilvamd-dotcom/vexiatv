@@ -14,6 +14,8 @@ import { usePlaylist } from "../lib/playlist-store";
 import { setStreamHandoff } from "../lib/stream-handoff";
 import type { PlaylistChannel } from "../lib/m3u";
 import { BRAND } from "../lib/brand";
+import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
+import { extractFootballScore } from "../lib/football-score";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
