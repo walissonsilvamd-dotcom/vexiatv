@@ -14,6 +14,8 @@ import { usePlaylist } from "../lib/playlist-store";
 import { setStreamHandoff } from "../lib/stream-handoff";
 import type { PlaylistChannel } from "../lib/m3u";
 import { BRAND } from "../lib/brand";
+import { FootballLiveScore } from "../components/vexia/FootballLiveScore";
+import { extractFootballScore } from "../lib/football-score";
 
 export const Route = createFileRoute("/jogos")({
   head: () => ({
@@ -170,14 +172,24 @@ function JogosPage() {
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-bold text-vexia-text">
-                        {epg.now?.title ?? ch.name}
-                      </span>
-                      <span className="block truncate text-[11px] font-medium text-vexia-cyan/85">
-                        {epg.now
-                          ? `${ch.name} • ${clock(epg.now.start)} – ${clock(epg.now.stop)}`
-                          : ch.group || ch.category}
-                      </span>
+                      {epg.now && extractFootballScore(epg.now.title, epg.now.description) ? (
+                        <FootballLiveScore 
+                          score={extractFootballScore(epg.now.title, epg.now.description)!} 
+                          className="mb-2"
+                        />
+                      ) : (
+                        <>
+                          <span className="block truncate text-sm font-bold text-vexia-text">
+                            {epg.now?.title ?? ch.name}
+                          </span>
+                          <span className="block truncate text-[11px] font-medium text-vexia-cyan/85">
+                            {epg.now
+                              ? `${ch.name} • ${clock(epg.now.start)} – ${clock(epg.now.stop)}`
+                              : ch.group || ch.category}
+                          </span>
+                        </>
+                      )}
+                      
                       {epg.now ? (
                         <span className="mt-1.5 block h-1 overflow-hidden rounded-full bg-white/10">
                           <span
