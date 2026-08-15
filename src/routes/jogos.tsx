@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Trophy, Play, Tv, Wifi, Settings, Clock } from "lucide-react";
+import { Trophy, Play, Tv, Wifi, Settings, Clock, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
@@ -80,13 +80,15 @@ function JogosPage() {
   const [listsOpen, setListsOpen] = useState(false);
   const [espnEvents, setEspnEvents] = useState<EspnGame[]>([]);
   const [loadingEspn, setLoadingEspn] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   // Busca dados da ESPN a cada 60 segundos se estiver na tela
   useEffect(() => {
     const fetchEspn = async () => {
       setLoadingEspn(true);
       try {
-        const data = await getLiveFootballScores();
+        const data = await getLiveFootballScores({ date: selectedDate.replace(/-/g, '') });
+
         if (data && data.events) {
           setEspnEvents(data.events);
           
@@ -106,7 +108,26 @@ function JogosPage() {
     fetchEspn();
     const timer = setInterval(fetchEspn, 60000);
     return () => clearInterval(timer);
+  }, [selectedDate]);
+
+  const dateStrip = useMemo(() => {
+    const dates = [];
+    for (let i = -2; i <= 5; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      dates.push(d.toISOString().split('T')[0]);
+    }
+    return dates;
   }, []);
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T12:00:00');
+    const today = new Date().toISOString().split('T')[0];
+    if (dateStr === today) return "HOJE";
+    
+    return d.toLocaleDateString("pt-BR", { weekday: 'short', day: '2-digit' }).toUpperCase();
+  };
+
 
   /** Canais de esporte da lista, com programa atual e próximo. */
   const games = useMemo(() => {
@@ -347,8 +368,30 @@ function JogosPage() {
         </div>
       ) : (
         <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-3 pb-6 sm:px-[4vw]">
+          
+          {/* Seletor de Data */}
+          <div className="flex items-center gap-2 mb-6 overflow-x-auto no-scrollbar py-2">
+            <div className="flex items-center bg-black/40 rounded-2xl p-1 border border-white/5 backdrop-blur-md">
+              {dateStrip.map((date) => (
+                <button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap vexia-focus ${
+                    selectedDate === date 
+                      ? "bg-vexia-primary text-white shadow-[0_0_15px_rgba(123,43,190,0.5)]" 
+                      : "text-white/40 hover:text-white/70"
+                  }`}
+                >
+                  {formatDate(date)}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 ml-auto px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-[9px] font-bold text-white/40 italic uppercase tracking-widest">
+              <Calendar className="w-3 h-3" />
+              <span>Agenda</span>
+            </div>
+          </div>
 
-          {/* Destaque Removido conforme solicitado */}
 
           <h2 className="sr-only">Canais de esporte com jogos ao vivo</h2>
           {loadingEspn && games.length === 0 ? (

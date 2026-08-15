@@ -69,8 +69,12 @@ export const getEspnGameDetails = createServerFn({ method: "GET" })
  * Busca jogos de futebol na API pública da ESPN.
  */
 export const getLiveFootballScores = createServerFn({ method: "GET" })
-  .handler(async () => {
+  .inputValidator((data) => z.object({ date: z.string().optional() }).parse(data))
+  .handler(async ({ data }) => {
     try {
+      const targetDate = data.date || new Date().toISOString().split('T')[0].replace(/-/g, '');
+      const dateParam = targetDate.replace(/-/g, '');
+
       // Buscamos várias ligas para aumentar a chance de encontrar os jogos da lista
       const leagues = [
         "bra.1", "bra.2", "bra.3", "bra.cup", "bra.nordeste", // Brasil
@@ -92,7 +96,7 @@ export const getLiveFootballScores = createServerFn({ method: "GET" })
       const results = await Promise.allSettled(leagues.map(async (league) => {
         try {
           const response = await fetch(
-            `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard`,
+            `https://site.api.espn.com/apis/site/v2/sports/soccer/${league}/scoreboard?dates=${dateParam}`,
             { 
               headers: { "Accept": "application/json" },
               signal: AbortSignal.timeout(4000) // Timeout mais curto por liga
