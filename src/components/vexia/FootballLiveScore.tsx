@@ -2,6 +2,7 @@ import { FootballScore } from "../../lib/football-score";
 import { Shield, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { searchTeamLogo } from "../../lib/team-logos.functions";
+import { Skeleton } from "../ui/skeleton";
 
 interface FootballLiveScoreProps {
   score: FootballScore;
@@ -12,28 +13,50 @@ interface FootballLiveScoreProps {
 export function FootballLiveScore({ score, className = "", timeLabel }: FootballLiveScoreProps) {
   const [logoA, setLogoA] = useState<string | undefined>(score.logoA);
   const [logoB, setLogoB] = useState<string | undefined>(score.logoB);
+  const [loadingA, setLoadingA] = useState(false);
+  const [loadingB, setLoadingB] = useState(false);
+  const [errorA, setErrorA] = useState(false);
+  const [errorB, setErrorB] = useState(false);
 
   useEffect(() => {
     setLogoA(score.logoA);
     setLogoB(score.logoB);
+    setErrorA(false);
+    setErrorB(false);
   }, [score.logoA, score.logoB]);
 
   useEffect(() => {
     async function fetchLogos() {
-      if (!logoA && score.teamA) {
+      if (!logoA && score.teamA && !errorA) {
+        setLoadingA(true);
         try {
           const logo = await searchTeamLogo({ data: { teamName: score.teamA } });
-          if (logo) setLogoA(logo);
+          if (logo) {
+            setLogoA(logo);
+          } else {
+            setErrorA(true);
+          }
         } catch (e) {
           console.error("Falha ao buscar logo A:", e);
+          setErrorA(true);
+        } finally {
+          setLoadingA(false);
         }
       }
-      if (!logoB && score.teamB) {
+      if (!logoB && score.teamB && !errorB) {
+        setLoadingB(true);
         try {
           const logo = await searchTeamLogo({ data: { teamName: score.teamB } });
-          if (logo) setLogoB(logo);
+          if (logo) {
+            setLogoB(logo);
+          } else {
+            setErrorB(true);
+          }
         } catch (e) {
           console.error("Falha ao buscar logo B:", e);
+          setErrorB(true);
+        } finally {
+          setLoadingB(false);
         }
       }
     }
