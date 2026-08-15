@@ -304,7 +304,7 @@ function JogosPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {games.map((item, idx) => {
                 const { score, channels: itemChannels } = item;
                 const mainCh = itemChannels[0].ch;
@@ -317,7 +317,7 @@ function JogosPage() {
                     data-nav-row={1}
                     tabIndex={0}
                     onClick={() => open(item)}
-                    className="vexia-focus flex flex-col gap-3 rounded-3xl border border-white/10 bg-black/40 p-4 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
+                    className="vexia-focus flex flex-col gap-4 rounded-[40px] border border-white/10 bg-black/40 p-6 text-left transition-all hover:border-white/30 backdrop-blur-md group relative shadow-2xl"
                   >
                     <div className="absolute top-2 right-2 flex items-center gap-1.5">
                       {score?.isLive ? (
@@ -366,7 +366,7 @@ function JogosPage() {
                         <FootballLiveScore 
                           score={score} 
                           className="mb-1"
-                          timeLabel={item.isGrouped ? `${score.teamA} x ${score.teamB}` : (epg.now ? `${mainCh.name} • AO VIVO` : `${mainCh.name} • ${clock(epg.next!.start)}`)}
+                          timeLabel={item.isGrouped ? undefined : (epg.now ? `${mainCh.name} • AO VIVO` : `${mainCh.name} • ${clock(epg.next!.start)}`)}
                         />
                       ) : (
                         <div className="flex flex-col gap-1">
