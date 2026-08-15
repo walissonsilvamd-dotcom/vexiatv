@@ -196,10 +196,10 @@ function JogosPage() {
                           <span className="block truncate text-sm font-bold text-vexia-text">
                             {epg.now?.title ?? ch.name}
                           </span>
-                          <span className="block truncate text-[11px] font-medium text-vexia-cyan/85">
+                          <span className="block truncate text-[10px] font-bold text-vexia-cyan/70 uppercase tracking-tighter mt-0.5">
                             {epg.now
-                              ? `${ch.name} • ${clock(epg.now.start)} – ${clock(epg.now.stop)}`
-                              : ch.group || ch.category}
+                              ? `${ch.name} • ${clock(epg.now.start)}`
+                              : ch.name}
                           </span>
                         </>
                       )}
