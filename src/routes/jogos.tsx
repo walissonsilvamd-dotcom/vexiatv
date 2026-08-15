@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import ogImage from "../assets/splash-vexia.jpg.asset.json";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Trophy, Play, Tv, Wifi, Settings } from "lucide-react";
+import { Trophy, Play, Tv, Wifi, Settings, Clock } from "lucide-react";
 import nebula from "../assets/nebula-bg.jpg.asset.json";
 import { TopNav } from "../components/vexia/TopNav";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
