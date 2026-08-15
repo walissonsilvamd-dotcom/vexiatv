@@ -219,7 +219,10 @@ function JogosPage() {
         "olímpica", "atp", "wta", "golfe", "golf", "nba", "nfl", "basquete", "vôlei", "tênis", 
         "boxe", "ufc", "ginástica", "atletismo", "natação", "esportes radicais", "futsal", 
         "motogp", "f1", "fórmula", "nascar", "ciclismo", "atletismo", "basketball", "tennis", 
-        "baseball", "hockey"
+        "baseball", "hockey", "arena cross", "motocross", "supercross", "cross", "rally",
+        "kart", "automobilismo", "poker", "sinuca", "wwe", "mma", "jiu", "skate", "bmx",
+        "rugby", "cricket", "handebol", "handball", "beach", "praia", "hipismo", "rodeio",
+        "e-sports", "esports", "darts", "boliche", "pesca", "vela", "remo", "triatlo"
       ].some(kw => nowTitle.includes(kw));
       
       const isGeneric = nowTitle.includes("programação") || 
