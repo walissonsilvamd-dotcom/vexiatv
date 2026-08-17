@@ -35,6 +35,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   SUBS_OFF,
+  prettyLang,
   useAudioTracks,
   useSubtitleTracks,
 } from "../hooks/useMediaTracks";
@@ -1662,13 +1663,31 @@ function PlayerPage() {
           {type !== 'live' && (
             ([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
-              { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
+              {
+                key: "audio",
+                icon: Volume2,
+                title:
+                  audio.tracks.length > 1
+                    ? `Áudio · ${audio.tracks.length} idiomas`
+                    : "Áudio",
+                label:
+                  audio.tracks.length > 1
+                    ? audio.tracks.map((t) => prettyLang(t.lang, t.label)).join(" · ")
+                    : audio.currentLabel,
+              },
               {
                 key: "subs",
                 icon: Captions,
-                title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
-                label: subs.currentLabel,
+                title:
+                  subs.tracks.length > 1
+                    ? `Legenda · ${subs.tracks.length} idiomas`
+                    : "Legenda",
+                label:
+                  subs.selected === SUBS_OFF && subs.tracks.length > 0
+                    ? subs.tracks.map((t) => prettyLang(t.lang, t.label)).join(" · ")
+                    : subs.currentLabel,
               },
+
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
               { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
               { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
@@ -1696,7 +1715,7 @@ function PlayerPage() {
                   type="button"
                   onClick={() => setMenu((m) => (m === opt.key ? null : opt.key))}
                   aria-pressed={open}
-                  className={`vexia-focus group grid min-w-0 max-w-[130px] grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-2 py-1 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_18px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
+                  className={`vexia-focus group grid min-w-0 max-w-[190px] grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 rounded-lg border px-2 py-1 text-left transition-all duration-200 focus-visible:border-vexia-cyan focus-visible:bg-vexia-purple/25 focus-visible:shadow-[0_0_0_2px_rgb(var(--vexia-secondary-rgb)/0.55),0_0_18px_-4px_rgb(var(--vexia-secondary-rgb)/0.9)] focus-visible:outline-none ${
                     open
                       ? "border-vexia-purple bg-vexia-purple/25 shadow-[0_0_16px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
                       : "border-white/10 bg-white/[0.06] hover:border-vexia-cyan/40 hover:bg-white/[0.12]"
