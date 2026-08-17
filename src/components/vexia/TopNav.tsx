@@ -56,10 +56,10 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
             data-nav-row={0}
             tabIndex={0}
             activeProps={{ "aria-current": "page" }}
-            className={`vexia-focus flex shrink-0 items-center rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all focus:border-vexia-purple focus:shadow-[0_0_20px_rgba(123,43,190,0.6)] md:px-4 md:text-[11px] ${
+            className={`vexia-focus flex shrink-0 items-center rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all focus:border-vexia-purple focus:shadow-[0_0_20px_rgba(123,43,190,0.8)] md:px-4 md:text-[11px] ${
               isActive
-                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]"
-                : "text-white/60 hover:text-white hover:bg-white/5"
+                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)] border-transparent"
+                : "text-white/60 hover:text-white hover:bg-white/5 border-transparent"
             }`}
           >
             {tab.label}

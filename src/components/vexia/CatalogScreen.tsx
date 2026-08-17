@@ -345,10 +345,10 @@ export function CatalogScreen(props: {
                         });
                       }}
 
-                      className={`vexia-focus group flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
+                      className={`vexia-focus group flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-all focus:border-vexia-purple focus:shadow-[0_0_25px_rgba(123,43,190,0.8)] ${
                         active
-                          ? "bg-vexia-purple font-bold text-white shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.65)]"
-                          : "bg-white/[0.04] font-medium text-vexia-text hover:bg-vexia-purple/20"
+                          ? "bg-vexia-purple font-bold text-white border-vexia-purple/70 shadow-[0_0_20px_rgb(var(--vexia-primary-rgb)/0.65)]"
+                          : "bg-white/[0.04] font-medium text-vexia-text border-transparent hover:bg-vexia-purple/20"
                       }`}
                     >
                       <MarqueeText text={cat} />
