@@ -226,8 +226,18 @@ function HomePage() {
 
   // Foco inicial no primeiro bloco (D-pad pronto ao abrir).
   useEffect(() => {
-    rowRef.current?.querySelector<HTMLElement>("[data-tile]")?.focus();
-  }, []);
+    // Restaura o foco para o item ativo ou para o primeiro item após um pequeno delay
+    // para garantir que o DOM esteja pronto e o componente useSpatialNav inicializado.
+    const timer = setTimeout(() => {
+      const allTiles = rowRef.current?.querySelectorAll<HTMLElement>("[data-tile]");
+      if (allTiles && allTiles.length > 0) {
+        const target = allTiles[active] || allTiles[0];
+        target.focus();
+        console.log("HomePage: Focused tile", target.textContent);
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [active]);
 
   /**
    * Tecla Voltar do controle na Home: em vez de sair direto, pergunta.
