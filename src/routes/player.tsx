@@ -325,7 +325,7 @@ function PlayerPage() {
         /* Sem gesto do usuário o navegador bloqueia: seguimos em tela cheia simulada. */
       }
     };
-    const id = setTimeout(() => void enter(), 60);
+    const id = setTimeout(() => void enter(), 0);
     /* Se o navegador exigir gesto, entramos no primeiro toque/tecla. */
     const onGesture = () => void enter();
     window.addEventListener("pointerdown", onGesture, { once: true });
