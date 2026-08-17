@@ -170,7 +170,9 @@ function DetailsPage() {
     if (!item) return [];
     const pool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
     const itemGenres = new Set((item.genres ?? []).map((g) => g.toLowerCase()));
-    const norm = (s?: string | null) => (s ?? "").toLowerCase();
+    const norm = (s?: string | null) => (s ?? "").toLowerCase().trim()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\[.*?\]|\(.*?\)/g, "").replace(/\s+/g, " ").trim();
     const baseWords = new Set(
       norm(item.title)
         .replace(/[^\p{L}\p{N} ]+/gu, " ")
@@ -199,7 +201,7 @@ function DetailsPage() {
       .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0));
 
     // Remove duplicatas nas recomendações baseadas no título normalizado
-    const seenTitles = new Set<string>();
+    const seenTitles = new Set<string>([norm(item.title)]);
     const uniqueRanked: (typeof pool)[number][] = [];
     
     for (const { m } of ranked) {
