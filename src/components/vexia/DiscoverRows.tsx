@@ -47,21 +47,21 @@ export function DiscoverRows() {
   if (!hasContent) return null;
 
   return (
-    <div className="space-y-12 px-[5vw] py-4">
+    <div className="space-y-24 px-[5vw] py-24">
       {/* Ranking Filmes */}
       <section className="space-y-6">
         <h2 className="flex items-center gap-3 text-2xl font-black uppercase tracking-[0.25em] text-white">
           <span className="text-vexia-purple">01</span> 10 Melhores Filmes
         </h2>
-        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-4 vexia-scroll no-scrollbar">
+        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-8 vexia-scroll">
           {topMovies.map((item, index) => (
             <Link
               key={item.id}
               to="/detalhes/$id"
               params={{ id: item.id }}
-              className="group relative flex w-[180px] shrink-0 items-end gap-2 outline-none"
+              className="group relative flex w-[280px] shrink-0 items-end gap-2 outline-none"
             >
-              <span className="mb-[-10px] text-[80px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-purple/40 group-hover:text-vexia-purple/30">
+              <span className="mb-[-20px] text-[120px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-purple/40 group-hover:text-vexia-purple/30">
                 {index + 1}
               </span>
               <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">
@@ -86,15 +86,15 @@ export function DiscoverRows() {
         <h2 className="flex items-center gap-3 text-2xl font-black uppercase tracking-[0.25em] text-white">
           <span className="text-vexia-cyan">02</span> 10 Melhores Séries
         </h2>
-        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-4 vexia-scroll no-scrollbar">
+        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-8 vexia-scroll">
           {topSeries.map((item, index) => (
             <Link
               key={item.id}
               to="/detalhes/$id"
               params={{ id: item.id }}
-              className="group relative flex w-[180px] shrink-0 items-end gap-2 outline-none"
+              className="group relative flex w-[280px] shrink-0 items-end gap-2 outline-none"
             >
-              <span className="mb-[-10px] text-[80px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-cyan/40 group-hover:text-vexia-cyan/30">
+              <span className="mb-[-20px] text-[120px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-cyan/40 group-hover:text-vexia-cyan/30">
                 {index + 1}
               </span>
               <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">

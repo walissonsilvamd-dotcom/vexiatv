@@ -312,7 +312,7 @@ function HomePage() {
         </aside>
 
         {/* Área de Conteúdo (Hero e Destaques) */}
-        <div className="relative flex flex-1 flex-col overflow-hidden">
+        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           {/* Fundo Imersivo */}
           {hasContent ? (
             <>
@@ -392,11 +392,6 @@ function HomePage() {
               </p>
             ) : null}
           </section>
-
-          {/* Ranking Top 10 Filmes e Séries (Sobreposto ao destaque) */}
-          <div className="relative z-20 mt-[-100px]">
-            <DiscoverRows />
-          </div>
         </div>
       </div>
 
