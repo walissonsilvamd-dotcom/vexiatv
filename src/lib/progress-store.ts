@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { isAdultText } from "./parental";
 
 /**
  * Progresso de reprodução (Continuar Assistindo) e episódios assistidos.
@@ -10,6 +11,8 @@ export type ProgressEntry = {
   durationSec: number;
   updatedAt: number;
   label?: string;
+  title?: string;
+  category?: string;
 };
 
 const KEY = "vexia:progress";
@@ -69,6 +72,31 @@ export function useProgress(id: string | undefined) {
   })();
 
   return { entryFor, resume, all };
+}
+
+export function useProgressList() {
+  const [all, setAll] = useState<Record<string, ProgressEntry>>({});
+
+  useEffect(() => {
+    const sync = () => setAll(readAll());
+    sync();
+    window.addEventListener("vexia:progress-change", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("vexia:progress-change", sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return useMemo(() => {
+    return Object.values(all)
+      .filter(entry => {
+        // Filtra conteúdo adulto da lista "Continuar Assistindo"
+        const isAdult = isAdultText(entry.title || entry.label || "", entry.category || "");
+        return !isAdult;
+      })
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  }, [all]);
 }
 
 export function isWatched(entry: ProgressEntry | undefined) {

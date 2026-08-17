@@ -1,6 +1,7 @@
 import { useCallback, useSyncExternalStore } from "react";
 import type { MediaItem } from "../data/vexia";
 import type { PlaylistChannel, PlaylistSeries } from "./m3u";
+import { isAdultText } from "./parental";
 
 export type FavoriteKind = "channel" | "movie" | "series";
 
@@ -118,17 +119,21 @@ export function isFavorite(kind: FavoriteKind, name: string) {
 
 /** Hook reativo com a lista completa de favoritos. */
 export function useFavorites() {
-  const favorites = useSyncExternalStore(subscribe, read, () => EMPTY);
+  const allFavorites = useSyncExternalStore(subscribe, read, () => EMPTY);
+  const favorites = allFavorites.filter(
+    (f) => !isAdultText(f.name, f.category || "")
+  );
+  
   const has = useCallback(
-    (kind: FavoriteKind, name: string) => favorites.some((f) => f.key === favKey(kind, name)),
-    [favorites],
+    (kind: FavoriteKind, name: string) => allFavorites.some((f) => f.key === favKey(kind, name)),
+    [allFavorites],
   );
   const toggle = useCallback((input: FavoriteInput) => toggleFavorite(input), []);
   const remove = useCallback(
     (key: string) => persist(read().filter((f) => f.key !== key)),
     [],
   );
-  return { favorites, has, toggle, remove };
+  return { favorites, has, toggle, remove, allFavorites };
 }
 
 type Matchable = { id: string; name?: string; title?: string; url?: string; streamUrl?: string; tvgId?: string };
