@@ -666,9 +666,19 @@ function PlayerPage() {
 
 
   const goBack = useCallback(() => {
-    if (menu) return setMenu(null);
-    if (type === "live") return void navigate({ to: "/canais" });
-    navigate({ to: "/detalhes/$id", params: { id } });
+    if (menu) {
+      setMenu(null);
+      return;
+    }
+    if (document.fullscreenElement) {
+      void document.exitFullscreen().catch(() => {});
+      return;
+    }
+    if (type === "live") {
+      void navigate({ to: "/canais" });
+      return;
+    }
+    void navigate({ to: "/detalhes/$id", params: { id } });
   }, [menu, navigate, type, id]);
 
   /* ── Navegação Android TV / teclado ── */
