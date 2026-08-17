@@ -429,24 +429,24 @@ function HomePage() {
               <Icon
                 className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
                   isActive
-                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_white]"
-                    : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgb(var(--vexia-secondary-rgb)/0.35)]"
+                    ? "scale-110 stroke-[2.5] text-black drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]"
+                    : "stroke-[1.8] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]"
                 }`}
                 aria-hidden
               />
               <span
-                className={`relative z-10 text-[clamp(0.62rem,0.95vw,1rem)] font-bold uppercase leading-none tracking-[0.14em] transition-colors ${
+                className={`relative z-10 text-[clamp(0.62rem,0.95vw,1rem)] font-black uppercase leading-none tracking-[0.2em] transition-colors ${
                   isActive
-                    ? "text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.9),0_0_8px_rgba(255,255,255,0.3)]"
-                    : "text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)]"
+                    ? "text-black"
+                    : "text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)]"
                 }`}
               >
                 {tile.label}
               </span>
               <span
                 aria-hidden
-                className={`pointer-events-none absolute bottom-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-vexia-cyan to-transparent transition-all duration-200 ${
-                  isActive ? "w-3/4 opacity-100 shadow-[0_0_14px_var(--vexia-cyan)]" : "w-0 opacity-0"
+                className={`pointer-events-none absolute bottom-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-white to-transparent transition-all duration-200 ${
+                  isActive ? "w-3/4 opacity-100 shadow-[0_0_14px_white]" : "w-0 opacity-0"
                 }`}
               />
             </button>
