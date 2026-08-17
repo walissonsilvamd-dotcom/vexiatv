@@ -353,7 +353,7 @@ function ListsPage() {
                 <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
               </button>
               <div className="grid place-items-center">
-                <VexiaLogo className="h-32 md:h-48" />
+                <VexiaLogo className="h-40 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] md:h-60" />
               </div>
               <span className="w-11" />
             </div>
