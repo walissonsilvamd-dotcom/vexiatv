@@ -302,10 +302,11 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[10vh] max-h-[160px] min-h-[80px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              ? "h-[16vh] max-h-[220px] min-h-[100px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
               : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
           }
         />
+
 
         {hasContent ? (
           <div
@@ -317,14 +318,17 @@ function HomePage() {
             </h2>
             
             <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
-              <span className="flex items-center gap-1.5 text-vexia-purple">
+              <span className="flex items-center gap-1.5 text-yellow-400">
                 <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
               </span>
+              <span className="text-white/30">|</span>
+              <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
               <span className="text-white/30">|</span>
               <span>{HERO.year}</span>
               <span className="text-white/30">|</span>
               <span>{HERO.release}</span>
             </div>
+
           </div>
         ) : null}
       </header>
