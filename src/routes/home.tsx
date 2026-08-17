@@ -259,7 +259,7 @@ function HomePage() {
         
         {/* Sidebar Esquerda */}
         <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="mt-[-120px] flex w-full flex-col items-center">
+          <div className="mt-[-80px] flex w-full flex-col items-center">
             <VexiaLogo
               className={
                 hasContent
@@ -272,7 +272,7 @@ function HomePage() {
           {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="mt-[-160px] flex w-full flex-col gap-2.5"
+            className="mt-[-40px] flex w-full flex-col gap-2.5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
