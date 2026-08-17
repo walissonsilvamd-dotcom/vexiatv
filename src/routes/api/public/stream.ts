@@ -81,9 +81,11 @@ export const Route = createFileRoute("/api/public/stream")({
             method: "GET",
             headers: {
               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-              Accept: "*/*",
-              "Accept-Encoding": "gzip, deflate, br",
+              "Accept": "*/*",
+              "Accept-Encoding": "identity",
               "Connection": "keep-alive",
+              "Referer": parsed.origin,
+              "Origin": parsed.origin,
               ...(range ? { Range: range } : {}),
             },
             redirect: "follow",
