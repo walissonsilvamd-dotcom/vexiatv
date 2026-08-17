@@ -1662,13 +1662,31 @@ function PlayerPage() {
           {type !== 'live' && (
             ([
               { key: "quality", icon: ChevronsLeftRight, title: "Qualidade", label: qualityLevels.currentLabel },
-              { key: "audio", icon: Volume2, title: "Áudio", label: audio.currentLabel },
+              {
+                key: "audio",
+                icon: Volume2,
+                title:
+                  audio.tracks.length > 1
+                    ? `Áudio · ${audio.tracks.length} idiomas`
+                    : "Áudio",
+                label:
+                  audio.tracks.length > 1
+                    ? audio.tracks.map((t) => prettyLang(t.lang, t.label)).join(" · ")
+                    : audio.currentLabel,
+              },
               {
                 key: "subs",
                 icon: Captions,
-                title: subs.tracks.length > 1 ? `Legenda · ${subs.tracks.length} idiomas` : "Legenda",
-                label: subs.currentLabel,
+                title:
+                  subs.tracks.length > 1
+                    ? `Legenda · ${subs.tracks.length} idiomas`
+                    : "Legenda",
+                label:
+                  subs.selected === SUBS_OFF && subs.tracks.length > 0
+                    ? subs.tracks.map((t) => prettyLang(t.lang, t.label)).join(" · ")
+                    : subs.currentLabel,
               },
+
               { key: "speed", icon: Gauge, title: "Velocidade", label: `${speed}x` },
               { key: "fit", icon: Crop, title: "Imagem", label: fitLabel(fit) },
               { key: "sleep", icon: Moon, title: "Dormir", label: sleep.label },
