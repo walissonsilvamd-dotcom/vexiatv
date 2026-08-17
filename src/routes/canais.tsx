@@ -303,7 +303,7 @@ function ChannelsPage() {
       }
       openingRef.current = true;
       writeLastChannel(ch.id, true);
-      setStreamHandoff("live", ch.id, ch.url);
+      setStreamHandoff("live", ch.id, ch.url, undefined, true);
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -318,8 +318,7 @@ function ChannelsPage() {
         openFullscreen(ch);
         return;
       }
-      // Nunca recria a prévia para o mesmo canal: só troca quando o id muda.
-      setSelected((cur) => (cur?.id === ch.id ? cur : ch));
+      setSelected(ch);
       writeLastChannel(ch.id, false);
     },
     [selected, openFullscreen],

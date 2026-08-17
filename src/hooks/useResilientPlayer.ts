@@ -29,6 +29,8 @@ type Options = {
   standby?: boolean;
   /** Prévia: qualidade/bitrate reduzidos para abrir o canal mais rápido. */
   preview?: boolean;
+  /** Início imediato: tenta tocar sem mute se possível (ignora autoplay restrito). */
+  autoplay?: boolean;
 };
 
 const ENGINE_RETRIES = 1;
@@ -63,6 +65,7 @@ export function useResilientPlayer({
   live,
   standby = true,
   preview = false,
+  autoplay = false,
 }: Options) {
   const [engine, setEngine] = useState<PlaybackEngine | null>(null);
   const [standbyEngine, setStandbyEngine] = useState<PlaybackEngine | null>(null);
@@ -464,6 +467,7 @@ export function useResilientPlayer({
 
     const startAutoplay = async () => {
       const video = elementFor(activeSlotLocal);
+      if (autoplay) video.muted = false;
       // Retoma de onde parou após um ciclo completo de recuperação (VOD).
       if (!live && resumeAtRef.current > 0 && video.currentTime < resumeAtRef.current - 1) {
         try {
