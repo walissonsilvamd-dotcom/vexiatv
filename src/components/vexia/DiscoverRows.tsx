@@ -93,7 +93,7 @@ export function DiscoverRows() {
   if (!hasContent) return null;
 
   return (
-    <div className="space-y-7 px-[5vw] py-8">
+    <div className="space-y-12 px-[5vw] py-16">
       <Carousel
         title="Melhores avaliados"
         icon="⭐"
