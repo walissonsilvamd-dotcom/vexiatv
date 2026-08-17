@@ -179,7 +179,6 @@ export function warmEngines(src?: string | null): void {
   if (!warmed) {
     warmed = true;
     void import("hls.js").catch(() => undefined);
-    void import("mpegts.js").catch(() => undefined);
   }
   if (!src) return;
   try {
@@ -342,12 +341,12 @@ export async function attachEngine(
       highBufferWatchdogPeriod: 0.5,
       nudgeOffset: 0.1,
       nudgeMaxRetry: 5,
-      manifestLoadingTimeOut: preview ? 800 : 2_000,
-      manifestLoadingMaxRetry: 1,
-      levelLoadingTimeOut: preview ? 800 : 3_000,
-      levelLoadingMaxRetry: 1,
-      fragLoadingTimeOut: preview ? 1_500 : 5_000,
-      fragLoadingMaxRetry: 2,
+      manifestLoadingTimeOut: preview ? 1_000 : 4_000,
+      manifestLoadingMaxRetry: 2,
+      levelLoadingTimeOut: preview ? 1_000 : 4_000,
+      levelLoadingMaxRetry: 2,
+      fragLoadingTimeOut: preview ? 2_000 : 8_000,
+      fragLoadingMaxRetry: 4,
       enableSoftwareAES: false,
       fragLoadingRetryDelay: 100,
     });
