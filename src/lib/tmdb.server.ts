@@ -291,7 +291,8 @@ async function fetchTmdb(
   if (!detailsRes.ok) return null;
 
   const details = (await detailsRes.json()) as TmdbMovieDetails | TmdbTvDetails;
-  return normalizeTmdb(details, kind);
+  const resultData = normalizeTmdb(details, kind);
+  return JSON.parse(JSON.stringify(resultData));
 }
 
 
