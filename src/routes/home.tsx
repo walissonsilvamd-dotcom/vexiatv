@@ -270,17 +270,16 @@ function HomePage() {
       <div className="relative flex h-full w-full">
         
         {/* Sidebar Esquerda */}
-        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="flex w-full flex-col items-center mb-8 -mt-6">
+        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col bg-black/30 backdrop-blur-2xl border-r border-white/10">
+          <div className="absolute top-0 left-0 right-0 flex justify-center py-4">
             <VexiaLogo
               className="h-96 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             />
           </div>
 
-          {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="flex w-full flex-col gap-2.5 -mt-20"
+            className="absolute top-[280px] left-0 right-0 flex flex-col gap-2.5 px-5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
