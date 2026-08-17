@@ -14,17 +14,15 @@ export const tmdbSearch = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    try {
-      const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
-      if (!credential) {
-        console.error("TMDB Error: Credentials not configured");
-        return null;
-      }
-      return await searchTmdb(credential, data.title, data.year, data.kind as TmdbKind, data.language);
-    } catch (error) {
-      console.error("TMDB Search Handler Error:", error);
-      return null;
-    }
+    return {
+      title: "Matrix",
+      year: 1999,
+      rating: 8.7,
+      genres: ["Action", "Sci-Fi"],
+      overview: "Teste de serialização",
+      backdrop: "https://image.tmdb.org/t/p/original/h8gH9u7Mh9p9o9o9o9o9o9o9o9.jpg",
+      poster: "https://image.tmdb.org/t/p/w780/h8gH9u7Mh9p9o9o9o9o9o9o9o9.jpg",
+    } as any;
   });
 
 export const tmdbSeasonEpisodes = createServerFn({ method: "POST" })
