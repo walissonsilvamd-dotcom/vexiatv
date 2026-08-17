@@ -301,73 +301,39 @@ function HomePage() {
         }`}
       >
         <h1 className="sr-only">{BRAND.name} — Início</h1>
-        <VexiaLogo
-          className={
-            hasContent
-              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] md:h-[42vh] md:min-h-[260px]"
-              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
-          }
-        />
+        
+        <div className="flex w-full flex-col items-center justify-center gap-6">
+          <VexiaLogo
+            className={
+              hasContent
+                ? "h-[18vh] max-h-[300px] min-h-[120px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
+            }
+          />
 
-        {hasContent ? (
-        <div
-          key={`meta-${HERO.title}`}
-          className="w-full animate-[vexia-hero-in_400ms_ease-out] text-center md:w-auto md:text-right"
-        >
-
-
-          <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
-            <Clock className="h-3.5 w-3.5 shrink-0 text-white" aria-hidden />
-            <span className="tabular-nums">
-              {formatTime(now)}
-            </span>
-            <span>{now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
-          </div>
-
-          <h2 className="mt-[0.8vh] text-[clamp(1.1rem,2.4vw,2.3rem)] font-black leading-[1.05] tracking-tight [text-shadow:0_3px_16px_rgba(0,0,0,0.95)]">
-            {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
-          </h2>
-
-          <div className="mt-[0.6vh] flex flex-wrap items-center justify-center md:justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-            <span>{HERO.release}</span>
-            {HERO.genres.map((g) => (
-              <span key={g} className="flex items-center gap-2">
-                <span className="text-white/25">•</span>
-                {g}
-              </span>
-            ))}
-            <span className="text-white/25">•</span>
-            <span>{HERO.runtime}</span>
-          </div>
-
-          {HERO.stars > 0 ? (
-            <div className="mt-[0.6vh] flex items-center justify-center md:justify-end gap-[3px]">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-[clamp(0.6rem,1vw,0.95rem)] w-[clamp(0.6rem,1vw,0.95rem)] shrink-0 ${
-                    i < HERO.stars
-                      ? "fill-vexia-gold text-vexia-gold"
-                      : "fill-white/15 text-white/15"
-                  }`}
-                  aria-hidden
-                />
-              ))}
-              <span className="ml-1.5 text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold tabular-nums text-white/75">
-                {HERO.votes}
-              </span>
+          {hasContent ? (
+            <div
+              key={`meta-${HERO.title}`}
+              className="animate-[vexia-hero-in_400ms_ease-out] text-center"
+            >
+              <h2 className="text-[clamp(1.5rem,3.5vw,3rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+                {HERO.title}
+              </h2>
+              
+              <div className="mt-2 flex items-center justify-center gap-4 text-sm font-black uppercase tracking-widest text-white/70">
+                <span className="flex items-center gap-1.5 text-vexia-purple">
+                  <Star className="h-4 w-4 fill-current" /> {HERO.votes.toFixed(1)}
+                </span>
+                <span className="text-white/30">|</span>
+                <span>{HERO.year}</span>
+                <span className="text-white/30">|</span>
+                <span>{HERO.release}</span>
+              </div>
             </div>
           ) : null}
-
-          {HERO.overview ? (
-            <p className="mx-auto mt-[0.9vh] md:ml-auto md:mr-0 line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-              {HERO.overview}
-            </p>
-          ) : null}
         </div>
-        ) : null}
-
       </header>
+
 
       {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
       <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-4 sm:px-[5vw] md:justify-end md:pb-[1.5vh]">
