@@ -340,17 +340,17 @@ function JogosPage() {
     >
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-white tracking-tight italic">Pipoca</span>
-            <span className="text-xl font-black text-vexia-primary tracking-tight italic">Flix</span>
-          </div>
           <div className="flex items-center gap-3">
-            <Trophy className="h-5 w-5 text-white" aria-hidden />
-            <h1 className="text-sm font-black tracking-[0.2em] text-vexia-text uppercase">JOGOS AO VIVO</h1>
+            <VexiaLogo className="h-24 w-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+          </div>
+          <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <Trophy className="h-5 w-5 text-white animate-pulse" aria-hidden />
+            <h1 className="text-xs font-black tracking-[0.3em] text-white uppercase">JOGOS AO VIVO</h1>
             {loadingEspn && (
-              <div className="flex items-center gap-1.5 px-2 py-0.5 bg-vexia-primary/10 rounded-full border border-vexia-primary/20">
-                <Wifi className="h-3 w-3 text-white animate-pulse" />
-                <span className="text-[8px] font-bold text-vexia-primary tracking-widest uppercase">API Live</span>
+              <div className="ml-2 flex items-center gap-1.5">
+                <div className="h-1.5 w-1.5 rounded-full bg-white animate-bounce" />
+                <div className="h-1.5 w-1.5 rounded-full bg-white animate-bounce [animation-delay:0.2s]" />
+                <div className="h-1.5 w-1.5 rounded-full bg-white animate-bounce [animation-delay:0.4s]" />
               </div>
             )}
           </div>

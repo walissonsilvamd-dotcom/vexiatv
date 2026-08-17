@@ -96,7 +96,7 @@ function ChannelPreviewBase({
   const showBuffer = Boolean(playable) && !fatalError && (starting || buffering || reconnecting);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-vexia-purple/50 bg-black shadow-[0_16px_44px_-18px_rgb(var(--vexia-secondary-rgb)/0.5)]">
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_25px_60px_rgba(0,0,0,0.6)]">
       <div className="relative aspect-video w-full bg-black">
         <video
           ref={slotARef}
@@ -127,13 +127,13 @@ function ChannelPreviewBase({
                 alt={name}
                 eager
                 preview={false}
-                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgb(var(--vexia-secondary-rgb)/0.35)]"
+                className="max-h-[55%] max-w-[45%] object-contain drop-shadow-[0_0_22px_rgba(255,255,255,0.2)]"
                 fallback={
-                  <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
+                  <span className="h-9 w-9 animate-spin rounded-full border-2 border-white/10 border-t-white shadow-[0_0_18px_rgba(255,255,255,0.2)]" />
                 }
               />
             ) : (
-              <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
+              <span className="h-9 w-9 animate-spin rounded-full border-2 border-white/10 border-t-white shadow-[0_0_18px_rgba(255,255,255,0.2)]" />
             )}
           </span>
         ) : null}
@@ -150,7 +150,7 @@ function ChannelPreviewBase({
 
         {showBuffer ? (
           <span className="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-200">
-            <span className="h-9 w-9 animate-spin rounded-full border-2 border-vexia-cyan/25 border-t-vexia-cyan shadow-[0_0_18px_rgb(var(--vexia-secondary-rgb)/0.45)]" />
+            <span className="h-9 w-9 animate-spin rounded-full border-2 border-white/10 border-t-white shadow-[0_0_18px_rgba(255,255,255,0.2)]" />
           </span>
         ) : null}
 

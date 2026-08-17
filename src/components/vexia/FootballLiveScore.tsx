@@ -90,7 +90,7 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
   return (
     <div className={`flex items-center gap-2 w-full p-1 rounded-xl transition-all ${className}`}>
       {/* Grid Principal - Estilo Compacto */}
-      <div className="flex-1 flex items-center bg-black/60 rounded-xl border border-white/10 p-2 shadow-lg backdrop-blur-md relative overflow-hidden min-h-[100px]">
+      <div className="flex-1 flex items-center bg-black/40 rounded-2xl border border-white/5 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl relative overflow-hidden min-h-[110px]">
         {/* Fundo decorativo se estiver ao vivo */}
         {score.isLive && (
           <div className="absolute inset-0 bg-white/5 animate-pulse pointer-events-none" />
@@ -123,28 +123,28 @@ export function FootballLiveScore({ score, className = "", timeLabel }: Football
         </div>
 
         {/* Centro: Placar e Tempo */}
-        <div className="flex flex-col items-center justify-center px-6 min-w-[90px]">
-          <div className="flex items-center gap-3 font-black text-3xl leading-none tracking-tighter">
-            <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+        <div className="flex flex-col items-center justify-center px-6 min-w-[110px]">
+          <div className="flex items-center gap-4 font-black text-4xl leading-none tracking-tighter">
+            <span className="text-white">
               {(score.isLive || (score as any).isFinished) ? score.scoreA : ""}
             </span>
             <div className="flex flex-col items-center">
               {score.isLive ? (
-                <div className="text-[9px] font-black text-red-500 uppercase animate-pulse flex flex-col items-center">
-                  <span className="bg-red-500 text-white px-1 rounded-[2px] mb-1 scale-75">LIVE</span>
+                <div className="text-[10px] font-black text-red-500 uppercase animate-pulse flex flex-col items-center">
+                  <span className="bg-red-500 text-white px-2 py-0.5 rounded-full mb-1">LIVE</span>
                   {score.time || "EM ANDAMENTO"}
                 </div>
               ) : (score as any).isFinished ? (
-                <div className="text-[9px] font-black text-white/40 uppercase">
+                <div className="text-[10px] font-black text-white/40 uppercase">
                   FINALIZADO
                 </div>
               ) : (
-                <div className="text-sm font-black text-white/60 tracking-widest px-3 py-1 bg-white/5 rounded-md border border-white/10">
+                <div className="text-xs font-black text-black tracking-[0.2em] px-3 py-1.5 bg-white rounded-full">
                   VS
                 </div>
               )}
             </div>
-            <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+            <span className="text-white">
               {(score.isLive || (score as any).isFinished) ? score.scoreB : ""}
             </span>
           </div>

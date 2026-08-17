@@ -163,7 +163,7 @@ function CarregandoPage() {
             <span className="vexia-loader-ring absolute inset-0 rounded-full" aria-hidden />
             <span className="vexia-loader-ring-2 absolute inset-3 rounded-full" aria-hidden />
             <span className="vexia-loader-pulse absolute inset-6 rounded-full" aria-hidden />
-            <VexiaLogo className="vexia-loader-logo relative h-[15vh] max-h-[150px]" />
+            <VexiaLogo className="vexia-loader-logo relative h-[18vh] max-h-[180px]" />
           </div>
 
           {phase !== "error" ? (

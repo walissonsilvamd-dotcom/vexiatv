@@ -287,8 +287,8 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto md:h-[38vh] md:min-h-[240px]"
-              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[68vh] md:min-h-[380px]"
+              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] md:h-[42vh] md:min-h-[260px]"
+              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
           }
         />
 
@@ -409,8 +409,8 @@ function HomePage() {
               onClick={() => openTile(tile)}
               className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
                 isActive
-                  ? "-translate-y-[0.6vh] scale-[1.04] border-white bg-gradient-to-b from-[#7B2FBE]/95 via-[#3a0f78]/95 to-[#1a0638]/95 shadow-[0_22px_55px_-12px_rgba(82,0,165,0.55),0_0_30px_rgba(255,255,255,0.6),inset_0_1px_0_rgba(255,255,255,0.25)]"
-                  : "border-white/15 bg-gradient-to-b from-white/[0.09] via-[#241A6B]/55 to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-white/40 hover:from-white/[0.12] hover:via-[#2c208a]/65 hover:to-[#0d0528]/80"
+                  ? "-translate-y-[0.6vh] scale-[1.04] border-white bg-gradient-to-b from-white/95 via-white/80 to-white/70 shadow-[0_22px_55px_-12px_rgba(255,255,255,0.45),0_0_30px_rgba(255,255,255,0.3),inset_0_1px_0_rgba(255,255,255,0.25)]"
+                  : "border-white/15 bg-gradient-to-b from-white/[0.09] via-white/[0.03] to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-white/40 hover:from-white/[0.12] hover:via-white/[0.06] hover:to-[#0d0528]/80"
               }`}
             >
               {/* reflexo espelhado superior */}
@@ -429,24 +429,24 @@ function HomePage() {
               <Icon
                 className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
                   isActive
-                    ? "scale-110 stroke-[2] text-white drop-shadow-[0_0_12px_white]"
-                    : "stroke-[1.8] text-vexia-cyan/90 drop-shadow-[0_0_6px_rgb(var(--vexia-secondary-rgb)/0.35)]"
+                    ? "scale-110 stroke-[2.5] text-black drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]"
+                    : "stroke-[1.8] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]"
                 }`}
                 aria-hidden
               />
               <span
-                className={`relative z-10 text-[clamp(0.62rem,0.95vw,1rem)] font-bold uppercase leading-none tracking-[0.14em] transition-colors ${
+                className={`relative z-10 text-[clamp(0.62rem,0.95vw,1rem)] font-black uppercase leading-none tracking-[0.2em] transition-colors ${
                   isActive
-                    ? "text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.9),0_0_8px_rgba(255,255,255,0.3)]"
-                    : "text-white/90 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)]"
+                    ? "text-black"
+                    : "text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)]"
                 }`}
               >
                 {tile.label}
               </span>
               <span
                 aria-hidden
-                className={`pointer-events-none absolute bottom-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-vexia-cyan to-transparent transition-all duration-200 ${
-                  isActive ? "w-3/4 opacity-100 shadow-[0_0_14px_var(--vexia-cyan)]" : "w-0 opacity-0"
+                className={`pointer-events-none absolute bottom-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-white to-transparent transition-all duration-200 ${
+                  isActive ? "w-3/4 opacity-100 shadow-[0_0_14px_white]" : "w-0 opacity-0"
                 }`}
               />
             </button>

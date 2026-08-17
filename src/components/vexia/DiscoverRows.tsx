@@ -81,8 +81,8 @@ export function DiscoverRows() {
   }, [richMovies, richSeries, genre]);
 
   const releases = useMemo(
-    () => [...richMovies].filter((m) => m.year >= 2026).sort(byRelease).slice(0, 20),
-    [richMovies],
+    () => [...richMovies, ...richSeries].filter((m) => m.year >= 2026).sort(byRelease).slice(0, 20),
+    [richMovies, richSeries],
   );
 
   const popularSeries = useMemo(
