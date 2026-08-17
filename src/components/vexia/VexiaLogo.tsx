@@ -6,8 +6,8 @@ import { BRAND } from "../../lib/brand";
  */
 const LOGO_FILTER = [
   "drop-shadow(0 0 1px rgba(0,0,0,0.95))",
-  "drop-shadow(0 4px 20px rgba(0,0,0,0.8))",
-  "drop-shadow(0 0 15px rgba(123, 47, 190, 0.4))",
+  "drop-shadow(0 8px 30px rgba(0,0,0,0.9))",
+  "drop-shadow(0 0 25px rgba(255, 255, 255, 0.2))",
 ].join(" ");
 
 export function VexiaLogo({ className = "h-36 md:h-44" }: { className?: string }) {
