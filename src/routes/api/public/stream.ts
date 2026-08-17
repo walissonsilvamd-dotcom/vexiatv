@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/public/stream")({
           const fetchOptions: RequestInit = {
             method: "GET",
             headers: {
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
               "Accept": "*/*",
               "Accept-Encoding": "identity",
               "Connection": "keep-alive",
@@ -94,11 +94,27 @@ export const Route = createFileRoute("/api/public/stream")({
           upstream = await fetch(parsed.toString(), fetchOptions);
         } catch (e: any) {
           console.error(`[StreamProxy] Error fetching ${parsed.toString()}:`, e.message || e);
-          return new Response(`Servidor de stream indisponível: ${e.message || "Erro desconhecido"}`, { status: 502 });
+          return new Response(`Erro ao conectar ao servidor de stream: ${e.message || "Timeout ou falha na rede"}`, { 
+            status: 502,
+            headers: { "Access-Control-Allow-Origin": "*" } 
+          });
         }
 
-        if (!upstream.ok || !upstream.body) {
-          return new Response(`O servidor respondeu ${upstream.status}.`, { status: 502 });
+        // Se o servidor original negou o acesso ou deu erro, repassamos o erro original
+        // para facilitar o diagnóstico (em vez de um 502 genérico).
+        if (!upstream.ok) {
+          const errorMsg = `O servidor de stream retornou erro ${upstream.status}: ${upstream.statusText}`;
+          return new Response(errorMsg, { 
+            status: upstream.status,
+            headers: { "Access-Control-Allow-Origin": "*" }
+          });
+        }
+
+        if (!upstream.body) {
+          return new Response("O servidor retornou um corpo vazio.", { 
+            status: 502,
+            headers: { "Access-Control-Allow-Origin": "*" }
+          });
         }
 
         const type = (upstream.headers.get("content-type") ?? "").toLowerCase();
