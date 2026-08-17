@@ -52,12 +52,13 @@ export function CatalogScreen(props: {
   activeTab: "Filmes" | "Séries";
 }) {
   const { kind, activeTab } = props;
+  const searchParams = (Route as any).useSearch?.() || {};
   let items = props.items;
   let categories = props.categories;
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const [category, setCategory] = useState("Todos");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.q || "");
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const { filters, active: activeFilters } = useFilters();

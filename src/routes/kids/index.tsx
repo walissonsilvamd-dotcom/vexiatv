@@ -112,7 +112,8 @@ function KidsPage() {
             onFocus={() => setFocusedIndex(i)}
             onClick={() => {
               const to = cat.imageType === "movie" ? "/filmes" : "/series";
-              navigate({ to, search: { q: cat.label.toLowerCase() } });
+              const query = cat.id === "animacao" ? "animação" : cat.id === "infantil" ? "infantil" : "animes";
+              navigate({ to, search: { q: query } });
             }}
           />
         ))}
