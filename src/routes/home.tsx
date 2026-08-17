@@ -279,7 +279,7 @@ function HomePage() {
 
           <nav
             ref={rowRef}
-            className="absolute top-[280px] left-0 right-0 flex flex-col gap-2.5 px-5"
+            className="absolute top-[240px] left-0 right-0 flex flex-col gap-2.5 px-5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
