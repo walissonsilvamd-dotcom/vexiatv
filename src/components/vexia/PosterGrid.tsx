@@ -83,6 +83,7 @@ function PosterCardBase({
         onClick={(e) => {
           if (isBlocked) {
             e.preventDefault();
+            e.stopPropagation();
             setPinOpen(true);
           }
         }}
