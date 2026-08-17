@@ -64,7 +64,7 @@ export function DiscoverRows() {
               <span className="mb-[-8px] text-[70px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-purple/40 group-hover:text-vexia-purple/30">
                 {index + 1}
               </span>
-              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">
+              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105 group-focus:border-vexia-purple group-focus:shadow-[0_0_20px_rgba(123,43,190,0.6)]">
                 <img
                   src={item.poster || item.backdrop}
                   alt={item.title}
@@ -97,7 +97,7 @@ export function DiscoverRows() {
               <span className="mb-[-8px] text-[70px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-cyan/40 group-hover:text-vexia-cyan/30">
                 {index + 1}
               </span>
-              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">
+              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105 group-focus:border-vexia-purple group-focus:shadow-[0_0_20px_rgba(123,43,190,0.6)]">
                 <img
                   src={item.poster || item.backdrop}
                   alt={item.title}
