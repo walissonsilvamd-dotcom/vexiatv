@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { Heart, Star } from "lucide-react";
-import { memo, useEffect, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Heart, Star, Lock } from "lucide-react";
+import { memo, useEffect, useState, useCallback } from "react";
 import { preloadImages } from "../../lib/image";
 import { cancelDetailPrefetch, prefetchDetail } from "../../lib/detail-prefetch";
 import type { MediaItem } from "../../data/vexia";
@@ -10,6 +10,9 @@ import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
 import { AudioTagBadge } from "./AudioTagBadge";
 import { useBackgroundStore } from "../../lib/background-store";
+import { isAdultText, useParentalUnlocked } from "../../lib/parental";
+import { useSettings } from "../../lib/settings-store";
+import { PinPrompt } from "./PinPrompt";
 
 
 
@@ -30,6 +33,24 @@ function PosterCardBase({
   /** Card acima da dobra: baixa a capa imediatamente e com prioridade alta. */
   priority?: boolean;
 }) {
+  const navigate = useNavigate();
+  const { settings } = useSettings();
+  const unlockedAdult = useParentalUnlocked();
+  const [pinOpen, setPinOpen] = useState(false);
+
+  const isAdult = isAdultText(item.title, item.category, ...item.genres);
+  const isBlocked = isAdult && settings.parentalEnabled && !unlockedAdult;
+
+  const handleAction = useCallback(
+    (e: React.MouseEvent | React.FocusEvent) => {
+      if (isBlocked) {
+        e.preventDefault();
+        setPinOpen(true);
+      }
+    },
+    [isBlocked],
+  );
+
   const { has, toggle } = useFavorites();
   const fav = has(kind, item.title);
   const [broken, setBroken] = useState(false);
@@ -51,13 +72,20 @@ function PosterCardBase({
       >
         {active.title}
       </span>
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
       <Link
         to="/detalhes/$id"
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
         title={active.title}
-        aria-label={active.title}
+        aria-label={isBlocked ? `Conteúdo Adulto - ${active.title}` : active.title}
+        onClick={(e) => {
+          if (isBlocked) {
+            e.preventDefault();
+            setPinOpen(true);
+          }
+        }}
         /* Prefetch no foco: quando o cliente para no card, os detalhes
            (episódios / info do filme) já são buscados em segundo plano. */
         onFocus={() => {
@@ -90,6 +118,14 @@ function PosterCardBase({
 
 
         <div className="relative aspect-[2/3] w-full overflow-hidden">
+          {isBlocked && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
+              <Lock className="mb-2 h-10 w-10 text-vexia-cyan shadow-[0_0_15px_rgba(0,200,255,0.4)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+                Conteúdo Bloqueado
+              </span>
+            </div>
+          )}
           {showPoster ? (
             <SmartImage
               src={image}
