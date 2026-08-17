@@ -16,6 +16,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { clearCompleted, useWatchHistory, type WatchKind } from "../lib/history-store";
 import { clearProgress } from "../lib/progress-store";
 import { BRAND } from "../lib/brand";
+import { PinPrompt } from "../components/vexia/PinPrompt";
 
 export const Route = createFileRoute("/historico")({
   head: () => ({
@@ -59,6 +60,7 @@ function HistoryPage() {
   const [filter, setFilter] = useState<WatchKind | "all">("all");
   const [query, setQuery] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
   const [pendingRemove, setPendingRemove] = useState<ResolvedWatch | null>(null);
 
   const confirmRemove = () => {
@@ -179,6 +181,8 @@ function HistoryPage() {
         </aside>
 
         <section className="min-w-0 flex-1">
+
+
           {list.length === 0 ? (
             <div className="grid place-items-center rounded-2xl border border-white/10 bg-black/50 px-6 py-20 text-center backdrop-blur-xl">
               <History className="mb-3 h-10 w-10 text-vexia-purple" aria-hidden />
@@ -199,6 +203,20 @@ function HistoryPage() {
                   onRemove={() => setPendingRemove(entry)}
                 />
               ))}
+            </div>
+          )}
+
+          {resolved.some((e) => e.kind === "channel") && (
+            <div className="mt-8 border-t border-white/5 pt-8">
+              <button
+                type="button"
+                data-nav-row={2}
+                tabIndex={0}
+                onClick={() => setPinOpen(true)}
+                className="vexia-focus w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-3 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
             </div>
           )}
         </section>
@@ -245,6 +263,7 @@ function HistoryPage() {
         onConfirm={confirmRemove}
         onCancel={() => setPendingRemove(null)}
       />
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     </main>
   );
 }

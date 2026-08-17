@@ -211,6 +211,5 @@ function RootComponent() {
         </PlaylistProvider>
       </SettingsProvider>
     </QueryClientProvider>
-
   );
 }
