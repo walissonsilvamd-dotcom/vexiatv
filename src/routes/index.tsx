@@ -51,14 +51,16 @@ function SplashScreen() {
       <h1 className="sr-only">{BRAND.name} — iniciando</h1>
 
       {/* Splash em Vídeo */}
-      <video
-        ref={videoRef}
-        src={splashVideoAsset.url}
-        className="absolute inset-0 h-full w-full object-cover"
-        muted
-        playsInline
-        onEnded={() => setExiting(true)}
-      />
+      <div className="relative flex h-full w-full items-center justify-center p-8 md:p-16">
+        <video
+          ref={videoRef}
+          src={splashVideoAsset.url}
+          className="max-h-[85vh] w-full max-w-[85vw] object-contain drop-shadow-[0_0_50px_rgba(123,43,190,0.3)]"
+          muted
+          playsInline
+          onEnded={() => setExiting(true)}
+        />
+      </div>
 
       <style>{`
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
