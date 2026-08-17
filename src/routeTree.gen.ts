@@ -25,6 +25,7 @@ import { Route as CarregandoRouteImport } from './routes/carregando'
 import { Route as CanaisRouteImport } from './routes/canais'
 import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KidsIndexRouteImport } from './routes/kids/index'
 import { Route as SerieIdRouteImport } from './routes/serie.$id'
 import { Route as JogosIdRouteImport } from './routes/jogos.$id'
 import { Route as DetalhesIdRouteImport } from './routes/detalhes.$id'
@@ -111,6 +112,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KidsIndexRoute = KidsIndexRouteImport.update({
+  id: '/kids/',
+  path: '/kids/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SerieIdRoute = SerieIdRouteImport.update({
   id: '/serie/$id',
   path: '/serie/$id',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
+  '/kids/': typeof KidsIndexRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
+  '/kids': typeof KidsIndexRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/detalhes/$id': typeof DetalhesIdRoute
   '/jogos/$id': typeof JogosIdRoute
   '/serie/$id': typeof SerieIdRoute
+  '/kids/': typeof KidsIndexRoute
   '/api/public/playlist': typeof ApiPublicPlaylistRoute
   '/api/public/stream': typeof ApiPublicStreamRoute
 }
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/jogos/$id'
     | '/serie/$id'
+    | '/kids/'
     | '/api/public/playlist'
     | '/api/public/stream'
   fileRoutesByTo: FileRoutesByTo
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/jogos/$id'
     | '/serie/$id'
+    | '/kids'
     | '/api/public/playlist'
     | '/api/public/stream'
   id:
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/detalhes/$id'
     | '/jogos/$id'
     | '/serie/$id'
+    | '/kids/'
     | '/api/public/playlist'
     | '/api/public/stream'
   fileRoutesById: FileRoutesById
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DetalhesIdRoute: typeof DetalhesIdRoute
   SerieIdRoute: typeof SerieIdRoute
+  KidsIndexRoute: typeof KidsIndexRoute
   ApiPublicPlaylistRoute: typeof ApiPublicPlaylistRoute
   ApiPublicStreamRoute: typeof ApiPublicStreamRoute
 }
@@ -416,6 +429,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kids/': {
+      id: '/kids/'
+      path: '/kids'
+      fullPath: '/kids/'
+      preLoaderRoute: typeof KidsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/serie/$id': {
       id: '/serie/$id'
       path: '/serie/$id'
@@ -483,6 +503,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DetalhesIdRoute: DetalhesIdRoute,
   SerieIdRoute: SerieIdRoute,
+  KidsIndexRoute: KidsIndexRoute,
   ApiPublicPlaylistRoute: ApiPublicPlaylistRoute,
   ApiPublicStreamRoute: ApiPublicStreamRoute,
 }
