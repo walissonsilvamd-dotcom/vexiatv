@@ -552,15 +552,6 @@ function ChannelsPage() {
       {/* Coluna 1 — categorias dinâmicas */}
       <aside className="vexia-scroll order-2 max-h-[26vh] min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint] md:order-none md:max-h-none">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
-        {hasBlockedChannels ? (
-          <button
-            type="button"
-            onClick={() => setPinOpen(true)}
-            className="vexia-focus w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
-          >
-            Liberar conteúdo adulto
-          </button>
-        ) : null}
         <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
         {(settings.hideCategories ? ["Favoritos", "Todos"] : ["Favoritos", ...categories]).map((cat) => {
           const total = cat === "Todos" ? channels.length : cat === "Favoritos" ? favs.length : (counts.get(cat) ?? 0);
@@ -626,6 +617,18 @@ function ChannelsPage() {
               );
             })}
           </>
+        ) : null}
+
+        {hasBlockedChannels ? (
+          <button
+            type="button"
+            data-nav-row={1}
+            tabIndex={0}
+            onClick={() => setPinOpen(true)}
+            className="vexia-focus mt-2 w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+          >
+            Liberar conteúdo adulto
+          </button>
         ) : null}
 
         <button
