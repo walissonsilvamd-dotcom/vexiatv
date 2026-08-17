@@ -335,37 +335,38 @@ function HomePage() {
       </header>
 
 
-      {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-4 sm:px-[5vw] md:justify-end md:pb-[1.5vh]">
+      {/* Meio: imagem do carrossel em destaque (indicadores de slide) */}
+      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-6 sm:px-[5vw] md:pb-[3vh]">
         {slides.length > 1 ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {slides.map((s, i) => (
               <button
                 key={s.title + i}
                 type="button"
                 aria-label={`Destaque ${i + 1}`}
                 onClick={() => setSlide(i)}
-                className={`h-[4px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
+                className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
                   i === slide
-                    ? "w-9 bg-white/25"
-                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-white shadow-[0_0_10px_white]"
+                    ? "w-10 bg-white/20"
+                    : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
                 }`}
               >
                 {i === slide ? (
                   <span
                     key={`p-${slide}`}
-                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_10px_white]"
+                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
                   />
                 ) : null}
               </button>
             ))}
           </div>
         ) : !hasContent ? (
-          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-white/80">
-            Abra LISTAS e carregue sua lista M3U
+          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
+            Carregue sua lista para começar
           </p>
         ) : null}
       </section>
+
 
 
 
