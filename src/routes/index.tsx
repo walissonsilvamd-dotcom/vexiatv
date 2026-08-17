@@ -1,20 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import splashAsset from "../assets/splash-vexia.jpg.asset.json";
+import { useEffect, useState, useRef } from "react";
+import splashVideoAsset from "../assets/Splash_PipocaFlix.mp4.asset.json";
 import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: `${BRAND.name} — Carregando` },
+      { title: `${BRAND.name} — Bem-vindo` },
       { name: "description", content: `${BRAND.name} — player de streaming para Smart TV.` },
       { property: "og:title", content: `${BRAND.name}` },
       { property: "og:description", content: "Player de streaming para Smart TV." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: `https://vexiatv.lovable.app${splashAsset.url}` },
       { property: "og:url", content: "https://vexiatv.lovable.app/" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: `https://vexiatv.lovable.app${splashAsset.url}` },
     ],
     links: [{ rel: "canonical", href: "https://vexiatv.lovable.app/" }],
   }),
@@ -24,10 +22,18 @@ export const Route = createFileRoute("/")({
 function SplashScreen() {
   const navigate = useNavigate();
   const [exiting, setExiting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const exitTimer = setTimeout(() => setExiting(true), 1800);
-    const navigateTimer = setTimeout(() => navigate({ to: "/home" }), 2700);
+    // Tenta dar play automaticamente (silencioso por segurança do navegador)
+    if (videoRef.current) {
+      videoRef.current.play().catch(err => console.log("Autoplay bloqueado:", err));
+    }
+
+    // O vídeo tem cerca de 3-5 segundos, ajustamos o tempo de saída
+    const exitTimer = setTimeout(() => setExiting(true), 4000);
+    const navigateTimer = setTimeout(() => navigate({ to: "/home" }), 4800);
+    
     return () => {
       clearTimeout(exitTimer);
       clearTimeout(navigateTimer);
@@ -37,56 +43,28 @@ function SplashScreen() {
   return (
     <div
       className={[
-        "fixed inset-0 overflow-hidden bg-vexia-bg",
-        "animate-[vexia-fade_700ms_ease-out]",
-        exiting ? "animate-[splash-cinematic-exit_900ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
+        "fixed inset-0 overflow-hidden bg-black",
+        "animate-[vexia-fade_500ms_ease-out]",
+        exiting ? "animate-[splash-cinematic-exit_800ms_cubic-bezier(0.65,0,0.35,1)_forwards]" : "",
       ].join(" ")}
     >
-      <h1 className="sr-only">{BRAND.name} — carregando</h1>
+      <h1 className="sr-only">{BRAND.name} — iniciando</h1>
 
-      {/* Splash oficial em tela cheia. */}
-      <img
-        src={splashAsset.url}
-        alt={`${BRAND.name}`}
+      {/* Splash em Vídeo */}
+      <video
+        ref={videoRef}
+        src={splashVideoAsset.url}
         className="absolute inset-0 h-full w-full object-cover"
-        fetchPriority="high"
+        muted
+        playsInline
+        onEnded={() => setExiting(true)}
       />
 
-      {/* Loader: cobre o círculo estático da arte e gira enquanto o app carrega. */}
-      <div
-        aria-hidden
-        className="absolute left-1/2 top-[82.3%] -translate-x-1/2 -translate-y-1/2"
-      >
-        {/* Máscara suave para o círculo impresso não aparecer atrás. */}
-        <div
-          className="absolute left-1/2 top-1/2 h-[16vmin] w-[16vmin] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(4,6,18,0.98) 0%, rgba(4,6,18,0.9) 45%, transparent 72%)",
-          }}
-        />
-        <div
-          className="relative h-[5.2vmin] w-[5.2vmin] min-h-[26px] min-w-[26px] animate-[splash-spin_1100ms_linear_infinite]"
-          style={{
-            background:
-              "conic-gradient(from 0deg, white, var(--vexia-purple), white)",
-            WebkitMask:
-              "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
-            mask: "repeating-conic-gradient(from 0deg, #000 0deg 12deg, transparent 12deg 24deg), radial-gradient(farthest-side, transparent calc(100% - 34%), #000 calc(100% - 34%))",
-            WebkitMaskComposite: "source-in",
-            maskComposite: "intersect",
-            filter: "drop-shadow(0 0 6px color-mix(in oklab, white 55%, transparent))",
-          }}
-        />
-      </div>
-
       <style>{`
-        @keyframes splash-spin { to { transform: rotate(360deg); } }
         @keyframes vexia-fade { from { opacity: 0 } to { opacity: 1 } }
         @keyframes splash-cinematic-exit {
           0%   { opacity: 1; transform: scale(1); filter: blur(0); }
-          40%  { opacity: 0.75; transform: scale(1.02); filter: blur(2px); }
-          100% { opacity: 0; transform: scale(1.06); filter: blur(8px); }
+          100% { opacity: 0; transform: scale(1.05); filter: blur(10px); }
         }
       `}</style>
     </div>
