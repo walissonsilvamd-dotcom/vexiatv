@@ -235,7 +235,10 @@ function PlayerPage() {
     slotBRef,
     src,
     live: type === "live",
-    autoplay: handoff?.immediate,
+    // Em filme/série a reserva paralela roubava banda do vídeo principal e
+    // causava engasgo; ela só faz sentido no zapping ao vivo.
+    standby: type === "live",
+    autoplay: true,
   });
   const {
     engine,
