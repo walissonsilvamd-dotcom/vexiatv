@@ -221,9 +221,12 @@ function ChannelsPage() {
 
   const navigate = useNavigate();
   const { channels: allChannels, data, hasContent } = usePlaylist();
+  const [selected, setSelected] = useState<PlaylistChannel | null>(null);
+  
+  const unlockedAdult = useParentalUnlocked(selected?.id);
+
   /* Ajustes → Controle dos Pais / Ocultar Categorias. */
   const { settings } = useSettings();
-  const unlockedAdult = useParentalUnlocked();
   const [pinOpen, setPinOpen] = useState(false);
   const blockAdult = settings.parentalEnabled && !unlockedAdult;
   /** Canal é adulto quando nome, categoria ou grupo indicam conteúdo +18. */
@@ -260,7 +263,6 @@ function ChannelsPage() {
 
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<PlaylistChannel | null>(null);
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const xmltvEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
@@ -565,7 +567,7 @@ function ChannelsPage() {
       {/* Coluna 1 — categorias dinâmicas */}
       <aside className="vexia-scroll order-2 max-h-[26vh] min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint] md:order-none md:max-h-none">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
-        <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} itemId={selected?.id} />
         {(settings.hideCategories ? ["Favoritos", "Todos"] : ["Favoritos", ...categories]).map((cat) => {
           const total = cat === "Todos" ? channels.length : cat === "Favoritos" ? favs.length : (counts.get(cat) ?? 0);
           const isActive = category === cat;

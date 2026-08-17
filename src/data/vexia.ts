@@ -95,6 +95,17 @@ export const featured: MediaItem[] = [
     backdrop: hero3,
     poster: hero3,
   },
+  {
+    id: "adult-test",
+    title: "Filme Adulto XXX",
+    year: 2024,
+    rating: 6.9,
+    genres: ["Adulto"],
+    overview: "Conteúdo restrito para testes de PIN.",
+    backdrop: hero1,
+    poster: hero1,
+    category: "Adulto",
+  },
 ];
 
 function make(prefix: string, titles: string[], base: Partial<MediaItem>): MediaItem[] {

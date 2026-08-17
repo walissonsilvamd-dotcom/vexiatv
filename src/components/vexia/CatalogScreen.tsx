@@ -89,18 +89,15 @@ export function CatalogScreen(props: {
   };
   const blockAdult = settings.parentalEnabled && !unlockedAdult;
   const allItems = items;
-  items = useMemo(
-    () =>
-      blockAdult
-        ? allItems.filter((item) => !isAdultText(item.title, item.category, ...item.genres))
-        : allItems,
-    [allItems, blockAdult],
-  );
-  const hasBlocked = blockAdult && items.length !== allItems.length;
-  categories = useMemo(
-    () => (blockAdult ? categories.filter((cat) => !isAdultText(cat)) : categories),
-    [categories, blockAdult],
-  );
+  // O conteúdo adulto nunca é removido da lista principal para que o usuário possa
+  // vê-lo como "Bloqueado" e clicar para liberar via PIN, mantendo a segurança.
+  items = allItems;
+  
+  const hasBlocked = settings.parentalEnabled && !unlockedAdult && allItems.some(item => isAdultText(item.title, item.category, ...item.genres));
+  
+  // As categorias adultas também permanecem, mas podem ser movidas para o fim se desejado.
+  // Por padrão, mantemos a lista completa para o usuário saber que o conteúdo existe.
+  categories = props.categories;
   const { sort } = useSort();
 
   const noun = kind === "series" ? "séries" : "filmes";
@@ -151,12 +148,11 @@ export function CatalogScreen(props: {
   const sortBusy = deferredSort !== sort;
   const sorted = useMemo(() => {
     const base = sortMedia(filtered, deferredSort);
-    // Se não estiver bloqueado (adulto liberado ou desativado), movemos os itens adultos para o fim
-    if (!blockAdult) {
-      const normal = base.filter((item) => !isAdultText(item.title, item.category, ...item.genres));
-      const adult = base.filter((item) => isAdultText(item.title, item.category, ...item.genres));
-      return [...normal, ...adult];
-    }
+    // Movemos o conteúdo adulto para o final da lista para não poluir o início do catálogo,
+    // independente de estar bloqueado ou não.
+    const normal = base.filter((item) => !isAdultText(item.title, item.category, ...item.genres));
+    const adult = base.filter((item) => isAdultText(item.title, item.category, ...item.genres));
+    return [...normal, ...adult];
     return base;
   }, [filtered, deferredSort, blockAdult]);
 

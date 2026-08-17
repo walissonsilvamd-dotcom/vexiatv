@@ -4,7 +4,7 @@ import { unlockParental } from "../../lib/parental";
 import { useSettings } from "../../lib/settings-store";
 
 /** Pede o PIN do Controle dos Pais para liberar o conteúdo adulto da sessão. */
-export function PinPrompt({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function PinPrompt({ open, onClose, itemId }: { open: boolean; onClose: () => void; itemId?: string }) {
   const { settings } = useSettings();
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -12,7 +12,7 @@ export function PinPrompt({ open, onClose }: { open: boolean; onClose: () => voi
   if (!open) return null;
 
   const submit = () => {
-    if (unlockParental(pin, settings.parentalPin)) {
+    if (unlockParental(pin, settings.parentalPin, itemId)) {
       setPin("");
       setError("");
       onClose();

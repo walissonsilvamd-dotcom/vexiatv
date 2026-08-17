@@ -35,7 +35,7 @@ function PosterCardBase({
 }) {
   const navigate = useNavigate();
   const { settings } = useSettings();
-  const unlockedAdult = useParentalUnlocked();
+  const unlockedAdult = useParentalUnlocked(item.id);
   const [pinOpen, setPinOpen] = useState(false);
 
   const isAdult = isAdultText(item.title, item.category, ...item.genres);
@@ -72,7 +72,7 @@ function PosterCardBase({
       >
         {active.title}
       </span>
-      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} itemId={item.id} />
       <Link
         to="/detalhes/$id"
         params={{ id: active.id }}
