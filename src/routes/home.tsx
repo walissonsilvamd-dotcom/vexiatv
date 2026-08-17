@@ -259,7 +259,7 @@ function HomePage() {
         
         {/* Sidebar Esquerda */}
         <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="mt-[-60px] flex w-full flex-col items-center">
+          <div className="mt-[-120px] flex w-full flex-col items-center">
             <VexiaLogo
               className={
                 hasContent
@@ -272,7 +272,7 @@ function HomePage() {
           {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="mt-[-80px] flex w-full flex-col gap-2.5"
+            className="mt-[-160px] flex w-full flex-col gap-2.5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
@@ -286,18 +286,18 @@ function HomePage() {
                   onFocus={() => setActive(i)}
                   onMouseEnter={() => setActive(i)}
                   onClick={() => openTile(tile)}
-                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border px-4 py-3.5 outline-none transition-all duration-300 ease-out ${
+                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border px-4 py-5 outline-none transition-all duration-300 ease-out ${
                     isActive
                       ? "scale-[1.02] border-white/40 bg-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] backdrop-blur-md"
                       : "border-transparent bg-white/5 text-white/50 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                   }`}
                 >
                   <Icon
-                    className={`h-5 w-5 shrink-0 transition-transform duration-300 ${
+                    className={`h-6 w-6 shrink-0 transition-transform duration-300 ${
                       isActive ? "scale-110 text-white" : "text-white/40 group-hover:text-white"
                     }`}
                   />
-                  <span className={`text-[0.8rem] font-black uppercase tracking-[0.12em] transition-colors duration-300 ${
+                  <span className={`text-[0.95rem] font-black uppercase tracking-[0.12em] transition-colors duration-300 ${
                     isActive ? "text-white" : "text-white/40 group-hover:text-white"
                   }`}>
                     {tile.label}
