@@ -46,16 +46,22 @@ function buildQuery<T extends MediaItem>(
     // Chave normalizada: itens duplicados na lista compartilham o mesmo cache.
     queryKey: ["tmdb", key] as const,
     queryFn: async () => {
-      const result = await resolveTmdb(key, () =>
-        search({
-          data: {
-            title: item.title,
-            year: item.year || undefined,
-            kind: kind === "series" ? ("tv" as const) : ("movie" as const),
-            language,
-          },
-        }) as Promise<Partial<MediaItem> | null>,
-      );
+      const result = await resolveTmdb(key, async () => {
+        try {
+          const res = await search({
+            data: {
+              title: item.title,
+              year: item.year || undefined,
+              kind: kind === "series" ? ("tv" as const) : ("movie" as const),
+              language,
+            },
+          });
+          return res as Partial<MediaItem> | null;
+        } catch (err) {
+          console.error("TMDB search failed for", item.title, err);
+          return null;
+        }
+      });
       return result ?? null;
     },
     // Cache local já resolvido: renderiza na hora, sem request nenhum.
