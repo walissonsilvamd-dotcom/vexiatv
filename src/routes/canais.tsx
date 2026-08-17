@@ -263,10 +263,6 @@ function ChannelsPage() {
 
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<PlaylistChannel | null>(null);
-
-  const unlockedAdult = useParentalUnlocked(selected?.id);
-  const blockAdult = settings.parentalEnabled && !unlockedAdult;
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const xmltvEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
