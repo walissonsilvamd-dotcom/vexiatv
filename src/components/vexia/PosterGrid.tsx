@@ -42,9 +42,10 @@ function PosterCardBase({
   const isBlocked = isAdult && settings.parentalEnabled && !unlockedAdult;
 
   const handleAction = useCallback(
-    (e: React.MouseEvent | React.FocusEvent) => {
+    (e: React.MouseEvent | React.FocusEvent | React.KeyboardEvent) => {
       if (isBlocked) {
         e.preventDefault();
+        e.stopPropagation();
         setPinOpen(true);
       }
     },
