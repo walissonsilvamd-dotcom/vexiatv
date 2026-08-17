@@ -1,4 +1,4 @@
-import logoAsset from "../assets/logo_certa.png.asset.json";
+import logoAsset from "../assets/pipoca-flix-logo.png.asset.json";
 
 /**
  * IDENTIDADE DA MARCA — ponto único de troca.

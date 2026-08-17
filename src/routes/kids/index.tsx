@@ -98,7 +98,7 @@ function KidsPage() {
     <div ref={pageRef} className="relative h-screen w-full overflow-hidden bg-black text-white">
       {/* Menu Superior e Logo */}
       <div className="absolute top-8 left-0 right-0 z-50 flex items-center gap-8 px-12">
-        <VexiaLogo className="h-20 w-auto drop-shadow-[0_0_20px_rgba(123,43,190,0.6)]" />
+        <VexiaLogo className="h-28 w-auto drop-shadow-[0_0_20px_rgba(123,43,190,0.6)]" />
         <TopNav active="Kids" />
       </div>
 
