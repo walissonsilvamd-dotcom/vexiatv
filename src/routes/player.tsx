@@ -305,20 +305,19 @@ function PlayerPage() {
       }) | null;
       if (cancelled || document.fullscreenElement) return;
       try {
-        // Tenta o autoplay real (sem pause) imediatamente
+        // Som ligado por padrão: tentamos tocar COM áudio; só se o navegador
+        // bloquear o autoplay entramos mudo (e religamos no primeiro gesto).
         if (video) {
-          // Se for handoff imediato (dois cliques), forçamos play sem mute se possível
-          // mas mantemos o mute inicial para garantir que o autoplay não seja bloqueado
-          if (handoff?.immediate) {
-             video.muted = false;
-          } else {
-             video.muted = true;
-          }
+          video.muted = false;
+          video.volume = 1;
+          setMuted(false);
           void video.play().catch(() => {
             video.muted = true;
+            setMuted(true);
             void video.play().catch(() => undefined);
           });
         }
+
         
         if (el?.requestFullscreen) await el.requestFullscreen();
         else if (el?.webkitRequestFullscreen) await el.webkitRequestFullscreen();
