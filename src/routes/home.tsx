@@ -427,33 +427,43 @@ function HomePage() {
         onConfirm={() => {
           setExitOpen(false);
           // Em TV/TV Box o app roda em WebView: fechar a janela encerra a sessão.
-          window.close();
-        }}
-        onCancel={() => setExitOpen(false)}
-      />
+          <ConfirmDialog
+            open={exitOpen}
+            title="Sair do PipocaFlix?"
+            message="Tem certeza que deseja encerrar o aplicativo?"
+            onConfirm={() => {
+              clearLastSession();
+              window.close();
+            }}
+            onCancel={() => setExitOpen(false)}
+          />
 
-      <ConfirmDialog
-        open={pendingRemove !== null}
-        title="Remover de Continuar assistindo?"
-        message={
-          pendingRemove
-            ? `"${pendingRemove.name}" sairá da lista e o progresso salvo será apagado.`
-            : undefined
-        }
-        onConfirm={() => {
-          const entry = pendingRemove;
-          if (!entry) return;
-          removeWatch(entry.key);
-          clearProgress(entry.liveId ?? entry.id);
-          if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
-          setPendingRemove(null);
-        }}
-        onCancel={() => setPendingRemove(null)}
-      />
-    </section>
+          <ConfirmDialog
+            open={pendingRemove !== null}
+            title="Remover de Continuar assistindo?"
+            message={
+              pendingRemove
+                ? `"${pendingRemove.name}" sairá da lista e o progresso salvo será apagado.`
+                : undefined
+            }
+            onConfirm={() => {
+              const entry = pendingRemove;
+              if (!entry) return;
+              removeWatch(entry.key);
+              clearProgress(entry.liveId ?? entry.id);
+              if (entry.episodeId) clearProgress(`${entry.liveId ?? entry.id}::${entry.episodeId}`);
+              setPendingRemove(null);
+            }}
+            onCancel={() => setPendingRemove(null)}
+          />
 
-      {/* Carrosséis premium de descoberta (M3U + TMDB) */}
-      <DiscoverRows />
+          {/* Carrosséis premium de descoberta (M3U + TMDB) */}
+          <DiscoverRows />
+          
+          <QrPlaylistDialog open={listsOpen} onOpenChange={setListsOpen} />
+        </div>
+      </div>
     </main>
   );
 }
+
