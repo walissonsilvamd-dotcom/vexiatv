@@ -95,8 +95,9 @@ export function WatchCard({
         data-nav-row={navRow}
         onClick={onOpen}
         onFocus={() => {
-          useBackgroundStore.getState().setBackdrop(image, entry.name, entry.year);
+          useBackgroundStore.getState().setBackdrop(image || null, entry.name, null);
         }}
+
         className="vexia-card-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
 
       >
