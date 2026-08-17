@@ -272,7 +272,7 @@ function HomePage() {
           {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="flex w-full flex-col gap-2.5"
+            className="mt-[-40px] flex w-full flex-col gap-2.5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
