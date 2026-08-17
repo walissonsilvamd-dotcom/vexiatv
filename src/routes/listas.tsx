@@ -310,15 +310,15 @@ function ListsPage() {
           </div>
 
           {/* Coluna direita: dispositivo */}
-          <aside className="hidden flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-cyan/25 bg-black/45 p-6 text-center backdrop-blur-sm lg:flex">
-            <VexiaLogo className="h-36" />
-            <div className="mt-4">
-              <p className="text-xs text-white/70">Endereço MAC</p>
-              <p className="text-lg font-bold text-vexia-gold">{DEVICE_MAC}</p>
+          <aside className="hidden flex-col items-center justify-center gap-3 rounded-2xl border border-white/5 bg-black/45 p-8 text-center backdrop-blur-2xl lg:flex">
+            <VexiaLogo className="h-44 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+            <div className="mt-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Endereço MAC</p>
+              <p className="text-xl font-black text-white">{DEVICE_MAC}</p>
             </div>
             <div>
-              <p className="text-xs text-white/70">Chave do dispositivo</p>
-              <p className="text-lg font-bold text-vexia-gold">{DEVICE_KEY}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Chave do dispositivo</p>
+              <p className="text-xl font-black text-white">{DEVICE_KEY}</p>
             </div>
             <p className="mt-auto self-end text-[10px] text-white/50">v4.1</p>
           </aside>
