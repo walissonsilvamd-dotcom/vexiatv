@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { Heart, Star } from "lucide-react";
-import { memo, useEffect, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Heart, Star, Lock } from "lucide-react";
+import { memo, useEffect, useState, useCallback } from "react";
 import { preloadImages } from "../../lib/image";
 import { cancelDetailPrefetch, prefetchDetail } from "../../lib/detail-prefetch";
 import type { MediaItem } from "../../data/vexia";
@@ -9,7 +9,10 @@ import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
 import { AudioTagBadge } from "./AudioTagBadge";
-import { useBackgroundStore } from "../../lib/background-store";
+import { useBackgroundStore } from "../../background-store";
+import { isAdultText, useParentalUnlocked } from "../../lib/parental";
+import { useSettings } from "../../lib/settings-store";
+import { PinPrompt } from "./PinPrompt";
 
 
 
