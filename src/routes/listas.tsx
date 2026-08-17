@@ -311,7 +311,7 @@ function ListsPage() {
 
           {/* Coluna direita: dispositivo */}
           <aside className="hidden flex-col items-center justify-center gap-3 rounded-2xl border border-vexia-cyan/25 bg-black/45 p-6 text-center backdrop-blur-sm lg:flex">
-            <VexiaLogo className="h-28" />
+            <VexiaLogo className="h-36" />
             <div className="mt-4">
               <p className="text-xs text-white/70">Endereço MAC</p>
               <p className="text-lg font-bold text-vexia-gold">{DEVICE_MAC}</p>
@@ -353,7 +353,7 @@ function ListsPage() {
                 <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
               </button>
               <div className="grid place-items-center">
-                <VexiaLogo className="h-24 md:h-32" />
+                <VexiaLogo className="h-32 md:h-48" />
               </div>
               <span className="w-11" />
             </div>
