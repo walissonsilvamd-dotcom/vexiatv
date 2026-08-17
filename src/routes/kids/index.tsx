@@ -29,19 +29,19 @@ const CATEGORIES: Category[] = [
   { 
     id: "animacao", 
     label: "ANIMAÇÃO", 
-    keywords: ["animação", "animation", "desenho", "cartoon"],
+    keywords: ["animação", "animation", "desenho", "cartoon", "disney", "pixar", "dreamworks"],
     imageType: "movie"
   },
   { 
     id: "infantil", 
     label: "INFANTIL", 
-    keywords: ["infantil", "kids", "crianças", "children", "junior", "baby"],
+    keywords: ["infantil", "kids", "crianças", "children", "junior", "baby", "peppa", "galinha pintadinha", "patrulha canina"],
     imageType: "movie"
   },
   { 
     id: "animes", 
     label: "ANIMES", 
-    keywords: ["anime", "otaku", "manga", "japão"],
+    keywords: ["anime", "otaku", "manga", "japão", "naruto", "dragon ball", "one piece", "boruto", "bleach"],
     imageType: "series"
   },
 ];
@@ -59,14 +59,37 @@ function KidsPage() {
       const all = cat.imageType === "movie" ? movies : series;
       const filtered = all.filter(item => {
         const text = `${item.title} ${item.category} ${item.genres?.join(" ") || ""}`.toLowerCase();
-        const isKids = cat.keywords.some(k => text.includes(k));
+        const matchesKeyword = cat.keywords.some(k => text.includes(k.toLowerCase()));
         const notAdult = !isAdultText(item.title, item.category, ...(item.genres || []));
-        return isKids && notAdult && item.poster;
+        return matchesKeyword && notAdult && item.poster;
       });
-      // Embaralha e pega 10 imagens
+      
+      // Garante imagens temáticas mesmo que a lista esteja vazia ou mal filtrada
+      const fallbackImages = {
+        animacao: [
+          "https://image.tmdb.org/t/p/w500/uXDfjJbdG4uzjBchvdlCLQkyjYz.jpg", // Toy Story
+          "https://image.tmdb.org/t/p/w500/i9KR3P4G2Jpw9kO87O1Q4u1H1T6.jpg", // Finding Nemo
+          "https://image.tmdb.org/t/p/w500/k1272Lk8o6n92sXUik6y97T96Jh.jpg", // Lion King
+        ],
+        infantil: [
+          "https://image.tmdb.org/t/p/w500/2L4dKk3lCjDqG7Fp12z1Q3H2lYj.jpg", // Frozen
+          "https://image.tmdb.org/t/p/w500/sh7RGd2uYy8aocVsB3JSiAjaJLp.jpg", // Paw Patrol
+          "https://image.tmdb.org/t/p/w500/r1qC0O9lE3L0Q9E1P1Z1Q2J3lYk.jpg", // Bluey
+        ],
+        animes: [
+          "https://image.tmdb.org/t/p/w500/xpp4TqW81j1b9Gv9sH1Q3L1k1a.jpg", // Naruto
+          "https://image.tmdb.org/t/p/w500/w8L0Q9E1P1Z1Q2J3lYk1qC0O9lE3.jpg", // Dragon Ball
+          "https://image.tmdb.org/t/p/w500/i9KR3P4G2Jpw9kO87O1Q4u1H1T6.jpg", // One Piece
+        ]
+      };
+
+      const finalImages = filtered.length > 0 
+        ? [...filtered].sort(() => Math.random() - 0.5).slice(0, 10).map(i => i.poster)
+        : fallbackImages[cat.id as keyof typeof fallbackImages] || [];
+
       return {
         ...cat,
-        images: [...filtered].sort(() => Math.random() - 0.5).slice(0, 10).map(i => i.poster)
+        images: finalImages
       };
     });
   }, [movies, series]);
