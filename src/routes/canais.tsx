@@ -221,9 +221,14 @@ function ChannelsPage() {
 
   const navigate = useNavigate();
   const { channels: allChannels, data, hasContent } = usePlaylist();
+  const [selected, setSelected] = useState<PlaylistChannel | null>(null);
+  
+  const unlockedAdult = useParentalUnlocked(selected?.id);
+
   /* Ajustes → Controle dos Pais / Ocultar Categorias. */
   const { settings } = useSettings();
   const [pinOpen, setPinOpen] = useState(false);
+  const blockAdult = settings.parentalEnabled && !unlockedAdult;
   /** Canal é adulto quando nome, categoria ou grupo indicam conteúdo +18. */
   const isAdultChannel = useCallback(
     (c: PlaylistChannel) => isAdultText(c.name, c.category, c.group),
