@@ -72,13 +72,20 @@ function PosterCardBase({
       >
         {active.title}
       </span>
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
       <Link
         to="/detalhes/$id"
         params={{ id: active.id }}
         data-nav-row={navRow}
         tabIndex={0}
         title={active.title}
-        aria-label={active.title}
+        aria-label={isBlocked ? `Conteúdo Adulto - ${active.title}` : active.title}
+        onClick={(e) => {
+          if (isBlocked) {
+            e.preventDefault();
+            setPinOpen(true);
+          }
+        }}
         /* Prefetch no foco: quando o cliente para no card, os detalhes
            (episódios / info do filme) já são buscados em segundo plano. */
         onFocus={() => {
