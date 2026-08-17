@@ -253,8 +253,9 @@ function SettingsPage() {
       ref={pageRef}
       className="vexia-safe flex min-h-[100dvh] flex-col overflow-y-auto bg-vexia-bg text-vexia-text md:h-screen md:overflow-hidden"
     >
-      <div className="shrink-0 px-3 pt-3 sm:px-[4vw]">
+      <div className="flex shrink-0 items-center justify-between px-3 pt-3 sm:px-[4vw]">
         <TopNav active="Ajustes" className="w-fit" />
+        <VexiaLogo className="h-10 md:h-14" />
       </div>
       <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-[4vw]">
         <button
