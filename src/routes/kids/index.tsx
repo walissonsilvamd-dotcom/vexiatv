@@ -176,7 +176,7 @@ function KidsButton({
 
       {/* Borda Neon no Foco */}
       {isFocused && (
-        <div className="absolute inset-0 border-[6px] border-vexia-purple animate-pulse shadow-[inset_0_0_30px_rgba(123,43,190,0.6)]" />
+        <div className="absolute inset-0 border-[6px] border-[#7B2BBE] animate-pulse shadow-[inset_0_0_30px_rgba(123,43,190,0.8),0_0_30px_rgba(123,43,190,0.8)]" />
       )}
 
       {/* Texto Centralizado */}
