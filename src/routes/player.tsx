@@ -216,7 +216,8 @@ function PlayerPage() {
    * Link entregue pela tela anterior no momento do clique. Permite começar a
    * tocar imediatamente, sem esperar a lista de episódios/catálogo carregar.
    */
-  const handoffUrl = useMemo(() => getStreamHandoff(type, id, ep), [type, id, ep]);
+  const handoff = useMemo(() => getStreamHandoffData(type, id, ep), [type, id, ep]);
+  const handoffUrl = handoff?.url;
 
   // Assinatura vencida: a lista continua salva, mas nada é reproduzido.
   // O link entregue no clique vem PRIMEIRO: não esperamos a lista de episódios
