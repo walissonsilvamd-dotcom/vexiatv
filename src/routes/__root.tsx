@@ -193,11 +193,16 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [pinOpen, setPinOpen] = useEffectState(false);
 
   useEffect(() => {
     registerImageCache();
     // Reaquece o cache com as imagens da última sessão (abertura instantânea).
     warmStartCache();
+
+    const handleOpen = () => setPinOpen(true);
+    window.addEventListener('vexia:open-pin', handleOpen);
+    return () => window.removeEventListener('vexia:open-pin', handleOpen);
   }, []);
 
   return (
@@ -206,11 +211,17 @@ function RootComponent() {
         <PlaylistProvider>
           <OfflineBanner />
           <PlaylistUpdateBanner />
+          {/* O PinPrompt agora pode ser aberto de qualquer página via dispatchEvent */}
+          <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </PlaylistProvider>
       </SettingsProvider>
     </QueryClientProvider>
-
   );
+}
+
+// Helper para evitar problemas de lint ou tipagem com useState dinâmico no root
+function useEffectState<T>(initial: T) {
+  return (import.meta.env.SSR ? [initial, () => {}] : (require('react').useState(initial))) as [T, (val: T) => void];
 }
