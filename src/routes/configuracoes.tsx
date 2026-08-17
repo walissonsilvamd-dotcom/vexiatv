@@ -266,14 +266,14 @@ function SettingsPage() {
           <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
         </button>
         <div className="min-w-0 text-center">
-          <h1 className="truncate text-xl font-black tracking-[0.18em] text-white drop-shadow-[0_0_18px_rgb(var(--vexia-primary-rgb)/0.55)] md:text-2xl">
+          <h1 className="truncate text-xl font-black tracking-[0.3em] text-white md:text-2xl">
             AJUSTES
           </h1>
-          <p className="mt-0.5 truncate text-[10px] font-medium tracking-widest text-[#9CA3AF]">
-            {formatTime(new Date())} • Preferências salvas no aparelho
+          <p className="mt-0.5 truncate text-[10px] font-black uppercase tracking-[0.2em] text-white/40">
+            {formatTime(new Date())} • Preferências salvas
           </p>
         </div>
-        <VexiaLogo className="h-20 shrink-0 md:h-32" />
+        <VexiaLogo className="h-24 shrink-0 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] md:h-36" />
       </header>
 
       {flash ? (
