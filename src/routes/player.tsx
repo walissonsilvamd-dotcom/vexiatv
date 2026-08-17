@@ -670,6 +670,14 @@ function PlayerPage() {
       setMenu(null);
       return;
     }
+    if (zapOpen) {
+      setZapOpen(false);
+      return;
+    }
+    if (drawerOpen) {
+      setDrawerOpen(false);
+      return;
+    }
     if (document.fullscreenElement) {
       void document.exitFullscreen().catch(() => {});
       return;
@@ -679,7 +687,7 @@ function PlayerPage() {
       return;
     }
     void navigate({ to: "/detalhes/$id", params: { id } });
-  }, [menu, navigate, type, id]);
+  }, [menu, zapOpen, drawerOpen, navigate, type, id]);
 
   /* ── Navegação Android TV / teclado ── */
   useEffect(() => {
