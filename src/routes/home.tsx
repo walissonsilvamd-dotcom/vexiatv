@@ -271,7 +271,7 @@ function HomePage() {
         
         {/* Sidebar Esquerda */}
         <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="flex w-full flex-col items-center mb-10 -mt-2">
+          <div className="flex w-full flex-col items-center mb-8 -mt-6">
             <VexiaLogo
               className="h-96 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             />
