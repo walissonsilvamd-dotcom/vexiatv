@@ -148,12 +148,11 @@ export function CatalogScreen(props: {
   const sortBusy = deferredSort !== sort;
   const sorted = useMemo(() => {
     const base = sortMedia(filtered, deferredSort);
-    // Se não estiver bloqueado (adulto liberado ou desativado), movemos os itens adultos para o fim
-    if (!blockAdult) {
-      const normal = base.filter((item) => !isAdultText(item.title, item.category, ...item.genres));
-      const adult = base.filter((item) => isAdultText(item.title, item.category, ...item.genres));
-      return [...normal, ...adult];
-    }
+    // Movemos o conteúdo adulto para o final da lista para não poluir o início do catálogo,
+    // independente de estar bloqueado ou não.
+    const normal = base.filter((item) => !isAdultText(item.title, item.category, ...item.genres));
+    const adult = base.filter((item) => isAdultText(item.title, item.category, ...item.genres));
+    return [...normal, ...adult];
     return base;
   }, [filtered, deferredSort, blockAdult]);
 
