@@ -122,6 +122,25 @@ function SettingsPage() {
   /* Classificação: mesma preferência aplicada nas listagens do app. */
   const { sort, setSort } = useSort();
   const [dialog, setDialog] = useState<Dialog>(null);
+  
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "BrowserBack") {
+        if (dialog) {
+          setDialog(null);
+          e.preventDefault();
+        } else {
+          const tag = (e.target as HTMLElement | null)?.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA") return;
+          
+          e.preventDefault();
+          void navigate({ to: "/home" });
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [dialog, navigate]);
   const [pin, setPin] = useState("");
   const [pinConfirm, setPinConfirm] = useState("");
   const [pinError, setPinError] = useState("");
