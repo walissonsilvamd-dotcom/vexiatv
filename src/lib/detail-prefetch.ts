@@ -24,7 +24,7 @@ type PrefetchTarget = {
   backdrop?: string;
 };
 
-const DEBOUNCE = 250;
+const DEBOUNCE = 100;
 
 let playlistUrl = "";
 let timer: ReturnType<typeof setTimeout> | null = null;

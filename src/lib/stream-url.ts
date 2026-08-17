@@ -1,19 +1,27 @@
 /**
+ * Otimização de URL para reprodução imediata.
+ */
+
+const PROXY_URL = "/api/public/stream?url=";
+const urlCache = new Map<string, string>();
+
+/**
  * Endereço realmente reproduzível de um stream.
- *
- * Muitas listas IPTV entregam links em `http://`. Como o app roda em `https`,
- * o navegador/WebView bloqueia esse conteúdo misto e o vídeo simplesmente não
- * inicia (sem erro visível). Nesses casos o stream passa pelo proxy do próprio
- * app, que também resolve a falta de CORS de vários servidores.
+ * 
+ * Links HTTP em página HTTPS (mixed content) são bloqueados; o proxy resolve
+ * isso e a falta de CORS. Usamos cache para evitar re-processamento.
  */
 export function playableStreamUrl(src: string): string {
   if (!src) return src;
-  if (src.startsWith("/")) return src;
-  if (typeof window === "undefined") return src;
-  const insecure = src.startsWith("http://");
-  const pageIsSecure = window.location.protocol === "https:";
-  if (insecure && pageIsSecure) {
-    return `/api/public/stream?url=${encodeURIComponent(src)}`;
+  const cached = urlCache.get(src);
+  if (cached) return cached;
+
+  let result = src;
+  if (src.startsWith("http://")) {
+    result = `${PROXY_URL}${encodeURIComponent(src)}`;
   }
-  return src;
+
+  if (urlCache.size > 500) urlCache.clear();
+  urlCache.set(src, result);
+  return result;
 }
