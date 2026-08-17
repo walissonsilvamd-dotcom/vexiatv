@@ -248,7 +248,7 @@ function HomePage() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Backspace" && e.key !== "BrowserBack" && e.key !== "Escape") return;
       // Deixa os diálogos abertos tratarem o próprio Voltar.
-      if (exitOpen || pendingRemove || listsOpen || exitOpen) return;
+      if (exitOpen || pendingRemove || listsOpen) return;
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       e.preventDefault();
