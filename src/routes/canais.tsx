@@ -461,12 +461,6 @@ function ChannelsPage() {
     if (selected?.url) prefetchChannelNow(selected.url);
   }, [selected?.url]);
 
-  /**
-   * Prefetch dos vizinhos guiado pelo histórico de navegação: guardamos o
-   * índice anterior para saber se o cliente está descendo ou subindo a lista e
-   * preparamos (manifesto + primeiro segmento) os 2 canais desse lado. Assim o
-   */
-
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Backspace" || e.key === "Escape" || e.key === "BrowserBack") {
@@ -494,6 +488,11 @@ function ChannelsPage() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [groupsOpen, catchupOpen, pendingLocked, pinOpen, listsOpen, navigate]);
+
+  /**
+   * Prefetch dos vizinhos guiado pelo histórico de navegação: guardamos o
+   * índice anterior para saber se o cliente está descendo ou subindo a lista e
+   * preparamos (manifesto + primeiro segmento) os 2 canais desse lado. Assim o
    * próximo ↓/↑ abre a prévia na hora. Parado no lugar: prepara os dois lados.
    */
   const lastIdxRef = useRef<number | null>(null);
