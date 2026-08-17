@@ -333,7 +333,7 @@ function HomePage() {
           )}
 
           {/* Parte Superior: Destaques e Metadados */}
-          <div className="relative flex h-[60%] w-full flex-col">
+          <div className="relative flex h-[55%] w-full flex-col">
             {hasContent && (
               <header className="relative z-10 flex w-full justify-end p-8 pt-10 sm:px-[5vw]">
                 <div
