@@ -17,54 +17,73 @@ export function isAdultText(...parts: (string | undefined | null)[]) {
 }
 
 const UNLOCK_KEY = "vexia:parental-unlocked";
+const INDIVIDUAL_UNLOCK_KEY = "vexia:individual-unlocked";
 const listeners = new Set<() => void>();
 let unlocked = false;
+let individualUnlocked: Set<string> = new Set();
 
 function emit() {
   for (const fn of listeners) fn();
 }
 
 function readUnlocked() {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") return { global: false, individual: new Set<string>() };
   try {
-    return window.sessionStorage.getItem(UNLOCK_KEY) === "1";
+    const global = window.sessionStorage.getItem(UNLOCK_KEY) === "1";
+    const indRaw = window.sessionStorage.getItem(INDIVIDUAL_UNLOCK_KEY);
+    const individual = new Set<string>(indRaw ? JSON.parse(indRaw) : []);
+    return { global, individual };
   } catch {
-    return false;
+    return { global: false, individual: new Set<string>() };
   }
 }
 
 /** Libera o conteúdo adulto pela sessão atual quando o PIN confere. */
-export function unlockParental(pin: string, savedPin: string) {
+export function unlockParental(pin: string, savedPin: string, itemId?: string) {
   if (!savedPin || pin !== savedPin) return false;
-  unlocked = true;
-  try {
-    window.sessionStorage.setItem(UNLOCK_KEY, "1");
-  } catch {
-    /* armazenamento indisponível */
+  
+  if (itemId) {
+    // Desbloqueio individual
+    individualUnlocked.add(itemId);
+    try {
+      window.sessionStorage.setItem(INDIVIDUAL_UNLOCK_KEY, JSON.stringify([...individualUnlocked]));
+    } catch {}
+  } else {
+    // Desbloqueio global
+    unlocked = true;
+    try {
+      window.sessionStorage.setItem(UNLOCK_KEY, "1");
+    } catch {}
   }
+  
   emit();
   return true;
 }
 
 export function lockParental() {
   unlocked = false;
+  individualUnlocked.clear();
   try {
     window.sessionStorage.removeItem(UNLOCK_KEY);
-  } catch {
-    /* armazenamento indisponível */
-  }
+    window.sessionStorage.removeItem(INDIVIDUAL_UNLOCK_KEY);
+  } catch {}
   emit();
 }
 
-export function useParentalUnlocked() {
+export function useParentalUnlocked(itemId?: string) {
   return useSyncExternalStore(
     (fn) => {
       listeners.add(fn);
       return () => listeners.delete(fn);
     },
     () => {
-      if (!unlocked) unlocked = readUnlocked();
-      return unlocked;
+      const state = readUnlocked();
+      if (!unlocked) unlocked = state.global;
+      if (individualUnlocked.size === 0) individualUnlocked = state.individual;
+      
+      if (unlocked) return true;
+      if (itemId && individualUnlocked.has(itemId)) return true;
+      return false;
     },
     () => false,
   );
