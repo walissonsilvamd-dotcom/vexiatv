@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { fetchSeasonEpisodes, searchTmdb, type TmdbKind } from "./tmdb.server";
+import { fetchSeasonEpisodes, searchTmdb } from "./tmdb.server";
 
 export const tmdbSearch = createServerFn({ method: "POST" })
   .inputValidator((data) =>
@@ -15,8 +15,8 @@ export const tmdbSearch = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
-    if (!credential) throw new Error("TMDB credentials not configured");
-    return searchTmdb(credential, data.title, data.year, data.kind as TmdbKind, data.language);
+    if (!credential) return null;
+    return await searchTmdb(credential, data.title, data.year, data.kind as "movie" | "tv", data.language);
   });
 
 export const tmdbSeasonEpisodes = createServerFn({ method: "POST" })
