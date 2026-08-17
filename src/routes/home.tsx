@@ -258,11 +258,11 @@ function HomePage() {
       <div className="relative flex h-full w-full">
         
         {/* Sidebar Esquerda */}
-        <aside className="relative z-30 flex w-[20vw] max-w-[280px] flex-col items-center bg-black/40 px-4 py-8 backdrop-blur-xl border-r border-white/5">
+        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 py-6 backdrop-blur-2xl border-r border-white/10">
           <VexiaLogo
             className={
               hasContent
-                ? "mb-12 h-auto w-[80%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                ? "mb-10 h-auto w-[85%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                 : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
             }
           />
@@ -270,7 +270,7 @@ function HomePage() {
           {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="flex w-full flex-col gap-3"
+            className="flex w-full flex-col gap-2.5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
@@ -284,22 +284,24 @@ function HomePage() {
                   onFocus={() => setActive(i)}
                   onMouseEnter={() => setActive(i)}
                   onClick={() => openTile(tile)}
-                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border px-4 py-3 outline-none transition-all duration-200 ease-out ${
+                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border px-4 py-3.5 outline-none transition-all duration-300 ease-out ${
                     isActive
-                      ? "scale-[1.02] border-white bg-white text-black shadow-[0_10px_30px_-10px_rgba(255,255,255,0.3)]"
-                      : "border-transparent bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                      ? "scale-[1.02] border-white/40 bg-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] backdrop-blur-md"
+                      : "border-transparent bg-white/5 text-white/50 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                   }`}
                 >
                   <Icon
-                    className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
-                      isActive ? "scale-110" : ""
+                    className={`h-5 w-5 shrink-0 transition-transform duration-300 ${
+                      isActive ? "scale-110 text-white" : "text-white/40 group-hover:text-white"
                     }`}
                   />
-                  <span className="text-sm font-black uppercase tracking-[0.1em]">
+                  <span className={`text-[0.8rem] font-black uppercase tracking-[0.12em] transition-colors duration-300 ${
+                    isActive ? "text-white" : "text-white/40 group-hover:text-white"
+                  }`}>
                     {tile.label}
                   </span>
                   {isActive && (
-                    <div className="absolute left-0 h-6 w-1 rounded-r-full bg-vexia-purple shadow-[0_0_10px_#7B2BBE]" />
+                    <div className="absolute left-0 h-8 w-1.5 rounded-r-full bg-vexia-purple shadow-[0_0_15px_#7B2BBE]" />
                   )}
                 </button>
               );
