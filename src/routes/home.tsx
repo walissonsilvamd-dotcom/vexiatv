@@ -253,190 +253,144 @@ function HomePage() {
   };
 
   return (
-    <main ref={pageRef} className="relative bg-vexia-bg text-vexia-text">
-    <section
-      className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto md:h-screen md:overflow-hidden"
-      onKeyDown={(e) => {
-        // O tratamento manual vale só quando o foco está na fileira de blocos.
-        // Fora dela (menu superior, carrossel, cards) quem manda é a
-        // navegação espacial, para o controle andar por toda a tela.
-        const target = e.target as HTMLElement | null;
-        if (!target?.closest?.("[data-tile]")) return;
-        if (e.key === "ArrowRight") {
-          e.preventDefault();
-          focusTile(active + 1);
-        } else if (e.key === "ArrowLeft") {
-          e.preventDefault();
-          focusTile(active - 1);
-        }
-      }}
-    >
-      {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
-      {hasContent ? (
-        <>
-          <div key={HERO.image} className="absolute inset-0 bg-black animate-[vexia-fade-in_1200ms_ease-out]">
-            <SmartImage
-              src={HERO.image}
-              role="backdrop"
-              alt={HERO.title}
-              eager
-              sizes="100vw"
-              className="h-full w-full object-cover opacity-60"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
-        </>
-      ) : (
-        <div className="absolute inset-0 bg-black" />
-      )}
-
-
-      {/* Topo: logo à esquerda + metadados no canto superior direito */}
-      <header
-        className={`relative z-10 flex w-full items-start justify-between px-6 pt-6 sm:px-[5vw] sm:pt-[5vh] ${
-          !hasContent ? "flex-col items-center justify-center pt-[20vh]" : ""
-        }`}
-      >
-        <h1 className="sr-only">{BRAND.name} — Início</h1>
+    <main ref={pageRef} className="relative h-screen w-full overflow-hidden bg-vexia-bg text-vexia-text">
+      {/* Layout Principal: Sidebar + Conteúdo */}
+      <div className="relative flex h-full w-full">
         
-        <VexiaLogo
-          className={
-            hasContent
-              ? "h-[16vh] max-h-[220px] min-h-[100px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
-          }
-        />
+        {/* Sidebar Esquerda */}
+        <aside className="relative z-30 flex w-[20vw] max-w-[280px] flex-col items-center bg-black/40 px-4 py-8 backdrop-blur-xl border-r border-white/5">
+          <VexiaLogo
+            className={
+              hasContent
+                ? "mb-12 h-auto w-[80%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
+            }
+          />
 
-
-        {hasContent ? (
-          <div
-            key={`meta-${HERO.title}`}
-            className="animate-[vexia-hero-in_400ms_ease-out] text-right"
+          {/* Menu Vertical */}
+          <nav
+            ref={rowRef}
+            className="flex w-full flex-col gap-3"
           >
-            <h2 className="text-[clamp(1.2rem,2.8vw,2.4rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
-              {HERO.title}
-            </h2>
-            
-            <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
-              <span className="flex items-center gap-1.5 text-yellow-400">
-                <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
-              </span>
-              <span className="text-white/30">|</span>
-              <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
-              <span className="text-white/30">|</span>
-              <span>{HERO.year}</span>
-              <span className="text-white/30">|</span>
-              <span>{HERO.release}</span>
-            </div>
-
-          </div>
-        ) : null}
-      </header>
-
-
-
-      {/* Meio: imagem do carrossel em destaque (indicadores de slide) */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-6 sm:px-[5vw] md:pb-[3vh]">
-        {slides.length > 1 ? (
-          <div className="flex items-center gap-3">
-            {slides.map((s, i) => (
-              <button
-                key={s.title + i}
-                type="button"
-                aria-label={`Destaque ${i + 1}`}
-                onClick={() => setSlide(i)}
-                className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
-                  i === slide
-                    ? "w-10 bg-white/20"
-                    : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
-                }`}
-              >
-                {i === slide ? (
-                  <span
-                    key={`p-${slide}`}
-                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
+            {tiles.map((tile, i) => {
+              const Icon = tile.icon;
+              const isActive = i === active;
+              return (
+                <button
+                  key={tile.label}
+                  data-tile
+                  type="button"
+                  tabIndex={0}
+                  onFocus={() => setActive(i)}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => openTile(tile)}
+                  className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-xl border px-4 py-3 outline-none transition-all duration-200 ease-out ${
+                    isActive
+                      ? "scale-[1.02] border-white bg-white text-black shadow-[0_10px_30px_-10px_rgba(255,255,255,0.3)]"
+                      : "border-transparent bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon
+                    className={`h-5 w-5 shrink-0 transition-transform duration-200 ${
+                      isActive ? "scale-110" : ""
+                    }`}
                   />
-                ) : null}
-              </button>
-            ))}
-          </div>
-        ) : !hasContent ? (
-          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
-            Carregue sua lista para começar
-          </p>
-        ) : null}
-      </section>
+                  <span className="text-sm font-black uppercase tracking-[0.1em]">
+                    {tile.label}
+                  </span>
+                  {isActive && (
+                    <div className="absolute left-0 h-6 w-1 rounded-r-full bg-vexia-purple shadow-[0_0_10px_#7B2BBE]" />
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
 
+        {/* Área de Conteúdo (Hero e Destaques) */}
+        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+          {/* Fundo Imersivo */}
+          {hasContent ? (
+            <>
+              <div key={HERO.image} className="absolute inset-0 bg-black animate-[vexia-fade-in_1200ms_ease-out]">
+                <SmartImage
+                  src={HERO.image}
+                  role="backdrop"
+                  alt={HERO.title}
+                  eager
+                  sizes="80vw"
+                  className="h-full w-full object-cover opacity-60"
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-black" />
+          )}
 
-
-
-
-
-
-      {/* Menu de blocos */}
-      <nav
-        ref={rowRef}
-        className="relative z-10 grid shrink-0 grid-cols-3 gap-2.5 px-4 sm:grid-cols-4 sm:px-[5vw] md:gap-[1.1vw] md:[grid-template-columns:repeat(var(--vexia-tiles),minmax(0,1fr))]"
-        style={{ "--vexia-tiles": tiles.length } as React.CSSProperties}
-      >
-        {tiles.map((tile, i) => {
-          const Icon = tile.icon;
-          const isActive = i === active;
-          return (
-            <button
-              key={tile.label}
-              data-tile
-              type="button"
-              tabIndex={0}
-              onFocus={() => setActive(i)}
-              onMouseEnter={() => setActive(i)}
-              onClick={() => openTile(tile)}
-              className={`group relative flex aspect-[5/4] max-h-[20vh] w-full md:max-h-[15vh] flex-col items-center justify-center gap-[1vh] overflow-hidden rounded-2xl border outline-none backdrop-blur-md transition-all duration-200 ease-out ${
-                isActive
-                  ? "-translate-y-[0.6vh] scale-[1.04] border-white bg-gradient-to-b from-white/95 via-white/80 to-white/70 shadow-[0_22px_55px_-12px_rgba(255,255,255,0.45),0_0_30px_rgba(255,255,255,0.3),inset_0_1px_0_rgba(255,255,255,0.25)]"
-                  : "border-white/15 bg-gradient-to-b from-white/[0.09] via-white/[0.03] to-[#0a0420]/75 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_-1px_0_rgba(255,255,255,0.05)] hover:border-white/40 hover:from-white/[0.12] hover:via-white/[0.06] hover:to-[#0d0528]/80"
-              }`}
-            >
-              {/* reflexo espelhado superior */}
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute inset-x-0 top-0 h-[35%] -skew-y-1 bg-gradient-to-b from-white/35 via-white/10 to-transparent transition-opacity ${
-                  isActive ? "opacity-90" : "opacity-60 group-hover:opacity-80"
-                }`}
-              />
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute inset-x-0 top-0 h-px transition-opacity ${
-                  isActive ? "bg-white/90" : "bg-white/35"
-                }`}
-              />
-              <Icon
-                className={`relative z-10 h-[clamp(1.5rem,3.4vh,2.6rem)] w-auto shrink-0 transition-all duration-200 ${
-                  isActive
-                    ? "scale-110 stroke-[2.5] text-black drop-shadow-[0_0_8px_rgba(0,0,0,0.1)]"
-                    : "stroke-[1.8] text-white/90 drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]"
-                }`}
-                aria-hidden
-              />
-              <span
-                className={`relative z-10 text-[clamp(0.62rem,0.95vw,1rem)] font-black uppercase leading-none tracking-[0.2em] transition-colors ${
-                  isActive
-                    ? "text-black"
-                    : "text-white/80 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)]"
-                }`}
+          {/* Header com Metadados (Canto Superior Direito) */}
+          {hasContent && (
+            <header className="relative z-10 flex w-full justify-end p-8 pt-10 sm:px-[5vw]">
+              <div
+                key={`meta-${HERO.title}`}
+                className="animate-[vexia-hero-in_400ms_ease-out] text-right"
               >
-                {tile.label}
-              </span>
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute bottom-1 h-[3px] rounded-full bg-gradient-to-r from-transparent via-white to-transparent transition-all duration-200 ${
-                  isActive ? "w-3/4 opacity-100 shadow-[0_0_14px_white]" : "w-0 opacity-0"
-                }`}
-              />
-            </button>
-          );
-        })}
-      </nav>
+                <h2 className="text-[clamp(1.5rem,3.2vw,2.8rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+                  {HERO.title}
+                </h2>
+                
+                <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
+                  <span className="flex items-center gap-1.5 text-yellow-400">
+                    <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
+                  </span>
+                  <span className="text-white/30">|</span>
+                  <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
+                  <span className="text-white/30">|</span>
+                  <span>{HERO.year}</span>
+                  <span className="text-white/30">|</span>
+                  <span>{HERO.release}</span>
+                </div>
+              </div>
+            </header>
+          )}
+
+          {/* Área Central Vazia para respirar a arte */}
+          <div className="flex-1" />
+
+          {/* Indicadores de Slide */}
+          <section className="relative z-10 flex items-center justify-center p-8">
+            {slides.length > 1 ? (
+              <div className="flex items-center gap-3">
+                {slides.map((s, i) => (
+                  <button
+                    key={s.title + i}
+                    type="button"
+                    aria-label={`Destaque ${i + 1}`}
+                    onClick={() => setSlide(i)}
+                    className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
+                      i === slide
+                        ? "w-10 bg-white/20"
+                        : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
+                    }`}
+                  >
+                    {i === slide ? (
+                      <span
+                        key={`p-${slide}`}
+                        className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
+                      />
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            ) : !hasContent ? (
+              <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
+                Carregue sua lista para começar
+              </p>
+            ) : null}
+          </section>
+        </div>
+      </div>
+
 
       {/* Rodapé de ajuda */}
       <footer className="relative z-10 hidden shrink-0 flex-wrap items-center justify-center gap-x-7 md:flex gap-y-2 px-[5vw] py-[1.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
@@ -472,7 +426,7 @@ function HomePage() {
         confirmLabel="SAIR"
         onConfirm={() => {
           setExitOpen(false);
-          // Em TV/TV Box o app roda em WebView: fechar a janela encerra a sessão.
+          clearLastSession();
           window.close();
         }}
         onCancel={() => setExitOpen(false)}
@@ -496,10 +450,12 @@ function HomePage() {
         }}
         onCancel={() => setPendingRemove(null)}
       />
-    </section>
 
-      {/* Carrosséis premium de descoberta (M3U + TMDB) */}
-      <DiscoverRows />
+      <div className="relative z-10">
+        <DiscoverRows />
+      </div>
     </main>
   );
 }
+
+
