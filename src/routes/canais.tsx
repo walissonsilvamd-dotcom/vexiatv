@@ -416,10 +416,7 @@ function ChannelsPage() {
         if (saved) {
           restoredRef.current = true;
           
-          // Correção: Só abre em tela cheia se o estado salvo dizia fullscreen.
-          // Se fullscreen for falso, apenas seleciona (abre a prévia).
           if (lastChannel.fullscreen) {
-            // Pequeno delay para garantir que o componente montou antes da navegação
             setTimeout(() => {
               openFullscreen(saved);
             }, 100);
@@ -427,6 +424,15 @@ function ChannelsPage() {
           return saved;
         }
       }
+
+      // Prioridade: Tenta sempre iniciar na "Globo HD São Paulo"
+      const defaultChannel = list.find(c => 
+        c.name.toLowerCase().includes("globo hd") && 
+        c.name.toLowerCase().includes("são paulo")
+      );
+
+      if (defaultChannel) return defaultChannel;
+
       return list[0] ?? null;
     });
   }, [list, lastChannel, openFullscreen]);
