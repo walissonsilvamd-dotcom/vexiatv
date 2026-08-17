@@ -14,6 +14,8 @@ import { useBackgroundStore } from "../../lib/background-store";
 
 
 
+
+
 function PosterCardBase({
   item,
   navRow,
