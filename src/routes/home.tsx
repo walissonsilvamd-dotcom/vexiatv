@@ -274,23 +274,22 @@ function HomePage() {
       {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
       {hasContent ? (
         <>
-          <div key={HERO.image} className="absolute inset-0 flex items-center justify-center bg-black/40 p-12 animate-[vexia-fade-in_1200ms_ease-out]">
+          <div key={HERO.image} className="absolute inset-0 bg-black animate-[vexia-fade-in_1200ms_ease-out]">
             <SmartImage
               src={HERO.image}
-              role="poster"
+              role="backdrop"
               alt={HERO.title}
               eager
-              sizes="50vw"
-              className="h-[75vh] w-auto object-contain drop-shadow-[0_0_80px_rgba(0,0,0,0.9)]"
+              sizes="100vw"
+              className="h-full w-full object-cover opacity-60"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
-
-
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
         </>
       ) : (
         <div className="absolute inset-0 bg-black" />
       )}
+
 
       {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
       <header
