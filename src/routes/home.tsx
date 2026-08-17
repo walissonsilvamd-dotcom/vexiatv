@@ -417,7 +417,7 @@ function HomePage() {
         </Link>
       </footer>
 
-      <QrPlaylistDialog open={listsOpen} onOpenChange={setListsOpen} />
+      <QrPlaylistDialog open={listsOpen} onClose={() => setListsOpen(false)} />
 
       <ConfirmDialog
         open={exitOpen}
