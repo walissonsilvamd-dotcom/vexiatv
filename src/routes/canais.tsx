@@ -223,9 +223,7 @@ function ChannelsPage() {
   const { channels: allChannels, data, hasContent } = usePlaylist();
   /* Ajustes → Controle dos Pais / Ocultar Categorias. */
   const { settings } = useSettings();
-  const unlockedAdult = useParentalUnlocked(selected?.id);
   const [pinOpen, setPinOpen] = useState(false);
-  const blockAdult = settings.parentalEnabled && !unlockedAdult;
   /** Canal é adulto quando nome, categoria ou grupo indicam conteúdo +18. */
   const isAdultChannel = useCallback(
     (c: PlaylistChannel) => isAdultText(c.name, c.category, c.group),
@@ -261,6 +259,9 @@ function ChannelsPage() {
   const [category, setCategory] = useState("Todos");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<PlaylistChannel | null>(null);
+
+  const unlockedAdult = useParentalUnlocked(selected?.id);
+  const blockAdult = settings.parentalEnabled && !unlockedAdult;
   const { guide } = useEpg();
   const minuteTick = useMinuteTick();
   const xmltvEpg = nowAndNext(guide, selected?.tvgId, minuteTick);
