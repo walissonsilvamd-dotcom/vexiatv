@@ -99,8 +99,8 @@ const TILES: Tile[] = [
   { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
   { label: "KIDS", icon: Baby, to: "/kids" },
-  { label: "JOGOS", icon: Trophy, to: "/jogos" },
   { label: "FAVORITOS", icon: Star, to: "/favoritos" },
+  { label: "JOGOS", icon: Trophy, to: "/jogos" },
   { label: "LISTAS", icon: ListVideo, to: "/listas" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
@@ -260,12 +260,12 @@ function HomePage() {
       <div className="relative flex h-full w-full">
         
         {/* Sidebar Esquerda */}
-        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="mt-[-80px] flex w-full flex-col items-center">
+        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-10 pb-6 backdrop-blur-2xl border-r border-white/10">
+          <div className="flex w-full flex-col items-center mb-8">
             <VexiaLogo
               className={
                 hasContent
-                  ? "mb-4 h-auto w-[90%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  ? "h-20 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                   : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
               }
             />
@@ -274,7 +274,7 @@ function HomePage() {
           {/* Menu Vertical */}
           <nav
             ref={rowRef}
-            className="mt-[-72px] flex w-full flex-col gap-2.5"
+            className="flex w-full flex-col gap-2.5"
           >
             {tiles.map((tile, i) => {
               const Icon = tile.icon;
@@ -337,27 +337,34 @@ function HomePage() {
           {/* Header com Metadados (Canto Superior Direito) */}
           {hasContent && (
             <header className="relative z-10 flex w-full items-center justify-between p-8 pt-10 sm:px-[5vw]">
-              <div className="flex items-center gap-6">
-                <TopNav active="Home" />
+              <div className="flex flex-col gap-4">
+                <div
+                  key={`meta-${HERO.title}`}
+                  className="animate-[vexia-hero-in_400ms_ease-out] text-left"
+                >
+                  <h2 className="text-[clamp(1.5rem,3.2vw,2.8rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+                    {HERO.title}
+                  </h2>
+                  
+                  <div className="mt-2 flex items-center justify-start gap-4 text-xs font-black uppercase tracking-widest text-white/70">
+                    <span className="flex items-center gap-1.5 text-yellow-400">
+                      <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
+                    </span>
+                    <span className="text-white/30">|</span>
+                    <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
+                    <span className="text-white/30">|</span>
+                    <span>{HERO.year}</span>
+                    <span className="text-white/30">|</span>
+                    <span>{HERO.release}</span>
+                  </div>
+                </div>
               </div>
-              <div
-                key={`meta-${HERO.title}`}
-                className="animate-[vexia-hero-in_400ms_ease-out] text-right"
-              >
-                <h2 className="text-[clamp(1.5rem,3.2vw,2.8rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
-                  {HERO.title}
-                </h2>
-                
-                <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
-                  <span className="flex items-center gap-1.5 text-yellow-400">
-                    <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-end gap-1">
+                  <span className="text-3xl font-black text-white">{now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
                   </span>
-                  <span className="text-white/30">|</span>
-                  <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
-                  <span className="text-white/30">|</span>
-                  <span>{HERO.year}</span>
-                  <span className="text-white/30">|</span>
-                  <span>{HERO.release}</span>
                 </div>
               </div>
             </header>
