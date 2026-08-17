@@ -70,7 +70,7 @@ import { playableStreamUrl } from "../lib/stream-url";
 import { pickSubtitleTrack } from "../lib/subtitle-match";
 
 import { formatExpiry } from "../lib/xtream";
-import { getStreamHandoff, setStreamHandoff } from "../lib/stream-handoff";
+import { getStreamHandoff, getStreamHandoffData, setStreamHandoff } from "../lib/stream-handoff";
 
 import { clearProgress, saveProgress, useProgress } from "../lib/progress-store";
 import { saveLastSession } from "../lib/last-session";
@@ -235,6 +235,7 @@ function PlayerPage() {
     slotBRef,
     src,
     live: type === "live",
+    autoplay: handoff?.immediate,
   });
   const {
     engine,
@@ -303,8 +304,17 @@ function PlayerPage() {
       try {
         // Tenta o autoplay real (sem pause) imediatamente
         if (video) {
-          video.muted = true; // Necessário para autoplay confiável em muitos navegadores
-          void video.play().catch(() => undefined);
+          // Se for handoff imediato (dois cliques), forçamos play sem mute se possível
+          // mas mantemos o mute inicial para garantir que o autoplay não seja bloqueado
+          if (handoff?.immediate) {
+             video.muted = false;
+          } else {
+             video.muted = true;
+          }
+          void video.play().catch(() => {
+            video.muted = true;
+            void video.play().catch(() => undefined);
+          });
         }
         
         if (el?.requestFullscreen) await el.requestFullscreen();
