@@ -122,8 +122,7 @@ function HomePage() {
 
 
   // Continuar assistindo: histórico local reconciliado com a lista atual.
-  const continueEntries = useContinueWatching(15);
-  const continueList = useResolvedHistory(continueEntries);
+  const history = useProgressList();
   const openWatch = useOpenWatch();
 
   // Última sessão salva: restaura automaticamente o episódio/filme ao reabrir.
@@ -415,6 +414,52 @@ function HomePage() {
           </section>
         </div>
       </div>
+
+      {/* Seção Continuar Assistindo: visível apenas se houver progresso salvo. */}
+      {history.length > 0 ? (
+        <section className="relative z-10 space-y-3 px-[5vw] py-4 bg-black/20 backdrop-blur-sm">
+          <h2 className="text-lg font-black uppercase tracking-[0.2em] text-white">
+            Continuar Assistindo
+          </h2>
+          <div className="vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+            {history.map((entry) => (
+              <div key={entry.updatedAt} className="w-[200px] shrink-0 md:w-[240px]">
+                <button
+                  type="button"
+                  onClick={() => openWatch({
+                    key: entry.label || entry.title || "",
+                    id: entry.label || entry.title || "",
+                    name: entry.label || entry.title || "",
+                    percent: entry.percent,
+                    updatedAt: entry.updatedAt
+                  } as any)}
+                  className="vexia-card-focus w-full text-left outline-none group"
+                >
+                  <div className="relative aspect-video overflow-hidden rounded-xl bg-white/5 border border-white/10 group-hover:border-vexia-purple transition-colors">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <PlayCircle className="h-10 w-10 text-white/20 group-hover:text-vexia-purple group-hover:scale-110 transition-all" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
+                      <div 
+                        className="h-full bg-vexia-purple shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.8)]"
+                        style={{ width: `${entry.percent}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-2">
+                    <p className="truncate text-sm font-black uppercase tracking-wider text-white">
+                      {entry.label || entry.title}
+                    </p>
+                    <p className="text-[10px] font-bold text-white/40">
+                      {Math.round(entry.percent)}% ASSISTIDO
+                    </p>
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
 
       {/* Rodapé de ajuda */}
