@@ -286,9 +286,9 @@ function HomePage() {
                   onFocus={() => setActive(i)}
                   onMouseEnter={() => setActive(i)}
                   onClick={() => openTile(tile)}
-                  className={`group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-xl border px-4 py-5 outline-none transition-all duration-300 ease-out ${
+                  className={`group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-xl border px-4 py-4 outline-none transition-all duration-300 ease-out ${
                     isActive
-                      ? "scale-[1.02] border-white/40 bg-white/20 text-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] backdrop-blur-md"
+                      ? "scale-[1.02] border-vexia-purple bg-white/20 text-white shadow-[0_0_20px_rgba(123,43,190,0.6)] backdrop-blur-md"
                       : "border-transparent bg-white/5 text-white/50 hover:bg-white/10 hover:text-white backdrop-blur-sm"
                   }`}
                 >
