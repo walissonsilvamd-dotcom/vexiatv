@@ -31,11 +31,22 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
   const { settings } = useSettings();
   const tabs = TABS.filter((t) => !t.hideKey || !settings[t.hideKey]);
 
+  const navigate = useNavigate();
   return (
-    <nav
-      aria-label="Menu principal"
-      className={`no-scrollbar flex min-w-0 shrink items-center gap-1 overflow-x-auto rounded-full border border-white/5 bg-black/40 p-1 backdrop-blur-2xl ${className}`}
-    >
+    <div className={`flex items-center gap-2 ${className}`}>
+      <button
+        onClick={() => navigate({ to: -1 as any })}
+        data-nav-row={0}
+        tabIndex={0}
+        aria-label="Voltar"
+        className="vexia-focus flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/5 bg-black/40 text-white/60 hover:text-white md:h-9 md:w-9"
+      >
+        <Undo2 className="h-4 w-4" />
+      </button>
+      <nav
+        aria-label="Menu principal"
+        className="no-scrollbar flex min-w-0 shrink items-center gap-1 overflow-x-auto rounded-full border border-white/5 bg-black/40 p-1 backdrop-blur-2xl"
+      >
       {tabs.map((tab) => {
         const isActive = tab.label === active;
         return (
