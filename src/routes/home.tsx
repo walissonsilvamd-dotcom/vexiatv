@@ -274,65 +274,61 @@ function HomePage() {
       {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
       {hasContent ? (
         <>
-          <div key={HERO.image} className="absolute inset-0 flex items-center justify-center bg-black/40 p-12 animate-[vexia-fade-in_1200ms_ease-out]">
+          <div key={HERO.image} className="absolute inset-0 bg-black animate-[vexia-fade-in_1200ms_ease-out]">
             <SmartImage
               src={HERO.image}
-              role="poster"
+              role="backdrop"
               alt={HERO.title}
               eager
-              sizes="50vw"
-              className="h-[75vh] w-auto object-contain drop-shadow-[0_0_80px_rgba(0,0,0,0.9)]"
+              sizes="100vw"
+              className="h-full w-full object-cover opacity-60"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
-
-
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-black/60" />
         </>
       ) : (
         <div className="absolute inset-0 bg-black" />
       )}
 
-      {/* Topo: logo + informações discretas do título em destaque (vindas da lista) */}
+
+      {/* Topo: logo à esquerda + metadados no canto superior direito */}
       <header
-        className={`relative z-10 items-start gap-4 px-4 pt-5 sm:px-[5vw] sm:pt-[3vh] md:gap-[3vw] ${
-          hasContent
-            ? "flex flex-col items-center md:grid md:grid-cols-[auto_minmax(0,1fr)]"
-            : "flex flex-col items-center justify-center"
+        className={`relative z-10 flex w-full items-start justify-between px-6 pt-6 sm:px-[5vw] sm:pt-[5vh] ${
+          !hasContent ? "flex-col items-center justify-center pt-[20vh]" : ""
         }`}
       >
         <h1 className="sr-only">{BRAND.name} — Início</h1>
         
-        <div className="flex w-full flex-col items-center justify-center gap-6">
-          <VexiaLogo
-            className={
-              hasContent
-                ? "h-[18vh] max-h-[300px] min-h-[120px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
-            }
-          />
+        <VexiaLogo
+          className={
+            hasContent
+              ? "h-[10vh] max-h-[160px] min-h-[80px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
+          }
+        />
 
-          {hasContent ? (
-            <div
-              key={`meta-${HERO.title}`}
-              className="animate-[vexia-hero-in_400ms_ease-out] text-center"
-            >
-              <h2 className="text-[clamp(1.5rem,3.5vw,3rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
-                {HERO.title}
-              </h2>
-              
-              <div className="mt-2 flex items-center justify-center gap-4 text-sm font-black uppercase tracking-widest text-white/70">
-                <span className="flex items-center gap-1.5 text-vexia-purple">
-                  <Star className="h-4 w-4 fill-current" /> {HERO.votes.toFixed(1)}
-                </span>
-                <span className="text-white/30">|</span>
-                <span>{HERO.year}</span>
-                <span className="text-white/30">|</span>
-                <span>{HERO.release}</span>
-              </div>
+        {hasContent ? (
+          <div
+            key={`meta-${HERO.title}`}
+            className="animate-[vexia-hero-in_400ms_ease-out] text-right"
+          >
+            <h2 className="text-[clamp(1.2rem,2.8vw,2.4rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+              {HERO.title}
+            </h2>
+            
+            <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
+              <span className="flex items-center gap-1.5 text-vexia-purple">
+                <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
+              </span>
+              <span className="text-white/30">|</span>
+              <span>{HERO.year}</span>
+              <span className="text-white/30">|</span>
+              <span>{HERO.release}</span>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </header>
+
 
 
       {/* Meio: imagem do carrossel em destaque (indicadores de slide) */}
