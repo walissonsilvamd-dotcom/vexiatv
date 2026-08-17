@@ -303,7 +303,7 @@ function ChannelsPage() {
       }
       openingRef.current = true;
       writeLastChannel(ch.id, true);
-      setStreamHandoff("live", ch.id, ch.url);
+      setStreamHandoff("live", ch.id, ch.url, undefined, true);
       void navigate({ to: "/player", search: { type: "live", id: ch.id } });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
