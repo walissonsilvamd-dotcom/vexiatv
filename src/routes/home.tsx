@@ -226,7 +226,10 @@ function HomePage() {
 
   // Foco inicial no primeiro bloco (D-pad pronto ao abrir).
   useEffect(() => {
-    rowRef.current?.querySelector<HTMLElement>("[data-tile]")?.focus();
+    const timer = setTimeout(() => {
+      rowRef.current?.querySelector<HTMLElement>("[data-tile]")?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   /**
