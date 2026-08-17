@@ -135,39 +135,37 @@ function HomePage() {
   );
 
 
-  // Pool de destaques: até 8 títulos da lista com imagem disponível.
-  // Filtra conteúdo adulto para nunca aparecer nos destaques da Home.
+  // Pool de destaques: 20 títulos aleatórios entre os mais bem avaliados (>= 2025)
+  // Filtra conteúdo adulto e prioriza lançamentos
   const heroPool = useMemo<MediaItem[]>(() => {
-    // Prioriza lançamentos de 2026 para o destaque da Home
-    const pool = [...movies, ...series]
-      .filter((m) => m.backdrop || m.poster)
+    const all = [...movies, ...series]
+      .filter((m) => m.poster) // Apenas com capa certinha
       .filter((m) => !isAdultText(m.title, m.category, ...(m.genres || [])))
-      .sort((a, b) => {
-        if (a.year === 2026 && b.year !== 2026) return -1;
-        if (b.year === 2026 && a.year !== 2026) return 1;
-        return (b.year || 0) - (a.year || 0);
-      })
-      .slice(0, 8);
-    return pool;
+      .filter((m) => (m.year || 0) >= 2025)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, 50); // Pega os 50 melhores
+
+    // Embaralha para pegar 20 aleatórios
+    return [...all].sort(() => Math.random() - 0.5).slice(0, 20);
   }, [movies, series]);
 
-  // Enriquece os destaques com TMDB (nota, sinopse, capas melhores).
+  // Enriquece os destaques com TMDB
   const enrichedHeroes = useTmdbHeroes(heroPool, "movie");
 
-  // Carrossel do destaque: montado a partir dos títulos enriquecidos da lista M3U.
   const slides = useMemo<Hero[]>(() => {
     return enrichedHeroes.map((m) => ({
       title: m.title.toUpperCase(),
       year: m.year,
-      release: m.genres[0] ?? "LISTA M3U",
+      release: m.genres[0] ?? "LANÇAMENTO",
       genres: m.genres.slice(0, 3).map((g) => g.toUpperCase()),
       runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
       votes: m.rating,
       stars: Math.round(m.rating),
-      image: (m.backdrop || m.poster) as string,
+      image: (m.poster) as string, // Prioriza poster estático sem corte
       overview: m.overview ?? "",
     }));
   }, [enrichedHeroes]);
+
 
   const [slide, setSlide] = useState(0);
   useEffect(() => {
@@ -276,18 +274,18 @@ function HomePage() {
       {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
       {hasContent ? (
         <>
-          <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_1200ms_ease-out]">
+          <div key={HERO.image} className="absolute inset-0 flex items-center justify-center bg-black/40 p-12 animate-[vexia-fade-in_1200ms_ease-out]">
             <SmartImage
               src={HERO.image}
-              role="backdrop"
+              role="poster"
               alt={HERO.title}
               eager
-              sizes="100vw"
-              className="h-full w-full object-cover animate-[vexia-ken-burns_24s_ease-out_forwards] motion-reduce:animate-none opacity-50 grayscale-[20%]"
+              sizes="50vw"
+              className="h-[75vh] w-auto object-contain drop-shadow-[0_0_80px_rgba(0,0,0,0.9)]"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+
 
         </>
       ) : (
@@ -303,105 +301,72 @@ function HomePage() {
         }`}
       >
         <h1 className="sr-only">{BRAND.name} — Início</h1>
-        <VexiaLogo
-          className={
-            hasContent
-              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] md:h-[42vh] md:min-h-[260px]"
-              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
-          }
-        />
+        
+        <div className="flex w-full flex-col items-center justify-center gap-6">
+          <VexiaLogo
+            className={
+              hasContent
+                ? "h-[18vh] max-h-[300px] min-h-[120px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
+            }
+          />
 
-        {hasContent ? (
-        <div
-          key={`meta-${HERO.title}`}
-          className="w-full animate-[vexia-hero-in_400ms_ease-out] text-center md:w-auto md:text-right"
-        >
-
-
-          <div className="flex items-center justify-center md:justify-end gap-3 text-[clamp(0.6rem,0.8vw,0.8rem)] font-semibold uppercase tracking-[0.14em] text-white/60">
-            <Clock className="h-3.5 w-3.5 shrink-0 text-white" aria-hidden />
-            <span className="tabular-nums">
-              {formatTime(now)}
-            </span>
-            <span>{now.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}</span>
-          </div>
-
-          <h2 className="mt-[0.8vh] text-[clamp(1.1rem,2.4vw,2.3rem)] font-black leading-[1.05] tracking-tight [text-shadow:0_3px_16px_rgba(0,0,0,0.95)]">
-            {HERO.title} <span className="font-light text-white/60">({HERO.year})</span>
-          </h2>
-
-          <div className="mt-[0.6vh] flex flex-wrap items-center justify-center md:justify-end gap-x-2.5 gap-y-1 text-[clamp(0.55rem,0.78vw,0.8rem)] font-semibold uppercase tracking-[0.1em] text-white/70 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-            <span>{HERO.release}</span>
-            {HERO.genres.map((g) => (
-              <span key={g} className="flex items-center gap-2">
-                <span className="text-white/25">•</span>
-                {g}
-              </span>
-            ))}
-            <span className="text-white/25">•</span>
-            <span>{HERO.runtime}</span>
-          </div>
-
-          {HERO.stars > 0 ? (
-            <div className="mt-[0.6vh] flex items-center justify-center md:justify-end gap-[3px]">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-[clamp(0.6rem,1vw,0.95rem)] w-[clamp(0.6rem,1vw,0.95rem)] shrink-0 ${
-                    i < HERO.stars
-                      ? "fill-vexia-gold text-vexia-gold"
-                      : "fill-white/15 text-white/15"
-                  }`}
-                  aria-hidden
-                />
-              ))}
-              <span className="ml-1.5 text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold tabular-nums text-white/75">
-                {HERO.votes}
-              </span>
+          {hasContent ? (
+            <div
+              key={`meta-${HERO.title}`}
+              className="animate-[vexia-hero-in_400ms_ease-out] text-center"
+            >
+              <h2 className="text-[clamp(1.5rem,3.5vw,3rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+                {HERO.title}
+              </h2>
+              
+              <div className="mt-2 flex items-center justify-center gap-4 text-sm font-black uppercase tracking-widest text-white/70">
+                <span className="flex items-center gap-1.5 text-vexia-purple">
+                  <Star className="h-4 w-4 fill-current" /> {HERO.votes.toFixed(1)}
+                </span>
+                <span className="text-white/30">|</span>
+                <span>{HERO.year}</span>
+                <span className="text-white/30">|</span>
+                <span>{HERO.release}</span>
+              </div>
             </div>
           ) : null}
-
-          {HERO.overview ? (
-            <p className="mx-auto mt-[0.9vh] md:ml-auto md:mr-0 line-clamp-2 max-w-[48ch] text-[clamp(0.6rem,0.82vw,0.85rem)] font-medium leading-snug text-white/60 [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-              {HERO.overview}
-            </p>
-          ) : null}
         </div>
-        ) : null}
-
       </header>
 
-      {/* Meio: imagem do carrossel em destaque (sem sobreposição) */}
-      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-4 sm:px-[5vw] md:justify-end md:pb-[1.5vh]">
+
+      {/* Meio: imagem do carrossel em destaque (indicadores de slide) */}
+      <section className="relative z-10 flex min-h-0 flex-1 items-end justify-center px-4 pb-6 sm:px-[5vw] md:pb-[3vh]">
         {slides.length > 1 ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {slides.map((s, i) => (
               <button
                 key={s.title + i}
                 type="button"
                 aria-label={`Destaque ${i + 1}`}
                 onClick={() => setSlide(i)}
-                className={`h-[4px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
+                className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
                   i === slide
-                    ? "w-9 bg-white/25"
-                    : "w-3.5 bg-white/25 hover:bg-white/45 focus-visible:bg-white shadow-[0_0_10px_white]"
+                    ? "w-10 bg-white/20"
+                    : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
                 }`}
               >
                 {i === slide ? (
                   <span
                     key={`p-${slide}`}
-                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_10px_white]"
+                    className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
                   />
                 ) : null}
               </button>
             ))}
           </div>
         ) : !hasContent ? (
-          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-semibold uppercase tracking-[0.12em] text-white/80">
-            Abra LISTAS e carregue sua lista M3U
+          <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
+            Carregue sua lista para começar
           </p>
         ) : null}
       </section>
+
 
 
 
