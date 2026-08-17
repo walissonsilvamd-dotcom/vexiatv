@@ -145,10 +145,20 @@ export function CatalogScreen(props: {
   );
 
   /* 3) Ordenação aplicada ao catálogo filtrado INTEIRO, antes de paginar.
-     O valor adiado evita travar a interface enquanto a nova ordem é calculada. */
+     O valor adiado evita travar a interface enquanto a nova ordem é calculada.
+     Também movemos o conteúdo adulto para o final da lista. */
   const deferredSort = useDeferredValue(sort);
   const sortBusy = deferredSort !== sort;
-  const sorted = useMemo(() => sortMedia(filtered, deferredSort), [filtered, deferredSort]);
+  const sorted = useMemo(() => {
+    const base = sortMedia(filtered, deferredSort);
+    // Se não estiver bloqueado (adulto liberado ou desativado), movemos os itens adultos para o fim
+    if (!blockAdult) {
+      const normal = base.filter((item) => !isAdultText(item.title, item.category, ...item.genres));
+      const adult = base.filter((item) => isAdultText(item.title, item.category, ...item.genres));
+      return [...normal, ...adult];
+    }
+    return base;
+  }, [filtered, deferredSort, blockAdult]);
 
   /* 4) Critérios TMDB (país, nota, duração, lançamento) na página carregada. */
   const tmdbNeeded = activeFilters > 0 && needsTmdb(filters);
