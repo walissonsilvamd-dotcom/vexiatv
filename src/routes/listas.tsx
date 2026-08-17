@@ -76,6 +76,33 @@ function ListsPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [qrDialog, setQrDialog] = useState(false);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "BrowserBack") {
+        if (qrDialog) {
+          setQrDialog(false);
+          e.preventDefault();
+        } else if (form) {
+          if (source) {
+            setForm(false);
+            e.preventDefault();
+          } else {
+            // Se não tem lista, volta pra Home
+            void navigate({ to: "/home" });
+          }
+        } else {
+          const tag = (e.target as HTMLElement | null)?.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA") return;
+          
+          e.preventDefault();
+          void navigate({ to: "/home" });
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [form, qrDialog, source, navigate]);
+
   // Pareamento real: a TV gera um código, o celular lê o QR e envia a lista.
   const pairing = usePairing(form, (received) => {
     setForm(false);
