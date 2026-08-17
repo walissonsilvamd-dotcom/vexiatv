@@ -26,6 +26,8 @@ import { PosterArt } from "../components/vexia/PosterArt";
 import { AudioTagBadge } from "../components/vexia/AudioTagBadge";
 import { countriesLabel } from "../lib/country";
 import { useDynamicSeo } from "../lib/dynamic-seo";
+import { isAdultText } from "../lib/parental";
+import { useSettings } from "../lib/settings-store";
 
 
 import { useMovieInfo } from "../hooks/useMovieInfo";
