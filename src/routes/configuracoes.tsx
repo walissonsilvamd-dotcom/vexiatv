@@ -274,7 +274,7 @@ function SettingsPage() {
             {formatTime(new Date())} • Preferências salvas
           </p>
         </div>
-        <VexiaLogo className="h-24 shrink-0 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] md:h-36" />
+        
       </header>
 
       {flash ? (
