@@ -135,18 +135,18 @@ function HomePage() {
   );
 
 
-  // Pool de destaques: 20 títulos aleatórios entre os mais bem avaliados (>= 2025)
-  // Filtra conteúdo adulto e prioriza lançamentos
+  // Pool de destaques: 30 títulos aleatórios entre os mais bem avaliados (>= 2025)
+  // Filtra conteúdo adulto e prioriza lançamentos de alta qualidade
   const heroPool = useMemo<MediaItem[]>(() => {
     const all = [...movies, ...series]
       .filter((m) => m.poster) // Apenas com capa certinha
       .filter((m) => !isAdultText(m.title, m.category, ...(m.genres || [])))
       .filter((m) => (m.year || 0) >= 2025)
       .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      .slice(0, 50); // Pega os 50 melhores
+      .slice(0, 60); // Pega os 60 melhores para ter margem de escolha
 
-    // Embaralha para pegar 20 aleatórios
-    return [...all].sort(() => Math.random() - 0.5).slice(0, 20);
+    // Embaralha para pegar 30 aleatórios
+    return [...all].sort(() => Math.random() - 0.5).slice(0, 30);
   }, [movies, series]);
 
   // Enriquece os destaques com TMDB
