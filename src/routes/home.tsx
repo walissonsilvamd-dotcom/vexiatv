@@ -361,7 +361,7 @@ function HomePage() {
               </div>
               <div className="flex items-center gap-6">
                 <div className="flex flex-col items-end gap-1">
-                  <span className="text-3xl font-black text-white">{formatClock(now.getTime())}</span>
+                  <span className="text-3xl font-black text-white">{now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
                     {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
                   </span>
