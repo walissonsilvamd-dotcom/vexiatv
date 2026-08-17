@@ -474,7 +474,7 @@ function HomePage() {
       </nav>
 
       {/* Rodapé de ajuda */}
-      <footer className="relative z-10 hidden shrink-0 flex-wrap items-center justify-center gap-x-7 md:flex gap-y-2 px-[5vw] py-[2.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
+      <footer className="relative z-10 hidden shrink-0 flex-wrap items-center justify-center gap-x-7 md:flex gap-y-2 px-[5vw] py-[1.5vh] text-[clamp(0.65rem,0.95vw,0.95rem)] font-semibold text-white/85">
         <span className="flex items-center gap-2">
           <Move className="h-4 w-4 shrink-0 text-vexia-cyan" aria-hidden /> Navegar
         </span>
