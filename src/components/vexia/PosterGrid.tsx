@@ -42,9 +42,10 @@ function PosterCardBase({
   const isBlocked = isAdult && settings.parentalEnabled && !unlockedAdult;
 
   const handleAction = useCallback(
-    (e: React.MouseEvent | React.FocusEvent) => {
+    (e: React.MouseEvent | React.FocusEvent | React.KeyboardEvent) => {
       if (isBlocked) {
         e.preventDefault();
+        e.stopPropagation();
         setPinOpen(true);
       }
     },
@@ -80,10 +81,10 @@ function PosterCardBase({
         tabIndex={0}
         title={active.title}
         aria-label={isBlocked ? `Conteúdo Adulto - ${active.title}` : active.title}
-        onClick={(e) => {
-          if (isBlocked) {
-            e.preventDefault();
-            setPinOpen(true);
+        onClick={handleAction}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            handleAction(e);
           }
         }}
         /* Prefetch no foco: quando o cliente para no card, os detalhes

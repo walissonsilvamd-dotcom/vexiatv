@@ -1599,7 +1599,7 @@ function PlayerPage() {
             </button>
             <button
               type="button"
-              onClick={toggle}
+              onClick={(e) => { e.stopPropagation(); toggle(); ping(); }}
               aria-label={playing ? "Pausar" : "Reproduzir"}
               className="vexia-focus grid h-9 w-9 place-items-center rounded-full bg-vexia-purple shadow-[0_0_18px_-4px_rgb(var(--vexia-primary-rgb)/0.95)]"
             >
