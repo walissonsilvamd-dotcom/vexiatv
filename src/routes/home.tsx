@@ -258,7 +258,7 @@ function HomePage() {
       <div className="relative flex h-full w-full">
         
         {/* Sidebar Esquerda */}
-        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 py-6 backdrop-blur-2xl border-r border-white/10">
+        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-2 pb-6 backdrop-blur-2xl border-r border-white/10">
           <VexiaLogo
             className={
               hasContent
