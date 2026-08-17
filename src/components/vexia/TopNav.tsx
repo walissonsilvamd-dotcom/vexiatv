@@ -32,7 +32,7 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
   return (
     <nav
       aria-label="Menu principal"
-      className={`no-scrollbar flex min-w-0 shrink items-center gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-black/60 p-1 backdrop-blur-xl ${className}`}
+      className={`no-scrollbar flex min-w-0 shrink items-center gap-1 overflow-x-auto rounded-full border border-white/5 bg-black/40 p-1 backdrop-blur-2xl ${className}`}
     >
       {tabs.map((tab) => {
         const isActive = tab.label === active;
@@ -43,10 +43,10 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
             data-nav-row={0}
             tabIndex={0}
             activeProps={{ "aria-current": "page" }}
-            className={`vexia-focus flex shrink-0 items-center rounded-xl px-3 py-2.5 text-[13px] md:py-1.5 font-bold transition-all md:px-3.5 md:text-sm ${
+            className={`vexia-focus flex shrink-0 items-center rounded-full px-4 py-2 text-[12px] font-black uppercase tracking-widest transition-all md:px-5 md:text-[13px] ${
               isActive
-                ? "bg-vexia-primary text-white shadow-[0_0_20px_rgba(82,0,165,0.4)] border-b-2 border-vexia-primary"
-                : "text-white/80 hover:bg-white/5"
+                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                : "text-white/60 hover:text-white hover:bg-white/5"
             }`}
           >
             {tab.label}
