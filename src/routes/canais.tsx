@@ -409,17 +409,27 @@ function ChannelsPage() {
   useEffect(() => {
     setSelected((cur) => {
       if (cur && list.some((c) => c.id === cur.id)) return cur;
+      
       // Ao voltar para a página, retoma o último canal usado, se ainda existir.
       if (!restoredRef.current && lastChannel) {
         const saved = list.find((c) => c.id === lastChannel.id);
         if (saved) {
           restoredRef.current = true;
+          
+          // Correção: Só abre em tela cheia se o estado salvo dizia fullscreen.
+          // Se fullscreen for falso, apenas seleciona (abre a prévia).
+          if (lastChannel.fullscreen) {
+            // Pequeno delay para garantir que o componente montou antes da navegação
+            setTimeout(() => {
+              openFullscreen(saved);
+            }, 100);
+          }
           return saved;
         }
       }
       return list[0] ?? null;
     });
-  }, [list, lastChannel]);
+  }, [list, lastChannel, openFullscreen]);
 
 
   /* Callback estável: a prévia memoizada não re-renderiza a cada tique do EPG. */
