@@ -287,8 +287,8 @@ function HomePage() {
         <VexiaLogo
           className={
             hasContent
-              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto md:h-[42vh] md:min-h-[260px]"
-              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] md:h-[75vh] md:min-h-[420px]"
+              ? "h-[24vh] max-h-[500px] min-h-[160px] w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)] md:h-[42vh] md:min-h-[260px]"
+              : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
           }
         />
 
