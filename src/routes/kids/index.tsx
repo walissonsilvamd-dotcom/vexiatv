@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useSpatialNav } from "../../hooks/use-spatial-nav";
 import { usePlaylist } from "../../lib/playlist-store";
 import { VexiaLogo } from "../../components/vexia/VexiaLogo";
+import { TopNav } from "../../components/vexia/TopNav";
 import { BRAND } from "../../lib/brand";
 import { isAdultText } from "../../lib/parental";
 import type { MediaItem } from "../../data/vexia";
