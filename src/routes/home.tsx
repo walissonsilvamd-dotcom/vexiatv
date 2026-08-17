@@ -259,13 +259,15 @@ function HomePage() {
         
         {/* Sidebar Esquerda */}
         <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-0 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <VexiaLogo
-            className={
-              hasContent
-                ? "mb-6 h-auto w-[85%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
-            }
-          />
+          <div className="mt-[-25px] flex w-full flex-col items-center">
+            <VexiaLogo
+              className={
+                hasContent
+                  ? "mb-4 h-auto w-[90%] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
+              }
+            />
+          </div>
 
           {/* Menu Vertical */}
           <nav
