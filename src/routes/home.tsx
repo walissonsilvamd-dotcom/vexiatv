@@ -312,7 +312,7 @@ function HomePage() {
         </aside>
 
         {/* Área de Conteúdo (Hero e Destaques) */}
-        <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+        <div className="relative flex flex-1 flex-col overflow-hidden">
           {/* Fundo Imersivo */}
           {hasContent ? (
             <>
@@ -332,66 +332,73 @@ function HomePage() {
             <div className="absolute inset-0 bg-black" />
           )}
 
-          {/* Header com Metadados (Canto Superior Direito) */}
-          {hasContent && (
-            <header className="relative z-10 flex w-full justify-end p-8 pt-10 sm:px-[5vw]">
-              <div
-                key={`meta-${HERO.title}`}
-                className="animate-[vexia-hero-in_400ms_ease-out] text-right"
-              >
-                <h2 className="text-[clamp(1.5rem,3.2vw,2.8rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
-                  {HERO.title}
-                </h2>
-                
-                <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
-                  <span className="flex items-center gap-1.5 text-yellow-400">
-                    <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
-                  </span>
-                  <span className="text-white/30">|</span>
-                  <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
-                  <span className="text-white/30">|</span>
-                  <span>{HERO.year}</span>
-                  <span className="text-white/30">|</span>
-                  <span>{HERO.release}</span>
+          {/* Parte Superior: Destaques e Metadados */}
+          <div className="relative flex h-[55%] w-full flex-col">
+            {hasContent && (
+              <header className="relative z-10 flex w-full justify-end p-8 pt-10 sm:px-[5vw]">
+                <div
+                  key={`meta-${HERO.title}`}
+                  className="animate-[vexia-hero-in_400ms_ease-out] text-right"
+                >
+                  <h2 className="text-[clamp(1.5rem,3.2vw,2.8rem)] font-black leading-tight tracking-tighter [text-shadow:0_4px_20px_rgba(0,0,0,0.9)]">
+                    {HERO.title}
+                  </h2>
+                  
+                  <div className="mt-2 flex items-center justify-end gap-4 text-xs font-black uppercase tracking-widest text-white/70">
+                    <span className="flex items-center gap-1.5 text-yellow-400">
+                      <Star className="h-3.5 w-3.5 fill-current" /> {HERO.votes.toFixed(1)}
+                    </span>
+                    <span className="text-white/30">|</span>
+                    <span className="text-vexia-purple">{HERO.runtime === "FILME" ? "FILME" : "SÉRIE"}</span>
+                    <span className="text-white/30">|</span>
+                    <span>{HERO.year}</span>
+                    <span className="text-white/30">|</span>
+                    <span>{HERO.release}</span>
+                  </div>
                 </div>
-              </div>
-            </header>
-          )}
+              </header>
+            )}
 
-          {/* Área Central Vazia para respirar a arte */}
-          <div className="flex-1" />
+            {/* Área Central Vazia para respirar a arte */}
+            <div className="flex-1" />
 
-          {/* Indicadores de Slide */}
-          <section className="relative z-10 flex items-center justify-center p-8">
-            {slides.length > 1 ? (
-              <div className="flex items-center gap-3">
-                {slides.map((s, i) => (
-                  <button
-                    key={s.title + i}
-                    type="button"
-                    aria-label={`Destaque ${i + 1}`}
-                    onClick={() => setSlide(i)}
-                    className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
-                      i === slide
-                        ? "w-10 bg-white/20"
-                        : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
-                    }`}
-                  >
-                    {i === slide ? (
-                      <span
-                        key={`p-${slide}`}
-                        className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
-                      />
-                    ) : null}
-                  </button>
-                ))}
-              </div>
-            ) : !hasContent ? (
-              <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
-                Carregue sua lista para começar
-              </p>
-            ) : null}
-          </section>
+            {/* Indicadores de Slide */}
+            <section className="relative z-10 flex items-center justify-center p-6">
+              {slides.length > 1 ? (
+                <div className="flex items-center gap-3">
+                  {slides.map((s, i) => (
+                    <button
+                      key={s.title + i}
+                      type="button"
+                      aria-label={`Destaque ${i + 1}`}
+                      onClick={() => setSlide(i)}
+                      className={`h-[3px] overflow-hidden rounded-full outline-none transition-all duration-300 ${
+                        i === slide
+                          ? "w-10 bg-white/20"
+                          : "w-4 bg-white/10 hover:bg-white/30 focus-visible:bg-white"
+                      }`}
+                    >
+                      {i === slide ? (
+                        <span
+                          key={`p-${slide}`}
+                          className="block h-full animate-[vexia-slide-progress_8s_linear_forwards] rounded-full bg-white shadow-[0_0_12px_white]"
+                        />
+                      ) : null}
+                    </button>
+                  ))}
+                </div>
+              ) : !hasContent ? (
+                <p className="text-[clamp(0.6rem,0.85vw,0.85rem)] font-bold uppercase tracking-[0.2em] text-white/50">
+                  Carregue sua lista para começar
+                </p>
+              ) : null}
+            </section>
+          </div>
+
+          {/* Parte Inferior: Carrosséis Compactos */}
+          <div className="relative z-20 flex-1 overflow-y-auto no-scrollbar">
+            <DiscoverRows />
+          </div>
         </div>
       </div>
 
