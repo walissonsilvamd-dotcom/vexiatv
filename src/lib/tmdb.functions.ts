@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { fetchSeasonEpisodes, searchTmdb, type TmdbKind } from "./tmdb.server";
+import { fetchSeasonEpisodes, searchTmdb } from "./tmdb.server";
 
 export const tmdbSearch = createServerFn({ method: "POST" })
   .inputValidator((data) =>
@@ -14,15 +14,9 @@ export const tmdbSearch = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    return {
-      title: "Matrix",
-      year: 1999,
-      rating: 8.7,
-      genres: ["Action", "Sci-Fi"],
-      overview: "Teste de serialização",
-      backdrop: "https://image.tmdb.org/t/p/original/h8gH9u7Mh9p9o9o9o9o9o9o9o9.jpg",
-      poster: "https://image.tmdb.org/t/p/w780/h8gH9u7Mh9p9o9o9o9o9o9o9o9.jpg",
-    } as any;
+    const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
+    if (!credential) return null;
+    return await searchTmdb(credential, data.title, data.year, data.kind as "movie" | "tv", data.language);
   });
 
 export const tmdbSeasonEpisodes = createServerFn({ method: "POST" })
