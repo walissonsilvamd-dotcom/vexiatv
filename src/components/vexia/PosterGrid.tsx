@@ -118,69 +118,76 @@ function PosterCardBase({
 
 
         <div className="relative aspect-[2/3] w-full overflow-hidden">
-          {isBlocked && (
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
-              <Lock className="mb-2 h-10 w-10 text-vexia-cyan shadow-[0_0_15px_rgba(0,200,255,0.4)]" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+          {isBlocked ? (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl">
+              <div className="relative mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-vexia-purple/20 shadow-[0_0_30px_rgba(123,43,190,0.3)]">
+                <Lock className="h-8 w-8 text-vexia-purple shadow-[0_0_15px_rgba(123,43,190,0.5)]" />
+              </div>
+              <span className="text-[11px] font-black uppercase tracking-[0.25em] text-vexia-purple-soft/90">
                 Conteúdo Bloqueado
               </span>
+              <span className="mt-2 text-[9px] font-medium tracking-wide text-white/40">
+                Pressione OK para liberar
+              </span>
             </div>
-          )}
-          {showPoster ? (
-            <SmartImage
-              src={image}
-              role="poster"
-              alt={active.title}
-              objectPosition={active.posterPosition ?? "center"}
-              key={image}
-              eager={priority}
-              onFail={() => setBroken(true)}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              fallback={<PosterArt title={active.title} kind={kind} />}
-            />
           ) : (
-            <PosterArt title={active.title} kind={kind} />
-          )}
+            <>
+              {showPoster ? (
+                <SmartImage
+                  src={image}
+                  role="poster"
+                  alt={active.title}
+                  objectPosition={active.posterPosition ?? "center"}
+                  key={image}
+                  eager={priority}
+                  onFail={() => setBroken(true)}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fallback={<PosterArt title={active.title} kind={kind} />}
+                />
+              ) : (
+                <PosterArt title={active.title} kind={kind} />
+              )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-black/20" />
-          {/* brilho espelhado */}
-          <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-vexia-purple/25 via-transparent to-transparent" />
-          {/* Nota — sempre visível no canto superior direito */}
-          <span
-            className={`absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-black backdrop-blur-md ${
-              active.rating > 0
-                ? "border-vexia-gold/40 bg-black/75 text-vexia-gold shadow-[0_0_12px_rgba(0,0,0,0.7)]"
-                : "border-white/15 bg-black/65 text-white/55"
-            }`}
-          >
-            <Star className="h-3 w-3 fill-current" aria-hidden />
-            {active.rating > 0 ? active.rating.toFixed(1) : "—"}
-          </span>
-          {/* Selo DUBL / LEG — evita entrar no título para descobrir o áudio */}
-          <AudioTagBadge
-            sources={[item.title, active.title, item.category]}
-            className="absolute left-1.5 top-1.5 bg-black/75"
-          />
-
-          {progress != null ? (
-            <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
-
-              <div
-                className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.8)]"
-                style={{ width: `${progress}%` }}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/5 to-black/20" />
+              {/* brilho espelhado */}
+              <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+              <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-t from-vexia-purple/25 via-transparent to-transparent" />
+              {/* Nota — sempre visível no canto superior direito */}
+              <span
+                className={`absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] font-black backdrop-blur-md ${
+                  active.rating > 0
+                    ? "border-vexia-gold/40 bg-black/75 text-vexia-gold shadow-[0_0_12px_rgba(0,0,0,0.7)]"
+                    : "border-white/15 bg-black/65 text-white/55"
+                }`}
+              >
+                <Star className="h-3 w-3 fill-current" aria-hidden />
+                {active.rating > 0 ? active.rating.toFixed(1) : "—"}
+              </span>
+              {/* Selo DUBL / LEG — evita entrar no título para descobrir o áudio */}
+              <AudioTagBadge
+                sources={[item.title, active.title, item.category]}
+                className="absolute left-1.5 top-1.5 bg-black/75"
               />
-            </div>
-          ) : null}
+
+              {progress != null ? (
+                <div className="absolute inset-x-0 bottom-0 h-1.5 bg-white/10">
+                  <div
+                    className="h-full bg-gradient-to-r from-vexia-purple to-vexia-cyan shadow-[0_0_10px_rgb(var(--vexia-primary-rgb)/0.8)]"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
         <div className="space-y-0.5 border-t border-white/5 p-2.5">
           {/* Duas linhas: títulos longos aparecem por inteiro em vez de cortados. */}
           <p className="line-clamp-2 min-h-[2.2em] text-[13px] font-extrabold leading-tight text-vexia-text">
-            {active.title}
+            {isBlocked ? "Conteúdo Restrito" : active.title}
           </p>
           <p className="truncate text-[11px] font-medium text-vexia-cyan/80">
-            {active.year ? active.year : active.genres[0]}
-            {active.seasons ? ` • ${active.seasons} temp.` : ""}
+            {isBlocked ? "****" : (active.year ? active.year : active.genres[0])}
+            {!isBlocked && active.seasons ? ` • ${active.seasons} temp.` : ""}
           </p>
         </div>
       </Link>
