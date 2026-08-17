@@ -179,7 +179,6 @@ export function warmEngines(src?: string | null): void {
   if (!warmed) {
     warmed = true;
     void import("hls.js").catch(() => undefined);
-    void import("mpegts.js").catch(() => undefined);
   }
   if (!src) return;
   try {
@@ -329,25 +328,28 @@ export async function attachEngine(
       // desempenho decide o quanto a ABR pode ousar e o tamanho do buffer.
       capLevelToPlayerSize: preview || tuning.capToPlayerSize,
       abrEwmaDefaultEstimate: tuning.bandwidthEstimate,
-      // Entra pela faixa mais leve (imagem instantânea)
-      startLevel: 0,
-      // Buffers agressivos para início rápido em TV
+      // Prévia entra pela faixa mais leve (imagem instantânea); em filme/série
+      // deixamos a ABR escolher, evitando troca constante de qualidade — a
+      // principal causa de engasgo no meio do filme.
+      startLevel: preview ? 0 : -1,
       initialLiveManifestSize: 1,
-      maxStarvationDelay: 0.1,
-      maxLoadingDelay: 0.1,
-      backBufferLength: preview ? 1 : scale(live ? 10 : 60),
-      maxBufferLength: preview ? 1.5 : scale(live ? 20 : 60),
+      // Fora da prévia, margens folgadas: espera um pouco em vez de derrubar a
+      // qualidade a cada oscilação de rede.
+      maxStarvationDelay: preview ? 0.1 : 4,
+      maxLoadingDelay: preview ? 0.1 : 4,
+      backBufferLength: preview ? 1 : scale(live ? 10 : 30),
+      maxBufferLength: preview ? 1.5 : scale(live ? 20 : 30),
       maxMaxBufferLength: preview ? 3 : scale(live ? 40 : 120),
       maxBufferHole: 0.5,
       highBufferWatchdogPeriod: 0.5,
       nudgeOffset: 0.1,
       nudgeMaxRetry: 5,
-      manifestLoadingTimeOut: preview ? 800 : 2_000,
-      manifestLoadingMaxRetry: 1,
-      levelLoadingTimeOut: preview ? 800 : 3_000,
-      levelLoadingMaxRetry: 1,
-      fragLoadingTimeOut: preview ? 1_500 : 5_000,
-      fragLoadingMaxRetry: 2,
+      manifestLoadingTimeOut: preview ? 1_000 : 4_000,
+      manifestLoadingMaxRetry: 2,
+      levelLoadingTimeOut: preview ? 1_000 : 4_000,
+      levelLoadingMaxRetry: 2,
+      fragLoadingTimeOut: preview ? 2_000 : 8_000,
+      fragLoadingMaxRetry: 4,
       enableSoftwareAES: false,
       fragLoadingRetryDelay: 100,
     });
