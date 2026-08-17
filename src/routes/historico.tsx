@@ -196,6 +196,23 @@ function HistoryPage() {
         </aside>
 
         <section className="min-w-0 flex-1">
+          {resolved.some(e => e.kind === 'channel') && (
+            <div className="mb-6">
+              <button
+                type="button"
+                data-nav-row={2}
+                tabIndex={0}
+                onClick={() => {
+                  // TODO: Implementar botão de liberar conteúdo adulto no histórico
+                  console.log('Liberar conteúdo adulto');
+                }}
+                className="vexia-focus w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
+            </div>
+          )}
+
           {list.length === 0 ? (
             <div className="grid place-items-center rounded-2xl border border-white/10 bg-black/50 px-6 py-20 text-center backdrop-blur-xl">
               <History className="mb-3 h-10 w-10 text-vexia-purple" aria-hidden />
