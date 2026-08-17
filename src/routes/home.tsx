@@ -20,6 +20,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { TopNav } from "../components/vexia/TopNav";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
@@ -334,7 +335,10 @@ function HomePage() {
 
           {/* Header com Metadados (Canto Superior Direito) */}
           {hasContent && (
-            <header className="relative z-10 flex w-full justify-end p-8 pt-10 sm:px-[5vw]">
+            <header className="relative z-10 flex w-full items-center justify-between p-8 pt-10 sm:px-[5vw]">
+              <div className="flex items-center gap-6">
+                <TopNav active="Home" />
+              </div>
               <div
                 key={`meta-${HERO.title}`}
                 className="animate-[vexia-hero-in_400ms_ease-out] text-right"

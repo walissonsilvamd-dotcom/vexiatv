@@ -118,7 +118,7 @@ function HistoryPage() {
           />
         </label>
         <div className="ml-auto hidden md:block">
-          <VexiaLogo className="h-11" />
+          <VexiaLogo className="h-10 md:h-14" />
         </div>
       </header>
 

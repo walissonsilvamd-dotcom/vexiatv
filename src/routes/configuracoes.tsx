@@ -253,18 +253,11 @@ function SettingsPage() {
       ref={pageRef}
       className="vexia-safe flex min-h-[100dvh] flex-col overflow-y-auto bg-vexia-bg text-vexia-text md:h-screen md:overflow-hidden"
     >
-      <div className="shrink-0 px-3 pt-3 sm:px-[4vw]">
+      <div className="flex shrink-0 items-center justify-between px-3 pt-3 sm:px-[4vw]">
         <TopNav active="Ajustes" className="w-fit" />
+        <VexiaLogo className="h-10 md:h-14" />
       </div>
-      <header className="grid shrink-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-[4vw]">
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/home" })}
-          aria-label="Voltar"
-          className="vexia-focus grid h-10 w-10 shrink-0 place-items-center rounded-full border border-vexia-purple/40 bg-black/40 backdrop-blur-md transition-all hover:border-vexia-cyan/60 hover:bg-vexia-purple/20"
-        >
-          <ArrowLeft className="h-5 w-5 text-vexia-cyan" aria-hidden />
-        </button>
+      <header className="grid shrink-0 grid-cols-[minmax(0,1fr)] items-center gap-3 px-3 py-3 sm:gap-4 sm:px-[4vw]">
         <div className="min-w-0 text-center">
           <h1 className="truncate text-xl font-black tracking-[0.3em] text-white md:text-2xl">
             AJUSTES
@@ -273,7 +266,6 @@ function SettingsPage() {
             {formatTime(new Date())} • Preferências salvas
           </p>
         </div>
-        <VexiaLogo className="h-24 shrink-0 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] md:h-36" />
       </header>
 
       {flash ? (

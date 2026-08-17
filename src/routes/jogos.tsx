@@ -341,7 +341,7 @@ function JogosPage() {
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <VexiaLogo className="h-24 w-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+            <VexiaLogo className="h-10 w-auto drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
           </div>
           <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
             <Trophy className="h-5 w-5 text-white animate-pulse" aria-hidden />
