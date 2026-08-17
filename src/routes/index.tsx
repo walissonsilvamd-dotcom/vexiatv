@@ -51,11 +51,11 @@ function SplashScreen() {
       <h1 className="sr-only">{BRAND.name} — iniciando</h1>
 
       {/* Splash em Vídeo */}
-      <div className="relative flex h-full w-full items-center justify-center p-8 md:p-16">
+      <div className="flex h-full w-full items-center justify-center bg-black">
         <video
           ref={videoRef}
           src={splashVideoAsset.url}
-          className="max-h-[85vh] w-full max-w-[85vw] object-contain drop-shadow-[0_0_50px_rgba(123,43,190,0.3)]"
+          className="h-full w-full object-contain"
           muted
           playsInline
           onEnded={() => setExiting(true)}
