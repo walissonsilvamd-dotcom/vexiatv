@@ -33,6 +33,24 @@ function PosterCardBase({
   /** Card acima da dobra: baixa a capa imediatamente e com prioridade alta. */
   priority?: boolean;
 }) {
+  const navigate = useNavigate();
+  const { settings } = useSettings();
+  const unlockedAdult = useParentalUnlocked();
+  const [pinOpen, setPinOpen] = useState(false);
+
+  const isAdult = isAdultText(item.title, item.category, ...item.genres);
+  const isBlocked = isAdult && settings.parentalEnabled && !unlockedAdult;
+
+  const handleAction = useCallback(
+    (e: React.MouseEvent | React.FocusEvent) => {
+      if (isBlocked) {
+        e.preventDefault();
+        setPinOpen(true);
+      }
+    },
+    [isBlocked],
+  );
+
   const { has, toggle } = useFavorites();
   const fav = has(kind, item.title);
   const [broken, setBroken] = useState(false);
