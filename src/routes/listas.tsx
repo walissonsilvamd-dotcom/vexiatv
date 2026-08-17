@@ -185,7 +185,7 @@ function ListsPage() {
               Gerencie suas fontes de conteúdo
             </p>
           </div>
-          <VexiaLogo className="h-10 shrink-0 md:h-14" />
+          <VexiaLogo className="h-14 shrink-0 md:h-20" />
         </header>
 
         <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">

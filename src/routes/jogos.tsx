@@ -341,8 +341,7 @@ function JogosPage() {
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-[4vw]">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-white tracking-tight italic">Pipoca</span>
-            <span className="text-xl font-black text-vexia-primary tracking-tight italic">Flix</span>
+            <VexiaLogo className="h-20 w-auto" />
           </div>
           <div className="flex items-center gap-3">
             <Trophy className="h-5 w-5 text-white" aria-hidden />
