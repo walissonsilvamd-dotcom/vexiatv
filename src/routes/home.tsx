@@ -20,6 +20,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import heroAsset from "../assets/hero-odisseia.jpg.asset.json";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { QrPlaylistDialog } from "../components/vexia/QrPlaylistDialog";
+import { TopNav } from "../components/vexia/TopNav";
 import { usePlaylist } from "../lib/playlist-store";
 import { useSettings } from "../lib/settings-store";
 import { useTmdbHeroes } from "../lib/use-tmdb";
