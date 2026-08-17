@@ -29,19 +29,19 @@ const CATEGORIES: Category[] = [
   { 
     id: "animacao", 
     label: "ANIMAÇÃO", 
-    keywords: ["animação", "animation", "desenho", "cartoon"],
+    keywords: ["animação", "animation", "desenho", "cartoon", "disney", "pixar", "dreamworks"],
     imageType: "movie"
   },
   { 
     id: "infantil", 
     label: "INFANTIL", 
-    keywords: ["infantil", "kids", "crianças", "children", "junior", "baby"],
+    keywords: ["infantil", "kids", "crianças", "children", "junior", "baby", "peppa", "galinha pintadinha", "patrulha canina"],
     imageType: "movie"
   },
   { 
     id: "animes", 
     label: "ANIMES", 
-    keywords: ["anime", "otaku", "manga", "japão"],
+    keywords: ["anime", "otaku", "manga", "japão", "naruto", "dragon ball", "one piece", "boruto", "bleach"],
     imageType: "series"
   },
 ];
