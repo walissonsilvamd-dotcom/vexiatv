@@ -81,11 +81,10 @@ function PosterCardBase({
         tabIndex={0}
         title={active.title}
         aria-label={isBlocked ? `Conteúdo Adulto - ${active.title}` : active.title}
-        onClick={(e) => {
-          if (isBlocked) {
-            e.preventDefault();
-            e.stopPropagation();
-            setPinOpen(true);
+        onClick={handleAction}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            handleAction(e);
           }
         }}
         /* Prefetch no foco: quando o cliente para no card, os detalhes
