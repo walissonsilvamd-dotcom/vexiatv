@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { ChevronDown, Clock, Search, Undo2 } from "lucide-react";
 import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import nebula from "../../assets/nebula-bg.jpg.asset.json";
@@ -52,12 +52,13 @@ export function CatalogScreen(props: {
   activeTab: "Filmes" | "Séries";
 }) {
   const { kind, activeTab } = props;
+  const searchParams = useSearch({ strict: false }) as any;
   let items = props.items;
   let categories = props.categories;
   const scopeRef = useRef<HTMLDivElement>(null);
   useSpatialNav(scopeRef);
   const [category, setCategory] = useState("Todos");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(searchParams.q || "");
   const [limit, setLimit] = useState(PAGE);
   const [listsOpen, setListsOpen] = useState(false);
   const { filters, active: activeFilters } = useFilters();

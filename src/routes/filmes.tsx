@@ -5,6 +5,9 @@ import { usePlaylist } from "../lib/playlist-store";
 import { BRAND } from "../lib/brand";
 
 export const Route = createFileRoute("/filmes")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: (search.q as string) || "",
+  }),
   head: () => ({
     meta: [
       { title: `${BRAND.name} — Filmes` },

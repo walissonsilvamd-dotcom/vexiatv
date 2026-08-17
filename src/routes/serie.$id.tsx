@@ -105,7 +105,7 @@ function EpisodesPage() {
   if (!serie) {
     return (
       <main className="grid min-h-screen place-items-center bg-vexia-bg text-vexia-text">
-        <Link to="/series" className="text-xs text-vexia-cyan">
+        <Link to="/series" search={{ q: "" }} className="text-xs text-vexia-cyan">
           Série não encontrada na lista — voltar
         </Link>
       </main>
@@ -120,6 +120,7 @@ function EpisodesPage() {
       <div className="flex items-center gap-3 px-5 py-3 md:px-10">
         <Link
           to="/series"
+          search={{ q: "" }}
           data-nav-row={0}
           tabIndex={0}
           className="vexia-focus grid h-10 w-10 place-items-center rounded-full bg-vexia-card"
