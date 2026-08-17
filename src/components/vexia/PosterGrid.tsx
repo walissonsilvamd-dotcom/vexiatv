@@ -9,7 +9,7 @@ import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
 import { AudioTagBadge } from "./AudioTagBadge";
-import { useBackgroundStore } from "../../background-store";
+import { useBackgroundStore } from "../../lib/background-store";
 import { isAdultText, useParentalUnlocked } from "../../lib/parental";
 import { useSettings } from "../../lib/settings-store";
 import { PinPrompt } from "./PinPrompt";
