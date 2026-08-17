@@ -27,10 +27,11 @@ export function Carousel({
 
   return (
     <section className="space-y-2">
-      <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-vexia-purple-soft drop-shadow-[0_0_14px_rgb(var(--vexia-primary-rgb)/0.7)]">
-        {icon ? <span aria-hidden>{icon}</span> : null}
+      <h2 className="flex items-center gap-2 text-lg font-black uppercase tracking-[0.2em] text-white drop-shadow-[0_0_14px_rgba(255,255,255,0.2)]">
+        {icon ? <span className="opacity-70" aria-hidden>{icon}</span> : null}
         {title}
       </h2>
+
 
       {chips ? (
         <div className="flex flex-wrap gap-2">

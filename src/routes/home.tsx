@@ -35,6 +35,8 @@ import { preloadImage, preloadImages } from "../lib/image";
 import { SmartImage } from "../components/vexia/SmartImage";
 import { BRAND } from "../lib/brand";
 import { isAdultText } from "../lib/parental";
+import { useBackgroundStore } from "../lib/background-store";
+
 
 export const Route = createFileRoute("/home")({
   head: () => ({
@@ -113,6 +115,8 @@ function HomePage() {
   const [exitOpen, setExitOpen] = useState(false);
   const { movies, series, channels, hasContent } = usePlaylist();
   const { settings, formatTime } = useSettings();
+  const { currentBackdrop, currentTitle, currentYear, currentGenres } = useBackgroundStore();
+
 
   // Continuar assistindo: histórico local reconciliado com a lista atual.
   const continueEntries = useContinueWatching(15);
@@ -172,7 +176,21 @@ function HomePage() {
     return () => clearInterval(id);
   }, [slides.length]);
 
-  const HERO = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
+  const heroFromSlides = slides[slide % Math.max(1, slides.length)] ?? FALLBACK_HERO;
+
+  // O fundo agora pode vir do foco em um card (currentBackdrop) ou do slide do hero
+  const HERO = currentBackdrop ? {
+    title: currentTitle || "",
+    year: currentYear || 0,
+    image: currentBackdrop,
+    release: currentGenres[0] || "",
+    genres: currentGenres,
+    runtime: "",
+    votes: 0,
+    stars: 0,
+    overview: ""
+  } : heroFromSlides;
+
 
   // Pré-carrega a próxima imagem para evitar "piscada" na troca de slide.
   useEffect(() => {
@@ -258,18 +276,19 @@ function HomePage() {
       {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
       {hasContent ? (
         <>
-          <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_800ms_ease-out]">
+          <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_1200ms_ease-out]">
             <SmartImage
               src={HERO.image}
               role="backdrop"
               alt={HERO.title}
               eager
               sizes="100vw"
-              className="h-full w-full object-cover animate-[vexia-ken-burns_18s_ease-out_forwards] motion-reduce:animate-none"
+              className="h-full w-full object-cover animate-[vexia-ken-burns_24s_ease-out_forwards] motion-reduce:animate-none opacity-50 grayscale-[20%]"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/15 to-black/35" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+
         </>
       ) : (
         <div className="absolute inset-0 bg-black" />

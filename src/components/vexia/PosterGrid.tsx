@@ -11,6 +11,8 @@ import { PosterArt } from "./PosterArt";
 import { AudioTagBadge } from "./AudioTagBadge";
 import { useBackgroundStore } from "../../lib/background-store";
 
+import { useBackgroundStore } from "../../lib/background-store";
+
 
 
 function PosterCardBase({
