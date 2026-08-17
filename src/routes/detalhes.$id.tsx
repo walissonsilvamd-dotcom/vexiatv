@@ -418,7 +418,7 @@ function DetailsPage() {
         {cast && cast.length > 0 ? (
           <section className="space-y-2">
             <SectionHeading>ELENCO</SectionHeading>
-            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-4 overflow-x-auto pb-1">
+            <div className="no-scrollbar vexia-fade-edges vexia-smooth-scroll flex gap-5 overflow-x-auto pb-1">
               {cast.map((person) => (
                 <div key={person.name} className="w-[108px] shrink-0 text-center">
                   {person.photo ? (

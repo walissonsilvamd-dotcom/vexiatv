@@ -39,10 +39,10 @@ const VIRTUALIZE_FROM = 30;
 /* Colunas fluidas: cards nunca ficam gigantes em telas grandes,
    mantendo ~5 cards por linha e 2,5 cards visíveis na altura. */
 const GRID_CLASS =
-  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(96px,13vw,180px),1fr))]";
+  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(110px,15vw,200px),1fr))]";
 /* Painel recolhido: o espaço liberado entra mais um card por linha. */
 const GRID_CLASS_WIDE =
-  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(96px,11vw,165px),1fr))]";
+  "grid gap-2.5 p-1 sm:gap-4 [grid-template-columns:repeat(auto-fill,minmax(clamp(110px,13vw,185px),1fr))]";
 
 
 export function CatalogScreen(props: {
