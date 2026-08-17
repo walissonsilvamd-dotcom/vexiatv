@@ -176,6 +176,23 @@ function HistoryPage() {
               Limpar itens assistidos
             </button>
           </div>
+
+          {resolved.some(e => e.kind === 'channel') && (
+            <div className="mt-6">
+              <button
+                type="button"
+                data-nav-row={1}
+                tabIndex={0}
+                onClick={() => {
+                  // O PinPrompt já está disponível globalmente ou via estado local se adicionado
+                  (window as any).dispatchEvent(new CustomEvent('vexia:open-pin'));
+                }}
+                className="vexia-focus w-full rounded-lg border border-vexia-purple/40 bg-black/40 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
+            </div>
+          )}
         </aside>
 
         <section className="min-w-0 flex-1">

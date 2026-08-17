@@ -239,6 +239,22 @@ function FavoritesPage() {
               );
             })}
           </div>
+          
+          {resolved.some(f => f.kind === 'channel') && (
+            <div className="mt-6">
+              <button
+                type="button"
+                data-nav-row={1}
+                tabIndex={0}
+                onClick={() => {
+                  (window as any).dispatchEvent(new CustomEvent('vexia:open-pin'));
+                }}
+                className="vexia-focus w-full rounded-lg border border-vexia-purple/40 bg-black/40 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
+            </div>
+          )}
         </aside>
 
         {/* ─── Grade ─── */}
