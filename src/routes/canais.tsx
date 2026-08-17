@@ -548,7 +548,7 @@ function ChannelsPage() {
 
 
   return shell(
-    <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto px-3 pb-3 md:overflow-hidden md:grid-cols-[220px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
+    <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto px-3 pb-3 md:overflow-hidden md:grid-cols-[260px_minmax(0,1fr)_minmax(0,1.1fr)] md:px-6">
       {/* Coluna 1 — categorias dinâmicas */}
       <aside className="vexia-scroll order-2 max-h-[26vh] min-h-0 space-y-1.5 overflow-y-auto overflow-x-hidden scroll-p-6 pr-1 [contain:layout_paint] md:order-none md:max-h-none">
         <h1 className="px-3 py-2 text-sm font-black tracking-[0.2em] text-vexia-text">CANAIS</h1>
