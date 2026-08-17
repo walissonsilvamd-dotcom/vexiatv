@@ -12,7 +12,7 @@
 
 export type HandoffKind = "live" | "movie" | "series";
 
-type Handoff = { url: string; at: number };
+type Handoff = { url: string; at: number; immediate?: boolean };
 
 const KEY = "vexia:handoff";
 /** Um handoff só vale para a navegação imediata (5 min é folga suficiente). */
@@ -48,9 +48,10 @@ export function setStreamHandoff(
   id: string,
   url: string | undefined | null,
   ep?: string,
+  immediate?: boolean,
 ): void {
   if (!url) return;
-  const entry: Handoff = { url, at: Date.now() };
+  const entry: Handoff = { url, at: Date.now(), immediate };
   const key = keyFor(type, id, ep);
   memory.set(key, entry);
   const store = readStore();
@@ -61,12 +62,17 @@ export function setStreamHandoff(
   writeStore({ ...Object.fromEntries(fresh), [key]: entry });
 }
 
-/** Recupera o link entregue pela tela anterior (ou undefined). */
-export function getStreamHandoff(type: HandoffKind, id: string, ep?: string): string | undefined {
+/** Recupera o link entregue pela tela anterior (ou objeto completo). */
+export function getStreamHandoffData(type: HandoffKind, id: string, ep?: string) {
   const key = keyFor(type, id, ep);
   const entry = memory.get(key) ?? readStore()[key];
   if (!entry) return undefined;
   if (Date.now() - entry.at > TTL_MS) return undefined;
   memory.set(key, entry);
-  return entry.url;
+  return entry;
+}
+
+/** Recupera APENAS o link entregue pela tela anterior (legado). */
+export function getStreamHandoff(type: HandoffKind, id: string, ep?: string): string | undefined {
+  return getStreamHandoffData(type, id, ep)?.url;
 }
