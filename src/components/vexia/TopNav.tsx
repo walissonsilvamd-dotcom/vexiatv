@@ -18,7 +18,7 @@ const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] 
   { label: "Home", to: "/home" },
   { label: "Canais", to: "/canais" },
   { label: "Filmes", to: "/filmes", hideKey: "hideVod" },
-  { label: "SÉRIES", to: "/series", hideKey: "hideSeries" },
+  { label: "Séries", to: "/series", hideKey: "hideSeries" },
   { label: "Kids", to: "/kids" },
   { label: "Favoritos", to: "/favoritos" },
   { label: "Jogos", to: "/jogos" },
