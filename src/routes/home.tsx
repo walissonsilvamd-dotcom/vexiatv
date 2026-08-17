@@ -455,9 +455,6 @@ function HomePage() {
         onCancel={() => setPendingRemove(null)}
       />
 
-      <div className="relative z-10">
-        <DiscoverRows />
-      </div>
     </main>
   );
 }
