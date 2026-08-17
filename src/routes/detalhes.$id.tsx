@@ -259,7 +259,7 @@ function DetailsPage() {
             type="button"
             data-nav-row={0}
             tabIndex={0}
-            onClick={() => navigate({ to: isSeries ? "/series" : "/filmes" })}
+            onClick={() => navigate({ to: isSeries ? "/series" : "/filmes", search: { q: "" } })}
             className="vexia-focus grid h-10 w-10 place-items-center rounded-full bg-black/60"
             aria-label="Voltar"
           >
