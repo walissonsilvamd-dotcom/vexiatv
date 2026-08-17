@@ -135,39 +135,37 @@ function HomePage() {
   );
 
 
-  // Pool de destaques: até 8 títulos da lista com imagem disponível.
-  // Filtra conteúdo adulto para nunca aparecer nos destaques da Home.
+  // Pool de destaques: 20 títulos aleatórios entre os mais bem avaliados (>= 2025)
+  // Filtra conteúdo adulto e prioriza lançamentos
   const heroPool = useMemo<MediaItem[]>(() => {
-    // Prioriza lançamentos de 2026 para o destaque da Home
-    const pool = [...movies, ...series]
-      .filter((m) => m.backdrop || m.poster)
+    const all = [...movies, ...series]
+      .filter((m) => m.poster) // Apenas com capa certinha
       .filter((m) => !isAdultText(m.title, m.category, ...(m.genres || [])))
-      .sort((a, b) => {
-        if (a.year === 2026 && b.year !== 2026) return -1;
-        if (b.year === 2026 && a.year !== 2026) return 1;
-        return (b.year || 0) - (a.year || 0);
-      })
-      .slice(0, 8);
-    return pool;
+      .filter((m) => (m.year || 0) >= 2025)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, 50); // Pega os 50 melhores
+
+    // Embaralha para pegar 20 aleatórios
+    return [...all].sort(() => Math.random() - 0.5).slice(0, 20);
   }, [movies, series]);
 
-  // Enriquece os destaques com TMDB (nota, sinopse, capas melhores).
+  // Enriquece os destaques com TMDB
   const enrichedHeroes = useTmdbHeroes(heroPool, "movie");
 
-  // Carrossel do destaque: montado a partir dos títulos enriquecidos da lista M3U.
   const slides = useMemo<Hero[]>(() => {
     return enrichedHeroes.map((m) => ({
       title: m.title.toUpperCase(),
       year: m.year,
-      release: m.genres[0] ?? "LISTA M3U",
+      release: m.genres[0] ?? "LANÇAMENTO",
       genres: m.genres.slice(0, 3).map((g) => g.toUpperCase()),
       runtime: m.seasons ? `${m.seasons} TEMPORADAS` : "FILME",
       votes: m.rating,
       stars: Math.round(m.rating),
-      image: (m.backdrop || m.poster) as string,
+      image: (m.poster) as string, // Prioriza poster estático sem corte
       overview: m.overview ?? "",
     }));
   }, [enrichedHeroes]);
+
 
   const [slide, setSlide] = useState(0);
   useEffect(() => {

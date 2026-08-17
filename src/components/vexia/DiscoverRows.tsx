@@ -1,26 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { MediaItem } from "../../data/vexia";
-import { normalizeName } from "../../lib/favorites-store";
-import { COUNTRY_CODES } from "../../lib/filters-store";
-import { useWatchHistory } from "../../lib/history-store";
 import { usePlaylist } from "../../lib/playlist-store";
 import { useTmdbHeroes } from "../../lib/use-tmdb";
 import { isAdultText } from "../../lib/parental";
 import { Carousel } from "./Carousel";
-
-const SAMPLE_MOVIES = 36;
-const SAMPLE_SERIES = 24;
-const ROW = 12;
-
-const COUNTRY_CHIPS = ["Brasil", "EUA", "Japão", "Coreia", "Reino Unido"];
-const GENRE_CHIPS = ["Ação", "Drama", "Comédia", "Terror", "Animação", "Romance"];
-
-function norm(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
+import { Link } from "@tanstack/react-router";
 
 function byRating(a: MediaItem, b: MediaItem) {
   return b.rating - a.rating;
@@ -32,109 +16,103 @@ function byRelease(a: MediaItem, b: MediaItem) {
   return (db || 0) - (da || 0);
 }
 
-/**
- * Carrosséis premium de descoberta.
- * Base: lista M3U/HLS já carregada; complemento: TMDB (nota, país, gênero, ano).
- */
 export function DiscoverRows() {
   const { movies, series, hasContent } = usePlaylist();
-  const { history } = useWatchHistory();
-  const [country, setCountry] = useState(COUNTRY_CHIPS[0]);
-  const [genre, setGenre] = useState(GENRE_CHIPS[0]);
 
+  // Filtragem unificada de conteúdo adulto e amostra inicial
   const movieSample = useMemo(
-    () => movies.filter((m) => !isAdultText(m.title, m.category, ...m.genres)).slice(0, SAMPLE_MOVIES),
-    [movies],
+    () => movies.filter((m) => !isAdultText(m.title, m.category, ...m.genres)).slice(0, 100),
+    [movies]
   );
   const seriesSample = useMemo(
-    () => series.filter((s) => !isAdultText(s.title, s.category, ...s.genres)).slice(0, SAMPLE_SERIES),
-    [series],
+    () => series.filter((s) => !isAdultText(s.title, s.category, ...s.genres)).slice(0, 100),
+    [series]
   );
 
   const richMovies = useTmdbHeroes(movieSample, "movie");
   const richSeries = useTmdbHeroes(seriesSample, "series");
 
-  // 🔥 Em alta: o que mais aparece no histórico local, reconciliado com a lista.
-  const trending = useMemo(() => {
-    if (history.length === 0) return [];
-    const wanted = new Set(history.map((h) => normalizeName(h.name)));
-    return [...richMovies, ...richSeries].filter((item) => wanted.has(normalizeName(item.title)));
-  }, [history, richMovies, richSeries]);
-
-  const topRated = useMemo(
-    () => [...richMovies, ...richSeries].filter((m) => m.rating >= 7).sort(byRating).slice(0, 20),
-    [richMovies, richSeries],
+  // Melhores Filmes (Top 10)
+  const topMovies = useMemo(
+    () => richMovies.sort(byRating).slice(0, 10),
+    [richMovies]
   );
 
-  const byCountry = useMemo(() => {
-    const codes = COUNTRY_CODES[country] ?? [];
-    return richMovies
-      .filter((m) => (m.countries ?? []).some((c) => codes.includes(c.toUpperCase())))
-      .slice(0, 20);
-  }, [richMovies, country]);
-
-  const byGenre = useMemo(() => {
-    const target = norm(genre);
-    return [...richMovies, ...richSeries]
-      .filter((m) => m.genres.some((g) => norm(g).includes(target)))
-      .slice(0, 20);
-  }, [richMovies, richSeries, genre]);
-
-  const releases = useMemo(
-    () => [...richMovies, ...richSeries].filter((m) => m.year >= 2026).sort(byRelease).slice(0, 20),
-    [richMovies, richSeries],
-  );
-
-  const popularSeries = useMemo(
-    () => [...richSeries].sort(byRating).slice(0, 20),
-    [richSeries],
+  // Melhores Séries (Top 10)
+  const topSeries = useMemo(
+    () => richSeries.sort(byRating).slice(0, 10),
+    [richSeries]
   );
 
   if (!hasContent) return null;
 
   return (
-    <div className="space-y-12 px-[5vw] py-16">
-      <Carousel
-        title="Melhores avaliados"
-        icon="⭐"
-        items={topRated}
-        kind="movie"
-        navRow={ROW + 2}
-      />
-      <Carousel
-        title="Filmes por país"
-        icon="🌎"
-        items={byCountry}
-        kind="movie"
-        navRow={ROW + 4}
-        chips={COUNTRY_CHIPS}
-        activeChip={country}
-        onChip={setCountry}
-      />
-      <Carousel
-        title="Por gênero"
-        icon="🎬"
-        items={byGenre}
-        kind="movie"
-        navRow={ROW + 6}
-        chips={GENRE_CHIPS}
-        activeChip={genre}
-        onChip={setGenre}
-      />
-      <Carousel
-        title="Lançamentos"
-        icon="🆕"
-        items={releases}
-        kind="movie"
-        navRow={ROW + 8}
-      />
-      <Carousel
-        title="Séries populares"
-        icon="📺"
-        items={popularSeries}
-        kind="series"
-        navRow={ROW + 10}
-      />
+    <div className="space-y-24 px-[5vw] py-24">
+      {/* Ranking Filmes */}
+      <section className="space-y-6">
+        <h2 className="flex items-center gap-3 text-2xl font-black uppercase tracking-[0.25em] text-white">
+          <span className="text-vexia-purple">01</span> 10 Melhores Filmes
+        </h2>
+        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-8 vexia-scroll">
+          {topMovies.map((item, index) => (
+            <Link
+              key={item.id}
+              to="/detalhes/$id"
+              params={{ id: item.id }}
+              className="group relative flex w-[280px] shrink-0 items-end gap-2 outline-none"
+            >
+              <span className="mb-[-20px] text-[120px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-purple/40 group-hover:text-vexia-purple/30">
+                {index + 1}
+              </span>
+              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">
+                <img
+                  src={item.poster || item.backdrop}
+                  alt={item.title}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="line-clamp-1 text-sm font-black uppercase tracking-wider">{item.title}</p>
+                  <p className="text-xs font-bold text-vexia-purple">{item.rating.toFixed(1)} ⭐</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Ranking Séries */}
+      <section className="space-y-6">
+        <h2 className="flex items-center gap-3 text-2xl font-black uppercase tracking-[0.25em] text-white">
+          <span className="text-vexia-cyan">02</span> 10 Melhores Séries
+        </h2>
+        <div className="vexia-fade-edges vexia-smooth-scroll flex gap-8 overflow-x-auto pb-8 vexia-scroll">
+          {topSeries.map((item, index) => (
+            <Link
+              key={item.id}
+              to="/detalhes/$id"
+              params={{ id: item.id }}
+              className="group relative flex w-[280px] shrink-0 items-end gap-2 outline-none"
+            >
+              <span className="mb-[-20px] text-[120px] font-black leading-none text-white/10 transition-colors group-focus:text-vexia-cyan/40 group-hover:text-vexia-cyan/30">
+                {index + 1}
+              </span>
+              <div className="vexia-card-focus relative aspect-[2/3] w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl transition-all duration-300 group-hover:scale-105 group-focus:scale-105">
+                <img
+                  src={item.poster || item.backdrop}
+                  alt={item.title}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="line-clamp-1 text-sm font-black uppercase tracking-wider">{item.title}</p>
+                  <p className="text-xs font-bold text-vexia-cyan">{item.rating.toFixed(1)} ⭐</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
