@@ -125,8 +125,8 @@ const FOCUSABLE = [
 
 export function useSpatialNav(scopeRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
-    // Cache curto da lista de focáveis: no D-pad o usuário dispara muitas
-    // teclas por segundo e re-medir tudo a cada toque é o que travava a TV.
+    console.log("useSpatialNav: initializing keyboard listeners");
+    // Cache curto da lista de focáveis
     let cache: { at: number; els: HTMLElement[] } | null = null;
     let lastKeyAt = 0;
 
