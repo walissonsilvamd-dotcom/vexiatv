@@ -35,6 +35,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   SUBS_OFF,
+  prettyLang,
   useAudioTracks,
   useSubtitleTracks,
 } from "../hooks/useMediaTracks";
