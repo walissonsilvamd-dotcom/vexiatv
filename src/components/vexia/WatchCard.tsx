@@ -5,6 +5,8 @@ import { usePlaylist } from "../../lib/playlist-store";
 import { formatDuration, matchWatch, type WatchEntry } from "../../lib/history-store";
 import { SmartImage } from "./SmartImage";
 import { PosterArt } from "./PosterArt";
+import { useBackgroundStore } from "../../lib/background-store";
+
 
 /** Resolve o item salvo com a lista atual (id → url → nome normalizado). */
 export function useResolvedHistory(entries: WatchEntry[]) {
@@ -92,7 +94,11 @@ export function WatchCard({
         tabIndex={0}
         data-nav-row={navRow}
         onClick={onOpen}
+        onFocus={() => {
+          useBackgroundStore.getState().setBackdrop(image, entry.name, entry.year);
+        }}
         className="vexia-card-focus block w-full overflow-hidden rounded-lg border border-white/10 bg-[#1A1A1A] text-left transition-all duration-300 hover:border-vexia-purple hover:shadow-[0_0_26px_rgb(var(--vexia-secondary-rgb)/0.25)]"
+
       >
         <div className={`relative w-full overflow-hidden ${isLive ? "aspect-video" : "aspect-[2/3]"}`}>
           {image && !broken ? (
