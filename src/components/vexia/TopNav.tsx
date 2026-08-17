@@ -66,6 +66,7 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
           </Link>
         );
       })}
-    </nav>
+      </nav>
+    </div>
   );
 }
