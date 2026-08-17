@@ -461,6 +461,34 @@ function ChannelsPage() {
     if (selected?.url) prefetchChannelNow(selected.url);
   }, [selected?.url]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "BrowserBack") {
+        if (groupsOpen) {
+          setGroupsOpen(false);
+          e.preventDefault();
+        } else if (catchupOpen) {
+          setCatchupOpen(false);
+          e.preventDefault();
+        } else if (pendingLocked) {
+          setPendingLocked(null);
+          e.preventDefault();
+        } else if (pinOpen) {
+          setPinOpen(false);
+          e.preventDefault();
+        } else if (listsOpen) {
+          setListsOpen(false);
+          e.preventDefault();
+        } else {
+          // Se nenhum diálogo estiver aberto, volta para a Home.
+          void navigate({ to: "/home" });
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [groupsOpen, catchupOpen, pendingLocked, pinOpen, listsOpen, navigate]);
+
   /**
    * Prefetch dos vizinhos guiado pelo histórico de navegação: guardamos o
    * índice anterior para saber se o cliente está descendo ou subindo a lista e

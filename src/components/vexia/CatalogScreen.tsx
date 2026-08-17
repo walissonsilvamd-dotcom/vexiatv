@@ -187,6 +187,31 @@ export function CatalogScreen(props: {
     setLimit(PAGE);
   }, [category, debouncedQuery, deferredSort, activeFilters, filters]);
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Backspace" || e.key === "Escape" || e.key === "BrowserBack") {
+        if (pinOpen) {
+          setPinOpen(false);
+          e.preventDefault();
+        } else if (listsOpen) {
+          setListsOpen(false);
+          e.preventDefault();
+        } else {
+          // No CatalogScreen, voltar sempre leva para a Home se nenhum modal estiver aberto
+          // a menos que o usuário esteja em um campo de input (tratado pelo navegador)
+          const tag = (e.target as HTMLElement | null)?.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA") return;
+          
+          e.preventDefault();
+          window.history.pushState(null, "", "/home");
+          window.location.href = "/home";
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pinOpen, listsOpen]);
+
   const hasContent = items.length > 0;
 
   // Pré-carrega os primeiros pôsteres para a grade aparecer instantaneamente.
