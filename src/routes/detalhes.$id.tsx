@@ -168,7 +168,16 @@ function DetailsPage() {
   // e nota — e só caímos em preenchimento genérico se sobrar pouco.
   const recommendations = useMemo(() => {
     if (!item) return [];
-    const pool = (isSeries ? series : movies).filter((m) => m.id !== item.id);
+    const { settings } = useSettings();
+    const isAdultItem = isAdultText(item.title, item.category, ...item.genres);
+    const pool = (isSeries ? series : movies).filter((m) => {
+      if (m.id === item.id) return false;
+      const mIsAdult = isAdultText(m.title, m.category, ...m.genres);
+      // Conteúdo adulto só aparece em recomendações se o item atual já for adulto
+      if (!isAdultItem && mIsAdult) return false;
+      // Se o item atual for adulto, prioriza recomendar outros adultos ou respeita o filtro
+      return true;
+    });
     const itemGenres = new Set((item.genres ?? []).map((g) => g.toLowerCase()));
     const norm = (s?: string | null) => (s ?? "").toLowerCase().trim()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
