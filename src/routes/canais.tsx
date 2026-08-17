@@ -318,8 +318,7 @@ function ChannelsPage() {
         openFullscreen(ch);
         return;
       }
-      // Nunca recria a prévia para o mesmo canal: só troca quando o id muda.
-      setSelected((cur) => (cur?.id === ch.id ? cur : ch));
+      setSelected(ch);
       writeLastChannel(ch.id, false);
     },
     [selected, openFullscreen],
