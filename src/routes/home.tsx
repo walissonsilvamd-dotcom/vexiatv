@@ -261,7 +261,10 @@ function HomePage() {
 
   const openTile = (tile: Tile) => {
     if (tile.action === "lists") setListsOpen(true);
-    else if (tile.to) navigate({ to: tile.to });
+    else if (tile.to) {
+      // Pequeno atraso para o efeito visual de clique antes de navegar
+      setTimeout(() => navigate({ to: tile.to! }), 50);
+    }
   };
 
   return (
