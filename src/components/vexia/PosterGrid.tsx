@@ -118,6 +118,14 @@ function PosterCardBase({
 
 
         <div className="relative aspect-[2/3] w-full overflow-hidden">
+          {isBlocked && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
+              <Lock className="mb-2 h-10 w-10 text-vexia-cyan shadow-[0_0_15px_rgba(0,200,255,0.4)]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">
+                Conteúdo Bloqueado
+              </span>
+            </div>
+          )}
           {showPoster ? (
             <SmartImage
               src={image}
