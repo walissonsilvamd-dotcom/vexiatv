@@ -14,9 +14,17 @@ export const tmdbSearch = createServerFn({ method: "POST" })
       .parse(data),
   )
   .handler(async ({ data }) => {
-    const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
-    if (!credential) throw new Error("TMDB credentials not configured");
-    return searchTmdb(credential, data.title, data.year, data.kind as TmdbKind, data.language);
+    try {
+      const credential = process.env.TMDB_READ_TOKEN || process.env.TMDB_API_KEY;
+      if (!credential) {
+        console.error("TMDB Error: Credentials not configured");
+        return null;
+      }
+      return await searchTmdb(credential, data.title, data.year, data.kind as TmdbKind, data.language);
+    } catch (error) {
+      console.error("TMDB Search Handler Error:", error);
+      return null;
+    }
   });
 
 export const tmdbSeasonEpisodes = createServerFn({ method: "POST" })
