@@ -270,14 +270,10 @@ function HomePage() {
       <div className="relative flex h-full w-full">
         
         {/* Sidebar Esquerda */}
-        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-10 pb-6 backdrop-blur-2xl border-r border-white/10">
-          <div className="flex w-full flex-col items-center mb-8">
+        <aside className="relative z-30 flex w-[22vw] max-w-[280px] flex-col items-center bg-black/30 px-5 pt-12 pb-6 backdrop-blur-2xl border-r border-white/10">
+          <div className="flex w-full flex-col items-center mb-10">
             <VexiaLogo
-              className={
-                hasContent
-                  ? "h-80 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                  : "h-80 w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]"
-              }
+              className="h-80 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             />
           </div>
 
