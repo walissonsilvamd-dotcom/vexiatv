@@ -10,7 +10,7 @@ import {
   PlayCircle,
   Settings,
   Trophy,
-  SlidersHorizontal,
+  Baby,
   Star,
   Tv,
   type LucideIcon,
@@ -97,9 +97,9 @@ const TILES: Tile[] = [
   { label: "CANAIS", icon: Tv, to: "/canais" },
   { label: "FILMES", icon: PlayCircle, to: "/filmes", hideKey: "hideVod" },
   { label: "SÉRIES", icon: Clapperboard, to: "/series", hideKey: "hideSeries" },
-  { label: "FILTROS", icon: SlidersHorizontal, to: "/filtros" },
-  { label: "LISTAS", icon: ListVideo, to: "/listas" },
+  { label: "KIDS", icon: Baby, to: "/kids" },
   { label: "JOGOS", icon: Trophy, to: "/jogos" },
+  { label: "LISTAS", icon: ListVideo, to: "/listas" },
   { label: "AJUSTES", icon: Settings, to: "/configuracoes" },
 ];
 
