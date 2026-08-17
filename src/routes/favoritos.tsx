@@ -11,6 +11,7 @@ import { matchFavorite, useFavorites, type Favorite, type FavoriteKind } from ".
 import { SmartImage } from "../components/vexia/SmartImage";
 import { PosterArt } from "../components/vexia/PosterArt";
 import { BRAND } from "../lib/brand";
+import { PinPrompt } from "../components/vexia/PinPrompt";
 
 export const Route = createFileRoute("/favoritos")({
   head: () => ({
@@ -118,6 +119,7 @@ function FavoritesPage() {
 
   const [filter, setFilter] = useState<FavoriteKind | "all">("all");
   const [query, setQuery] = useState("");
+  const [pinOpen, setPinOpen] = useState(false);
 
   /** Reconcilia os favoritos salvos com a lista atual (id → url → nome). */
   const resolved = useMemo(() => {
@@ -282,8 +284,23 @@ function FavoritesPage() {
               </div>
             </div>
           )}
+
+          {resolved.some((f) => f.kind === "channel") && (
+            <div className="mt-8 border-t border-white/5 pt-8">
+              <button
+                type="button"
+                data-nav-row={2}
+                tabIndex={0}
+                onClick={() => setPinOpen(true)}
+                className="vexia-focus w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-3 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
+              >
+                Liberar conteúdo adulto
+              </button>
+            </div>
+          )}
         </section>
       </div>
+      <PinPrompt open={pinOpen} onClose={() => setPinOpen(false)} />
     </main>
   );
 }

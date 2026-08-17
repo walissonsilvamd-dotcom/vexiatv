@@ -16,6 +16,7 @@ import { useSpatialNav } from "../hooks/use-spatial-nav";
 import { clearCompleted, useWatchHistory, type WatchKind } from "../lib/history-store";
 import { clearProgress } from "../lib/progress-store";
 import { BRAND } from "../lib/brand";
+import { PinPrompt } from "../components/vexia/PinPrompt";
 
 export const Route = createFileRoute("/historico")({
   head: () => ({
