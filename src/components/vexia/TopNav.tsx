@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Undo2 } from "lucide-react";
 import { useSettings } from "../../lib/settings-store";
 
 type TabKey =
