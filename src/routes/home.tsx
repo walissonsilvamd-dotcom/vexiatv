@@ -265,7 +265,7 @@ function HomePage() {
             <VexiaLogo
               className={
                 hasContent
-                  ? "h-40 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                  ? "h-80 w-auto drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
                   : "h-[44vh] max-h-[840px] min-h-[220px] w-auto animate-[vexia-fade-in_700ms_ease-out] drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] md:h-[75vh] md:min-h-[420px]"
               }
             />
