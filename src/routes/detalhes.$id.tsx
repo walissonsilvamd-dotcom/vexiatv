@@ -196,16 +196,27 @@ function DetailsPage() {
     const ranked = pool
       .map((m) => ({ m, s: score(m) }))
       .filter((x) => x.s > 2)
-      .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0))
-      .map((x) => x.m);
+      .sort((a, b) => b.s - a.s || (b.m.rating ?? 0) - (a.m.rating ?? 0));
 
-    if (ranked.length >= 8) return ranked.slice(0, 14);
+    // Remove duplicatas nas recomendações baseadas no título normalizado
+    const seenTitles = new Set<string>();
+    const uniqueRanked: (typeof pool)[number][] = [];
+    
+    for (const { m } of ranked) {
+      const titleKey = norm(m.title);
+      if (!seenTitles.has(titleKey)) {
+        seenTitles.add(titleKey);
+        uniqueRanked.push(m);
+      }
+    }
 
-    const chosen = new Set(ranked.map((m) => m.id));
+    if (uniqueRanked.length >= 8) return uniqueRanked.slice(0, 14);
+
+    const chosenIds = new Set(uniqueRanked.map((m) => m.id));
     const filler = pool
-      .filter((m) => !chosen.has(m.id))
+      .filter((m) => !chosenIds.has(m.id) && !seenTitles.has(norm(m.title)))
       .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-    return [...ranked, ...filler].slice(0, 14);
+    return [...uniqueRanked, ...filler].slice(0, 14);
   }, [item, isSeries, series, movies]);
 
   if (!item) {
