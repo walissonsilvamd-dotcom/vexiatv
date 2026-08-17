@@ -224,7 +224,7 @@ export function buildPlaylist(
   entries: M3UEntry[],
   onProgress?: (ratio: number) => void,
 ): ParsedPlaylist {
-  const movies: MediaItem[] = [];
+  const moviesMap = new Map<string, MediaItem>();
   const channels: PlaylistChannel[] = [];
   const seriesMap = new Map<string, PlaylistSeries>();
   const totalEntries = entries.length || 1;
@@ -235,7 +235,20 @@ export function buildPlaylist(
     const kind = classify(entry);
 
     if (kind === "movie") {
-      movies.push(toMedia(entry, stableId("mv", entry.name, entry.url)));
+      const base = cleanTitle(entry.name) || entry.name;
+      const key = `${slug(base)}|${slug(entry.group)}`;
+      const media = toMedia(entry, stableId("mv", entry.name, entry.url));
+
+      const existing = moviesMap.get(key);
+      if (!existing) {
+        moviesMap.set(key, media);
+      } else {
+        // Prioridade: Português > Legendado > Inglês/Outros > Desconhecido
+        const p = (a: MediaItem) => (a.audio === "Português" ? 3 : a.audio === "Legendado" ? 2 : a.audio ? 1 : 0);
+        if (p(media) > p(existing)) {
+          moviesMap.set(key, media);
+        }
+      }
       return;
     }
 
@@ -257,16 +270,40 @@ export function buildPlaylist(
         };
         seriesMap.set(key, serie);
       }
-      serie.episodesList.push({
-        id: stableId("ep", serie.id, entry.url),
-        season,
-        number,
-        title: entry.name,
-        url: entry.url,
-        thumb: entry.logo || serie.poster,
-        runtimeMin: entry.durationSec ? Math.round(entry.durationSec / 60) : 0,
-        overview: entry.description || "",
-      });
+      // Evita duplicar episódios idênticos (mesma temporada e número) priorizando o melhor áudio
+      const epKey = `${season}-${number}`;
+      const existingEp = serie.episodesList.find(e => e.season === season && e.number === number);
+      
+      const p = (name: string) => {
+        const audio = detectAudio(name);
+        return audio === "Português" ? 3 : audio === "Legendado" ? 2 : audio ? 1 : 0;
+      };
+
+      if (!existingEp) {
+        serie.episodesList.push({
+          id: stableId("ep", serie.id, entry.url),
+          season,
+          number,
+          title: entry.name,
+          url: entry.url,
+          thumb: entry.logo || serie.poster,
+          runtimeMin: entry.durationSec ? Math.round(entry.durationSec / 60) : 0,
+          overview: entry.description || "",
+        });
+      } else if (p(entry.name) > p(existingEp.title)) {
+        // Substitui pelo melhor áudio
+        const idx = serie.episodesList.indexOf(existingEp);
+        serie.episodesList[idx] = {
+          id: stableId("ep", serie.id, entry.url),
+          season,
+          number,
+          title: entry.name,
+          url: entry.url,
+          thumb: entry.logo || serie.poster,
+          runtimeMin: entry.durationSec ? Math.round(entry.durationSec / 60) : 0,
+          overview: entry.description || "",
+        };
+      }
       return;
     }
 
@@ -284,6 +321,7 @@ export function buildPlaylist(
     });
   });
 
+  const movies = Array.from(moviesMap.values());
   const series = Array.from(seriesMap.values()).map((s) => {
     s.episodesList.sort((a, b) => a.season - b.season || a.number - b.number);
     s.seasons = new Set(s.episodesList.map((e) => e.season)).size;
