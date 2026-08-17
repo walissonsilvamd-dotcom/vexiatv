@@ -274,18 +274,18 @@ function HomePage() {
       {/* Fundo: apenas quando existe lista carregada. Sem lista = preto puro. */}
       {hasContent ? (
         <>
-          <div key={HERO.image} className="absolute inset-0 animate-[vexia-fade-in_1200ms_ease-out]">
+          <div key={HERO.image} className="absolute inset-0 flex items-center justify-center bg-black/40 p-12 animate-[vexia-fade-in_1200ms_ease-out]">
             <SmartImage
               src={HERO.image}
               role="poster"
               alt={HERO.title}
               eager
               sizes="50vw"
-              className="mx-auto h-[70vh] w-auto object-contain animate-[vexia-fade-in_800ms_ease-out] drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]"
+              className="h-[75vh] w-auto object-contain drop-shadow-[0_0_80px_rgba(0,0,0,0.9)]"
             />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+
 
         </>
       ) : (
