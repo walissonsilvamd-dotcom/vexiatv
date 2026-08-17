@@ -359,9 +359,12 @@ export function CatalogScreen(props: {
               })}
             </ul>
             )}
+
             {hasBlocked ? (
               <button
                 type="button"
+                data-nav-row={2}
+                tabIndex={0}
                 onClick={() => setPinOpen(true)}
                 className="vexia-focus mt-3 w-full rounded-xl border border-vexia-purple/40 bg-black/40 px-3 py-2.5 text-[11px] font-black uppercase tracking-widest text-vexia-cyan"
               >
