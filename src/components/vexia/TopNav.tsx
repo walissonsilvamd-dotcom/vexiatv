@@ -7,6 +7,7 @@ type TabKey =
   | "Canais"
   | "Filmes"
   | "Séries"
+  | "Kids"
   | "Favoritos"
   | "Histórico"
   | "Ajustes"
@@ -14,13 +15,13 @@ type TabKey =
 
 const TABS: { label: TabKey; to: string; hideKey?: "hideVod" | "hideSeries" }[] = [
   { label: "Home", to: "/home" },
-  { label: "Busca", to: "/busca" },
   { label: "Canais", to: "/canais" },
   { label: "Filmes", to: "/filmes", hideKey: "hideVod" },
   { label: "Séries", to: "/series", hideKey: "hideSeries" },
+  { label: "Kids", to: "/kids" },
+  { label: "Jogos", to: "/jogos" },
   { label: "Favoritos", to: "/favoritos" },
   { label: "Histórico", to: "/historico" },
-  { label: "Jogos", to: "/jogos" },
   { label: "Ajustes", to: "/configuracoes" },
 ];
 
@@ -43,7 +44,7 @@ export function TopNav({ active, className = "" }: { active?: TabKey; className?
             data-nav-row={0}
             tabIndex={0}
             activeProps={{ "aria-current": "page" }}
-            className={`vexia-focus flex shrink-0 items-center rounded-full px-4 py-2 text-[12px] font-black uppercase tracking-widest transition-all md:px-5 md:text-[13px] ${
+            className={`vexia-focus flex shrink-0 items-center rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all md:px-4 md:text-[11px] ${
               isActive
                 ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 : "text-white/60 hover:text-white hover:bg-white/5"
