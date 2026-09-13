@@ -13,15 +13,24 @@ function randomCode(len = 8) {
 
 const codeSchema = z.object({ code: z.string().min(6).max(16) });
 
-/** A TV cria uma sessão de pareamento e mostra o código no QR Code. */
+/**
+ * A TV cria uma sessão de pareamento e mostra o código no QR Code.
+ * Falhas do serviço (indisponibilidade momentânea) voltam como
+ * `{ code: null }` — nunca como exceção, para não derrubar a tela.
+ */
 export const createPairSession = createServerFn({ method: "POST" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const code = randomCode();
-  const { error } = await supabaseAdmin.from("pair_sessions").insert({ code });
-  if (error) throw new Error(error.message);
-  // Limpeza oportunista das sessões vencidas.
-  await supabaseAdmin.from("pair_sessions").delete().lt("expires_at", new Date().toISOString());
-  return { code };
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const code = randomCode();
+    const { error } = await supabaseAdmin.from("pair_sessions").insert({ code });
+    if (error) return { code: null, error: error.message };
+    // Limpeza oportunista das sessões vencidas.
+    await supabaseAdmin.from("pair_sessions").delete().lt("expires_at", new Date().toISOString());
+    return { code, error: null };
+  } catch (err) {
+    console.error("[vexia] falha ao criar sessão de pareamento", err);
+    return { code: null, error: "Serviço de pareamento indisponível." };
+  }
 });
 
 /** A TV consulta a sessão até o celular enviar a lista. */

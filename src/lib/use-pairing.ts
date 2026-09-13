@@ -32,6 +32,10 @@ export function usePairing(enabled: boolean, onReceive: (r: PairResult) => void)
     void create({ data: undefined })
       .then((r) => {
         if (!alive) return;
+        if (!r.code) {
+          setStatus("error");
+          return;
+        }
         setCode(r.code);
         setStatus("waiting");
       })
