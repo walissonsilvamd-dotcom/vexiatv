@@ -15,6 +15,8 @@ export const DEFAULT_XTREAM_SERVER = "https://doplay.sbs";
 export const TRUSTED_XTREAM_SERVERS = [
   "https://doplay.sbs",
   "https://lunnaplus.sbs",
+  "http://zflixx.sbs",
+  "http://zoflixx.online",
 ] as const;
 
 /** Servidor a usar: o informado (colado/QR) ou o padrão do app. */
