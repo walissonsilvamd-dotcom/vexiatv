@@ -13,36 +13,51 @@ function randomCode(len = 8) {
 
 const codeSchema = z.object({ code: z.string().min(6).max(16) });
 
-/** A TV cria uma sessão de pareamento e mostra o código no QR Code. */
+/**
+ * A TV cria uma sessão de pareamento e mostra o código no QR Code.
+ * Falhas do serviço (indisponibilidade momentânea) voltam como
+ * `{ code: null }` — nunca como exceção, para não derrubar a tela.
+ */
 export const createPairSession = createServerFn({ method: "POST" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const code = randomCode();
-  const { error } = await supabaseAdmin.from("pair_sessions").insert({ code });
-  if (error) throw new Error(error.message);
-  // Limpeza oportunista das sessões vencidas.
-  await supabaseAdmin.from("pair_sessions").delete().lt("expires_at", new Date().toISOString());
-  return { code };
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const code = randomCode();
+    const { error } = await supabaseAdmin.from("pair_sessions").insert({ code });
+    if (error) return { code: null, error: error.message };
+    // Limpeza oportunista das sessões vencidas.
+    await supabaseAdmin.from("pair_sessions").delete().lt("expires_at", new Date().toISOString());
+    return { code, error: null };
+  } catch (err) {
+    console.error("[vexia] falha ao criar sessão de pareamento", err);
+    return { code: null, error: "Serviço de pareamento indisponível." };
+  }
 });
 
 /** A TV consulta a sessão até o celular enviar a lista. */
 export const getPairSession = createServerFn({ method: "POST" })
   .inputValidator((d) => codeSchema.parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
-      .from("pair_sessions")
-      .select("status, playlist_name, playlist_url, expires_at")
-      .eq("code", data.code.toUpperCase())
-      .maybeSingle();
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: row } = await supabaseAdmin
+        .from("pair_sessions")
+        .select("status, playlist_name, playlist_url, expires_at")
+        .eq("code", data.code.toUpperCase())
+        .maybeSingle();
 
-    if (!row) return { status: "missing" as const };
-    if (new Date(row.expires_at).getTime() < Date.now()) return { status: "expired" as const };
-    if (row.status !== "claimed" || !row.playlist_url) return { status: "pending" as const };
-    return {
-      status: "claimed" as const,
-      name: row.playlist_name ?? undefined,
-      url: row.playlist_url,
-    };
+      if (!row) return { status: "missing" as const };
+      if (new Date(row.expires_at).getTime() < Date.now()) return { status: "expired" as const };
+      if (row.status !== "claimed" || !row.playlist_url) return { status: "pending" as const };
+      return {
+        status: "claimed" as const,
+        name: row.playlist_name ?? undefined,
+        url: row.playlist_url,
+      };
+    } catch (err) {
+      // Instabilidade momentânea: segue aguardando em vez de quebrar a tela.
+      console.error("[vexia] falha ao consultar pareamento", err);
+      return { status: "pending" as const };
+    }
   });
 
 /** O celular confere se o código existe antes de mostrar o formulário. */
