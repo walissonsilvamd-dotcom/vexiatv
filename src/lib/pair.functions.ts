@@ -37,21 +37,27 @@ export const createPairSession = createServerFn({ method: "POST" }).handler(asyn
 export const getPairSession = createServerFn({ method: "POST" })
   .inputValidator((d) => codeSchema.parse(d))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row } = await supabaseAdmin
-      .from("pair_sessions")
-      .select("status, playlist_name, playlist_url, expires_at")
-      .eq("code", data.code.toUpperCase())
-      .maybeSingle();
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: row } = await supabaseAdmin
+        .from("pair_sessions")
+        .select("status, playlist_name, playlist_url, expires_at")
+        .eq("code", data.code.toUpperCase())
+        .maybeSingle();
 
-    if (!row) return { status: "missing" as const };
-    if (new Date(row.expires_at).getTime() < Date.now()) return { status: "expired" as const };
-    if (row.status !== "claimed" || !row.playlist_url) return { status: "pending" as const };
-    return {
-      status: "claimed" as const,
-      name: row.playlist_name ?? undefined,
-      url: row.playlist_url,
-    };
+      if (!row) return { status: "missing" as const };
+      if (new Date(row.expires_at).getTime() < Date.now()) return { status: "expired" as const };
+      if (row.status !== "claimed" || !row.playlist_url) return { status: "pending" as const };
+      return {
+        status: "claimed" as const,
+        name: row.playlist_name ?? undefined,
+        url: row.playlist_url,
+      };
+    } catch (err) {
+      // Instabilidade momentânea: segue aguardando em vez de quebrar a tela.
+      console.error("[vexia] falha ao consultar pareamento", err);
+      return { status: "pending" as const };
+    }
   });
 
 /** O celular confere se o código existe antes de mostrar o formulário. */
