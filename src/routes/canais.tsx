@@ -134,6 +134,7 @@ const ChannelRow = memo(function ChannelRow({
   isLocked,
   nowTitle,
   onSelect,
+  onHover,
   onToggleFav,
   onDoubleClick,
 }: {
@@ -144,6 +145,7 @@ const ChannelRow = memo(function ChannelRow({
   isLocked: boolean;
   nowTitle: string;
   onSelect: (ch: PlaylistChannel) => void;
+  onHover: (ch: PlaylistChannel) => void;
   onToggleFav: (ch: PlaylistChannel) => void;
   onDoubleClick: (ch: PlaylistChannel) => void;
 }) {
@@ -155,7 +157,7 @@ const ChannelRow = memo(function ChannelRow({
         data-nav-row={2}
         tabIndex={0}
         onClick={() => onSelect(ch)}
-        onMouseEnter={() => onSelect(ch)}
+        onMouseEnter={() => onHover(ch)}
         onDoubleClick={() => onDoubleClick(ch)}
         className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 focus:border-vexia-purple focus:shadow-[0_0_25px_rgba(123,43,190,0.8)] ${
           isActive
