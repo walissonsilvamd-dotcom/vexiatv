@@ -594,6 +594,7 @@ function ChannelsPage() {
       isLocked={locks.locked(ch.id) || adultBlocked(ch)}
       nowTitle={nowAndNext(guide, ch.tvgId, minuteTick).now?.title ?? ""}
       onSelect={onChannelClick}
+      onHover={onChannelHover}
       onToggleFav={toggleFav}
       onDoubleClick={onChannelDoubleClick}
     />
