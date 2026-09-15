@@ -315,18 +315,27 @@ function ChannelsPage() {
   );
 
 
+  /** Último canal aberto por CLIQUE/OK — hover não conta como 1º clique. */
+  const clickedRef = useRef<string | null>(null);
+
   /** 1º clique: seleciona e roda a prévia. 2º clique no mesmo canal: tela cheia. */
   const onChannelClick = useCallback(
     (ch: PlaylistChannel) => {
-      if (selected?.id === ch.id) {
+      if (selected?.id === ch.id && clickedRef.current === ch.id) {
         openFullscreen(ch);
         return;
       }
+      clickedRef.current = ch.id;
       setSelected(ch);
       writeLastChannel(ch.id, false);
     },
     [selected, openFullscreen],
   );
+
+  /** Passar o mouse só troca a prévia — nunca abre tela cheia no 1º clique. */
+  const onChannelHover = useCallback((ch: PlaylistChannel) => {
+    setSelected((cur) => (cur?.id === ch.id ? cur : ch));
+  }, []);
 
   /** Clique duplo em qualquer canal abre tela cheia imediatamente. */
   const onChannelDoubleClick = useCallback(
