@@ -492,6 +492,7 @@ function ChannelsPage() {
           e.preventDefault();
         } else {
           // Se nenhum diálogo estiver aberto, volta para a Home.
+          e.preventDefault();
           void navigate({ to: "/home" });
         }
       }

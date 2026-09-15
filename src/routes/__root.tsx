@@ -193,12 +193,45 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
 
   useEffect(() => {
     registerImageCache();
     // Reaquece o cache com as imagens da última sessão (abertura instantânea).
     warmStartCache();
   }, []);
+
+  /**
+   * Botão Voltar global (controle remoto / teclado / Android TV).
+   * Telas com tratamento próprio (player, canais, diálogos) marcam o evento
+   * com preventDefault; aqui só cobrimos as demais, voltando no histórico.
+   */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (
+        e.key !== "Backspace" &&
+        e.key !== "Escape" &&
+        e.key !== "BrowserBack" &&
+        e.key !== "GoBack"
+      )
+        return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      )
+        return;
+      // Espera os handlers locais da tela rodarem antes de decidir.
+      window.setTimeout(() => {
+        if (e.defaultPrevented) return;
+        const path = window.location.pathname;
+        if (path === "/" || path === "/home") return;
+        router.history.back();
+      }, 0);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>
