@@ -814,6 +814,9 @@ function PlayerPage() {
 
         case "Backspace":
         case "Escape":
+        case "BrowserBack":
+        case "GoBack":
+          e.preventDefault();
           goBack();
           break;
         default:
