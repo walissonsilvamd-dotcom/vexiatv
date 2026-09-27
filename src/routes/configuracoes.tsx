@@ -246,7 +246,12 @@ function SettingsPage() {
       kind: "action",
       icon: PlayCircle,
       label: "Player de Vídeo",
-      sub: settings.player === "internal" ? `Player interno ${BRAND.shortName}` : "Player externo",
+      sub:
+        settings.player === "external"
+          ? "Player externo"
+          : settings.videoEngine === "web"
+            ? "Player web interno"
+            : "ExoPlayer (nativo)",
       dialog: "player",
     },
     { kind: "toggle", icon: RefreshCw, label: "Atualização Automática", sub: (v) => v, key: "autoUpdate" },
@@ -618,6 +623,19 @@ function SettingsPage() {
           hint="Abre no app de vídeo do sistema"
           selected={settings.player === "external"}
           onSelect={() => set("player", "external")}
+        />
+        {/* Motor de vídeo do player interno: nativo (ExoPlayer) x web. */}
+        <OptionRow
+          label="ExoPlayer (nativo)"
+          hint="Padrão — mais leve e fluido; usa o player web quando não estiver disponível"
+          selected={settings.videoEngine !== "web"}
+          onSelect={() => set("videoEngine", "exo")}
+        />
+        <OptionRow
+          label="Player web interno"
+          hint="Alternativa — reprodução dentro do próprio app"
+          selected={settings.videoEngine === "web"}
+          onSelect={() => set("videoEngine", "web")}
         />
         <SwitchRow
           label="Reprodução automática"

@@ -47,7 +47,9 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { ExternalPlayerGate } from "../components/vexia/ExternalPlayerGate";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
-import { useSettings } from "../lib/settings-store";
+import { readSettings, useSettings } from "../lib/settings-store";
+import { ExoPlayerGate } from "../components/vexia/ExoPlayerGate";
+import { exoAvailable, exoPlay, exoStop, onExoEvent } from "../lib/native-exo";
 import {
   getSubtitleOffset,
   getSubtitlePref,
@@ -230,11 +232,23 @@ function PlayerPage() {
   // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
   const src = useMemo(() => playableStreamUrl(rawSrc), [rawSrc]);
 
+  /* ────────────────────────────────────────────────────────────────────────
+   * Motor principal: ExoPlayer nativo (APK Android/Android TV).
+   * Quando o host nativo existe, o stream é entregue a ele — decodificação
+   * por hardware, leve e fluido. Sem host nativo (PC, navegador de TV) ou se
+   * a entrega falhar, o player web interno assume automaticamente.
+   * ──────────────────────────────────────────────────────────────────────── */
+  const [exoMode, setExoMode] = useState<"probe" | "active" | "web">(() =>
+    readSettings().videoEngine !== "web" && exoAvailable() ? "probe" : "web",
+  );
+  const exoOn = exoMode !== "web";
+
   const resilientPlayer = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
-    src,
+    // Com o ExoPlayer no ar o player web não baixa nada (nada de banda dupla).
+    src: exoOn ? "" : src,
     live: type === "live",
     // Em filme/série a reserva paralela roubava banda do vídeo principal e
     // causava engasgo; ela só faz sentido no zapping ao vivo.
@@ -273,6 +287,59 @@ function PlayerPage() {
   const title =
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
   const kindLabel = type === "live" ? "AO VIVO" : type === "movie" ? "FILME" : "SÉRIE";
+
+  /* Preferência mudou em Ajustes: respeita na hora. */
+  useEffect(() => {
+    if (settings.videoEngine === "web") {
+      setExoMode("web");
+      return;
+    }
+    setExoMode((mode) => (mode === "web" && exoAvailable() ? "probe" : mode));
+  }, [settings.videoEngine]);
+
+  /* Entrega do stream ao ExoPlayer nativo. */
+  useEffect(() => {
+    if (exoMode !== "probe" || externalGate || !rawSrc) return;
+    let cancelled = false;
+    void exoPlay({
+      url: rawSrc,
+      title,
+      subtitle: type === "series" && episode ? episode.title : undefined,
+      live: type === "live",
+      startAtSeconds:
+        type !== "live" && savedEntry && savedEntry.percent > 2 && savedEntry.percent < 95
+          ? savedEntry.positionSec
+          : 0,
+    }).then((ok) => {
+      if (cancelled) return;
+      setExoMode(ok ? "active" : "web");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [exoMode, externalGate, rawSrc, title, type, episode, savedEntry]);
+
+  /* Avisos do host nativo: erro cai no player web, fim/voltar sai da tela. */
+  useEffect(() => {
+    if (exoMode !== "active") return;
+    return onExoEvent((event) => {
+      if (event.type === "error") {
+        setExoMode("web");
+        return;
+      }
+      if (event.type === "ended" || event.type === "back") {
+        exoStop();
+        setExoMode("web");
+        if (type === "live") void navigate({ to: "/canais" });
+        else void navigate({ to: "/detalhes/$id", params: { id } });
+      }
+    });
+  }, [exoMode, navigate, type, id]);
+
+  /* Sair do player (ou trocar de conteúdo) encerra a reprodução nativa. */
+  useEffect(() => {
+    return () => exoStop();
+  }, [rawSrc]);
 
   /* Modo de imagem salvo no aparelho. */
   useEffect(() => {
@@ -1228,6 +1295,20 @@ function PlayerPage() {
                 src={src}
                 title={title}
                 onUseInternal={() => setInternalOverride(true)}
+              />
+            )}
+            {/* ── ExoPlayer nativo no ar: vídeo na camada nativa ── */}
+            {exoMode === "active" && (
+              <ExoPlayerGate
+                title={title}
+                onBack={() => {
+                  exoStop();
+                  goBack();
+                }}
+                onUseWeb={() => {
+                  exoStop();
+                  setExoMode("web");
+                }}
               />
             )}
             {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
