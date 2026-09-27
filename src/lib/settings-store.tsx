@@ -47,6 +47,8 @@ export type VexiaSettings = {
   sortMode: SortMode;
   quality: Quality;
   player: PlayerMode;
+  /** Motor de vídeo principal do player interno. */
+  videoEngine: VideoEngine;
   autoPlay: boolean;
   /** Troca de episódio sem pedir confirmação. */
   episodeQuickSwitch: boolean;
