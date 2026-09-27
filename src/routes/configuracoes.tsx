@@ -624,6 +624,19 @@ function SettingsPage() {
           selected={settings.player === "external"}
           onSelect={() => set("player", "external")}
         />
+        {/* Motor de vídeo do player interno: nativo (ExoPlayer) x web. */}
+        <OptionRow
+          label="ExoPlayer (nativo)"
+          hint="Padrão — mais leve e fluido; usa o player web quando não estiver disponível"
+          selected={settings.videoEngine !== "web"}
+          onSelect={() => set("videoEngine", "exo")}
+        />
+        <OptionRow
+          label="Player web interno"
+          hint="Alternativa — reprodução dentro do próprio app"
+          selected={settings.videoEngine === "web"}
+          onSelect={() => set("videoEngine", "web")}
+        />
         <SwitchRow
           label="Reprodução automática"
           hint="Inicia o próximo episódio sozinho"
