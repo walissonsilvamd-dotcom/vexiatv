@@ -286,6 +286,58 @@ function PlayerPage() {
     channel?.name ?? movie?.title ?? (serie ? serie.title : "") ?? "Conteúdo indisponível";
   const kindLabel = type === "live" ? "AO VIVO" : type === "movie" ? "FILME" : "SÉRIE";
 
+  /* Preferência mudou em Ajustes: respeita na hora. */
+  useEffect(() => {
+    if (settings.videoEngine === "web") {
+      setExoMode("web");
+      return;
+    }
+    setExoMode((mode) => (mode === "web" && exoAvailable() ? "probe" : mode));
+  }, [settings.videoEngine]);
+
+  /* Entrega do stream ao ExoPlayer nativo. */
+  useEffect(() => {
+    if (exoMode !== "probe" || externalGate || !rawSrc) return;
+    let cancelled = false;
+    void exoPlay({
+      url: rawSrc,
+      title,
+      subtitle: type === "series" && episode ? episode.title : undefined,
+      live: type === "live",
+      startAtSeconds:
+        type !== "live" && savedEntry && savedEntry.percent > 2 && savedEntry.percent < 95
+          ? savedEntry.positionSec
+          : 0,
+    }).then((ok) => {
+      if (cancelled) return;
+      setExoMode(ok ? "active" : "web");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [exoMode, externalGate, rawSrc, title, type, episode, savedEntry]);
+
+  /* Avisos do host nativo: erro cai no player web, fim/voltar sai da tela. */
+  useEffect(() => {
+    if (exoMode !== "active") return;
+    return onExoEvent((event) => {
+      if (event.type === "error") {
+        setExoMode("web");
+        return;
+      }
+      if (event.type === "ended" || event.type === "back") {
+        exoStop();
+        setExoMode("web");
+        void navigate({ to: type === "live" ? "/canais" : "/detalhes/$id", params: { id } });
+      }
+    });
+  }, [exoMode, navigate, type, id]);
+
+  /* Sair do player (ou trocar de conteúdo) encerra a reprodução nativa. */
+  useEffect(() => {
+    return () => exoStop();
+  }, [rawSrc]);
+
   /* Modo de imagem salvo no aparelho. */
   useEffect(() => {
     setFit(readFitMode());
