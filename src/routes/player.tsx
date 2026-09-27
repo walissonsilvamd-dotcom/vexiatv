@@ -1297,6 +1297,20 @@ function PlayerPage() {
                 onUseInternal={() => setInternalOverride(true)}
               />
             )}
+            {/* ── ExoPlayer nativo no ar: vídeo na camada nativa ── */}
+            {exoMode === "active" && (
+              <ExoPlayerGate
+                title={title}
+                onBack={() => {
+                  exoStop();
+                  goBack();
+                }}
+                onUseWeb={() => {
+                  exoStop();
+                  setExoMode("web");
+                }}
+              />
+            )}
             {/* ── Superfície do vídeo: duas instâncias (ativa + reserva quente) ── */}
             <video
               ref={slotARef}
