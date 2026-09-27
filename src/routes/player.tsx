@@ -330,7 +330,8 @@ function PlayerPage() {
       if (event.type === "ended" || event.type === "back") {
         exoStop();
         setExoMode("web");
-        void navigate({ to: type === "live" ? "/canais" : "/detalhes/$id", params: { id } });
+        if (type === "live") void navigate({ to: "/canais" });
+        else void navigate({ to: "/detalhes/$id", params: { id } });
       }
     });
   }, [exoMode, navigate, type, id]);
