@@ -13,6 +13,13 @@ export type DisplayMode = "horizontal" | "vertical";
 export type SortMode = "az" | "za" | "recent" | "popular";
 export type Quality = "auto" | "low" | "medium" | "high" | "original";
 export type PlayerMode = "internal" | "external";
+/**
+ * Motor de vídeo do player interno:
+ * - "exo": ExoPlayer nativo quando o app roda dentro do APK (padrão, mais leve
+ *   e mais fluido); cai automaticamente no player web quando não existe.
+ * - "web": força sempre o player web interno (hls.js / mpegts.js / nativo).
+ */
+export type VideoEngine = "exo" | "web";
 export type TimeFormat = "24h" | "12h";
 export type SubtitleSize = "small" | "medium" | "large";
 export type SubtitleColor = "white" | "yellow";
