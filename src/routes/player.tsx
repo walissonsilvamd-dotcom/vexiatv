@@ -230,11 +230,23 @@ function PlayerPage() {
   // Links http em página https passam pelo proxy do app (conteúdo misto/CORS).
   const src = useMemo(() => playableStreamUrl(rawSrc), [rawSrc]);
 
+  /* ────────────────────────────────────────────────────────────────────────
+   * Motor principal: ExoPlayer nativo (APK Android/Android TV).
+   * Quando o host nativo existe, o stream é entregue a ele — decodificação
+   * por hardware, leve e fluido. Sem host nativo (PC, navegador de TV) ou se
+   * a entrega falhar, o player web interno assume automaticamente.
+   * ──────────────────────────────────────────────────────────────────────── */
+  const [exoMode, setExoMode] = useState<"probe" | "active" | "web">(() =>
+    readSettings().videoEngine !== "web" && exoAvailable() ? "probe" : "web",
+  );
+  const exoOn = exoMode !== "web";
+
   const resilientPlayer = useResilientPlayer({
     videoRef,
     slotARef,
     slotBRef,
-    src,
+    // Com o ExoPlayer no ar o player web não baixa nada (nada de banda dupla).
+    src: exoOn ? "" : src,
     live: type === "live",
     // Em filme/série a reserva paralela roubava banda do vídeo principal e
     // causava engasgo; ela só faz sentido no zapping ao vivo.
