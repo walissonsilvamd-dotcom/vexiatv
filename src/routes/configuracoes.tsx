@@ -246,7 +246,12 @@ function SettingsPage() {
       kind: "action",
       icon: PlayCircle,
       label: "Player de Vídeo",
-      sub: settings.player === "internal" ? `Player interno ${BRAND.shortName}` : "Player externo",
+      sub:
+        settings.player === "external"
+          ? "Player externo"
+          : settings.videoEngine === "web"
+            ? "Player web interno"
+            : "ExoPlayer (nativo)",
       dialog: "player",
     },
     { kind: "toggle", icon: RefreshCw, label: "Atualização Automática", sub: (v) => v, key: "autoUpdate" },
