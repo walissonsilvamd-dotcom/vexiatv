@@ -47,7 +47,9 @@ import { EpisodeCarousel } from "../components/vexia/EpisodeCarousel";
 import { ExternalPlayerGate } from "../components/vexia/ExternalPlayerGate";
 import { VexiaLogo } from "../components/vexia/VexiaLogo";
 import { usePlaylist } from "../lib/playlist-store";
-import { useSettings } from "../lib/settings-store";
+import { readSettings, useSettings } from "../lib/settings-store";
+import { ExoPlayerGate } from "../components/vexia/ExoPlayerGate";
+import { exoAvailable, exoPlay, exoStop, onExoEvent } from "../lib/native-exo";
 import {
   getSubtitleOffset,
   getSubtitlePref,
