@@ -81,6 +81,7 @@ export const DEFAULT_SETTINGS: VexiaSettings = {
   sortMode: "az",
   quality: "auto",
   player: "internal",
+  videoEngine: "exo",
   autoPlay: true,
   episodeQuickSwitch: false,
   autoUpdate: true,
