@@ -98,6 +98,9 @@ function PosterCardBase({
             poster: active.poster,
             backdrop: active.backdrop,
           });
+          /* Aquece a conexão com o servidor do stream já no foco: ao clicar,
+             DNS/TLS e a biblioteca de vídeo já estão prontos. */
+          warmEngines((item as { streamUrl?: string }).streamUrl);
           useBackgroundStore.getState().setBackdrop(active.backdrop || active.poster, active.title, active.year, active.genres);
         }}
         onMouseEnter={() => {
