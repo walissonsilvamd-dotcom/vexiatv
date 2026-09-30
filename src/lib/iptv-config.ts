@@ -5,7 +5,7 @@
  * (get.php) usando este endereço. Para trocar de painel, mude só esta linha.
  * Ex.: "http://meupainel.com:8080"
  */
-export const DEFAULT_XTREAM_SERVER = "https://doplay.sbs";
+export const DEFAULT_XTREAM_SERVER = "http://gflixx.sbs";
 
 /**
  * DNS confiáveis do VÉXIA TV. Qualquer lista (login/senha) desses servidores
@@ -13,6 +13,8 @@ export const DEFAULT_XTREAM_SERVER = "https://doplay.sbs";
  * servidor; os demais ficam disponíveis para seleção/fallback.
  */
 export const TRUSTED_XTREAM_SERVERS = [
+  "http://gflixx.sbs",
+  "http://goflix.online",
   "https://doplay.sbs",
   "https://lunnaplus.sbs",
   "http://zflixx.sbs",
