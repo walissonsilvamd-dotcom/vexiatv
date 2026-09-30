@@ -3,6 +3,7 @@ import { Heart, Star, Lock } from "lucide-react";
 import { memo, useEffect, useState, useCallback } from "react";
 import { preloadImages } from "../../lib/image";
 import { cancelDetailPrefetch, prefetchDetail } from "../../lib/detail-prefetch";
+import { warmEngines } from "../../hooks/player-engines";
 import type { MediaItem } from "../../data/vexia";
 import { useTmdbItem } from "../../lib/use-tmdb";
 import { mediaFavorite, useFavorites } from "../../lib/favorites-store";
@@ -98,6 +99,9 @@ function PosterCardBase({
             poster: active.poster,
             backdrop: active.backdrop,
           });
+          /* Aquece a conexão com o servidor do stream já no foco: ao clicar,
+             DNS/TLS e a biblioteca de vídeo já estão prontos. */
+          warmEngines((item as { streamUrl?: string }).streamUrl);
           useBackgroundStore.getState().setBackdrop(active.backdrop || active.poster, active.title, active.year, active.genres);
         }}
         onMouseEnter={() => {
@@ -109,6 +113,7 @@ function PosterCardBase({
             poster: active.poster,
             backdrop: active.backdrop,
           });
+          warmEngines((item as { streamUrl?: string }).streamUrl);
         }}
         onBlur={() => {
           cancelDetailPrefetch();
