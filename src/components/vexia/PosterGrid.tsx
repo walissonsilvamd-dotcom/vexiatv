@@ -112,6 +112,7 @@ function PosterCardBase({
             poster: active.poster,
             backdrop: active.backdrop,
           });
+          warmEngines((item as { streamUrl?: string }).streamUrl);
         }}
         onBlur={() => {
           cancelDetailPrefetch();
