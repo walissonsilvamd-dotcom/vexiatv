@@ -170,7 +170,6 @@ function DetailsPage() {
   // e nota — e só caímos em preenchimento genérico se sobrar pouco.
   const recommendations = useMemo(() => {
     if (!item) return [];
-    const { settings } = useSettings();
     const isAdultItem = isAdultText(item.title, item.category, ...item.genres);
     const pool = (isSeries ? series : movies).filter((m) => {
       if (m.id === item.id) return false;
