@@ -396,7 +396,7 @@ function JogosPage() {
                   onClick={() => setSelectedDate(date)}
                   className={`px-4 py-2 rounded-xl text-[10px] font-black tracking-widest transition-all whitespace-nowrap vexia-focus ${
                     selectedDate === date 
-                      ? "bg-vexia-primary text-white shadow-[0_0_15px_rgba(123,43,190,0.5)]" 
+                      ? "bg-vexia-primary text-white shadow-[0_0_15px_rgb(var(--vexia-secondary-rgb)/0.5)]" 
                       : "text-white/40 hover:text-white/70"
                   }`}
                 >

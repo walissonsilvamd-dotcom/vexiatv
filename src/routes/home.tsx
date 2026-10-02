@@ -298,8 +298,8 @@ function HomePage() {
                   onClick={() => openTile(tile)}
                   className={`group relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-xl border px-4 py-3.5 outline-none transition-all duration-300 ease-out ${
                     isActive
-                      ? "scale-[1.02] border-vexia-purple bg-white/20 text-white shadow-[0_0_25px_rgba(123,43,190,0.8),inset_0_0_15px_rgba(123,43,190,0.4)] backdrop-blur-md"
-                      : "border-transparent bg-white/5 text-white/50 focus:border-vexia-purple focus:shadow-[0_0_25px_rgba(123,43,190,0.8)] hover:bg-white/10 hover:text-white backdrop-blur-sm"
+                      ? "scale-[1.02] border-vexia-gold bg-vexia-purple text-white shadow-[0_0_25px_rgb(var(--vexia-secondary-rgb)/0.65),inset_0_0_15px_rgb(var(--vexia-primary-rgb)/0.7)] backdrop-blur-md"
+                      : "border-transparent bg-white/5 text-white/50 focus:border-vexia-gold focus:shadow-[0_0_25px_rgb(var(--vexia-secondary-rgb)/0.65)] hover:bg-white/10 hover:text-white backdrop-blur-sm"
                   }`}
                 >
                   <Icon
@@ -313,7 +313,7 @@ function HomePage() {
                     {tile.label}
                   </span>
                   {isActive && (
-                    <div className="absolute left-0 h-8 w-1.5 rounded-r-full bg-vexia-purple shadow-[0_0_15px_#7B2BBE]" />
+                    <div className="absolute left-0 h-8 w-1.5 rounded-r-full bg-vexia-gold shadow-[0_0_15px_var(--vexia-secondary)]" />
                   )}
                 </button>
               );

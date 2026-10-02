@@ -98,7 +98,7 @@ function KidsPage() {
     <div ref={pageRef} className="relative h-screen w-full overflow-hidden bg-black text-white">
       {/* Menu Superior e Logo */}
       <div className="absolute top-4 left-0 right-0 z-50 flex items-center gap-8 px-12">
-        <VexiaLogo className="h-28 w-auto drop-shadow-[0_0_20px_rgba(123,43,190,0.6)]" />
+        <VexiaLogo className="h-28 w-auto drop-shadow-[0_0_20px_rgb(var(--vexia-secondary-rgb)/0.6)]" />
         <TopNav active="Kids" />
       </div>
 
@@ -149,7 +149,7 @@ function KidsButton({
       onMouseEnter={onFocus}
       onClick={onClick}
       className={`relative flex h-full flex-1 items-center justify-center overflow-hidden transition-all duration-500 ease-out outline-none ${
-        isFocused ? "z-10 scale-[1.02] shadow-[0_0_50px_rgba(123,43,190,0.4)]" : "z-0 opacity-80"
+        isFocused ? "z-10 scale-[1.02] shadow-[0_0_50px_rgb(var(--vexia-secondary-rgb)/0.5)]" : "z-0 opacity-80"
       }`}
     >
       {/* Imagens de fundo passando */}
@@ -177,7 +177,7 @@ function KidsButton({
 
       {/* Borda Neon no Foco */}
       {isFocused && (
-        <div className="absolute inset-0 border-[6px] border-[#7B2BBE] animate-pulse shadow-[inset_0_0_30px_rgba(123,43,190,0.8),0_0_30px_rgba(123,43,190,0.8)]" />
+        <div className="absolute inset-0 animate-pulse border-[6px] border-vexia-gold shadow-[inset_0_0_30px_rgb(var(--vexia-secondary-rgb)/0.6),0_0_30px_rgb(var(--vexia-secondary-rgb)/0.8)]" />
       )}
 
       {/* Texto Centralizado */}

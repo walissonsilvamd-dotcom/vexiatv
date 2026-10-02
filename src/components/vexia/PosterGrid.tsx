@@ -119,15 +119,15 @@ function PosterCardBase({
           cancelDetailPrefetch();
         }}
 
-        className="vexia-card-focus block scroll-m-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 focus:border-vexia-purple focus:shadow-[0_0_25px_rgba(123,43,190,0.8)] hover:border-vexia-purple/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)]"
+        className="vexia-card-focus block scroll-m-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E1E1E] to-[#101010] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.8)] transition-all duration-300 focus:border-vexia-gold focus:shadow-[0_0_25px_rgb(var(--vexia-secondary-rgb)/0.8)] hover:border-vexia-gold/50 hover:shadow-[0_14px_34px_-10px_rgb(var(--vexia-primary-rgb)/0.45)]"
       >
 
 
         <div className="relative aspect-[2/3] w-full overflow-hidden">
           {isBlocked ? (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl">
-              <div className="relative mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-vexia-purple/20 shadow-[0_0_30px_rgba(123,43,190,0.3)]">
-                <Lock className="h-8 w-8 text-vexia-purple shadow-[0_0_15px_rgba(123,43,190,0.5)]" />
+              <div className="relative mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-vexia-purple/20 shadow-[0_0_30px_rgb(var(--vexia-primary-rgb)/0.5)]">
+                <Lock className="h-8 w-8 text-vexia-gold drop-shadow-[0_0_15px_rgb(var(--vexia-secondary-rgb)/0.5)]" />
               </div>
               <span className="text-[11px] font-black uppercase tracking-[0.25em] text-vexia-purple-soft/90">
                 Conteúdo Bloqueado
