@@ -159,9 +159,9 @@ const ChannelRow = memo(function ChannelRow({
         onClick={() => onSelect(ch)}
         onMouseEnter={() => onHover(ch)}
         onDoubleClick={() => onDoubleClick(ch)}
-        className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 focus:border-vexia-purple focus:shadow-[0_0_25px_rgba(123,43,190,0.8)] ${
+        className={`vexia-focus flex w-full items-center gap-3 rounded-xl border py-2.5 pl-3 pr-11 text-left transition-all duration-200 focus:border-vexia-gold focus:shadow-[0_0_25px_rgb(var(--vexia-secondary-rgb)/0.8)] ${
           isActive
-            ? "scale-[1.02] border-vexia-purple bg-vexia-purple shadow-[0_0_25px_rgba(123,43,190,0.8),inset_0_0_15px_rgba(123,43,190,0.4)]"
+            ? "scale-[1.02] border-vexia-gold bg-vexia-purple shadow-[0_0_25px_rgb(var(--vexia-secondary-rgb)/0.7),inset_0_0_15px_rgb(var(--vexia-primary-rgb)/0.7)]"
             : "border-white/[0.06] bg-black/45 hover:border-vexia-purple/40 hover:bg-vexia-purple/15"
         }`}
       >

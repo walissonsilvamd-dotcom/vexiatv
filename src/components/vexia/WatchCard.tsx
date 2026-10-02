@@ -55,7 +55,7 @@ export function WatchProgressBar({ percent }: { percent: number }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-[4px] bg-white/20">
       <div
-        className="h-full rounded-[4px] bg-gradient-to-r from-[#7B2FBE] to-[var(--vexia-secondary)]"
+        className="h-full rounded-[4px] bg-gradient-to-r from-[var(--vexia-primary)] to-[var(--vexia-secondary)]"
         style={{ width: `${Math.max(3, Math.min(100, percent))}%` }}
       />
     </div>
